@@ -20,7 +20,7 @@ defmodule TannhauserGateWeb.GameComponents do
     ~H"""
     <span class={["inline-flex items-center gap-3", @class]}>
       <img src={~p"/images/logo.svg"} width={@size} height={@size} alt="" />
-      <span class="font-display text-lg font-bold uppercase tracking-[0.25em] neon-text">
+      <span class="font-display text-lg font-bold uppercase tracking-[0.25em] phosphor-text">
         Tannhauser Gate
       </span>
     </span>
@@ -37,12 +37,12 @@ defmodule TannhauserGateWeb.GameComponents do
       :if={@character.avatar_path}
       src={@character.avatar_path}
       alt={"Avatar of #{@character.name}"}
-      class={["rounded-full object-cover ring-2 ring-teal/60", @class]}
+      class={["rounded-full object-cover ring-2 ring-mint/60", @class]}
     />
     <span
       :if={!@character.avatar_path}
       class={[
-        "inline-flex items-center justify-center rounded-full bg-ink font-bold uppercase text-neon ring-2 ring-neon/50",
+        "inline-flex items-center justify-center rounded-full bg-ink font-bold uppercase text-phosphor ring-2 ring-phosphor/50",
         @class
       ]}
       aria-label={"Avatar of #{@character.name}"}
@@ -67,8 +67,8 @@ defmodule TannhauserGateWeb.GameComponents do
       navigate={@navigate}
       class={[
         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold uppercase tracking-wider transition",
-        @active && "bg-neon/15 text-neon shadow-neon",
-        !@active && "text-slate-300 hover:bg-teal/10 hover:text-teal"
+        @active && "bg-phosphor/15 text-phosphor shadow-phosphor",
+        !@active && "text-fog-300 hover:bg-mint/10 hover:text-mint"
       ]}
       {@rest}
     >

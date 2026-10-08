@@ -5,7 +5,7 @@
 <h1 align="center">Tannhauser Gate</h1>
 
 <p align="center">
-  A neon-noir play-by-chat role-playing website built with Elixir, Phoenix LiveView and PostgreSQL.
+  A console-green, noir play-by-chat role-playing website built with Elixir, Phoenix LiveView and PostgreSQL.
 </p>
 
 ---
@@ -33,6 +33,26 @@ original setting inspired by the mood of *Blade Runner*.
   - promote or revoke admins.
 - **Default content:** the *Tannhauser Gate* story with nine rooms in the city of Neo-Meridian, three forum sections and an admin account.
 
+## Stack
+
+- [Phoenix 1.8](https://www.phoenixframework.org/) and Phoenix LiveView 1.2, generated from the latest `phx.new` skeleton
+- Ecto 3 with PostgreSQL (`postgrex`)
+- [Tailwind CSS v4](https://tailwindcss.com/) (CSS-first config, no `tailwind.config.js`) and [daisyUI 5](https://daisyui.com/)
+- esbuild with colocated LiveView hooks, and heroicons
+- Bandit HTTP server
+
+## Theme
+
+The UI uses a console / "Matrix" green palette tuned for long reading sessions. It is a custom
+dark daisyUI theme called `tannhauser`. The primary phosphor green (#4ae08a) is deliberately softer
+than pure #00ff00. It sits on a green-tinted near-black (`base-100`, #0b100d) instead of pure black,
+and body text uses green-grey tones rather than saturated green. All text colours meet WCAG AA, and
+most exceed AAA (phosphor is 11.3:1, body text 13.1:1). Red is reserved for errors and destructive
+actions.
+
+The theme, extra design tokens (`phosphor`, `mint`, `night`, `ink`, `fog-*`, fonts) and the
+notepad, map and polaroid styles are all in [`assets/css/app.css`](assets/css/app.css).
+UI components use daisyUI classes (`btn`, `input`, `select`, `drawer`, `alert`, ...).
 ## Running locally (WSL / Linux)
 
 The project is developed and tested inside WSL (Ubuntu), but any Linux or macOS machine works.
@@ -49,10 +69,10 @@ sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 # Erlang/OTP, Elixir and Node (with mise, asdf works the same way)
 curl https://mise.run | sh
 echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc && source ~/.bashrc
-mise use -g erlang@27 elixir@1.18 node@22
+mise use -g erlang@29 elixir@1.20 node@22
 ```
 
-Elixir 1.15 or newer is required (CI runs Elixir 1.18 / OTP 27).
+Elixir 1.17 or newer is required (CI runs Elixir 1.20 / OTP 29 and PostgreSQL 18). Tailwind and esbuild binaries are downloaded by `mix setup`, so Node is only needed for the Playwright tests.
 
 ### 2. Set up and run
 
@@ -120,7 +140,11 @@ npx playwright install --with-deps chromium
 npx playwright test
 ```
 
-Set `E2E_PORT` to use a port other than 4000. If a server is already running on that port, the suite reuses it.
+Set `E2E_PORT` to use a port other than 4000, and `DEV_DATABASE` to point at another dev database. Locally, if a server is already running on that port, the suite reuses it, so pick a free port when another server is running. For example:
+
+```bash
+DEV_DATABASE=tannhauser_gate_e2e_dev E2E_PORT=4210 npx playwright test
+```
 
 ## Uploads
 
@@ -133,7 +157,8 @@ Character avatars are stored on local disk and served from `/uploads`. By defaul
 ```
 lib/tannhauser_gate/          domain: Accounts, Stories, Characters, Chat, Forum, Storage, Seeds
 lib/tannhauser_gate_web/live/ LiveViews (characters, map, rooms, forum, admin)
-assets/                       Tailwind theme (neon/noir + notepad styles) and JS hooks
+assets/css/app.css            Tailwind v4 + daisyUI theme (console-green palette, notepad styles)
+assets/js/app.js              LiveSocket setup (hooks are colocated in the LiveViews)
 priv/static/images/logo.svg   brand mark; priv/static/favicon.svg
 e2e/                          Playwright end-to-end tests
 ```

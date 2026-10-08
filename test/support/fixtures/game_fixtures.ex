@@ -37,7 +37,7 @@ defmodule TannhauserGate.GameFixtures do
           name: "Room #{System.unique_integer([:positive])}",
           description: "Neon and steam.",
           area: "100,100 300,100 300,300 100,300",
-          color: "#ff7a1a"
+          color: "#4ae08a"
         })
       )
 

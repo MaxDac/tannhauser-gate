@@ -1,28 +1,113 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+/* See the Tailwind configuration guide for advanced usage
+   https://tailwindcss.com/docs/configuration */
 
-/* Tannhauser Gate: neon-noir theme */
+@import "tailwindcss" source(none);
+@import "phoenix-colocated/tannhauser_gate/colocated.css";
+@source "../css";
+@source "../js";
+@source "../../lib/tannhauser_gate_web";
+/* Required for Tailwind to automatically pick up changes in colocated CSS files in dev */
+@source "../../_build/dev/phoenix-colocated/tannhauser_gate/*/";
 
-@layer base {
-  html {
-    color-scheme: dark;
-  }
+/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
+   The heroicons installation itself is managed by your mix.exs */
+@plugin "../vendor/heroicons";
+
+/* daisyUI Tailwind Plugin. Only our own theme is enabled. */
+@plugin "daisyui/packages/bundle/daisyui" {
+  themes: false;
 }
 
+/* Tannhauser Gate: console-green noir theme.
+
+   The primary is a softened phosphor green rather than pure #00ff00 to limit
+   glare; body copy uses green-tinted greys. Red is reserved for errors and
+   destructive actions. Contrast on base-100 (#0b100d): primary 11.3:1,
+   secondary (mint) 12.2:1, base-content 13.1:1, error 7.6:1 (WCAG AA). */
+@plugin "daisyui/packages/bundle/daisyui-theme" {
+  name: "tannhauser";
+  default: true;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: #0b100d;
+  --color-base-200: #121a15;
+  --color-base-300: #1a241d;
+  --color-base-content: #cad9cf;
+  --color-primary: #4ae08a;
+  --color-primary-content: #0b100d;
+  --color-secondary: #86e0b0;
+  --color-secondary-content: #0b100d;
+  --color-accent: #9bf5bf;
+  --color-accent-content: #0b100d;
+  --color-neutral: #26322a;
+  --color-neutral-content: #e2ece5;
+  --color-info: #86e0b0;
+  --color-info-content: #0b100d;
+  --color-success: #4ae08a;
+  --color-success-content: #0b100d;
+  --color-warning: #e0c44a;
+  --color-warning-content: #0b100d;
+  --color-error: #f87171;
+  --color-error-content: #0b100d;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Extra palette tokens, used as Tailwind utilities (bg-ink, text-mint, text-fog-400...).
+   `phosphor-dim` is for borders only. Contrast on `night`: fog-400 7.3:1, fog-500 5.1:1. */
+@theme {
+  --color-brand: #4ae08a;
+  --color-phosphor: #4ae08a;
+  --color-phosphor-bright: #9bf5bf;
+  --color-phosphor-dim: #2c8f58;
+  --color-mint: #86e0b0;
+  --color-night: #0b100d;
+  --color-ink: #121a15;
+  --color-fog-100: #e2ece5;
+  --color-fog-200: #cad9cf;
+  --color-fog-300: #aec2b5;
+  --color-fog-400: #8ea596;
+  --color-fog-500: #72897a;
+  --color-fog-600: #556a5c;
+  --color-fog-700: #3c4d42;
+  --color-fog-800: #26322a;
+  --color-fog-900: #18211b;
+
+  --font-display: Orbitron, Rajdhani, Eurostile, ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Special Elite", "Courier Prime", "Courier New", ui-monospace, monospace;
+
+  --shadow-phosphor: 0 0 0 1px rgba(74, 224, 138, 0.22), 0 0 20px rgba(74, 224, 138, 0.12);
+}
+
+/* Add variants based on LiveView classes */
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+/* Make LiveView wrapper divs transparent for layout */
+[data-phx-session], [data-phx-teleported-src] { display: contents }
+
+/* This file is for your main application CSS */
 @layer components {
-  .neon-text {
-    color: #ff7a1a;
-    text-shadow: 0 0 6px rgba(255, 122, 26, 0.65), 0 0 18px rgba(255, 122, 26, 0.35);
+  /* Soft phosphor glow: kept subtle so headings don't bloom on dark screens */
+  .phosphor-text {
+    color: #4ae08a;
+    text-shadow: 0 0 4px rgba(74, 224, 138, 0.35), 0 0 14px rgba(74, 224, 138, 0.15);
   }
 
-  /* Rainy city glow behind every page */
+  /* Dim terminal glow with faint rain behind every page */
   .city-bg {
-    background-color: #07090f;
+    background-color: #0b100d;
     background-image:
-      radial-gradient(ellipse at 15% -10%, rgba(25, 227, 214, 0.12), transparent 55%),
-      radial-gradient(ellipse at 90% 0%, rgba(255, 122, 26, 0.14), transparent 50%),
-      repeating-linear-gradient(105deg, rgba(159, 216, 255, 0.025) 0 1px, transparent 1px 14px);
+      radial-gradient(ellipse at 15% -10%, rgba(74, 224, 138, 0.08), transparent 55%),
+      radial-gradient(ellipse at 90% 0%, rgba(134, 224, 176, 0.06), transparent 50%),
+      repeating-linear-gradient(105deg, rgba(155, 245, 191, 0.02) 0 1px, transparent 1px 14px);
     background-attachment: fixed;
   }
 
@@ -44,13 +129,13 @@
     stroke-width: 2;
   }
   .map-label {
-    fill: #f1f5f9;
+    fill: #e2ece5;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     paint-order: stroke;
-    stroke: #07090f;
+    stroke: #0b100d;
     stroke-width: 4px;
   }
 
@@ -99,48 +184,48 @@
     width: 10px;
     height: 10px;
     border-radius: 9999px;
-    background: #07090f;
+    background: #0b100d;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   .notepad-page {
     position: relative;
     border-radius: 4px 4px 6px 6px;
     padding: 46px 32px 36px 72px;
-    color: #1f2937;
+    color: #18261d;
     font-family: "Special Elite", "Courier Prime", "Courier New", ui-monospace, monospace;
-    background-color: #fdf6d8;
-    /* ruled lines + red margin */
+    background-color: #f3f6e8;
+    /* green-bar printout ruling + margin line */
     background-image:
-      linear-gradient(90deg, transparent 54px, rgba(220, 38, 38, 0.55) 54px, rgba(220, 38, 38, 0.55) 56px, transparent 56px),
-      repeating-linear-gradient(180deg, transparent 0 27px, rgba(59, 130, 246, 0.28) 27px 28px);
+      linear-gradient(90deg, transparent 54px, rgba(29, 107, 64, 0.55) 54px, rgba(29, 107, 64, 0.55) 56px, transparent 56px),
+      repeating-linear-gradient(180deg, transparent 0 27px, rgba(44, 143, 88, 0.3) 27px 28px);
     background-position: 0 0, 0 18px;
-    box-shadow: inset 0 0 60px rgba(160, 120, 40, 0.18);
+    box-shadow: inset 0 0 60px rgba(60, 110, 70, 0.16);
   }
   .notepad-label {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: #b45309;
+    color: #1d6b40;
     line-height: 28px;
   }
   .notepad-title {
     font-size: 2rem;
     line-height: 2.4rem;
     font-weight: 700;
-    color: #111827;
+    color: #0f1a13;
   }
   .notepad-text {
     font-size: 1rem;
     line-height: 28px;
-    color: #1f2937;
+    color: #18261d;
   }
   .notepad-stamp {
     margin-top: 2rem;
     display: inline-block;
     transform: rotate(-4deg);
-    border: 2px solid rgba(185, 28, 28, 0.7);
+    border: 2px solid rgba(29, 107, 64, 0.75);
     padding: 2px 10px;
-    color: rgba(185, 28, 28, 0.8);
+    color: #1d6b40;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -155,6 +240,7 @@
     margin-top: 6px;
     text-align: center;
     font-size: 0.85rem;
-    color: #374151;
+    color: #2f4136;
   }
 }
+

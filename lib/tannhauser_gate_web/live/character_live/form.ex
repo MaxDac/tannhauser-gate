@@ -102,71 +102,73 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   @impl true
   def render(assigns) do
     ~H"""
-    <.header>
-      {@page_title}
-      <:subtitle>Name, face and past. The rain will do the rest.</:subtitle>
-    </.header>
+    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+      <.header>
+        {@page_title}
+        <:subtitle>Name, face and past. The rain will do the rest.</:subtitle>
+      </.header>
 
-    <div class="mt-6 max-w-2xl rounded-xl border border-teal/20 bg-ink/80 p-6">
-      <.simple_form for={@form} id="character-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:name]} type="text" label="Character name" required />
-        <.input field={@form[:story_id]} type="select" label="Story" options={@story_options} />
+      <div class="mt-6 max-w-2xl rounded-xl border border-mint/20 bg-ink/80 p-6">
+        <.form for={@form} id="character-form" phx-change="validate" phx-submit="save">
+          <.input field={@form[:name]} type="text" label="Character name" required />
+          <.input field={@form[:story_id]} type="select" label="Story" options={@story_options} />
 
-        <div phx-drop-target={@uploads.avatar.ref} class="space-y-2">
-          <label
-            for={@uploads.avatar.ref}
-            class="block text-sm font-semibold leading-6 text-slate-200"
-          >
-            Avatar (photo)
-          </label>
-          <div class="flex items-center gap-4">
-            <.avatar
-              :if={@character.id && @uploads.avatar.entries == []}
-              character={@character}
-              class="h-16 w-16 text-2xl"
-            />
-            <div :for={entry <- @uploads.avatar.entries} class="flex items-center gap-3">
-              <.live_img_preview
-                entry={entry}
-                class="h-16 w-16 rounded-full object-cover ring-2 ring-neon"
+          <div phx-drop-target={@uploads.avatar.ref} class="space-y-2">
+            <label
+              for={@uploads.avatar.ref}
+              class="block text-xs font-semibold uppercase tracking-widest text-secondary"
+            >
+              Avatar (photo)
+            </label>
+            <div class="flex items-center gap-4">
+              <.avatar
+                :if={@character.id && @uploads.avatar.entries == []}
+                character={@character}
+                class="h-16 w-16 text-2xl"
               />
-              <button
-                type="button"
-                phx-click="cancel-upload"
-                phx-value-ref={entry.ref}
-                class="text-xs text-red-400 hover:underline"
-                aria-label="Remove image"
-              >
-                Remove
-              </button>
-              <p :for={err <- upload_errors(@uploads.avatar, entry)} class="text-sm text-red-400">
-                {upload_error(err)}
-              </p>
+              <div :for={entry <- @uploads.avatar.entries} class="flex items-center gap-3">
+                <.live_img_preview
+                  entry={entry}
+                  class="h-16 w-16 rounded-full object-cover ring-2 ring-phosphor"
+                />
+                <button
+                  type="button"
+                  phx-click="cancel-upload"
+                  phx-value-ref={entry.ref}
+                  class="text-xs text-red-400 hover:underline"
+                  aria-label="Remove image"
+                >
+                  Remove
+                </button>
+                <p :for={err <- upload_errors(@uploads.avatar, entry)} class="text-sm text-red-400">
+                  {upload_error(err)}
+                </p>
+              </div>
+              <.live_file_input
+                upload={@uploads.avatar}
+                class="file-input file-input-sm file-input-secondary w-full max-w-xs"
+              />
             </div>
-            <.live_file_input
-              upload={@uploads.avatar}
-              class="text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-teal/20 file:px-3 file:py-2 file:text-teal"
-            />
+            <p :for={err <- upload_errors(@uploads.avatar)} class="text-sm text-red-400">
+              {upload_error(err)}
+            </p>
           </div>
-          <p :for={err <- upload_errors(@uploads.avatar)} class="text-sm text-red-400">
-            {upload_error(err)}
-          </p>
-        </div>
 
-        <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
-        <.input field={@form[:background]} type="textarea" label="Background" rows="10" />
+          <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
+          <.input field={@form[:background]} type="textarea" label="Background" rows="10" />
 
-        <:actions>
-          <.button phx-disable-with="Saving...">Save character</.button>
-          <.link
-            navigate={if @character.id, do: ~p"/characters/#{@character}", else: ~p"/characters"}
-            class="text-sm font-semibold text-slate-400 hover:text-teal"
-          >
-            Cancel
-          </.link>
-        </:actions>
-      </.simple_form>
-    </div>
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <.button phx-disable-with="Saving...">Save character</.button>
+            <.link
+              navigate={if @character.id, do: ~p"/characters/#{@character}", else: ~p"/characters"}
+              class="text-sm font-semibold text-fog-400 hover:text-mint"
+            >
+              Cancel
+            </.link>
+          </div>
+        </.form>
+      </div>
+    </Layouts.app>
     """
   end
 end

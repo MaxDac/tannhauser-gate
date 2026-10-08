@@ -3,35 +3,37 @@ defmodule TannhauserGateWeb.UserLoginLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Log in
-        <:subtitle>
-          Don't have an account?
-          <.link navigate={~p"/users/register"} class="font-semibold text-teal hover:underline">
-            Register
-          </.link>
-          for an account now.
-        </:subtitle>
-      </.header>
+    <Layouts.app flash={@flash} current_user={@current_user}>
+      <div class="mx-auto max-w-sm">
+        <.header class="text-center">
+          Log in
+          <:subtitle>
+            Don't have an account?
+            <.link navigate={~p"/users/register"} class="font-semibold text-mint hover:underline">
+              Register
+            </.link>
+            for an account now.
+          </:subtitle>
+        </.header>
 
-      <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
+          <.input field={@form[:email]} type="email" label="Email" required />
+          <.input field={@form[:password]} type="password" label="Password" required />
 
-        <:actions>
-          <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
-            Forgot your password?
-          </.link>
-        </:actions>
-        <:actions>
-          <.button phx-disable-with="Logging in..." class="w-full">
-            Log in <span aria-hidden="true">→</span>
-          </.button>
-        </:actions>
-      </.simple_form>
-    </div>
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
+            <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
+              Forgot your password?
+            </.link>
+          </div>
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
+              Log in <span aria-hidden="true">→</span>
+            </.button>
+          </div>
+        </.form>
+      </div>
+    </Layouts.app>
     """
   end
 

@@ -68,85 +68,109 @@ defmodule TannhauserGateWeb.RoomLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mb-4">
-      <.link
-        navigate={~p"/stories/#{@location.story_id}/map"}
-        class="text-sm font-semibold text-teal hover:text-neon"
-      >
-        <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Back to the map
-      </.link>
-    </div>
-
-    <.header>
-      <span class="neon-text">{@location.name}</span>
-      <:subtitle>{@location.description}</:subtitle>
-    </.header>
-
-    <section class="mt-6 flex h-[65vh] flex-col overflow-hidden rounded-xl border border-teal/30 bg-ink/80">
-      <ol
-        id="messages"
-        phx-update="stream"
-        phx-hook="ScrollBottom"
-        class="flex-1 space-y-4 overflow-y-auto p-4"
-      >
-        <li class="hidden only:block py-10 text-center text-sm text-slate-500" id="messages-empty">
-          The room is quiet. Only the rain is talking.
-        </li>
-        <li :for={{dom_id, message} <- @streams.messages} id={dom_id} class="chat-message flex gap-3">
-          <.avatar character={message.character} class="h-11 w-11 shrink-0 text-lg" />
-          <div class="min-w-0 flex-1">
-            <p class="flex flex-wrap items-baseline gap-x-3">
-              <.link
-                navigate={~p"/characters/#{message.character}"}
-                class="chat-name font-bold text-neon hover:underline"
-              >
-                {message.character.name}
-              </.link>
-              <time class="text-xs text-slate-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
-                {format_time(message.inserted_at)}
-              </time>
-            </p>
-            <p class="chat-body whitespace-pre-line break-words text-slate-200">{message.body}</p>
-          </div>
-        </li>
-      </ol>
-
-      <div class="border-t border-teal/20 bg-night/60 p-4">
-        <p :if={@characters == []} class="text-sm text-slate-400">
-          You need a character in this story to speak. <.link
-            navigate={~p"/characters/new"}
-            class="font-semibold text-teal hover:underline"
-          >Create one</.link>.
-        </p>
-        <.form
-          :if={@characters != []}
-          for={@form}
-          id={"message-form-#{@form_id}"}
-          phx-submit="send"
-          class="flex flex-col gap-3 sm:flex-row sm:items-end"
+    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+      <div class="mb-4">
+        <.link
+          navigate={~p"/stories/#{@location.story_id}/map"}
+          class="text-sm font-semibold text-mint hover:text-phosphor"
         >
-          <div class="sm:w-56">
-            <.input
-              field={@form[:character_id]}
-              type="select"
-              label="Speak as"
-              options={Enum.map(@characters, &{&1.name, &1.id})}
-            />
-          </div>
-          <div class="flex-1">
-            <.input
-              field={@form[:body]}
-              type="textarea"
-              label="Message"
-              rows="2"
-              placeholder="Say something..."
-              required
-            />
-          </div>
-          <.button phx-disable-with="Sending..." class="sm:mb-0.5">Send</.button>
-        </.form>
+          <.icon name="hero-arrow-left-solid" class="size-3" /> Back to the map
+        </.link>
       </div>
-    </section>
+
+      <.header>
+        <span class="phosphor-text">{@location.name}</span>
+        <:subtitle>{@location.description}</:subtitle>
+      </.header>
+
+      <section class="mt-6 flex h-[65vh] flex-col overflow-hidden rounded-xl border border-mint/30 bg-ink/80">
+        <ol
+          id="messages"
+          phx-update="stream"
+          phx-hook=".ScrollBottom"
+          class="flex-1 space-y-4 overflow-y-auto p-4"
+        >
+          <li class="hidden only:block py-10 text-center text-sm text-fog-500" id="messages-empty">
+            The room is quiet. Only the rain is talking.
+          </li>
+          <li
+            :for={{dom_id, message} <- @streams.messages}
+            id={dom_id}
+            class="chat-message flex gap-3"
+          >
+            <.avatar character={message.character} class="h-11 w-11 shrink-0 text-lg" />
+            <div class="min-w-0 flex-1">
+              <p class="flex flex-wrap items-baseline gap-x-3">
+                <.link
+                  navigate={~p"/characters/#{message.character}"}
+                  class="chat-name font-bold text-phosphor hover:underline"
+                >
+                  {message.character.name}
+                </.link>
+                <time class="text-xs text-fog-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
+                  {format_time(message.inserted_at)}
+                </time>
+              </p>
+              <p class="chat-body whitespace-pre-line break-words text-fog-200">{message.body}</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="border-t border-mint/20 bg-night/60 p-4">
+          <p :if={@characters == []} class="text-sm text-fog-400">
+            You need a character in this story to speak. <.link
+              navigate={~p"/characters/new"}
+              class="font-semibold text-mint hover:underline"
+            >Create one</.link>.
+          </p>
+          <.form
+            :if={@characters != []}
+            for={@form}
+            id={"message-form-#{@form_id}"}
+            phx-submit="send"
+            class="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <div class="sm:w-56">
+              <.input
+                field={@form[:character_id]}
+                type="select"
+                label="Speak as"
+                options={Enum.map(@characters, &{&1.name, &1.id})}
+              />
+            </div>
+            <div class="flex-1">
+              <.input
+                field={@form[:body]}
+                type="textarea"
+                label="Message"
+                rows="2"
+                placeholder="Say something..."
+                required
+              />
+            </div>
+            <.button phx-disable-with="Sending..." class="btn btn-primary sm:mb-2">Send</.button>
+          </.form>
+        </div>
+      </section>
+      <script :type={Phoenix.LiveView.ColocatedHook} name=".ScrollBottom">
+        // Keeps the chat scrolled to the newest message unless the reader scrolled up.
+        export default {
+          mounted() {
+            this.el.scrollTop = this.el.scrollHeight
+            this.observer = new MutationObserver(() => {
+              const nearBottom = this.el.scrollHeight - this.el.scrollTop - this.el.clientHeight < 200
+              if (nearBottom || this.pending) this.el.scrollTop = this.el.scrollHeight
+              this.pending = false
+            })
+            this.observer.observe(this.el, {childList: true})
+            this.el.closest("section")?.addEventListener("submit", () => (this.pending = true))
+          },
+          destroyed() {
+            this.observer && this.observer.disconnect()
+          }
+        }
+      </script>
+    </Layouts.app>
     """
   end
 end

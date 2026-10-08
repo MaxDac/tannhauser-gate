@@ -14,7 +14,7 @@ defmodule TannhauserGate.Stories.Location do
     field :name, :string
     field :description, :string
     field :area, :string
-    field :color, :string, default: "#ff7a1a"
+    field :color, :string, default: "#4ae08a"
 
     belongs_to :story, Story
 
@@ -30,7 +30,7 @@ defmodule TannhauserGate.Stories.Location do
     |> validate_format(:area, @points_format,
       message: "must be a list of at least 3 x,y points separated by spaces"
     )
-    |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/, message: "must be a hex color like #ff7a1a")
+    |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/, message: "must be a hex color like #4ae08a")
     |> foreign_key_constraint(:story_id)
     |> unique_constraint([:story_id, :name])
   end
