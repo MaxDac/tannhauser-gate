@@ -1,0 +1,81 @@
+name: Update screenshots
+
+# Regenerates the Playwright screenshot baselines on the selected branch and
+# commits them back. Run it from the Actions tab ("Run workflow", pick the
+# branch) after an intentional UI change. Never run it on `main`.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  ELIXIR_VERSION: "1.20.4"
+  OTP_VERSION: "29.1"
+  MIX_ENV: dev
+  CI: "true"
+  PGUSER: postgres
+  PGPASSWORD: postgres
+  PGHOST: postgres
+  ImageOS: ubuntu24
+
+jobs:
+  update:
+    name: Update screenshot baselines
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.0-noble
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - run: apt-get update -qq && apt-get install -y -qq git ca-certificates unzip curl > /dev/null
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: dev-visual
+      - run: mix assets.setup && mix assets.build && mix compile
+      - run: e2e/scripts/visual-db.sh
+      - working-directory: e2e
+        run: npm ci
+      - working-directory: e2e
+        run: npm run test:visual:update
+      - name: Commit baselines
+        id: commit
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/tests/visual/__screenshots__
+          if git diff --cached --quiet; then
+            echo "Baselines unchanged."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Update Playwright screenshot baselines"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # Pushes made with GITHUB_TOKEN don't trigger workflows, so re-run CI
+      # explicitly to report the checks on the new commit.
+      - name: Re-run CI
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/dispatches" \
+            -d "{\"ref\": \"$GITHUB_REF_NAME\"}"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-baselines
+          path: e2e/tests/visual/__screenshots__
+          retention-days: 7

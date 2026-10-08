@@ -1,4 +1,7 @@
 defmodule TannhauserGate.Accounts.UserNotifier do
+  @moduledoc """
+  Delivers account emails (confirmation, password reset, email change).
+  """
   import Swoosh.Email
 
   alias TannhauserGate.Mailer

@@ -15,6 +15,13 @@ defmodule TannhauserGateWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  # Uploaded avatars, stored by TannhauserGate.Storage. Mounted before the
+  # main static plug, which raises in dev for files outside its :only list.
+  plug Plug.Static,
+    at: "/uploads",
+    from: {TannhauserGate.Storage, :uploads_dir, []},
+    gzip: false
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -26,12 +33,6 @@ defmodule TannhauserGateWeb.Endpoint do
     gzip: not code_reloading?,
     only: TannhauserGateWeb.static_paths(),
     raise_on_missing_only: code_reloading?
-
-  # Uploaded avatars, stored by TannhauserGate.Storage.
-  plug Plug.Static,
-    at: "/uploads",
-    from: {TannhauserGate.Storage, :uploads_dir, []},
-    gzip: false
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

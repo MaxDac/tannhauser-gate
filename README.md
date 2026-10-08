@@ -146,6 +146,58 @@ Set `E2E_PORT` to use a port other than 4000, and `DEV_DATABASE` to point at ano
 DEV_DATABASE=tannhauser_gate_e2e_dev E2E_PORT=4210 npx playwright test
 ```
 
+### Screenshot tests (Playwright)
+
+[`e2e/tests/visual`](e2e/tests/visual) takes full-page screenshots of the key pages and compares
+them with the committed baselines in `e2e/tests/visual/__screenshots__/`. Covered pages: login,
+register, characters (drawer layout), character sheet and form, map, room chat, forum, and admin.
+
+The screenshots stay deterministic because:
+
+- they run against a separate `tannhauser_gate_visual` database filled with fixed fixtures
+  ([`priv/repo/visual_seeds.exs`](priv/repo/visual_seeds.exs)), and every timestamp is pinned to 2121-11-03;
+- CI runs them in the pinned `mcr.microsoft.com/playwright:v1.64.0-noble` container, which matches
+  `@playwright/test` 1.64.0 exactly, so fonts and rendering never drift. Bump both together;
+- the viewport, scale, locale (`en-GB`), time zone (UTC) and colour scheme are fixed. Animations,
+  transitions, the caret, flash toasts and the LiveView progress bar are disabled or hidden.
+
+```bash
+e2e/scripts/visual-db.sh           # recreate the fixture database
+cd e2e
+VISUAL_PORT=4220 npm run test:visual   # default port 4002
+```
+
+**Updating baselines.** The baselines are Linux-only and must come from CI's container. After an
+intentional UI change, open **Actions → Update screenshots → Run workflow** and pick your PR branch.
+The workflow regenerates the PNGs, commits them to the branch and re-runs CI. Review the image diff
+in the PR. Locally, `npm run test:visual:update` is useful for iterating, but don't commit
+the PNGs it writes. When a check fails, the diffs are uploaded as the
+`playwright-screenshots-report` artifact. Its `test-results-visual/**/*-actual.png` files are also
+valid baselines. They were rendered in the same container, so you can copy them into
+`__screenshots__/` (dropping the `-actual` suffix) if the update workflow isn't available.
+
+## Quality gates
+
+Every pull request to `main` must pass these CI jobs. They are enforced by the
+[`main` ruleset](.github/rulesets/main.json):
+
+| Check | Command |
+| --- | --- |
+| `compile` | `mix compile --warnings-as-errors` |
+| `format` | `mix format --check-formatted` |
+| `credo` | `mix credo --strict` |
+| `dialyzer` | `mix dialyzer` (PLTs in `priv/plts`, cached in CI) |
+| `mix test` | `mix test` |
+| `Playwright e2e` | `cd e2e && npx playwright test` |
+| `Playwright screenshots` | `cd e2e && npm run test:visual` |
+
+The branch must also be up to date with `main`, and review conversations must be resolved. Repository
+admins can bypass the ruleset. To change the ruleset, edit the JSON and re-apply it:
+
+```bash
+gh api -X PUT repos/MaxDac/tannhauser-gate/rulesets/<id> --input .github/rulesets/main.json
+```
+
 ## Uploads
 
 Character avatars are stored on local disk and served from `/uploads`. By default they go to
@@ -160,7 +212,9 @@ lib/tannhauser_gate_web/live/ LiveViews (characters, map, rooms, forum, admin)
 assets/css/app.css            Tailwind v4 + daisyUI theme (console-green palette, notepad styles)
 assets/js/app.js              LiveSocket setup (hooks are colocated in the LiveViews)
 priv/static/images/logo.svg   brand mark; priv/static/favicon.svg
-e2e/                          Playwright end-to-end tests
+e2e/                          Playwright end-to-end and screenshot tests
+priv/repo/visual_seeds.exs    deterministic fixtures for the screenshot tests
+.github/rulesets/main.json    branch ruleset for main (required checks)
 ```
 
 ## License

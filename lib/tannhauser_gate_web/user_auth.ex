@@ -1,4 +1,7 @@
 defmodule TannhauserGateWeb.UserAuth do
+  @moduledoc """
+  Session and remember-me cookie authentication plugs and LiveView on_mount`n  hooks, including the admin guard.
+  """
   use TannhauserGateWeb, :verified_routes
 
   import Plug.Conn
