@@ -1,0 +1,23 @@
+name: Set up Elixir
+description: Installs Erlang/OTP and Elixir, restores deps/_build caches and fetches deps.
+inputs:
+  mix-env:
+    description: MIX_ENV the caches are built for
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: erlef/setup-beam@v1
+      with:
+        elixir-version: ${{ env.ELIXIR_VERSION }}
+        otp-version: ${{ env.OTP_VERSION }}
+    - uses: actions/cache@v4
+      with:
+        path: |
+          deps
+          _build
+        key: ${{ runner.os }}-mix-${{ inputs.mix-env }}-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ inputs.mix-env }}-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+    - shell: bash
+      run: mix deps.get

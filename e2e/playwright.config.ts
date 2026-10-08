@@ -4,6 +4,8 @@ const port = Number(process.env.E2E_PORT || 4000);
 
 export default defineConfig({
   testDir: "./tests",
+  // Screenshot tests have their own config: playwright.visual.config.ts
+  testIgnore: ["visual/**"],
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,

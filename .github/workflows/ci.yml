@@ -4,15 +4,93 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Lets update-screenshots.yml re-run the checks after it commits baselines
+  # (pushes made with GITHUB_TOKEN don't trigger workflows).
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 env:
   ELIXIR_VERSION: "1.20.4"
   OTP_VERSION: "29.1"
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.0-noble
   PGUSER: postgres
   PGPASSWORD: postgres
   PGHOST: localhost
 
+# Job names are the required status checks of the `main` ruleset
+# (.github/rulesets/main.json). Rename both together.
 jobs:
+  compile:
+    name: compile
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: test
+      - run: mix compile --warnings-as-errors --force
+
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: test
+      - run: mix format --check-formatted
+
+  credo:
+    name: credo
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: test
+      - run: mix credo --strict
+
+  dialyzer:
+    name: dialyzer
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: dev
+      - name: Restore PLT cache
+        id: plt-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: priv/plts
+          key: ${{ runner.os }}-plt-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-plt-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+      - name: Build PLTs
+        if: steps.plt-cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+      - name: Save PLT cache
+        if: steps.plt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: priv/plts
+          key: ${{ steps.plt-cache.outputs.cache-primary-key }}
+      - run: mix dialyzer --format github
+
   test:
     name: mix test
     runs-on: ubuntu-latest
@@ -28,19 +106,9 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
+      - uses: ./.github/actions/setup-elixir
         with:
-          elixir-version: ${{ env.ELIXIR_VERSION }}
-          otp-version: ${{ env.OTP_VERSION }}
-      - uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-test-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
-      - run: mix deps.get
-      - run: mix format --check-formatted
-      - run: mix compile --warnings-as-errors
+          mix-env: test
       - run: mix test
 
   e2e:
@@ -59,23 +127,16 @@ jobs:
       CI: "true"
     steps:
       - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
+      - uses: ./.github/actions/setup-elixir
         with:
-          elixir-version: ${{ env.ELIXIR_VERSION }}
-          otp-version: ${{ env.OTP_VERSION }}
+          mix-env: dev
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-dev-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
       - run: mix setup
       - run: mix compile
       - working-directory: e2e
-        run: npm install
+        run: npm ci
       - working-directory: e2e
         run: npx playwright install --with-deps chromium
       - working-directory: e2e
@@ -85,4 +146,45 @@ jobs:
         with:
           name: playwright-report
           path: e2e/playwright-report
+          retention-days: 7
+
+  screenshots:
+    name: Playwright screenshots
+    runs-on: ubuntu-latest
+    # Same pinned image as update-screenshots.yml and the local update script,
+    # so fonts and rendering match the committed baselines exactly.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.0-noble
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      MIX_ENV: dev
+      CI: "true"
+      PGHOST: postgres
+      ImageOS: ubuntu24
+      HOME: /root
+    steps:
+      - run: apt-get update -qq && apt-get install -y -qq git ca-certificates unzip > /dev/null
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-elixir
+        with:
+          mix-env: dev-visual
+      - run: mix assets.setup && mix assets.build && mix compile
+      - run: e2e/scripts/visual-db.sh
+      - working-directory: e2e
+        run: npm ci
+      - working-directory: e2e
+        run: npm run test:visual
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots-report
+          path: |
+            e2e/playwright-report-visual
+            e2e/test-results-visual
           retention-days: 7

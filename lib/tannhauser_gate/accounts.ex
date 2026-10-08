@@ -6,7 +6,7 @@ defmodule TannhauserGate.Accounts do
   import Ecto.Query, warn: false
   alias TannhauserGate.Repo
 
-  alias TannhauserGate.Accounts.{User, UserToken, UserNotifier}
+  alias TannhauserGate.Accounts.{User, UserNotifier, UserToken}
 
   ## Database getters
 

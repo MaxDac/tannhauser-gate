@@ -44,3 +44,11 @@ npm-debug.log
 /e2e/node_modules/
 /e2e/test-results/
 /e2e/playwright-report/
+
+# Dialyzer PLTs
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
+
+# Playwright visual run artifacts
+/e2e/test-results-visual/
+/e2e/playwright-report-visual/
