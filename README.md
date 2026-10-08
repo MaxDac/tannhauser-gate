@@ -172,7 +172,9 @@ intentional UI change, open **Actions → Update screenshots → Run workflow** 
 The workflow regenerates the PNGs, commits them to the branch and re-runs CI. Review the image diff
 in the PR. Locally, `npm run test:visual:update` is useful for iterating, but don't commit
 the PNGs it writes. When a check fails, the diffs are uploaded as the
-`playwright-screenshots-report` artifact.
+`playwright-screenshots-report` artifact. Its `test-results-visual/**/*-actual.png` files are also
+valid baselines. They were rendered in the same container, so you can copy them into
+`__screenshots__/` (dropping the `-actual` suffix) if the update workflow isn't available.
 
 ## Quality gates
 
