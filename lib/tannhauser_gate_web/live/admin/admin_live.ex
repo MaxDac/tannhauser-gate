@@ -287,7 +287,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
             type="textarea"
             label="Map artwork (inner SVG markup, no scripts)"
             rows="8"
-            class="font-mono text-xs"
+            class="w-full textarea console-field font-mono text-xs"
           />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
             <.button phx-disable-with="Saving...">Save story</.button>
@@ -340,7 +340,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
                   :if={@location.id}
                   type="button"
                   phx-click="new_location"
-                  class="text-sm text-fog-400 hover:text-mint"
+                  class="console-link-action text-sm text-fog-400 hover:text-mint"
                 >
                   Cancel
                 </button>
@@ -501,7 +501,7 @@ defmodule TannhauserGateWeb.Admin.RoomsLive do
             phx-click="delete_message"
             phx-value-id={m.id}
             data-confirm="Delete this message?"
-            class="self-start text-xs text-red-400 hover:underline"
+            class="console-link-action self-start text-xs text-red-400 hover:underline"
           >
             Delete
           </button>

@@ -13,9 +13,9 @@ defmodule TannhauserGateWeb.UserConfirmationInstructionsLive do
         </.header>
 
         <.form for={@form} id="resend_confirmation_form" phx-submit="send_instructions">
-          <.input field={@form[:email]} type="email" placeholder="Email" required />
+          <.input field={@form[:email]} type="email" label="Email" placeholder="Email" required />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Sending..." class="btn btn-primary w-full">
+            <.button phx-disable-with="Sending..." class="btn btn-primary console-action w-full">
               Resend confirmation instructions
             </.button>
           </div>

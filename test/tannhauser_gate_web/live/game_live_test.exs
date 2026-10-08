@@ -50,6 +50,9 @@ defmodule TannhauserGateWeb.GameLiveTest do
       story = story_fixture(is_default: true)
       {:ok, lv, _html} = live(conn, ~p"/characters/new")
 
+      assert has_element?(lv, "#character-form input[type='file'].console-field")
+      assert has_element?(lv, "#avatar-hint")
+
       avatar =
         file_input(lv, "#character-form", :avatar, [
           %{name: "deckard.png", content: png_fixture(), type: "image/png"}
@@ -87,6 +90,35 @@ defmodule TannhauserGateWeb.GameLiveTest do
       assert lv
              |> form("#character-form", character: %{name: ""})
              |> render_change() =~ "can&#39;t be blank"
+
+      assert has_element?(
+               lv,
+               "#character_name[aria-invalid='true'][aria-describedby='character_name-errors']"
+             )
+
+      assert has_element?(lv, "#character_name-errors")
+    end
+
+    test "associates upload errors and clears them when the upload is cancelled", %{conn: conn} do
+      story_fixture()
+      {:ok, lv, _html} = live(conn, ~p"/characters/new")
+
+      avatar =
+        file_input(lv, "#character-form", :avatar, [
+          %{name: "large.png", content: :binary.copy(<<0>>, 5_000_001), type: "image/png"}
+        ])
+
+      assert {:error, _} = render_upload(avatar, "large.png")
+
+      assert has_element?(
+               lv,
+               "#character-form input[type='file'][aria-invalid='true'][aria-describedby='avatar-hint avatar-errors']"
+             )
+
+      assert has_element?(lv, "#avatar-errors")
+      lv |> element("#character-form button[aria-label='Remove image']") |> render_click()
+      refute has_element?(lv, "#avatar-errors")
+      refute has_element?(lv, "#character-form input[type='file'][aria-invalid]")
     end
 
     test "shows the character sheet as a notepad", %{conn: conn} do
@@ -165,6 +197,21 @@ defmodule TannhauserGateWeb.GameLiveTest do
       [message] = Chat.list_messages(ctx.location.id)
       assert html =~ TannhauserGateWeb.GameComponents.format_time(message.inserted_at)
       assert has_element?(lv, "#message-form-1")
+    end
+
+    test "switches stories through the styled map selector", %{conn: conn} do
+      other = story_fixture(%{name: "Off-world"})
+      {:ok, lv, _html} = live(conn, ~p"/map")
+
+      assert has_element?(lv, "#story-select #map-story.select-sm.console-field")
+
+      lv
+      |> element("#story-select")
+      |> render_change(%{"story_id" => to_string(other.id)})
+
+      assert_patch(lv, ~p"/stories/#{other}/map")
+      assert has_element?(lv, "h1", "Off-world")
+      assert has_element?(lv, "#map-story option[value='#{other.id}'][selected]")
     end
 
     test "receives messages from other players in real time", ctx do

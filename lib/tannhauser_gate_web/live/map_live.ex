@@ -53,7 +53,12 @@ defmodule TannhauserGateWeb.MapLive do
         <:subtitle>{@story.summary}</:subtitle>
         <:actions>
           <form :if={length(@stories) > 1} id="story-select" phx-change="select_story">
-            <select name="story_id" class="select select-sm" aria-label="Story">
+            <select
+              id="map-story"
+              name="story_id"
+              class="select select-sm console-field w-full"
+              aria-label="Story"
+            >
               {Phoenix.HTML.Form.options_for_select(Enum.map(@stories, &{&1.name, &1.id}), @story.id)}
             </select>
           </form>

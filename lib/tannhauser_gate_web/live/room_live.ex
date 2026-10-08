@@ -148,7 +148,12 @@ defmodule TannhauserGateWeb.RoomLive do
                 required
               />
             </div>
-            <.button phx-disable-with="Sending..." class="btn btn-primary sm:mb-2">Send</.button>
+            <.button
+              phx-disable-with="Sending..."
+              class="btn btn-primary console-action sm:mb-[1.125rem]"
+            >
+              Send
+            </.button>
           </.form>
         </div>
       </section>

@@ -61,6 +61,12 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
     .locator("#character-form input[type=file]")
     .setInputFiles(path.join(__dirname, "..", "fixtures", "avatar.png"));
   await expect(page.locator("#character-form").getByRole("button", { name: "Remove image" })).toBeVisible();
+  await page.getByRole("button", { name: "Remove image" }).click();
+  await expect(page.locator("#character-form").getByRole("button", { name: "Remove image" })).toHaveCount(0);
+  await page
+    .locator("#character-form input[type=file]")
+    .setInputFiles(path.join(__dirname, "..", "fixtures", "avatar.png"));
+  await expect(page.locator("#character-form").getByRole("button", { name: "Remove image" })).toBeVisible();
   await page.getByLabel("Description").fill("Trench coat, tired eyes.");
   await page.getByLabel("Background").fill("A former Warden of Precinct 9.");
   await page.getByRole("button", { name: "Save character" }).click();
@@ -74,6 +80,14 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
   await page.locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]").click({ force: true });
   await expect(page).toHaveURL(/\/rooms\/\d+$/);
   await expect(page.locator("h1")).toContainText("Ozu's Noodle Counter");
+
+  const messageBounds = await page.getByLabel("Message").boundingBox();
+  const sendBounds = await page.getByRole("button", { name: "Send", exact: true }).boundingBox();
+  expect(messageBounds).not.toBeNull();
+  expect(sendBounds).not.toBeNull();
+  expect(
+    Math.abs(messageBounds!.y + messageBounds!.height - sendBounds!.y - sendBounds!.height),
+  ).toBeLessThanOrEqual(1);
 
   // Chat message
   await page.getByLabel("Speak as").selectOption({ label: characterName });

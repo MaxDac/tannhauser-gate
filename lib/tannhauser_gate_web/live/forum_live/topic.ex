@@ -85,7 +85,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               phx-click="delete_post"
               phx-value-id={post.id}
               data-confirm="Delete this post?"
-              class="text-red-400 hover:underline"
+              class="console-link-action text-red-400 hover:underline"
             >
               Delete
             </button>

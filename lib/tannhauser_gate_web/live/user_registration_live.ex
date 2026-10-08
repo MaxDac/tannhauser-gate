@@ -36,7 +36,10 @@ defmodule TannhauserGateWeb.UserRegistrationLive do
           <.input field={@form[:password]} type="password" label="Password" required />
 
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">Create an account</.button>
+            <.button
+              phx-disable-with="Creating account..."
+              class="btn btn-primary console-action w-full"
+            >Create an account</.button>
           </div>
         </.form>
       </div>

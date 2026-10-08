@@ -41,7 +41,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
           <.button
             phx-click="delete"
             data-confirm="Delete this character? Their messages will be deleted too."
-            class="btn btn-error btn-outline"
+            class="btn btn-error btn-outline console-action"
           >
             Delete
           </.button>

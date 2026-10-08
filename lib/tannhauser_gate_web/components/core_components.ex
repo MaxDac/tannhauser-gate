@@ -105,7 +105,7 @@ defmodule TannhauserGateWeb.CoreComponents do
 
     assigns =
       assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
+        ["btn console-action", Map.fetch!(variants, assigns[:variant])]
       end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
@@ -207,12 +207,14 @@ defmodule TannhauserGateWeb.CoreComponents do
 
   def input(%{type: "checkbox"} = assigns) do
     assigns =
-      assign_new(assigns, :checked, fn ->
+      assigns
+      |> assign_input_accessibility()
+      |> assign_new(:checked, fn ->
         Form.normalize_value("checkbox", assigns[:value])
       end)
 
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset console-fieldset mb-2">
       <label for={@id}>
         <input
           type="hidden"
@@ -221,35 +223,45 @@ defmodule TannhauserGateWeb.CoreComponents do
           disabled={@rest[:disabled]}
           form={@rest[:form]}
         />
-        <span class="label">
+        <span class="label gap-3 text-sm text-base-content">
           <input
             type="checkbox"
             id={@id}
             name={@name}
             value="true"
             checked={@checked}
-            class={@class || "checkbox checkbox-sm"}
+            class={[
+              @class || "checkbox checkbox-sm console-check",
+              @errors != [] && (@error_class || "checkbox-error")
+            ]}
             {@rest}
           />{@label}
         </span>
       </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <div :if={@errors != []} id={@error_id}>
+        <.error :for={msg <- @errors}>{msg}</.error>
+      </div>
     </div>
     """
   end
 
   def input(%{type: "select"} = assigns) do
+    assigns = assign_input_accessibility(assigns)
+
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset console-fieldset mb-2">
       <label for={@id}>
         <span
           :if={@label}
-          class="label mb-1 text-xs font-semibold uppercase tracking-widest text-secondary"
+          class="label console-label"
         >{@label}</span>
         <select
           id={@id}
           name={@name}
-          class={[@class || "w-full select", @errors != [] && (@error_class || "select-error")]}
+          class={[
+            @class || "w-full select console-field",
+            @errors != [] && (@error_class || "select-error")
+          ]}
           multiple={@multiple}
           {@rest}
         >
@@ -257,42 +269,50 @@ defmodule TannhauserGateWeb.CoreComponents do
           {Form.options_for_select(@options, @value)}
         </select>
       </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <div :if={@errors != []} id={@error_id}>
+        <.error :for={msg <- @errors}>{msg}</.error>
+      </div>
     </div>
     """
   end
 
   def input(%{type: "textarea"} = assigns) do
+    assigns = assign_input_accessibility(assigns)
+
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset console-fieldset mb-2">
       <label for={@id}>
         <span
           :if={@label}
-          class="label mb-1 text-xs font-semibold uppercase tracking-widest text-secondary"
+          class="label console-label"
         >{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class || "w-full textarea console-field",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
         >{Form.normalize_value("textarea", @value)}</textarea>
       </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <div :if={@errors != []} id={@error_id}>
+        <.error :for={msg <- @errors}>{msg}</.error>
+      </div>
     </div>
     """
   end
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
+    assigns = assign_input_accessibility(assigns)
+
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset console-fieldset mb-2">
       <label for={@id}>
         <span
           :if={@label}
-          class="label mb-1 text-xs font-semibold uppercase tracking-widest text-secondary"
+          class="label console-label"
         >{@label}</span>
         <input
           type={@type}
@@ -300,15 +320,47 @@ defmodule TannhauserGateWeb.CoreComponents do
           id={@id}
           value={Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
-            @errors != [] && (@error_class || "input-error")
+            @class ||
+              if(@type == "file",
+                do: "w-full file-input console-field",
+                else: "w-full input console-field"
+              ),
+            @errors != [] &&
+              (@error_class ||
+                 if(@type == "file", do: "file-input-error", else: "input-error"))
           ]}
           {@rest}
         />
       </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <div :if={@errors != []} id={@error_id}>
+        <.error :for={msg <- @errors}>{msg}</.error>
+      </div>
     </div>
     """
+  end
+
+  defp assign_input_accessibility(assigns) do
+    error_id = if assigns.id && assigns.errors != [], do: "#{assigns.id}-errors"
+
+    rest =
+      if assigns.errors != [] do
+        rest = Map.put(assigns.rest, :"aria-invalid", "true")
+
+        if error_id do
+          described_by =
+            [rest[:"aria-describedby"], error_id]
+            |> Enum.reject(&is_nil/1)
+            |> Enum.join(" ")
+
+          Map.put(rest, :"aria-describedby", described_by)
+        else
+          rest
+        end
+      else
+        assigns.rest
+      end
+
+    assign(assigns, error_id: error_id, rest: rest)
   end
 
   @doc """
