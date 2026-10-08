@@ -27,7 +27,7 @@ defmodule TannhauserGateWeb.UserLoginLive do
             </.link>
           </div>
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
+            <.button phx-disable-with="Logging in..." class="btn btn-primary console-action w-full">
               Log in <span aria-hidden="true">→</span>
             </.button>
           </div>

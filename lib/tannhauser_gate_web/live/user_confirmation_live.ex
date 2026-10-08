@@ -12,7 +12,7 @@ defmodule TannhauserGateWeb.UserConfirmationLive do
         <.form for={@form} id="confirmation_form" phx-submit="confirm_account">
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Confirming..." class="btn btn-primary w-full">Confirm my account</.button>
+            <.button phx-disable-with="Confirming..." class="btn btn-primary console-action w-full">Confirm my account</.button>
           </div>
         </.form>
 

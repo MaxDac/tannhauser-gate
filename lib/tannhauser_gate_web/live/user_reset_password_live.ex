@@ -27,7 +27,7 @@ defmodule TannhauserGateWeb.UserResetPasswordLive do
             required
           />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Resetting..." class="btn btn-primary w-full">Reset Password</.button>
+            <.button phx-disable-with="Resetting..." class="btn btn-primary console-action w-full">Reset Password</.button>
           </div>
         </.form>
 

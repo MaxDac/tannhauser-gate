@@ -47,6 +47,8 @@ defmodule TannhauserGateWeb.AdminLiveTest do
     test "creates a story and adds a room to its map", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/admin/stories/new")
 
+      assert has_element?(lv, "#story_map_svg.textarea.console-field.font-mono")
+
       {:ok, lv, html} =
         lv
         |> form("#story-form",
@@ -82,6 +84,13 @@ defmodule TannhauserGateWeb.AdminLiveTest do
         |> render_submit()
 
       assert html =~ "must not contain scripts"
+
+      assert has_element?(
+               lv,
+               "#story_map_svg[aria-invalid='true'][aria-describedby='story_map_svg-errors']"
+             )
+
+      assert has_element?(lv, "#story_map_svg-errors")
       refute Stories.get_story_by_name("Evil")
     end
 

@@ -53,6 +53,35 @@ actions.
 The theme, extra design tokens (`phosphor`, `mint`, `night`, `ink`, `fog-*`, fonts) and the
 notepad, map and polaroid styles are all in [`assets/css/app.css`](assets/css/app.css).
 UI components use daisyUI classes (`btn`, `input`, `select`, `drawer`, `alert`, ...).
+
+Shared form controls add scoped `console-field`, `console-check`, and `console-action` styles:
+inset dark surfaces, readable borders, restrained green focus rings, and distinct error,
+disabled, and read-only states. Labels stay visible, and field errors are associated through
+`aria-describedby` without changing LiveView's validation timing. Reduced-motion preferences
+disable control transitions. The theme remains flat for unrelated components.
+
+`<.input class="...">` and `<.button class="...">` **replace** their default classes. Include
+the complete control styling when overriding, for example
+`class="w-full textarea console-field font-mono text-xs"` for a code textarea.
+
+### Favicons
+
+The existing `priv/static/favicon.svg` is the source for the browser icons. The root layout
+prefers that scalable icon and also declares 16px/32px PNG fallbacks, a multi-size ICO
+(16px/32px/48px), and a 180px Apple touch icon. All assets are served locally.
+
+Regenerate them using the existing Playwright 1.64.0 dependency and its pinned Chromium:
+
+```bash
+cd e2e
+npm ci
+npx playwright install chromium
+npm run generate:favicons
+```
+
+The generator renders each size directly from the unchanged SVG and packages the smaller
+PNGs into the ICO; no extra image libraries or application dependencies are needed.
+
 ## Running locally (WSL / Linux)
 
 The project is developed and tested inside WSL (Ubuntu), but any Linux or macOS machine works.

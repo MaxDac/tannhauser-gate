@@ -13,8 +13,14 @@ defmodule TannhauserGateWeb.UserConfirmationInstructionsLiveTest do
 
   describe "Resend confirmation" do
     test "renders the resend confirmation page", %{conn: conn} do
-      {:ok, _lv, html} = live(conn, ~p"/users/confirm")
+      {:ok, lv, html} = live(conn, ~p"/users/confirm")
       assert html =~ "Resend confirmation instructions"
+
+      assert has_element?(
+               lv,
+               "#resend_confirmation_form label[for='user_email'] .console-label",
+               "Email"
+             )
     end
 
     test "sends a new confirmation token", %{conn: conn, user: user} do

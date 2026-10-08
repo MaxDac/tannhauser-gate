@@ -101,6 +101,12 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
   @impl true
   def render(assigns) do
+    avatar_errors =
+      upload_errors(assigns.uploads.avatar) ++
+        Enum.flat_map(assigns.uploads.avatar.entries, &upload_errors(assigns.uploads.avatar, &1))
+
+    assigns = assign(assigns, :avatar_errors, Enum.map(avatar_errors, &upload_error/1))
+
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
       <.header>
@@ -116,11 +122,11 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
           <div phx-drop-target={@uploads.avatar.ref} class="space-y-2">
             <label
               for={@uploads.avatar.ref}
-              class="block text-xs font-semibold uppercase tracking-widest text-secondary"
+              class="console-label"
             >
               Avatar (photo)
             </label>
-            <div class="flex items-center gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <.avatar
                 :if={@character.id && @uploads.avatar.entries == []}
                 character={@character}
@@ -135,23 +141,27 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                   type="button"
                   phx-click="cancel-upload"
                   phx-value-ref={entry.ref}
-                  class="text-xs text-red-400 hover:underline"
+                  class="console-link-action text-xs text-red-400 hover:underline"
                   aria-label="Remove image"
                 >
                   Remove
                 </button>
-                <p :for={err <- upload_errors(@uploads.avatar, entry)} class="text-sm text-red-400">
-                  {upload_error(err)}
-                </p>
               </div>
               <.live_file_input
                 upload={@uploads.avatar}
-                class="file-input file-input-sm file-input-secondary w-full max-w-xs"
+                class="file-input file-input-secondary console-field w-full max-w-xs"
+                aria-invalid={if @avatar_errors != [], do: "true"}
+                aria-describedby={
+                  if(@avatar_errors != [], do: "avatar-hint avatar-errors", else: "avatar-hint")
+                }
               />
             </div>
-            <p :for={err <- upload_errors(@uploads.avatar)} class="text-sm text-red-400">
-              {upload_error(err)}
+            <p id="avatar-hint" class="text-xs text-fog-400">
+              JPG, PNG, WebP or GIF. Maximum 5 MB.
             </p>
+            <div :if={@avatar_errors != []} id="avatar-errors">
+              <.error :for={error <- @avatar_errors}>{error}</.error>
+            </div>
           </div>
 
           <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
@@ -161,7 +171,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             <.button phx-disable-with="Saving...">Save character</.button>
             <.link
               navigate={if @character.id, do: ~p"/characters/#{@character}", else: ~p"/characters"}
-              class="text-sm font-semibold text-fog-400 hover:text-mint"
+              class="console-link-action text-sm font-semibold text-fog-400 hover:text-mint"
             >
               Cancel
             </.link>

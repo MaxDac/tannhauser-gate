@@ -57,6 +57,20 @@ test.describe("guest", () => {
   test("register", async ({ page }) => {
     await visit(page, "/users/register", "register");
   });
+
+  test("login keyboard focus", async ({ page }) => {
+    await page.goto("/users/log_in");
+    await settle(page);
+    await page.getByRole("link", { name: "Register", exact: true }).focus();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Email", { exact: true })).toBeFocused();
+    await snap(page, "login-focus");
+  });
+
+  test("mobile login", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await visit(page, "/users/log_in", "login-mobile");
+  });
 });
 
 test.describe("player", () => {
@@ -78,6 +92,11 @@ test.describe("player", () => {
     await visit(page, "/characters/new", "character-new");
   });
 
+  test("mobile character form", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await visit(page, "/characters/new", "character-new-mobile");
+  });
+
   test("map", async ({ page }) => {
     await page.goto("/map");
     await expect(page.locator("#city-map")).toBeVisible();
@@ -86,6 +105,7 @@ test.describe("player", () => {
 
   test("room chat", async ({ page }) => {
     await page.goto("/map");
+    await settle(page);
     await page
       .locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]")
       .click({ force: true });
@@ -118,6 +138,21 @@ test.describe("admin", () => {
 
   test("stories", async ({ page }) => {
     await visit(page, "/admin/stories", "admin-stories");
+  });
+
+  test("story form", async ({ page }) => {
+    await visit(page, "/admin/stories/new", "admin-story-form");
+  });
+
+  test("story artwork validation", async ({ page }) => {
+    await page.goto("/admin/stories/new");
+    await settle(page);
+    await page.getByLabel("Name", { exact: true }).fill("Invalid artwork");
+    await page.locator("#story_map_svg").fill("<script>alert(1)</script>");
+    await page.getByRole("button", { name: "Save story" }).click();
+    await expect(page.locator("#story_map_svg-errors")).toBeVisible();
+    await page.locator("#story_map_svg").focus();
+    await snap(page, "admin-story-error");
   });
 
   test("characters", async ({ page }) => {

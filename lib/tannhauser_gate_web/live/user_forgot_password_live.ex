@@ -13,9 +13,9 @@ defmodule TannhauserGateWeb.UserForgotPasswordLive do
         </.header>
 
         <.form for={@form} id="reset_password_form" phx-submit="send_email">
-          <.input field={@form[:email]} type="email" placeholder="Email" required />
+          <.input field={@form[:email]} type="email" label="Email" placeholder="Email" required />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Sending..." class="btn btn-primary w-full">
+            <.button phx-disable-with="Sending..." class="btn btn-primary console-action w-full">
               Send password reset instructions
             </.button>
           </div>
