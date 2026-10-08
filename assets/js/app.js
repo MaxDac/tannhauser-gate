@@ -23,7 +23,27 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+const Hooks = {}
+
+// Keeps chat rooms scrolled to the newest message unless the reader scrolled up.
+Hooks.ScrollBottom = {
+  mounted() {
+    this.el.scrollTop = this.el.scrollHeight
+    this.observer = new MutationObserver(() => {
+      const nearBottom = this.el.scrollHeight - this.el.scrollTop - this.el.clientHeight < 200
+      if (nearBottom || this.pending) this.el.scrollTop = this.el.scrollHeight
+      this.pending = false
+    })
+    this.observer.observe(this.el, {childList: true})
+    this.el.closest("section")?.addEventListener("submit", () => (this.pending = true))
+  },
+  destroyed() {
+    this.observer && this.observer.disconnect()
+  }
+}
+
 let liveSocket = new LiveSocket("/live", Socket, {
+  hooks: Hooks,
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken}
 })

@@ -164,6 +164,38 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
+  def on_mount(:ensure_admin, _params, session, socket) do
+    socket = mount_current_user(socket, session)
+
+    cond do
+      is_nil(socket.assigns.current_user) ->
+        {:halt,
+         socket
+         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")}
+
+      Accounts.admin?(socket.assigns.current_user) ->
+        {:cont, socket}
+
+      true ->
+        {:halt,
+         socket
+         |> Phoenix.LiveView.put_flash(:error, "Admins only.")
+         |> Phoenix.LiveView.redirect(to: ~p"/characters")}
+    end
+  end
+
+  # Tracks the current path so the navigation drawer can highlight the
+  # active section.
+  def on_mount(:assign_current_path, _params, _session, socket) do
+    {:cont,
+     socket
+     |> Phoenix.Component.assign(:current_path, nil)
+     |> Phoenix.LiveView.attach_hook(:current_path, :handle_params, fn _params, url, socket ->
+       {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url).path)}
+     end)}
+  end
+
   def on_mount(:redirect_if_user_is_authenticated, _params, session, socket) do
     socket = mount_current_user(socket, session)
 
@@ -213,6 +245,20 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
+  @doc """
+  Used for routes that require an admin user.
+  """
+  def require_admin(conn, _opts) do
+    if Accounts.admin?(conn.assigns[:current_user]) do
+      conn
+    else
+      conn
+      |> put_flash(:error, "Admins only.")
+      |> redirect(to: ~p"/characters")
+      |> halt()
+    end
+  end
+
   defp put_token_in_session(conn, token) do
     conn
     |> put_session(:user_token, token)
@@ -225,5 +271,5 @@ defmodule TannhauserGateWeb.UserAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/"
+  defp signed_in_path(_conn), do: ~p"/characters"
 end

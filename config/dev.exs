@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :tannhauser_gate, TannhauserGate.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "tannhauser_gate_dev",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  database: System.get_env("DEV_DATABASE", "tannhauser_gate_dev"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -19,15 +19,21 @@ config :tannhauser_gate, TannhauserGate.Repo,
 config :tannhauser_gate, TannhauserGateWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT", "4000"))],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "10sBb+klGpGX8eYkSZouf8tClrbQPyzWbSuneGo628s1p3wvkfEGw4f0cJFvlbY6",
-  watchers: [
-    esbuild: {Esbuild, :install_and_run, [:tannhauser_gate, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:tannhauser_gate, ~w(--watch)]}
-  ]
+  # Set NO_WATCHERS=1 to skip the asset watchers, e.g. when the server runs in
+  # the background for the Playwright end-to-end tests.
+  watchers:
+    if(System.get_env("NO_WATCHERS"),
+      do: [],
+      else: [
+        esbuild: {Esbuild, :install_and_run, [:tannhauser_gate, ~w(--sourcemap=inline --watch)]},
+        tailwind: {Tailwind, :install_and_run, [:tannhauser_gate, ~w(--watch)]}
+      ]
+    )
 
 # ## SSL Support
 #

@@ -2,10 +2,11 @@
 #
 #     mix run priv/repo/seeds.exs
 #
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     TannhauserGate.Repo.insert!(%TannhauserGate.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+# It is idempotent: it creates the default "Tannhauser Gate" story, its map
+# and rooms, the default admin (ADMIN_EMAIL / ADMIN_PASSWORD env vars) and the
+# forum sections only if they don't exist yet.
+
+%{admin: admin, story: story} = TannhauserGate.Seeds.run()
+
+IO.puts("Seeded story #{inspect(story.name)} with #{length(story.locations)} rooms")
+IO.puts("Admin account: #{admin.email}")

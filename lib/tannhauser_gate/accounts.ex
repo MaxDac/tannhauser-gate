@@ -350,4 +350,28 @@ defmodule TannhauserGate.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  ## Roles
+
+  @doc """
+  Returns true when the given user is an admin.
+  """
+  def admin?(%User{role: "admin"}), do: true
+  def admin?(_), do: false
+
+  @doc """
+  Lists all users ordered by email.
+  """
+  def list_users do
+    Repo.all(from u in User, order_by: [asc: u.email])
+  end
+
+  @doc """
+  Updates the role (`"user"` or `"admin"`) of a user.
+  """
+  def set_user_role(%User{} = user, role) do
+    user
+    |> User.role_changeset(%{role: role})
+    |> Repo.update()
+  end
 end

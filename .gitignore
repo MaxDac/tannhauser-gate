@@ -35,3 +35,12 @@ tannhauser_gate-*.tar
 npm-debug.log
 /assets/node_modules/
 
+
+# Uploaded avatars and scratch files
+/priv/static/uploads/
+/tmp/
+
+# Playwright
+/e2e/node_modules/
+/e2e/test-results/
+/e2e/playwright-report/

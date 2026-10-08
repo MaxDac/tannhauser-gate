@@ -21,6 +21,10 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  if uploads_dir = System.get_env("UPLOADS_DIR") do
+    config :tannhauser_gate, :uploads_dir, uploads_dir
+  end
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """

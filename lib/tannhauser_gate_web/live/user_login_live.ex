@@ -5,11 +5,11 @@ defmodule TannhauserGateWeb.UserLoginLive do
     ~H"""
     <div class="mx-auto max-w-sm">
       <.header class="text-center">
-        Log in to account
+        Log in
         <:subtitle>
           Don't have an account?
-          <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-            Sign up
+          <.link navigate={~p"/users/register"} class="font-semibold text-teal hover:underline">
+            Register
           </.link>
           for an account now.
         </:subtitle>

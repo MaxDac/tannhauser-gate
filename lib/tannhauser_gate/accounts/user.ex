@@ -8,9 +8,33 @@ defmodule TannhauserGate.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :role, :string, default: "user"
 
     timestamps(type: :utc_datetime)
   end
+
+  @roles ~w(user admin)
+
+  def roles, do: @roles
+
+  @doc """
+  A changeset used by admins to change a user's role.
+  """
+  def role_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:role])
+    |> validate_required([:role])
+    |> validate_inclusion(:role, @roles)
+  end
+
+  @doc """
+  Short public handle derived from the email (the part before the `@`).
+  """
+  def handle(%__MODULE__{email: email}) when is_binary(email) do
+    email |> String.split("@") |> hd()
+  end
+
+  def handle(_), do: "unknown"
 
   @doc """
   A user changeset for registration.

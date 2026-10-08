@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.svg robots.txt)
 
   def router do
     quote do
@@ -84,6 +84,7 @@ defmodule TannhauserGateWeb do
       import Phoenix.HTML
       # Core UI components
       import TannhauserGateWeb.CoreComponents
+      import TannhauserGateWeb.GameComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

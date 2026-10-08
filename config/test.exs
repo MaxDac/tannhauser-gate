@@ -9,9 +9,9 @@ config :pbkdf2_elixir, :rounds, 1
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :tannhauser_gate, TannhauserGate.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
   database: "tannhauser_gate_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
@@ -25,6 +25,9 @@ config :tannhauser_gate, TannhauserGateWeb.Endpoint,
 
 # In test we don't send emails
 config :tannhauser_gate, TannhauserGate.Mailer, adapter: Swoosh.Adapters.Test
+
+# Store uploaded avatars in a throwaway directory
+config :tannhauser_gate, :uploads_dir, Path.expand("../tmp/test_uploads", __DIR__)
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false

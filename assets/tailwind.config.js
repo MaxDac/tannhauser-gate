@@ -14,7 +14,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: "#FD4F00",
+        brand: "#ff7a1a",
+        neon: "#ff7a1a",
+        teal: "#19e3d6",
+        night: "#07090f",
+        ink: "#0f1420",
+        rose: {neon: "#ff2e88"},
+      },
+      fontFamily: {
+        display: ["Orbitron", "Rajdhani", "Eurostile", "ui-sans-serif", "system-ui", "sans-serif"],
+        hand: ["\"Special Elite\"", "\"Courier Prime\"", "\"Courier New\"", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        neon: "0 0 0 1px rgba(255,122,26,0.25), 0 0 24px rgba(255,122,26,0.18)",
       }
     },
   },

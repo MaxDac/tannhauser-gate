@@ -30,7 +30,6 @@ defmodule TannhauserGateWeb.Router do
 
   # Enable Swoosh mailbox preview in development
   if Application.compile_env(:tannhauser_gate, :dev_routes) do
-
     scope "/dev" do
       pipe_through :browser
 
@@ -58,9 +57,45 @@ defmodule TannhauserGateWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{TannhauserGateWeb.UserAuth, :ensure_authenticated}] do
+      on_mount: [
+        {TannhauserGateWeb.UserAuth, :ensure_authenticated},
+        {TannhauserGateWeb.UserAuth, :assign_current_path}
+      ] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      live "/characters", CharacterLive.Index, :index
+      live "/characters/new", CharacterLive.Form, :new
+      live "/characters/:id", CharacterLive.Show, :show
+      live "/characters/:id/edit", CharacterLive.Form, :edit
+
+      live "/map", MapLive, :index
+      live "/stories/:story_id/map", MapLive, :show
+      live "/rooms/:id", RoomLive, :show
+
+      live "/forum", ForumLive.Index, :index
+      live "/forum/sections/:id", ForumLive.Section, :show
+      live "/forum/topics/:id", ForumLive.Topic, :show
+    end
+  end
+
+  scope "/admin", TannhauserGateWeb.Admin do
+    pipe_through [:browser, :require_authenticated_user, :require_admin]
+
+    live_session :admin,
+      on_mount: [
+        {TannhauserGateWeb.UserAuth, :ensure_admin},
+        {TannhauserGateWeb.UserAuth, :assign_current_path}
+      ] do
+      live "/", DashboardLive, :index
+      live "/stories", StoryLive.Index, :index
+      live "/stories/new", StoryLive.Form, :new
+      live "/stories/:id/edit", StoryLive.Form, :edit
+      live "/characters", CharactersLive, :index
+      live "/rooms", RoomsLive, :index
+      live "/rooms/:id", RoomsLive, :show
+      live "/users", UsersLive, :index
+      live "/forum", ForumLive, :index
     end
   end
 

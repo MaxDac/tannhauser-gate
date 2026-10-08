@@ -25,6 +25,12 @@ defmodule TannhauserGateWeb.Endpoint do
     gzip: false,
     only: TannhauserGateWeb.static_paths()
 
+  # Uploaded avatars, stored by TannhauserGate.Storage.
+  plug Plug.Static,
+    at: "/uploads",
+    from: {TannhauserGate.Storage, :uploads_dir, []},
+    gzip: false
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
