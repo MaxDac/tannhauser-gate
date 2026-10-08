@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+if [ "$(id -u)" = "0" ]; then
+  if [ -n "${UPLOADS_DIR:-}" ]; then
+    mkdir -p "$UPLOADS_DIR"
+    chown nobody:root "$UPLOADS_DIR"
+  fi
+
+  exec gosu nobody "$@"
+fi
+
+exec "$@"

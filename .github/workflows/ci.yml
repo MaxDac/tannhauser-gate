@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -147,6 +147,42 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report
           retention-days: 7
+
+  deploy:
+    name: Deploy development app
+    needs: [compile, format, credo, dialyzer, test, e2e, screenshots]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-tannhauser-gate
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1
+        with:
+          version: "0.4.114"
+
+      - name: Build, migrate, and deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          test -n "$FLY_API_TOKEN" || { echo "FLY_API_TOKEN is not configured"; exit 1; }
+          flyctl deploy --app tannhauser-gate --config fly.toml --local-only --ha=false --no-public-ips --yes
+
+      - name: Verify HTTPS database readiness
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error \
+            --connect-timeout 10 --max-time 30 \
+            --retry 5 --retry-delay 5 --retry-max-time 180 \
+            https://tannhauser-gate.fly.dev/health)"
+          printf '%s' "$response" | python3 -c \
+            'import json, sys; assert json.load(sys.stdin) == {"status": "ok"}, "Readiness check failed"'
 
   screenshots:
     name: Playwright screenshots

@@ -233,6 +233,79 @@ Character avatars are stored on local disk and served from `/uploads`. By defaul
 `priv/static/uploads`. In production, set `UPLOADS_DIR` to a persistent directory. Uploads accept
 `.jpg`, `.jpeg`, `.png`, `.webp` and `.gif` files.
 
+## Fly.io development deployment
+
+The deployment target is <https://tannhauser-gate.fly.dev>, with a separate legacy
+Postgres cluster named `tannhauser-gate-db`. Both use one shared CPU and 256MB RAM
+in Amsterdam (`ams`). The database runs Postgres 17.2 with 1GB encrypted storage.
+The app has a separate 1GB encrypted `uploads` volume mounted at `/data` and sets
+`UPLOADS_DIR=/data/uploads`, so avatars survive restarts and deployments. Volumes
+have automatic daily snapshots retained for five days; a single volume is not
+high availability or a substitute for an independent backup.
+
+This development deployment uses `MIX_ENV=prod`: debug routes and the local
+mailbox are not published. The root-owned container entrypoint prepares the
+mounted uploads directory, then drops to `nobody` before starting the release.
+The release files remain root-owned and are not writable by the application.
+
+GitHub Actions deploys pushes to `main` and manual runs on `main` only after
+**all seven existing quality gates** pass, including Dialyzer, E2E, and screenshots.
+Pull requests and manual runs on other branches never deploy. Deployments are
+serialized and are not cancelled by a newer `main` run; PR checks retain their
+auto-cancel behavior. Docker builds run on the GitHub runner rather than a paid
+remote builder. Deployment uses `--ha=false` and never creates a spare app Machine.
+
+| Platform | Secret | Purpose |
+| --- | --- | --- |
+| GitHub repository `MaxDac/tannhauser-gate` | `FLY_API_TOKEN` | Deploy token scoped only to `tannhauser-gate`, expiring after 720 hours |
+| Fly app `tannhauser-gate` | `DATABASE_URL` | Attachment to database `tannhauser_gate` with a dedicated non-superuser role |
+| Fly app `tannhauser-gate` | `SECRET_KEY_BASE` | Persistent session signing/encryption key |
+
+Create or renew the deploy token with
+`fly tokens create deploy -a tannhauser-gate --expiry 720h`, capturing its output
+privately and passing it through stdin to
+`gh secret set FLY_API_TOKEN --repo MaxDac/tannhauser-gate`. Do not run token
+generation on its own where the credential will be printed. Import runtime
+secrets through stdin with `fly secrets import --stage -a tannhauser-gate`.
+Never put credentials in files, logs, build arguments, workflow artifacts, or
+commits. Verify only metadata with `gh secret list --repo MaxDac/tannhauser-gate`
+and `fly secrets list -a tannhauser-gate`. Renew the token before it expires and
+preserve `SECRET_KEY_BASE` between deployments.
+
+Deployment runs `bin/migrate` on a temporary 256MB Machine and fails if migrations
+fail. The attached role has `CREATE` only on its own database to install the
+trusted `citext` extension; it is not a superuser. Database resets and seeds do
+not run automatically. In particular, deployment never creates an admin with
+the published development password. Bootstrap content/admin access separately
+with a strong private password before using the site; the local setup commands
+above are not production provisioning commands.
+
+The app stops when idle and wakes on incoming requests, with no minimum-running
+Machine. Cold starts and deployment downtime are expected, and open LiveView
+connections may keep it running. Postgres stays running. IPv6 database access is
+enabled and the app uses a two-connection pool. Public traffic is forced to HTTPS;
+Fly's internal HTTP probe uses `GET /health`, which checks database connectivity
+and returns `{"status":"ok"}` or HTTP 503 with `{"status":"unavailable"}`.
+
+**Email delivery is disabled until a real provider and sender are configured.**
+The production mail adapter reports a delivery error without logging message
+contents. Confirmation and password-reset emails cannot be delivered; existing
+authentication requirements are unchanged. The site does not expose a mailbox
+or publish email links in logs.
+
+**Minimum resources do not mean guaranteed free billing.** Legacy allowances,
+if active, are shared across all apps in the organization. This additional app,
+database, and uploads volume may exceed them, and migration Machines, snapshots,
+network usage, and stopped Machine root filesystems follow Fly's billing rules.
+Do not increase memory, add replicas, or allocate a paid dedicated IPv4 address
+without reviewing costs. The app uses shared IPv4 and free IPv6 ingress.
+
+For an authorized local deployment, use
+`fly deploy --app tannhauser-gate --config fly.toml --local-only --ha=false --no-public-ips --yes`
+after provisioning the shared ingress addresses and uploads volume. Image
+rollbacks do not undo migrations or restore uploaded files; do not run destructive
+down migrations automatically.
+
 ## Project layout
 
 ```

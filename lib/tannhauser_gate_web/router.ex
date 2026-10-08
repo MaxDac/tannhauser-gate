@@ -23,6 +23,12 @@ defmodule TannhauserGateWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/", TannhauserGateWeb do
+    pipe_through :api
+
+    get "/health", HealthController, :show
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", TannhauserGateWeb do
   #   pipe_through :api

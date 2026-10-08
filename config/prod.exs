@@ -15,7 +15,7 @@ config :tannhauser_gate, TannhauserGateWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     exclude: [
-      # paths: ["/health"],
+      paths: ["/health"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]
@@ -25,6 +25,8 @@ config :swoosh, api_client: Swoosh.ApiClient.Req
 
 # Disable Swoosh Local Memory Storage
 config :swoosh, local: false
+
+config :tannhauser_gate, TannhauserGate.Mailer, adapter: TannhauserGate.Mailer.DisabledAdapter
 
 # Do not print debug messages in production
 config :logger, level: :info
