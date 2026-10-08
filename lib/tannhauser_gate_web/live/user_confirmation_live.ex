@@ -5,21 +5,23 @@ defmodule TannhauserGateWeb.UserConfirmationLive do
 
   def render(%{live_action: :edit} = assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">Confirm Account</.header>
+    <Layouts.app flash={@flash} current_user={@current_user}>
+      <div class="mx-auto max-w-sm">
+        <.header class="text-center">Confirm Account</.header>
 
-      <.simple_form for={@form} id="confirmation_form" phx-submit="confirm_account">
-        <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
-        <:actions>
-          <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
-        </:actions>
-      </.simple_form>
+        <.form for={@form} id="confirmation_form" phx-submit="confirm_account">
+          <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <.button phx-disable-with="Confirming..." class="btn btn-primary w-full">Confirm my account</.button>
+          </div>
+        </.form>
 
-      <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
-      </p>
-    </div>
+        <p class="text-center mt-4">
+          <.link href={~p"/users/register"}>Register</.link>
+          | <.link href={~p"/users/log_in"}>Log in</.link>
+        </p>
+      </div>
+    </Layouts.app>
     """
   end
 

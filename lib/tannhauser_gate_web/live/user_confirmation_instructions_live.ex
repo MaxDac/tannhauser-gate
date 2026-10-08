@@ -5,26 +5,28 @@ defmodule TannhauserGateWeb.UserConfirmationInstructionsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        No confirmation instructions received?
-        <:subtitle>We'll send a new confirmation link to your inbox</:subtitle>
-      </.header>
+    <Layouts.app flash={@flash} current_user={@current_user}>
+      <div class="mx-auto max-w-sm">
+        <.header class="text-center">
+          No confirmation instructions received?
+          <:subtitle>We'll send a new confirmation link to your inbox</:subtitle>
+        </.header>
 
-      <.simple_form for={@form} id="resend_confirmation_form" phx-submit="send_instructions">
-        <.input field={@form[:email]} type="email" placeholder="Email" required />
-        <:actions>
-          <.button phx-disable-with="Sending..." class="w-full">
-            Resend confirmation instructions
-          </.button>
-        </:actions>
-      </.simple_form>
+        <.form for={@form} id="resend_confirmation_form" phx-submit="send_instructions">
+          <.input field={@form[:email]} type="email" placeholder="Email" required />
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <.button phx-disable-with="Sending..." class="btn btn-primary w-full">
+              Resend confirmation instructions
+            </.button>
+          </div>
+        </.form>
 
-      <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
-      </p>
-    </div>
+        <p class="text-center mt-4">
+          <.link href={~p"/users/register"}>Register</.link>
+          | <.link href={~p"/users/log_in"}>Log in</.link>
+        </p>
+      </div>
+    </Layouts.app>
     """
   end
 

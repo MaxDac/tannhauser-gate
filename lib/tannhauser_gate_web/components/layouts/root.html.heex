@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable]">
+<html lang="en" data-theme="tannhauser" class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <meta name="theme-color" content="#0b100d" />
-    <.live_title default="Tannhauser Gate" suffix=" · Tannhauser Gate">
-      {assigns[:page_title]}
-    </.live_title>
+    <.live_title default="Tannhauser Gate" suffix=" · Tannhauser Gate" phx-no-format>{assigns[:page_title]}</.live_title>
     <link rel="icon" type="image/svg+xml" href={~p"/favicon.svg"} />
-    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
   </head>
-  <body class="city-bg min-h-screen bg-night text-fog-200 antialiased">
+  <body class="city-bg min-h-screen text-base-content antialiased">
     {@inner_content}
   </body>
 </html>

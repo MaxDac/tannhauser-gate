@@ -38,9 +38,7 @@ defmodule TannhauserGateWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller,
-        formats: [:html, :json],
-        layouts: [html: TannhauserGateWeb.Layouts]
+      use Phoenix.Controller, formats: [:html, :json]
 
       import Plug.Conn
 
@@ -50,8 +48,7 @@ defmodule TannhauserGateWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {TannhauserGateWeb.Layouts, :app}
+      use Phoenix.LiveView
 
       unquote(html_helpers())
     end
@@ -86,8 +83,9 @@ defmodule TannhauserGateWeb do
       import TannhauserGateWeb.CoreComponents
       import TannhauserGateWeb.GameComponents
 
-      # Shortcut for generating JS commands
+      # Common modules used in templates
       alias Phoenix.LiveView.JS
+      alias TannhauserGateWeb.Layouts
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
