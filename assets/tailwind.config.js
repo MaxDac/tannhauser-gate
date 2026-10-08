@@ -13,20 +13,34 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Console green palette. The primary is a softened phosphor green rather
+      // than pure #00ff00 to limit glare; body copy uses green-tinted greys.
+      // Contrast on `night`: phosphor 11.3:1, mint 12.2:1, fog-200 13.1:1,
+      // fog-400 7.3:1, fog-500 5.1:1 (WCAG AA). `phosphor-dim` is for borders only.
       colors: {
-        brand: "#ff7a1a",
-        neon: "#ff7a1a",
-        teal: "#19e3d6",
-        night: "#07090f",
-        ink: "#0f1420",
-        rose: {neon: "#ff2e88"},
+        brand: "#4ae08a",
+        phosphor: {DEFAULT: "#4ae08a", bright: "#9bf5bf", dim: "#2c8f58"},
+        mint: "#86e0b0",
+        night: "#0b100d",
+        ink: "#121a15",
+        fog: {
+          100: "#e2ece5",
+          200: "#cad9cf",
+          300: "#aec2b5",
+          400: "#8ea596",
+          500: "#72897a",
+          600: "#556a5c",
+          700: "#3c4d42",
+          800: "#26322a",
+          900: "#18211b",
+        },
       },
       fontFamily: {
         display: ["Orbitron", "Rajdhani", "Eurostile", "ui-sans-serif", "system-ui", "sans-serif"],
         hand: ["\"Special Elite\"", "\"Courier Prime\"", "\"Courier New\"", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        neon: "0 0 0 1px rgba(255,122,26,0.25), 0 0 24px rgba(255,122,26,0.18)",
+        phosphor: "0 0 0 1px rgba(74,224,138,0.22), 0 0 20px rgba(74,224,138,0.12)",
       }
     },
   },

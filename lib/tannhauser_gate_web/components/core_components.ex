@@ -65,7 +65,7 @@ defmodule TannhauserGateWeb.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-ink p-14 border border-neon/30 shadow-lg ring-1 transition"
+              class="shadow-fog-700/10 ring-fog-700/10 relative hidden rounded-2xl bg-ink p-14 border border-phosphor/30 shadow-lg ring-1 transition"
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -115,7 +115,7 @@ defmodule TannhauserGateWeb.CoreComponents do
       role="alert"
       class={[
         "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-ink text-teal ring-teal fill-cyan-200 shadow-lg",
+        @kind == :info && "bg-ink text-mint ring-mint fill-phosphor-bright shadow-lg",
         @kind == :error && "bg-ink text-rose-300 shadow-md ring-rose-500 fill-rose-300"
       ]}
       {@rest}
@@ -229,8 +229,8 @@ defmodule TannhauserGateWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-md border border-neon bg-neon/10 hover:bg-neon/25 py-2 px-4 shadow-neon uppercase tracking-widest",
-        "text-sm font-semibold leading-6 text-neon active:text-neon/80",
+        "phx-submit-loading:opacity-75 rounded-md border border-phosphor bg-phosphor/10 hover:bg-phosphor/25 py-2 px-4 shadow-phosphor uppercase tracking-widest",
+        "text-sm font-semibold leading-6 text-phosphor active:text-phosphor/80",
         @class
       ]}
       {@rest}
@@ -308,7 +308,7 @@ defmodule TannhauserGateWeb.CoreComponents do
 
     ~H"""
     <div>
-      <label class="flex items-center gap-4 text-sm leading-6 text-slate-400">
+      <label class="flex items-center gap-4 text-sm leading-6 text-fog-400">
         <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
         <input
           type="checkbox"
@@ -316,7 +316,7 @@ defmodule TannhauserGateWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-teal/50 bg-night text-neon focus:ring-0"
+          class="rounded border-mint/50 bg-night text-phosphor focus:ring-0"
           {@rest}
         />
         {@label}
@@ -333,7 +333,7 @@ defmodule TannhauserGateWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-teal/40 bg-night text-slate-100 shadow-sm focus:border-teal focus:ring-0 sm:text-sm"
+        class="mt-2 block w-full rounded-md border border-mint/40 bg-night text-fog-100 shadow-sm focus:border-mint focus:ring-0 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -353,8 +353,8 @@ defmodule TannhauserGateWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-md bg-night/80 text-slate-100 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
-          @errors == [] && "border-teal/40 focus:border-teal",
+          "mt-2 block w-full rounded-md bg-night/80 text-fog-100 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
+          @errors == [] && "border-mint/40 focus:border-mint",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -375,8 +375,8 @@ defmodule TannhauserGateWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-md bg-night/80 text-slate-100 focus:ring-0 sm:text-sm sm:leading-6",
-          @errors == [] && "border-teal/40 focus:border-teal",
+          "mt-2 block w-full rounded-md bg-night/80 text-fog-100 focus:ring-0 sm:text-sm sm:leading-6",
+          @errors == [] && "border-mint/40 focus:border-mint",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -396,7 +396,7 @@ defmodule TannhauserGateWeb.CoreComponents do
     ~H"""
     <label
       for={@for}
-      class="block text-xs font-semibold uppercase tracking-widest leading-6 text-teal"
+      class="block text-xs font-semibold uppercase tracking-widest leading-6 text-mint"
     >
       {render_slot(@inner_block)}
     </label>
@@ -430,10 +430,10 @@ defmodule TannhauserGateWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-2xl font-semibold leading-8 text-neon neon-text tracking-wide">
+        <h1 class="text-2xl font-semibold leading-8 text-phosphor phosphor-text tracking-wide">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-slate-400">
+        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-fog-400">
           {render_slot(@subtitle)}
         </p>
       </div>
@@ -476,7 +476,7 @@ defmodule TannhauserGateWeb.CoreComponents do
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
       <table class="w-[40rem] mt-11 sm:w-full">
-        <thead class="text-sm text-left leading-6 text-teal/80">
+        <thead class="text-sm text-left leading-6 text-mint/80">
           <tr>
             <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal">{col[:label]}</th>
             <th :if={@action != []} class="relative p-0 pb-4">
@@ -487,7 +487,7 @@ defmodule TannhauserGateWeb.CoreComponents do
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative divide-y divide-teal/10 border-t border-teal/30 text-sm leading-6 text-slate-300"
+          class="relative divide-y divide-mint/10 border-t border-mint/30 text-sm leading-6 text-fog-300"
         >
           <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-white/5">
             <td
@@ -497,7 +497,7 @@ defmodule TannhauserGateWeb.CoreComponents do
             >
               <div class="block py-4 pr-6">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-white/5 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-slate-100"]}>
+                <span class={["relative", i == 0 && "font-semibold text-fog-100"]}>
                   {render_slot(col, @row_item.(row))}
                 </span>
               </div>
@@ -507,7 +507,7 @@ defmodule TannhauserGateWeb.CoreComponents do
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-white/5 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-neon hover:text-neon/70"
+                  class="relative ml-4 font-semibold leading-6 text-phosphor hover:text-phosphor/70"
                 >
                   {render_slot(action, @row_item.(row))}
                 </span>
@@ -537,10 +537,10 @@ defmodule TannhauserGateWeb.CoreComponents do
   def list(assigns) do
     ~H"""
     <div class="mt-14">
-      <dl class="-my-4 divide-y divide-teal/10">
+      <dl class="-my-4 divide-y divide-mint/10">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
-          <dt class="w-1/4 flex-none text-teal/80">{item.title}</dt>
-          <dd class="text-slate-300">{render_slot(item)}</dd>
+          <dt class="w-1/4 flex-none text-mint/80">{item.title}</dt>
+          <dd class="text-fog-300">{render_slot(item)}</dd>
         </div>
       </dl>
     </div>
@@ -562,7 +562,7 @@ defmodule TannhauserGateWeb.CoreComponents do
     <div class="mt-16">
       <.link
         navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-neon hover:text-neon/70"
+        class="text-sm font-semibold leading-6 text-phosphor hover:text-phosphor/70"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         {render_slot(@inner_block)}

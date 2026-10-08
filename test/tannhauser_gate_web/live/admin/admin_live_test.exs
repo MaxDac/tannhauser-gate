@@ -65,7 +65,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
 
       lv
       |> form("#location-form",
-        location: %{name: "Colony bar", area: "10,10 90,10 90,90", color: "#19e3d6"}
+        location: %{name: "Colony bar", area: "10,10 90,10 90,90", color: "#86e0b0"}
       )
       |> render_submit()
 

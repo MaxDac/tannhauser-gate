@@ -29,7 +29,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
 
     <p
       :if={@empty?}
-      class="mt-10 rounded-lg border border-dashed border-teal/30 p-8 text-center text-slate-400"
+      class="mt-10 rounded-lg border border-dashed border-mint/30 p-8 text-center text-fog-400"
     >
       No characters yet. Create one to step into the rain.
     </p>
@@ -39,15 +39,15 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
         :for={{dom_id, character} <- @streams.characters}
         id={dom_id}
         navigate={~p"/characters/#{character}"}
-        class="group flex items-center gap-4 rounded-xl border border-teal/20 bg-ink/80 p-4 transition hover:border-neon/60 hover:shadow-neon"
+        class="group flex items-center gap-4 rounded-xl border border-mint/20 bg-ink/80 p-4 transition hover:border-phosphor/60 hover:shadow-phosphor"
       >
         <.avatar character={character} class="h-16 w-16 text-2xl" />
         <div class="min-w-0">
-          <p class="truncate text-lg font-bold text-slate-100 group-hover:text-neon">
+          <p class="truncate text-lg font-bold text-fog-100 group-hover:text-phosphor">
             {character.name}
           </p>
-          <p class="truncate text-xs uppercase tracking-wider text-teal">{character.story.name}</p>
-          <p class="mt-1 line-clamp-2 text-sm text-slate-400">{character.description}</p>
+          <p class="truncate text-xs uppercase tracking-wider text-mint">{character.story.name}</p>
+          <p class="mt-1 line-clamp-2 text-sm text-fog-400">{character.description}</p>
         </div>
       </.link>
     </div>

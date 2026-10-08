@@ -5,7 +5,7 @@
 <h1 align="center">Tannhauser Gate</h1>
 
 <p align="center">
-  A neon-noir play-by-chat role-playing website built with Elixir, Phoenix LiveView and PostgreSQL.
+  A console-green, noir play-by-chat role-playing website built with Elixir, Phoenix LiveView and PostgreSQL.
 </p>
 
 ---
@@ -32,6 +32,16 @@ original setting inspired by the mood of *Blade Runner*.
   - manage forum sections;
   - promote or revoke admins.
 - **Default content:** the *Tannhauser Gate* story with nine rooms in the city of Neo-Meridian, three forum sections and an admin account.
+
+## Theme
+
+The UI uses a console / "Matrix" green palette tuned for long reading sessions. The primary
+phosphor green (#4ae08a) is deliberately softer than pure #00ff00. It sits on a green-tinted
+near-black (
+ight, #0b100d) instead of pure black, and body text uses green-grey og tones
+rather than saturated green. All text colours meet WCAG AA, and most exceed AAA (phosphor is
+11.3:1, body text 13.1:1). Red is reserved for errors and destructive actions. The tokens are in
+[ssets/tailwind.config.js](assets/tailwind.config.js).
 
 ## Running locally (WSL / Linux)
 
@@ -133,7 +143,7 @@ Character avatars are stored on local disk and served from `/uploads`. By defaul
 ```
 lib/tannhauser_gate/          domain: Accounts, Stories, Characters, Chat, Forum, Storage, Seeds
 lib/tannhauser_gate_web/live/ LiveViews (characters, map, rooms, forum, admin)
-assets/                       Tailwind theme (neon/noir + notepad styles) and JS hooks
+assets/                       Tailwind theme (console-green palette + notepad styles) and JS hooks
 priv/static/images/logo.svg   brand mark; priv/static/favicon.svg
 e2e/                          Playwright end-to-end tests
 ```

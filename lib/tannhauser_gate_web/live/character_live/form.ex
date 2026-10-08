@@ -107,7 +107,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       <:subtitle>Name, face and past. The rain will do the rest.</:subtitle>
     </.header>
 
-    <div class="mt-6 max-w-2xl rounded-xl border border-teal/20 bg-ink/80 p-6">
+    <div class="mt-6 max-w-2xl rounded-xl border border-mint/20 bg-ink/80 p-6">
       <.simple_form for={@form} id="character-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} type="text" label="Character name" required />
         <.input field={@form[:story_id]} type="select" label="Story" options={@story_options} />
@@ -115,7 +115,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         <div phx-drop-target={@uploads.avatar.ref} class="space-y-2">
           <label
             for={@uploads.avatar.ref}
-            class="block text-sm font-semibold leading-6 text-slate-200"
+            class="block text-sm font-semibold leading-6 text-fog-200"
           >
             Avatar (photo)
           </label>
@@ -128,7 +128,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             <div :for={entry <- @uploads.avatar.entries} class="flex items-center gap-3">
               <.live_img_preview
                 entry={entry}
-                class="h-16 w-16 rounded-full object-cover ring-2 ring-neon"
+                class="h-16 w-16 rounded-full object-cover ring-2 ring-phosphor"
               />
               <button
                 type="button"
@@ -145,7 +145,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             </div>
             <.live_file_input
               upload={@uploads.avatar}
-              class="text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-teal/20 file:px-3 file:py-2 file:text-teal"
+              class="text-sm text-fog-300 file:mr-3 file:rounded-md file:border-0 file:bg-mint/20 file:px-3 file:py-2 file:text-mint"
             />
           </div>
           <p :for={err <- upload_errors(@uploads.avatar)} class="text-sm text-red-400">
@@ -160,7 +160,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
           <.button phx-disable-with="Saving...">Save character</.button>
           <.link
             navigate={if @character.id, do: ~p"/characters/#{@character}", else: ~p"/characters"}
-            class="text-sm font-semibold text-slate-400 hover:text-teal"
+            class="text-sm font-semibold text-fog-400 hover:text-mint"
           >
             Cancel
           </.link>

@@ -54,7 +54,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
     <div class="mb-4">
       <.link
         navigate={~p"/forum/sections/#{@topic.section_id}"}
-        class="text-sm font-semibold text-teal hover:text-neon"
+        class="text-sm font-semibold text-mint hover:text-phosphor"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> {@topic.section.name}
       </.link>
@@ -69,11 +69,11 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       <li
         :for={{dom_id, post} <- @streams.posts}
         id={dom_id}
-        class="forum-post rounded-xl border border-teal/20 bg-ink/80 p-4"
+        class="forum-post rounded-xl border border-mint/20 bg-ink/80 p-4"
       >
-        <div class="mb-2 flex items-center justify-between gap-3 text-xs text-slate-500">
+        <div class="mb-2 flex items-center justify-between gap-3 text-xs text-fog-500">
           <span>
-            <span class="font-bold text-teal">{User.handle(post.user)}</span>
+            <span class="font-bold text-mint">{User.handle(post.user)}</span>
             · {format_time(post.inserted_at)}
           </span>
           <button
@@ -87,12 +87,12 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
             Delete
           </button>
         </div>
-        <p class="whitespace-pre-line break-words text-slate-200">{post.body}</p>
+        <p class="whitespace-pre-line break-words text-fog-200">{post.body}</p>
       </li>
     </ol>
 
-    <div class="mt-8 max-w-3xl rounded-xl border border-teal/20 bg-ink/80 p-6">
-      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-teal">Reply</h2>
+    <div class="mt-8 max-w-3xl rounded-xl border border-mint/20 bg-ink/80 p-6">
+      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">Reply</h2>
       <.simple_form for={@form} id={"post-form-#{@form_id}"} phx-submit="create_post">
         <.input field={@form[:body]} type="textarea" label="Your post" rows="4" required />
         <:actions>

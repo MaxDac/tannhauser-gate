@@ -8,7 +8,7 @@ defmodule TannhauserGateWeb.UserLoginLive do
         Log in
         <:subtitle>
           Don't have an account?
-          <.link navigate={~p"/users/register"} class="font-semibold text-teal hover:underline">
+          <.link navigate={~p"/users/register"} class="font-semibold text-mint hover:underline">
             Register
           </.link>
           for an account now.

@@ -71,25 +71,25 @@ defmodule TannhauserGateWeb.RoomLive do
     <div class="mb-4">
       <.link
         navigate={~p"/stories/#{@location.story_id}/map"}
-        class="text-sm font-semibold text-teal hover:text-neon"
+        class="text-sm font-semibold text-mint hover:text-phosphor"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Back to the map
       </.link>
     </div>
 
     <.header>
-      <span class="neon-text">{@location.name}</span>
+      <span class="phosphor-text">{@location.name}</span>
       <:subtitle>{@location.description}</:subtitle>
     </.header>
 
-    <section class="mt-6 flex h-[65vh] flex-col overflow-hidden rounded-xl border border-teal/30 bg-ink/80">
+    <section class="mt-6 flex h-[65vh] flex-col overflow-hidden rounded-xl border border-mint/30 bg-ink/80">
       <ol
         id="messages"
         phx-update="stream"
         phx-hook="ScrollBottom"
         class="flex-1 space-y-4 overflow-y-auto p-4"
       >
-        <li class="hidden only:block py-10 text-center text-sm text-slate-500" id="messages-empty">
+        <li class="hidden only:block py-10 text-center text-sm text-fog-500" id="messages-empty">
           The room is quiet. Only the rain is talking.
         </li>
         <li :for={{dom_id, message} <- @streams.messages} id={dom_id} class="chat-message flex gap-3">
@@ -98,24 +98,24 @@ defmodule TannhauserGateWeb.RoomLive do
             <p class="flex flex-wrap items-baseline gap-x-3">
               <.link
                 navigate={~p"/characters/#{message.character}"}
-                class="chat-name font-bold text-neon hover:underline"
+                class="chat-name font-bold text-phosphor hover:underline"
               >
                 {message.character.name}
               </.link>
-              <time class="text-xs text-slate-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
+              <time class="text-xs text-fog-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
                 {format_time(message.inserted_at)}
               </time>
             </p>
-            <p class="chat-body whitespace-pre-line break-words text-slate-200">{message.body}</p>
+            <p class="chat-body whitespace-pre-line break-words text-fog-200">{message.body}</p>
           </div>
         </li>
       </ol>
 
-      <div class="border-t border-teal/20 bg-night/60 p-4">
-        <p :if={@characters == []} class="text-sm text-slate-400">
+      <div class="border-t border-mint/20 bg-night/60 p-4">
+        <p :if={@characters == []} class="text-sm text-fog-400">
           You need a character in this story to speak. <.link
             navigate={~p"/characters/new"}
-            class="font-semibold text-teal hover:underline"
+            class="font-semibold text-mint hover:underline"
           >Create one</.link>.
         </p>
         <.form

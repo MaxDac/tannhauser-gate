@@ -19,19 +19,19 @@ defmodule TannhauserGateWeb.ForumLive.Index do
       <:subtitle>Out of the rain: talk, plan and gossip.</:subtitle>
     </.header>
 
-    <p :if={@sections == []} class="mt-8 text-slate-400">No sections yet.</p>
+    <p :if={@sections == []} class="mt-8 text-fog-400">No sections yet.</p>
 
     <ul id="forum-sections" class="mt-8 space-y-3">
       <li :for={{section, topic_count} <- @sections}>
         <.link
           navigate={~p"/forum/sections/#{section}"}
-          class="flex items-center justify-between gap-4 rounded-xl border border-teal/20 bg-ink/80 p-4 transition hover:border-neon/60 hover:shadow-neon"
+          class="flex items-center justify-between gap-4 rounded-xl border border-mint/20 bg-ink/80 p-4 transition hover:border-phosphor/60 hover:shadow-phosphor"
         >
           <div>
-            <p class="text-lg font-bold text-slate-100">{section.name}</p>
-            <p class="text-sm text-slate-400">{section.description}</p>
+            <p class="text-lg font-bold text-fog-100">{section.name}</p>
+            <p class="text-sm text-fog-400">{section.description}</p>
           </div>
-          <span class="shrink-0 text-xs uppercase tracking-wider text-teal">
+          <span class="shrink-0 text-xs uppercase tracking-wider text-mint">
             {topic_count} {if topic_count == 1, do: "topic", else: "topics"}
           </span>
         </.link>

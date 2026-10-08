@@ -24,7 +24,7 @@ defmodule TannhauserGateWeb.Admin.Components do
     ~H"""
     <nav
       id="admin-nav"
-      class="mb-8 flex flex-wrap gap-2 border-b border-teal/20 pb-4"
+      class="mb-8 flex flex-wrap gap-2 border-b border-mint/20 pb-4"
       aria-label="Admin"
     >
       <.link
@@ -32,8 +32,8 @@ defmodule TannhauserGateWeb.Admin.Components do
         navigate={path}
         class={[
           "rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-          active?(@current_path, path) && "bg-neon/20 text-neon",
-          !active?(@current_path, path) && "text-slate-300 hover:bg-teal/10 hover:text-teal"
+          active?(@current_path, path) && "bg-phosphor/20 text-phosphor",
+          !active?(@current_path, path) && "text-fog-300 hover:bg-mint/10 hover:text-mint"
         ]}
       >
         {label}
@@ -81,10 +81,10 @@ defmodule TannhauserGateWeb.Admin.DashboardLive do
       <.link
         :for={{label, count, path} <- @stats}
         navigate={path}
-        class="rounded-xl border border-teal/20 bg-ink/80 p-5 hover:border-neon/60 hover:shadow-neon"
+        class="rounded-xl border border-mint/20 bg-ink/80 p-5 hover:border-phosphor/60 hover:shadow-phosphor"
       >
-        <p class="text-xs uppercase tracking-[0.2em] text-teal">{label}</p>
-        <p class="mt-2 text-4xl font-bold text-neon">{count}</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-mint">{label}</p>
+        <p class="mt-2 text-4xl font-bold text-phosphor">{count}</p>
       </.link>
     </div>
     """
@@ -126,7 +126,10 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Index do
     <.table id="stories" rows={@stories}>
       <:col :let={story} label="Name">
         {story.name}
-        <span :if={story.is_default} class="ml-2 rounded bg-neon/20 px-1.5 py-0.5 text-xs text-neon">default</span>
+        <span
+          :if={story.is_default}
+          class="ml-2 rounded bg-phosphor/20 px-1.5 py-0.5 text-xs text-phosphor"
+        >default</span>
       </:col>
       <:col :let={story} label="Summary"><span class="line-clamp-2">{story.summary}</span></:col>
       <:action :let={story}>
@@ -263,7 +266,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
       <:subtitle>Background story, customs and the map of the world.</:subtitle>
     </.header>
 
-    <div class="mt-6 rounded-xl border border-teal/20 bg-ink/80 p-6">
+    <div class="mt-6 rounded-xl border border-mint/20 bg-ink/80 p-6">
       <.simple_form for={@form} id="story-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} type="text" label="Name" required />
         <.input field={@form[:summary]} type="textarea" label="Summary" rows="2" />
@@ -288,13 +291,13 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
     </div>
 
     <section :if={@story.id} id="story-rooms" class="mt-10">
-      <h2 class="text-lg font-bold uppercase tracking-[0.2em] text-teal">Rooms on the map</h2>
-      <p class="text-sm text-slate-400">
+      <h2 class="text-lg font-bold uppercase tracking-[0.2em] text-mint">Rooms on the map</h2>
+      <p class="text-sm text-fog-400">
         Areas are SVG polygon points in map coordinates, e.g. <code>100,100 200,100 200,200 100,200</code>.
       </p>
 
       <div class="mt-4 grid gap-6 lg:grid-cols-2">
-        <div class="overflow-hidden rounded-xl border border-teal/30 bg-night">
+        <div class="overflow-hidden rounded-xl border border-mint/30 bg-night">
           <svg viewBox={"0 0 #{@story.map_width} #{@story.map_height}"} class="block h-auto w-full">
             {raw(@story.map_svg || "")}
             <polygon
@@ -307,8 +310,8 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
           </svg>
         </div>
 
-        <div class="rounded-xl border border-teal/20 bg-ink/80 p-6">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-neon">
+        <div class="rounded-xl border border-mint/20 bg-ink/80 p-6">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-phosphor">
             {if @location.id, do: "Edit room", else: "New room"}
           </h3>
           <.simple_form for={@location_form} id="location-form" phx-submit="save_location">
@@ -322,7 +325,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
                 :if={@location.id}
                 type="button"
                 phx-click="new_location"
-                class="text-sm text-slate-400 hover:text-teal"
+                class="text-sm text-fog-400 hover:text-mint"
               >
                 Cancel
               </button>
@@ -453,20 +456,20 @@ defmodule TannhauserGateWeb.Admin.RoomsLive do
       {@location.name}
       <:subtitle>{@location.story.name} · conversation log</:subtitle>
       <:actions>
-        <.link navigate={~p"/admin/rooms"} class="text-sm font-semibold text-teal">All rooms</.link>
+        <.link navigate={~p"/admin/rooms"} class="text-sm font-semibold text-mint">All rooms</.link>
       </:actions>
     </.header>
     <ol id="admin-messages" phx-update="stream" class="mt-6 space-y-3">
-      <li class="hidden only:block text-sm text-slate-500" id="admin-messages-empty">No messages.</li>
+      <li class="hidden only:block text-sm text-fog-500" id="admin-messages-empty">No messages.</li>
       <li
         :for={{dom_id, m} <- @streams.messages}
         id={dom_id}
-        class="flex gap-3 rounded-lg border border-teal/20 bg-ink/80 p-3"
+        class="flex gap-3 rounded-lg border border-mint/20 bg-ink/80 p-3"
       >
         <.avatar character={m.character} class="h-9 w-9 shrink-0" />
         <div class="min-w-0 flex-1">
-          <p class="text-xs text-slate-500">
-            <span class="font-bold text-neon">{m.character.name}</span>
+          <p class="text-xs text-fog-500">
+            <span class="font-bold text-phosphor">{m.character.name}</span>
             ({m.user.email}) · {format_time(m.inserted_at)}
           </p>
           <p class="whitespace-pre-line break-words">{m.body}</p>
@@ -539,7 +542,7 @@ defmodule TannhauserGateWeb.Admin.UsersLive do
     <.table id="admin-users" rows={@users}>
       <:col :let={u} label="Email">{u.email}</:col>
       <:col :let={u} label="Role">
-        <span class={[u.role == "admin" && "text-neon font-bold"]}>{u.role}</span>
+        <span class={[u.role == "admin" && "text-phosphor font-bold"]}>{u.role}</span>
       </:col>
       <:col :let={u} label="Joined">{format_time(u.inserted_at)}</:col>
       <:action :let={u}>
@@ -626,8 +629,8 @@ defmodule TannhauserGateWeb.Admin.ForumLive do
       </:action>
     </.table>
 
-    <div class="mt-8 max-w-xl rounded-xl border border-teal/20 bg-ink/80 p-6">
-      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-teal">New section</h2>
+    <div class="mt-8 max-w-xl rounded-xl border border-mint/20 bg-ink/80 p-6">
+      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">New section</h2>
       <.simple_form for={@form} id="section-form" phx-submit="create_section">
         <.input field={@form[:name]} type="text" label="Name" required />
         <.input field={@form[:description]} type="text" label="Description" />

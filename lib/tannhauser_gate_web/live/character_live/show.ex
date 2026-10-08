@@ -32,7 +32,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   def render(assigns) do
     ~H"""
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <.link navigate={~p"/characters"} class="text-sm font-semibold text-teal hover:text-neon">
+      <.link navigate={~p"/characters"} class="text-sm font-semibold text-mint hover:text-phosphor">
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Back to characters
       </.link>
       <div :if={@can_edit?} class="flex gap-2">
@@ -42,7 +42,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
         <.button
           phx-click="delete"
           data-confirm="Delete this character? Their messages will be deleted too."
-          class="!bg-red-700 hover:!bg-red-600"
+          class="!border-red-400 !bg-red-500/10 hover:!bg-red-500/25 !text-red-300 !shadow-none"
         >
           Delete
         </.button>
@@ -64,7 +64,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
             />
             <div
               :if={!@character.avatar_path}
-              class="flex h-44 w-40 items-center justify-center bg-slate-300 text-6xl font-bold text-slate-500"
+              class="flex h-44 w-40 items-center justify-center bg-fog-300 text-6xl font-bold text-fog-500"
             >
               {String.first(@character.name)}
             </div>
