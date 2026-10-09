@@ -23,6 +23,9 @@ config :tannhauser_gate, TannhauserGateWeb.Endpoint,
   secret_key_base: "LyrbbDvlnqBrBY7VDv51LHpWvrud0AoJLmLNQCr1eZ2m7QH/o6jc52bQ41eN4cUg",
   server: false
 
+# Email flows are on in tests; flag-off tests override it with Application.put_env/3
+config :tannhauser_gate, :feature_email_auth, true
+
 # In test we don't send emails
 config :tannhauser_gate, TannhauserGate.Mailer, adapter: Swoosh.Adapters.Test
 

@@ -32,7 +32,9 @@ defmodule TannhauserGateWeb.UserLoginLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/users/log_in")
 
       form =
-        form(lv, "#login_form", user: %{email: user.email, password: password, remember_me: true})
+        form(lv, "#login_form",
+          user: %{login: user.username, password: password, remember_me: true}
+        )
 
       conn = submit_form(form, conn)
 
@@ -46,12 +48,12 @@ defmodule TannhauserGateWeb.UserLoginLiveTest do
 
       form =
         form(lv, "#login_form",
-          user: %{email: "test@email.com", password: "123456", remember_me: true}
+          user: %{login: "test_user", password: "123456", remember_me: true}
         )
 
       conn = submit_form(form, conn)
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid email or password"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid username or password"
 
       assert redirected_to(conn) == "/users/log_in"
     end

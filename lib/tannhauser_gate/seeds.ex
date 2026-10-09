@@ -16,6 +16,7 @@ defmodule TannhauserGate.Seeds do
 
   @story_name "Tannhauser Gate"
   @default_admin_email "admin@tannhauser.gate"
+  @default_admin_username "admin"
   @default_admin_password "change-me-tannhauser-2121"
 
   def default_admin_email, do: @default_admin_email
@@ -37,7 +38,13 @@ defmodule TannhauserGate.Seeds do
     user =
       case Accounts.get_user_by_email(email) do
         nil ->
-          {:ok, user} = Accounts.register_user(%{email: email, password: password})
+          {:ok, user} =
+            Accounts.register_user(%{
+              username: System.get_env("ADMIN_USERNAME") || @default_admin_username,
+              email: email,
+              password: password
+            })
+
           user
 
         user ->

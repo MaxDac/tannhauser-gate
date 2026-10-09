@@ -2,8 +2,8 @@ import { test, expect, Page } from "@playwright/test";
 
 // Screenshot tests. The database must hold only the deterministic fixtures
 // from priv/repo/visual_seeds.exs (see playwright.visual.config.ts).
-const ADMIN = { email: "admin@tannhauser.gate", password: "change-me-tannhauser-2121" };
-const PLAYER = { email: "player@tannhauser.gate", password: "more-human-than-human" };
+const ADMIN = { username: "admin", password: "change-me-tannhauser-2121" };
+const PLAYER = { username: "player", password: "more-human-than-human" };
 
 // Hide things that are never stable between runs: the LiveView progress bar,
 // flash toasts, the text caret and any CSS animation or transition.
@@ -40,10 +40,10 @@ async function visit(page: Page, path: string, name: string) {
   await snap(page, name);
 }
 
-async function logIn(page: Page, user: { email: string; password: string }) {
+async function logIn(page: Page, user: { username: string; password: string }) {
   await page.goto("/users/log_in");
   await expect(page.locator(".phx-connected").first()).toBeVisible();
-  await page.getByLabel("Email").fill(user.email);
+  await page.getByLabel("Username").fill(user.username);
   await page.getByLabel("Password").fill(user.password);
   await page.getByRole("button", { name: /log in/i }).click();
   await expect(page).toHaveURL(/\/characters$/);
@@ -63,7 +63,7 @@ test.describe("guest", () => {
     await settle(page);
     await page.getByRole("link", { name: "Register", exact: true }).focus();
     await page.keyboard.press("Tab");
-    await expect(page.getByLabel("Email", { exact: true })).toBeFocused();
+    await expect(page.getByLabel("Username", { exact: true })).toBeFocused();
     await snap(page, "login-focus");
   });
 

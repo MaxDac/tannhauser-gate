@@ -45,10 +45,10 @@ defmodule TannhauserGateWeb.UserSettingsLive do
             phx-trigger-action={@trigger_submit}
           >
             <input
-              name={@password_form[:email].name}
+              name="user[login]"
               type="hidden"
-              id="hidden_user_email"
-              value={@current_email}
+              id="hidden_user_login"
+              value={@current_username}
             />
             <.input field={@password_form[:password]} type="password" label="New password" required />
             <.input
@@ -97,7 +97,7 @@ defmodule TannhauserGateWeb.UserSettingsLive do
       socket
       |> assign(:current_password, nil)
       |> assign(:email_form_current_password, nil)
-      |> assign(:current_email, user.email)
+      |> assign(:current_username, user.username)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
@@ -121,19 +121,10 @@ defmodule TannhauserGateWeb.UserSettingsLive do
     %{"current_password" => password, "user" => user_params} = params
     user = socket.assigns.current_user
 
-    case Accounts.apply_user_email(user, password, user_params) do
-      {:ok, applied_user} ->
-        Accounts.deliver_user_update_email_instructions(
-          applied_user,
-          user.email,
-          &url(~p"/users/settings/confirm_email/#{&1}")
-        )
-
-        info = "A link to confirm your email change has been sent to the new address."
-        {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
-
-      {:error, changeset} ->
-        {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
+    if TannhauserGate.Features.email_auth?() do
+      update_email_with_verification(socket, user, password, user_params)
+    else
+      update_email_unverified(socket, user, password, user_params)
     end
   end
 
@@ -164,6 +155,40 @@ defmodule TannhauserGateWeb.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  defp update_email_with_verification(socket, user, password, user_params) do
+    case Accounts.apply_user_email(user, password, user_params) do
+      {:ok, applied_user} ->
+        Accounts.deliver_user_update_email_instructions(
+          applied_user,
+          user.email,
+          &url(~p"/users/settings/confirm_email/#{&1}")
+        )
+
+        info = "A link to confirm your email change has been sent to the new address."
+        {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
+    end
+  end
+
+  defp update_email_unverified(socket, user, password, user_params) do
+    case Accounts.update_user_email_unverified(user, password, user_params) do
+      {:ok, updated_user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Email updated.")
+         |> assign(
+           current_user: updated_user,
+           email_form: to_form(Accounts.change_user_email(updated_user)),
+           email_form_current_password: nil
+         )}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
     end
   end
 end

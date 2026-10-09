@@ -126,12 +126,21 @@ The dev and test environments read these optional variables:
 | `DEV_DATABASE` | `tannhauser_gate_dev` |
 | `PORT` | `4000` |
 
+### Email authentication feature flag
+
+Email delivery and verification are behind `FEATURE_EMAIL_AUTH` (`true` or `1` enables it; the default is off,
+see `TannhauserGate.Features`). While it is off, users register with a username, an email and a password. No
+email is sent, the email stays unverified and login is by username. Password reset, the confirmation pages and
+the "forgot password" link are disabled. Turning it on restores the confirmation, reset and email-change flows,
+and login accepts the username or the email. See the "Enable email" GitHub issue for the re-enable steps.
+
 ### Default admin account
 
 The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) create an admin. They are safe to re-run.
 
 | | Default | Override with |
 | --- | --- | --- |
+| Username | `admin` | `ADMIN_USERNAME` |
 | Email | `admin@tannhauser.gate` | `ADMIN_EMAIL` |
 | Password | `change-me-tannhauser-2121` | `ADMIN_PASSWORD` |
 

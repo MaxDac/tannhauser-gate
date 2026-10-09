@@ -16,6 +16,10 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
+if flag = System.get_env("FEATURE_EMAIL_AUTH") do
+  config :tannhauser_gate, :feature_email_auth, flag in ~w(true 1)
+end
+
 if System.get_env("PHX_SERVER") do
   config :tannhauser_gate, TannhauserGateWeb.Endpoint, server: true
 end

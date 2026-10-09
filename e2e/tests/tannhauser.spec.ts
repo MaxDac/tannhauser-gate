@@ -3,10 +3,11 @@ import path from "node:path";
 
 // Runs against a dev database prepared with `mix ecto.setup` (seeds the
 // Tannhauser Gate story, its rooms, forum sections and the default admin).
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@tannhauser.gate";
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121";
 
 const stamp = Date.now();
+const username = `runner${stamp}`;
 const email = `runner${stamp}@example.com`;
 const password = "more-human-than-human";
 const characterName = `Deckard ${stamp}`;
@@ -22,7 +23,7 @@ async function connected(page: Page) {
 async function logIn(page: Page, user: string, pass: string) {
   await page.goto("/users/log_in");
   await connected(page);
-  await page.getByLabel("Email").fill(user);
+  await page.getByLabel("Username").fill(user);
   await page.getByLabel("Password").fill(pass);
   await page.getByRole("button", { name: /log in/i }).click();
   await expect(page).toHaveURL(/\/characters$/);
@@ -43,6 +44,7 @@ test("registers a new user", async ({ page }) => {
   await expect(page).toHaveURL(/\/users\/log_in$/);
   await page.getByRole("link", { name: "Register" }).click();
   await connected(page);
+  await page.getByLabel("Username").fill(username);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create an account" }).click();
@@ -51,7 +53,7 @@ test("registers a new user", async ({ page }) => {
 });
 
 test("plays: character, map, room chat, forum", async ({ page }) => {
-  await logIn(page, email, password);
+  await logIn(page, username, password);
 
   // Character with avatar
   await page.getByRole("link", { name: /new character/i }).click();
@@ -121,7 +123,7 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
 });
 
 test("admin can reach the control room and read conversations", async ({ page }) => {
-  await logIn(page, ADMIN_EMAIL, ADMIN_PASSWORD);
+  await logIn(page, ADMIN_USERNAME, ADMIN_PASSWORD);
   await page.locator("#drawer").getByRole("link", { name: "Admin" }).click();
   await expect(page.locator("#admin-stats")).toBeVisible();
 
@@ -134,5 +136,5 @@ test("admin can reach the control room and read conversations", async ({ page })
   await expect(page.locator("#admin-messages")).toContainText(message);
 
   await page.locator("#admin-nav").getByRole("link", { name: /users/i }).click();
-  await expect(page.locator("#admin-users")).toContainText(email);
+  await expect(page.locator("#admin-users")).toContainText(username);
 });

@@ -119,7 +119,7 @@ defmodule TannhauserGateWeb.Layouts do
 
           <ul class="menu mt-auto w-full gap-1 border-t border-secondary/20 p-0 pt-4">
             <li class="menu-title min-w-0 px-3 normal-case">
-              <span class="block truncate" title={@current_user.email}>{@current_user.email}</span>
+              <span class="block truncate" title={@current_user.username}>{@current_user.username}</span>
             </li>
             <li>
               <.nav_link
