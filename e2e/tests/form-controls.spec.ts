@@ -30,7 +30,7 @@ function contrast(first: string, second: string) {
 test("login controls have visible keyboard focus and retain checkbox behavior", async ({ page }) => {
   await page.goto("/users/log_in");
   await connected(page);
-  const email = page.locator("#login_form input[name="user[login]"]");
+  const email = page.locator('#login_form input[name="user[login]"]');
   await expect(email).toHaveCSS("border-color", "rgb(114, 137, 122)");
   await expect(email).toHaveCSS("background-color", "rgb(11, 16, 13)");
   const colors = await email.evaluate((input) => {
