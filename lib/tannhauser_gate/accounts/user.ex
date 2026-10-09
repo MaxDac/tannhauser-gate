@@ -3,6 +3,7 @@ defmodule TannhauserGate.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
+    field :username, :string
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
@@ -28,11 +29,9 @@ defmodule TannhauserGate.Accounts.User do
   end
 
   @doc """
-  Short public handle derived from the email (the part before the `@`).
+  Short public handle: the username.
   """
-  def handle(%__MODULE__{email: email}) when is_binary(email) do
-    email |> String.split("@") |> hd()
-  end
+  def handle(%__MODULE__{username: username}) when is_binary(username), do: username
 
   def handle(_), do: "unknown"
 
@@ -61,9 +60,31 @@ defmodule TannhauserGate.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:username, :email, :password])
+    |> validate_username(opts)
     |> validate_email(opts)
     |> validate_password(opts)
+  end
+
+  defp validate_username(changeset, opts) do
+    changeset
+    |> validate_required([:username])
+    |> update_change(:username, &String.trim/1)
+    |> validate_length(:username, min: 3, max: 30)
+    |> validate_format(:username, ~r/^[A-Za-z0-9_.-]+$/,
+      message: "can only contain letters, numbers, underscores, dots and dashes"
+    )
+    |> maybe_validate_unique_username(opts)
+  end
+
+  defp maybe_validate_unique_username(changeset, opts) do
+    if Keyword.get(opts, :validate_email, true) do
+      changeset
+      |> unsafe_validate_unique(:username, TannhauserGate.Repo)
+      |> unique_constraint(:username)
+    else
+      changeset
+    end
   end
 
   defp validate_email(changeset, opts) do

@@ -414,7 +414,7 @@ defmodule TannhauserGateWeb.Admin.CharactersLive do
           </span>
         </:col>
         <:col :let={c} label="Story">{c.story.name}</:col>
-        <:col :let={c} label="Player">{c.user.email}</:col>
+        <:col :let={c} label="Player">{c.user.username}</:col>
         <:action :let={c}><.link navigate={~p"/characters/#{c}"}>View</.link></:action>
         <:action :let={c}><.link navigate={~p"/characters/#{c}/edit"}>Edit</.link></:action>
         <:action :let={c}>
@@ -492,7 +492,7 @@ defmodule TannhauserGateWeb.Admin.RoomsLive do
           <div class="min-w-0 flex-1">
             <p class="text-xs text-fog-500">
               <span class="font-bold text-phosphor">{m.character.name}</span>
-              ({m.user.email}) · {format_time(m.inserted_at)}
+              ({m.user.username}) · {format_time(m.inserted_at)}
             </p>
             <p class="whitespace-pre-line break-words">{m.body}</p>
           </div>
@@ -566,6 +566,7 @@ defmodule TannhauserGateWeb.Admin.UsersLive do
       <.admin_nav current_path={@current_path} />
       <.header>Users</.header>
       <.table id="admin-users" rows={@users}>
+        <:col :let={u} label="Username">{u.username}</:col>
         <:col :let={u} label="Email">{u.email}</:col>
         <:col :let={u} label="Role">
           <span class={[u.role == "admin" && "text-phosphor font-bold"]}>{u.role}</span>

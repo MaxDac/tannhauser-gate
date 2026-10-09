@@ -9,7 +9,10 @@ import Config
 
 config :tannhauser_gate,
   ecto_repos: [TannhauserGate.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  # Email delivery/verification is off until a mail provider is configured.
+  # Enable at runtime with FEATURE_EMAIL_AUTH=true.
+  feature_email_auth: false
 
 # Configure the endpoint
 config :tannhauser_gate, TannhauserGateWeb.Endpoint,

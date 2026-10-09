@@ -7,7 +7,7 @@ async function connected(page: Page) {
 async function adminLogin(page: Page) {
   await page.goto("/users/log_in");
   await connected(page);
-  await page.getByLabel("Email").fill(process.env.ADMIN_EMAIL || "admin@tannhauser.gate");
+  await page.getByLabel("Username").fill(process.env.ADMIN_USERNAME || "admin");
   await page.getByLabel("Password").fill(process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121");
   await page.getByRole("button", { name: /log in/i }).click();
   await expect(page).toHaveURL(/\/characters$/);
@@ -30,7 +30,7 @@ function contrast(first: string, second: string) {
 test("login controls have visible keyboard focus and retain checkbox behavior", async ({ page }) => {
   await page.goto("/users/log_in");
   await connected(page);
-  const email = page.locator("#login_form input[type=email]");
+  const email = page.locator('#login_form input[name="user[login]"]');
   await expect(email).toHaveCSS("border-color", "rgb(114, 137, 122)");
   await expect(email).toHaveCSS("background-color", "rgb(11, 16, 13)");
   const colors = await email.evaluate((input) => {
@@ -72,6 +72,7 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
 });
 
 test("account recovery fields retain visible labels after typing", async ({ page }) => {
+  test.skip(process.env.FEATURE_EMAIL_AUTH !== "true", "Email flows are disabled");
   for (const route of ["/users/reset_password", "/users/confirm"]) {
     await page.goto(route);
     await connected(page);

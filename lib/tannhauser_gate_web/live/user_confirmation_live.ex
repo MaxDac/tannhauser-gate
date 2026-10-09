@@ -1,6 +1,8 @@
 defmodule TannhauserGateWeb.UserConfirmationLive do
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth, :require_email_auth}
+
   alias TannhauserGate.Accounts
 
   def render(%{live_action: :edit} = assigns) do

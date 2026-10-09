@@ -103,7 +103,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
 
       {:ok, lv, html} = live(conn, ~p"/admin/rooms/#{location}")
       assert html =~ "Tears in rain"
-      assert html =~ user.email
+      assert html =~ user.username
 
       lv |> element("#messages-#{message.id} button", "Delete") |> render_click()
       refute render(lv) =~ "Tears in rain"

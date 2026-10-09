@@ -18,7 +18,7 @@ player_password = "more-human-than-human"
 
 player =
   Accounts.get_user_by_email(player_email) ||
-    elem(Accounts.register_user(%{email: player_email, password: player_password}), 1)
+    elem(Accounts.register_user(%{username: "player", email: player_email, password: player_password}), 1)
 
 avatar = Storage.store_upload!(Path.expand("../../e2e/fixtures/avatar.png", __DIR__), "avatar.png")
 

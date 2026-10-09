@@ -17,12 +17,22 @@ defmodule TannhauserGateWeb.UserLoginLive do
         </.header>
 
         <.form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
-          <.input field={@form[:email]} type="email" label="Email" required />
+          <.input
+            field={@form[:login]}
+            type="text"
+            label={if(@email_auth?, do: "Username or email", else: "Username")}
+            autocomplete="username"
+            required
+          />
           <.input field={@form[:password]} type="password" label="Password" required />
 
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
             <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-            <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
+            <.link
+              :if={@email_auth?}
+              href={~p"/users/reset_password"}
+              class="text-sm font-semibold"
+            >
               Forgot your password?
             </.link>
           </div>
@@ -38,8 +48,10 @@ defmodule TannhauserGateWeb.UserLoginLive do
   end
 
   def mount(_params, _session, socket) do
-    email = Phoenix.Flash.get(socket.assigns.flash, :email)
-    form = to_form(%{"email" => email}, as: "user")
-    {:ok, assign(socket, form: form), temporary_assigns: [form: form]}
+    login = Phoenix.Flash.get(socket.assigns.flash, :login)
+    form = to_form(%{"login" => login}, as: "user")
+
+    {:ok, assign(socket, form: form, email_auth?: TannhauserGate.Features.email_auth?()),
+     temporary_assigns: [form: form]}
   end
 end

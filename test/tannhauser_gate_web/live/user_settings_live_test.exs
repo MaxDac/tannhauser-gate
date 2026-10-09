@@ -98,7 +98,7 @@ defmodule TannhauserGateWeb.UserSettingsLiveTest do
         form(lv, "#password_form", %{
           "current_password" => password,
           "user" => %{
-            "email" => user.email,
+            "login" => user.username,
             "password" => new_password,
             "password_confirmation" => new_password
           }

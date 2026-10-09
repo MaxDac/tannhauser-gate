@@ -45,6 +45,27 @@ defmodule TannhauserGate.Accounts do
   end
 
   @doc """
+  Gets a user by username and password.
+  """
+  def get_user_by_username_and_password(username, password)
+      when is_binary(username) and is_binary(password) do
+    user = Repo.get_by(User, username: username)
+    if User.valid_password?(user, password), do: user
+  end
+
+  @doc """
+  Gets a user by login (username, or email when email auth is enabled) and password.
+  """
+  def get_user_by_login_and_password(login, password)
+      when is_binary(login) and is_binary(password) do
+    if TannhauserGate.Features.email_auth?() and String.contains?(login, "@") do
+      get_user_by_email_and_password(login, password)
+    else
+      get_user_by_username_and_password(login, password)
+    end
+  end
+
+  @doc """
   Gets a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.
@@ -126,6 +147,17 @@ defmodule TannhauserGate.Accounts do
     |> User.email_changeset(attrs)
     |> User.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
+  end
+
+  @doc """
+  Changes the email directly, without verification. Used while email auth is
+  disabled; the account stays unconfirmed.
+  """
+  def update_user_email_unverified(user, password, attrs) do
+    user
+    |> User.email_changeset(attrs)
+    |> User.validate_current_password(password)
+    |> Repo.update()
   end
 
   @doc """

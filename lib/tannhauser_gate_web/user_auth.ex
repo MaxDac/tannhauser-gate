@@ -152,6 +152,18 @@ defmodule TannhauserGateWeb.UserAuth do
     {:cont, mount_current_user(socket, session)}
   end
 
+  # Gates the email-based pages (reset password, confirmation) behind FEATURE_EMAIL_AUTH.
+  def on_mount(:require_email_auth, _params, _session, socket) do
+    if TannhauserGate.Features.email_auth?() do
+      {:cont, socket}
+    else
+      {:halt,
+       socket
+       |> Phoenix.LiveView.put_flash(:error, "Email features are currently disabled.")
+       |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")}
+    end
+  end
+
   def on_mount(:ensure_authenticated, _params, session, socket) do
     socket = mount_current_user(socket, session)
 
