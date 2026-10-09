@@ -1,21 +1,31 @@
 defmodule TannhauserGateWeb.ForumLive.Topic do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.Accounts
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Forum
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     topic = Forum.get_topic!(id)
+    story = socket.assigns.current_story
 
-    {:ok,
-     socket
-     |> assign(:page_title, topic.title)
-     |> assign(:topic, topic)
-     |> assign(:form_id, 0)
-     |> assign(:form, to_form(%{"body" => ""}, as: "post"))
-     |> stream(:posts, Forum.list_posts(topic))}
+    if topic.section.story_id != story.id do
+      {:ok,
+       socket
+       |> put_flash(:error, "That topic does not exist in this GDR.")
+       |> push_navigate(to: ~p"/g/#{story}/forum")}
+    else
+      {:ok, load(socket, topic)}
+    end
+  end
+
+  defp load(socket, topic) do
+    socket
+    |> assign(:page_title, topic.title)
+    |> assign(:topic, topic)
+    |> assign(:form_id, 0)
+    |> assign(:form, to_form(%{"body" => ""}, as: "post"))
+    |> stream(:posts, Forum.list_posts(topic))
   end
 
   @impl true
@@ -39,22 +49,32 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
   end
 
   def handle_event("delete_post", %{"id" => id}, socket) do
-    if Accounts.admin?(socket.assigns.current_user) do
+    if socket.assigns.story_manager? do
       post = Forum.get_post!(id)
-      {:ok, _} = Forum.delete_post(post)
-      {:noreply, stream_delete(socket, :posts, post)}
+
+      if post.topic_id == socket.assigns.topic.id do
+        {:ok, _} = Forum.delete_post(post)
+        {:noreply, stream_delete(socket, :posts, post)}
+      else
+        {:noreply, put_flash(socket, :error, "That post is not in this topic.")}
+      end
     else
-      {:noreply, put_flash(socket, :error, "Admins only.")}
+      {:noreply, put_flash(socket, :error, "Only the game master can delete posts.")}
     end
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+    <Layouts.app
+      flash={@flash}
+      current_user={@current_user}
+      current_path={@current_path}
+      current_story={@current_story}
+    >
       <div class="mb-4">
         <.link
-          navigate={~p"/forum/sections/#{@topic.section_id}"}
+          navigate={~p"/g/#{@current_story}/forum/sections/#{@topic.section_id}"}
           class="text-sm font-semibold text-mint hover:text-phosphor"
         >
           <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> {@topic.section.name}
@@ -80,7 +100,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               · {format_time(post.inserted_at)}
             </span>
             <button
-              :if={TannhauserGate.Accounts.admin?(@current_user)}
+              :if={@story_manager?}
               type="button"
               phx-click="delete_post"
               phx-value-id={post.id}

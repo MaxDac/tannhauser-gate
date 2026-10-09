@@ -14,6 +14,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
     "/admin/characters",
     "/admin/rooms",
     "/admin/users",
+    "/admin/requests",
     "/admin/forum"
   ]
 
@@ -23,7 +24,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
 
       for path <- @admin_paths do
         conn = get(conn, path)
-        assert redirected_to(conn) == ~p"/characters"
+        assert redirected_to(conn) == ~p"/gdrs"
         assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Admins only."
       end
     end
@@ -111,7 +112,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
 
     test "can edit any character", %{conn: conn} do
       character = character_fixture()
-      {:ok, lv, _html} = live(conn, ~p"/characters/#{character}/edit")
+      {:ok, lv, _html} = live(conn, ~p"/g/#{character.story_id}/characters/#{character}/edit")
 
       {:ok, _lv, html} =
         lv
@@ -122,25 +123,41 @@ defmodule TannhauserGateWeb.AdminLiveTest do
       assert html =~ "Leon"
     end
 
-    test "promotes users but not themselves", %{conn: conn, admin: admin} do
+    test "promotes users to admin and GM but not themselves to admin", %{
+      conn: conn,
+      admin: admin
+    } do
       user = user_fixture()
       {:ok, lv, _html} = live(conn, ~p"/admin/users")
 
-      lv |> element("a[phx-value-id='#{user.id}']", "Make admin") |> render_click()
+      lv |> element("#toggle-admin-#{user.id}") |> render_click()
       assert Accounts.admin?(Accounts.get_user!(user.id))
 
-      refute has_element?(lv, "a[phx-value-id='#{admin.id}']")
+      lv |> element("#toggle-gm-#{user.id}") |> render_click()
+      assert Accounts.gm?(Accounts.get_user!(user.id))
+
+      refute has_element?(lv, "#toggle-admin-#{admin.id}")
     end
 
-    test "manages forum sections", %{conn: conn} do
+    test "approves and rejects GDR requests", %{conn: conn} do
+      gm = gm_fixture()
+      {:ok, request} = TannhauserGate.GdrRequests.create_request(gm, %{name: "Dune RPG"})
+
+      {:ok, lv, _html} = live(conn, ~p"/admin/requests")
+      lv |> element("#approve-#{request.id}") |> render_click()
+
+      assert %{owner_id: owner_id, status: "draft"} = Stories.get_story_by_name("Dune RPG")
+      assert owner_id == gm.id
+    end
+
+    test "deletes forum sections of any GDR", %{conn: conn} do
+      section = section_fixture(nil, %{name: "Announcements"})
       {:ok, lv, _html} = live(conn, ~p"/admin/forum")
 
-      lv
-      |> form("#section-form", section: %{name: "Announcements", position: 0})
-      |> render_submit()
-
       assert render(lv) =~ "Announcements"
-      assert Enum.any?(Forum.list_sections(), fn {s, _} -> s.name == "Announcements" end)
+      lv |> element("a[phx-value-id='#{section.id}']") |> render_click()
+      refute render(lv) =~ "Announcements"
+      refute Enum.any?(Forum.list_sections(), fn {s, _} -> s.id == section.id end)
     end
   end
 end

@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/register")
-        |> follow_redirect(conn, "/characters")
+        |> follow_redirect(conn, "/gdrs")
 
       assert {:ok, _conn} = result
     end
@@ -45,10 +45,10 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/characters"
+      assert redirected_to(conn) == ~p"/gdrs"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, "/characters")
+      conn = get(conn, "/gdrs")
       response = html_response(conn, 200)
       assert response =~ attrs.username
       assert response =~ "Settings"

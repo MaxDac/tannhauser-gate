@@ -7,6 +7,7 @@ defmodule TannhauserGate.Forum.Section do
     field :description, :string
     field :position, :integer, default: 0
 
+    belongs_to :story, TannhauserGate.Stories.Story
     has_many :topics, TannhauserGate.Forum.Topic
 
     timestamps(type: :utc_datetime)
@@ -18,7 +19,7 @@ defmodule TannhauserGate.Forum.Section do
     |> cast(attrs, [:name, :description, :position])
     |> validate_required([:name])
     |> validate_length(:name, max: 120)
-    |> unique_constraint(:name)
+    |> unique_constraint(:name, name: :forum_sections_story_id_name_index)
   end
 end
 

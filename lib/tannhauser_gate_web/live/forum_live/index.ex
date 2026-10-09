@@ -8,13 +8,18 @@ defmodule TannhauserGateWeb.ForumLive.Index do
     {:ok,
      socket
      |> assign(:page_title, "Forum")
-     |> assign(:sections, Forum.list_sections())}
+     |> assign(:sections, Forum.list_sections(socket.assigns.current_story))}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+    <Layouts.app
+      flash={@flash}
+      current_user={@current_user}
+      current_path={@current_path}
+      current_story={@current_story}
+    >
       <.header>
         Forum
         <:subtitle>Out of the rain: talk, plan and gossip.</:subtitle>
@@ -25,7 +30,7 @@ defmodule TannhauserGateWeb.ForumLive.Index do
       <ul id="forum-sections" class="mt-8 space-y-3">
         <li :for={{section, topic_count} <- @sections}>
           <.link
-            navigate={~p"/forum/sections/#{section}"}
+            navigate={~p"/g/#{@current_story}/forum/sections/#{section}"}
             class="flex items-center justify-between gap-4 rounded-xl border border-mint/20 bg-ink/80 p-4 transition hover:border-phosphor/60 hover:shadow-phosphor"
           >
             <div>

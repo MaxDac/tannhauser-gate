@@ -6,63 +6,32 @@ defmodule TannhauserGateWeb.MapLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    story = Stories.get_story!(socket.assigns.current_story.id)
+
     {:ok,
      socket
-     |> assign(:stories, Stories.list_stories())
-     |> assign(:counts, Chat.count_messages_by_location())}
-  end
-
-  @impl true
-  def handle_params(params, _url, socket) do
-    story =
-      case params do
-        %{"story_id" => id} -> Stories.get_story!(id)
-        _ -> Stories.get_default_story()
-      end
-
-    {:noreply,
-     socket
      |> assign(:story, story)
-     |> assign(:page_title, if(story, do: "#{story.name} · Map", else: "Map"))}
+     |> assign(:counts, Chat.count_messages_by_location())
+     |> assign(:page_title, "#{story.name} · Map")}
   end
 
   @impl true
   def handle_event("enter_room", %{"id" => id}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/rooms/#{id}")}
-  end
-
-  def handle_event("select_story", %{"story_id" => id}, socket) do
-    {:noreply, push_patch(socket, to: ~p"/stories/#{id}/map")}
+    {:noreply, push_navigate(socket, to: ~p"/g/#{socket.assigns.current_story}/rooms/#{id}")}
   end
 
   @impl true
-  def render(%{story: nil} = assigns) do
-    ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
-      <.header>City Map</.header>
-      <p class="mt-8 text-fog-400">No story has been created yet. Ask an admin to create one.</p>
-    </Layouts.app>
-    """
-  end
-
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+    <Layouts.app
+      flash={@flash}
+      current_user={@current_user}
+      current_path={@current_path}
+      current_story={@current_story}
+    >
       <.header>
         {@story.name}
         <:subtitle>{@story.summary}</:subtitle>
-        <:actions>
-          <form :if={length(@stories) > 1} id="story-select" phx-change="select_story">
-            <select
-              id="map-story"
-              name="story_id"
-              class="select select-sm console-field w-full"
-              aria-label="Story"
-            >
-              {Phoenix.HTML.Form.options_for_select(Enum.map(@stories, &{&1.name, &1.id}), @story.id)}
-            </select>
-          </form>
-        </:actions>
       </.header>
 
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_18rem]">
@@ -74,7 +43,13 @@ defmodule TannhauserGateWeb.MapLive do
             role="img"
             aria-label={"Map of #{@story.name}"}
           >
-            {raw(@story.map_svg || "")}
+            <image
+              :if={@story.map_svg not in [nil, ""]}
+              id="map-artwork"
+              href={Stories.map_artwork_src(@story)}
+              width={@story.map_width}
+              height={@story.map_height}
+            />
             <g :for={location <- @story.locations} class="map-room">
               <polygon
                 id={"room-area-#{location.id}"}
@@ -106,7 +81,7 @@ defmodule TannhauserGateWeb.MapLive do
           <ul id="room-list" class="mt-3 space-y-2">
             <li :for={location <- @story.locations}>
               <.link
-                navigate={~p"/rooms/#{location}"}
+                navigate={~p"/g/#{@current_story}/rooms/#{location}"}
                 class="flex items-center justify-between gap-3 rounded-md border border-mint/20 bg-ink/80 px-3 py-2 text-sm hover:border-phosphor/60 hover:text-phosphor"
               >
                 <span class="flex items-center gap-2">

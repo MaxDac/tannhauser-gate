@@ -18,7 +18,7 @@ defmodule TannhauserGateWeb.UserLoginLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/log_in")
-        |> follow_redirect(conn, "/characters")
+        |> follow_redirect(conn, "/gdrs")
 
       assert {:ok, _conn} = result
     end
@@ -38,7 +38,7 @@ defmodule TannhauserGateWeb.UserLoginLiveTest do
 
       conn = submit_form(form, conn)
 
-      assert redirected_to(conn) == ~p"/characters"
+      assert redirected_to(conn) == ~p"/gdrs"
     end
 
     test "redirects to login page with a flash error if there are no valid credentials", %{

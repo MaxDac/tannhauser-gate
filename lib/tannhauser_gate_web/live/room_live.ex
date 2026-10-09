@@ -6,18 +6,30 @@ defmodule TannhauserGateWeb.RoomLive do
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     location = Stories.get_location!(id)
+    story = socket.assigns.current_story
+
+    if location.story_id != story.id do
+      {:ok,
+       socket
+       |> put_flash(:error, "That room does not exist in this GDR.")
+       |> push_navigate(to: ~p"/g/#{story}/map")}
+    else
+      {:ok, load(socket, location)}
+    end
+  end
+
+  defp load(socket, location) do
     characters = Characters.list_user_characters(socket.assigns.current_user, location.story_id)
 
     if connected?(socket), do: Chat.subscribe(location.id)
 
-    {:ok,
-     socket
-     |> assign(:page_title, location.name)
-     |> assign(:location, location)
-     |> assign(:characters, characters)
-     |> assign(:form_id, 0)
-     |> assign(:form, new_form(characters))
-     |> stream(:messages, Chat.list_messages(location.id))}
+    socket
+    |> assign(:page_title, location.name)
+    |> assign(:location, location)
+    |> assign(:characters, characters)
+    |> assign(:form_id, 0)
+    |> assign(:form, new_form(characters))
+    |> stream(:messages, Chat.list_messages(location.id))
   end
 
   defp new_form(characters, character_id \\ nil) do
@@ -68,10 +80,15 @@ defmodule TannhauserGateWeb.RoomLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+    <Layouts.app
+      flash={@flash}
+      current_user={@current_user}
+      current_path={@current_path}
+      current_story={@current_story}
+    >
       <div class="mb-4">
         <.link
-          navigate={~p"/stories/#{@location.story_id}/map"}
+          navigate={~p"/g/#{@current_story}/map"}
           class="text-sm font-semibold text-mint hover:text-phosphor"
         >
           <.icon name="hero-arrow-left-solid" class="size-3" /> Back to the map
@@ -102,7 +119,7 @@ defmodule TannhauserGateWeb.RoomLive do
             <div class="min-w-0 flex-1">
               <p class="flex flex-wrap items-baseline gap-x-3">
                 <.link
-                  navigate={~p"/characters/#{message.character}"}
+                  navigate={~p"/g/#{@current_story}/characters/#{message.character}"}
                   class="chat-name font-bold text-phosphor hover:underline"
                 >
                   {message.character.name}
@@ -118,8 +135,8 @@ defmodule TannhauserGateWeb.RoomLive do
 
         <div class="border-t border-mint/20 bg-night/60 p-4">
           <p :if={@characters == []} class="text-sm text-fog-400">
-            You need a character in this story to speak. <.link
-              navigate={~p"/characters/new"}
+            You need a character in this GDR to speak. <.link
+              navigate={~p"/g/#{@current_story}/characters/new"}
               class="font-semibold text-mint hover:underline"
             >Create one</.link>.
           </p>

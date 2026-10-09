@@ -13,6 +13,7 @@ defmodule TannhauserGateWeb.Admin.Components do
     {"Characters", "/admin/characters"},
     {"Rooms", "/admin/rooms"},
     {"Users", "/admin/users"},
+    {"Requests", "/admin/requests"},
     {"Forum", "/admin/forum"}
   ]
 
@@ -136,7 +137,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Index do
         </:col>
         <:col :let={story} label="Summary"><span class="line-clamp-2">{story.summary}</span></:col>
         <:action :let={story}>
-          <.link navigate={~p"/stories/#{story}/map"}>Map</.link>
+          <.link navigate={~p"/g/#{story}"}>Open</.link>
         </:action>
         <:action :let={story}>
           <.link navigate={~p"/admin/stories/#{story}/edit"}>Edit</.link>
@@ -304,7 +305,12 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
         <div class="mt-4 grid gap-6 lg:grid-cols-2">
           <div class="overflow-hidden rounded-xl border border-mint/30 bg-night">
             <svg viewBox={"0 0 #{@story.map_width} #{@story.map_height}"} class="block h-auto w-full">
-              {raw(@story.map_svg || "")}
+              <image
+                :if={@story.map_svg not in [nil, ""]}
+                href={Stories.map_artwork_src(@story)}
+                width={@story.map_width}
+                height={@story.map_height}
+              />
               <polygon
                 :for={loc <- @story.locations}
                 points={loc.area}
@@ -415,8 +421,12 @@ defmodule TannhauserGateWeb.Admin.CharactersLive do
         </:col>
         <:col :let={c} label="Story">{c.story.name}</:col>
         <:col :let={c} label="Player">{c.user.username}</:col>
-        <:action :let={c}><.link navigate={~p"/characters/#{c}"}>View</.link></:action>
-        <:action :let={c}><.link navigate={~p"/characters/#{c}/edit"}>Edit</.link></:action>
+        <:action :let={c}>
+          <.link navigate={~p"/g/#{c.story_id}/characters/#{c}"}>View</.link>
+        </:action>
+        <:action :let={c}>
+          <.link navigate={~p"/g/#{c.story_id}/characters/#{c}/edit"}>Edit</.link>
+        </:action>
         <:action :let={c}>
           <.link phx-click="delete" phx-value-id={c.id} data-confirm="Delete this character?">Delete</.link>
         </:action>
@@ -540,13 +550,15 @@ defmodule TannhauserGateWeb.Admin.UsersLive do
   end
 
   @impl true
-  def handle_event("set_role", %{"id" => id, "role" => role}, socket) do
+  def handle_event("toggle", %{"id" => id, "flag" => flag}, socket) when flag in ~w(admin gm) do
     user = Accounts.get_user!(id)
 
-    if user.id == socket.assigns.current_user.id do
-      {:noreply, put_flash(socket, :error, "You can't change your own role.")}
+    if flag == "admin" and user.id == socket.assigns.current_user.id do
+      {:noreply, put_flash(socket, :error, "You can't change your own admin flag.")}
     else
-      case Accounts.set_user_role(user, role) do
+      attrs = %{String.to_existing_atom(flag) => !Map.fetch!(user, String.to_existing_atom(flag))}
+
+      case Accounts.set_user_flags(user, attrs) do
         {:ok, _} ->
           {:noreply,
            socket
@@ -569,25 +581,29 @@ defmodule TannhauserGateWeb.Admin.UsersLive do
         <:col :let={u} label="Username">{u.username}</:col>
         <:col :let={u} label="Email">{u.email}</:col>
         <:col :let={u} label="Role">
-          <span class={[u.role == "admin" && "text-phosphor font-bold"]}>{u.role}</span>
+          <span class={[u.admin && "text-phosphor font-bold"]}>{if u.admin, do: "admin", else: "user"}</span>
+          <span :if={u.gm} class="badge badge-secondary badge-soft badge-sm ml-2">GM</span>
         </:col>
         <:col :let={u} label="Joined">{format_time(u.inserted_at)}</:col>
         <:action :let={u}>
           <.link
-            :if={u.id != @current_user.id && u.role != "admin"}
-            phx-click="set_role"
+            :if={u.id != @current_user.id}
+            id={"toggle-admin-#{u.id}"}
+            phx-click="toggle"
             phx-value-id={u.id}
-            phx-value-role="admin"
+            phx-value-flag="admin"
           >
-            Make admin
+            {if u.admin, do: "Revoke admin", else: "Make admin"}
           </.link>
+        </:action>
+        <:action :let={u}>
           <.link
-            :if={u.id != @current_user.id && u.role == "admin"}
-            phx-click="set_role"
+            id={"toggle-gm-#{u.id}"}
+            phx-click="toggle"
             phx-value-id={u.id}
-            phx-value-role="user"
+            phx-value-flag="gm"
           >
-            Revoke admin
+            {if u.gm, do: "Revoke GM", else: "Make GM"}
           </.link>
         </:action>
       </.table>
@@ -602,32 +618,16 @@ defmodule TannhauserGateWeb.Admin.ForumLive do
   import TannhauserGateWeb.Admin.Components
 
   alias TannhauserGate.Forum
-  alias TannhauserGate.Forum.Section
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:page_title, "Forum sections")
-     |> assign(:sections, Forum.list_sections())
-     |> assign(:form, to_form(Forum.change_section(%Section{})))}
+     |> assign(:sections, Forum.list_sections())}
   end
 
   @impl true
-  def handle_event("create_section", %{"section" => params}, socket) do
-    case Forum.create_section(params) do
-      {:ok, _} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Section created")
-         |> assign(:sections, Forum.list_sections())
-         |> assign(:form, to_form(Forum.change_section(%Section{})))}
-
-      {:error, changeset} ->
-        {:noreply, assign(socket, :form, to_form(changeset))}
-    end
-  end
-
   def handle_event("delete_section", %{"id" => id}, socket) do
     {:ok, _} = id |> Forum.get_section!() |> Forum.delete_section()
 
@@ -642,8 +642,12 @@ defmodule TannhauserGateWeb.Admin.ForumLive do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
       <.admin_nav current_path={@current_path} />
-      <.header>Forum sections</.header>
+      <.header>
+        Forum sections
+        <:subtitle>Sections are created by each GDR's game master.</:subtitle>
+      </.header>
       <.table id="admin-sections" rows={@sections}>
+        <:col :let={{s, _}} label="GDR">{s.story_id}</:col>
         <:col :let={{s, _}} label="Position">{s.position}</:col>
         <:col :let={{s, _}} label="Name">{s.name}</:col>
         <:col :let={{_, count}} label="Topics">{count}</:col>
@@ -657,18 +661,6 @@ defmodule TannhauserGateWeb.Admin.ForumLive do
           </.link>
         </:action>
       </.table>
-
-      <div class="mt-8 max-w-xl rounded-xl border border-mint/20 bg-ink/80 p-6">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">New section</h2>
-        <.form for={@form} id="section-form" phx-submit="create_section">
-          <.input field={@form[:name]} type="text" label="Name" required />
-          <.input field={@form[:description]} type="text" label="Description" />
-          <.input field={@form[:position]} type="number" label="Position" />
-          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button>Create section</.button>
-          </div>
-        </.form>
-      </div>
     </Layouts.app>
     """
   end

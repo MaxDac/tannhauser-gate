@@ -388,8 +388,14 @@ defmodule TannhauserGate.Accounts do
   @doc """
   Returns true when the given user is an admin.
   """
-  def admin?(%User{role: "admin"}), do: true
+  def admin?(%User{admin: true}), do: true
   def admin?(_), do: false
+
+  @doc """
+  Returns true when the given user is a game master.
+  """
+  def gm?(%User{gm: true}), do: true
+  def gm?(_), do: false
 
   @doc """
   Lists all users ordered by email.
@@ -399,11 +405,11 @@ defmodule TannhauserGate.Accounts do
   end
 
   @doc """
-  Updates the role (`"user"` or `"admin"`) of a user.
+  Updates the `admin` and/or `gm` flags of a user.
   """
-  def set_user_role(%User{} = user, role) do
+  def set_user_flags(%User{} = user, attrs) do
     user
-    |> User.role_changeset(%{role: role})
+    |> User.flags_changeset(attrs)
     |> Repo.update()
   end
 end

@@ -8,8 +8,49 @@ defmodule TannhauserGate.GameFixtures do
   import TannhauserGate.AccountsFixtures
 
   def admin_fixture(attrs \\ %{}) do
-    {:ok, admin} = attrs |> user_fixture() |> Accounts.set_user_role("admin")
+    {:ok, admin} = attrs |> user_fixture() |> Accounts.set_user_flags(%{admin: true})
     admin
+  end
+
+  def gm_fixture(attrs \\ %{}) do
+    {:ok, gm} = attrs |> user_fixture() |> Accounts.set_user_flags(%{gm: true})
+    gm
+  end
+
+  # A published GDR run by a freshly created game master.
+  def gdr_fixture(attrs \\ %{}) do
+    gm = gm_fixture()
+
+    {:ok, story} =
+      Stories.create_story(Enum.into(attrs, %{name: "GDR #{System.unique_integer([:positive])}"}))
+
+    {:ok, story} = story |> Ecto.Changeset.change(owner_id: gm.id) |> TannhauserGate.Repo.update()
+    {story, gm}
+  end
+
+  def job_fixture(story, attrs \\ %{}) do
+    {:ok, job} =
+      TannhauserGate.Bank.create_job(
+        story,
+        Enum.into(attrs, %{name: "Courier #{System.unique_integer([:positive])}", pay: 10})
+      )
+
+    job
+  end
+
+  def sheet_item_fixture(story, attrs \\ %{}) do
+    {:ok, item} =
+      TannhauserGate.Sheet.create_item(
+        story,
+        Enum.into(attrs, %{
+          kind: "attribute",
+          name: "Item #{System.unique_integer([:positive])}",
+          min_value: 0,
+          max_value: 10
+        })
+      )
+
+    item
   end
 
   def story_fixture(attrs \\ %{}) do
@@ -69,11 +110,17 @@ defmodule TannhauserGate.GameFixtures do
     message
   end
 
-  def section_fixture(attrs \\ %{}) do
+  def section_fixture(story \\ nil, attrs \\ %{}) do
+    story = story || story_fixture()
+
     {:ok, section} =
-      attrs
-      |> Enum.into(%{name: "Section #{System.unique_integer([:positive])}", description: "Talk."})
-      |> Forum.create_section()
+      Forum.create_section(
+        story,
+        Enum.into(attrs, %{
+          name: "Section #{System.unique_integer([:positive])}",
+          description: "Talk."
+        })
+      )
 
     section
   end

@@ -70,18 +70,43 @@ defmodule TannhauserGateWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      live "/characters", CharacterLive.Index, :index
-      live "/characters/new", CharacterLive.Form, :new
-      live "/characters/:id", CharacterLive.Show, :show
-      live "/characters/:id/edit", CharacterLive.Form, :edit
+      live "/gdrs", GdrLive.Index, :index
+      live "/gdrs/request", GdrLive.Request, :new
+    end
 
-      live "/map", MapLive, :index
-      live "/stories/:story_id/map", MapLive, :show
-      live "/rooms/:id", RoomLive, :show
+    live_session :gdr,
+      on_mount: [
+        {TannhauserGateWeb.UserAuth, :ensure_authenticated},
+        {TannhauserGateWeb.UserAuth, :assign_current_path},
+        {TannhauserGateWeb.UserAuth, :load_story}
+      ] do
+      live "/g/:story_id", GdrLive.Home, :show
 
-      live "/forum", ForumLive.Index, :index
-      live "/forum/sections/:id", ForumLive.Section, :show
-      live "/forum/topics/:id", ForumLive.Topic, :show
+      live "/g/:story_id/characters", CharacterLive.Index, :index
+      live "/g/:story_id/characters/new", CharacterLive.Form, :new
+      live "/g/:story_id/characters/:id", CharacterLive.Show, :show
+      live "/g/:story_id/characters/:id/edit", CharacterLive.Form, :edit
+
+      live "/g/:story_id/map", MapLive, :index
+      live "/g/:story_id/rooms/:id", RoomLive, :show
+
+      live "/g/:story_id/forum", ForumLive.Index, :index
+      live "/g/:story_id/forum/sections/:id", ForumLive.Section, :show
+      live "/g/:story_id/forum/topics/:id", ForumLive.Topic, :show
+
+      live "/g/:story_id/bank", BankLive, :index
+      live "/g/:story_id/jobs", JobsLive, :index
+    end
+
+    live_session :gdr_manager,
+      on_mount: [
+        {TannhauserGateWeb.UserAuth, :ensure_authenticated},
+        {TannhauserGateWeb.UserAuth, :assign_current_path},
+        {TannhauserGateWeb.UserAuth, :load_story},
+        {TannhauserGateWeb.UserAuth, :ensure_story_manager}
+      ] do
+      live "/g/:story_id/gm", GmLive, :index
+      live "/g/:story_id/gm/:tab", GmLive, :show
     end
   end
 
@@ -94,6 +119,7 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :assign_current_path}
       ] do
       live "/", DashboardLive, :index
+      live "/requests", RequestsLive, :index
       live "/stories", StoryLive.Index, :index
       live "/stories/new", StoryLive.Form, :new
       live "/stories/:id/edit", StoryLive.Form, :edit
