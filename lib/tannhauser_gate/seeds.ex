@@ -9,7 +9,7 @@ defmodule TannhauserGate.Seeds do
 
   import Ecto.Query, warn: false
 
-  alias TannhauserGate.{Accounts, Forum, Repo, Stories}
+  alias TannhauserGate.{Accounts, Bank, Forum, Repo, Sheet, Stories}
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Stories.Location
@@ -25,7 +25,9 @@ defmodule TannhauserGate.Seeds do
   def run do
     admin = seed_admin()
     story = seed_story()
-    seed_sections()
+    seed_sections(story)
+    seed_sheet(story)
+    seed_jobs(story)
     %{admin: admin, story: story}
   end
 
@@ -55,7 +57,7 @@ defmodule TannhauserGate.Seeds do
     |> User.confirm_changeset()
     |> Repo.update!()
     |> then(fn user ->
-      {:ok, user} = Accounts.set_user_role(user, "admin")
+      {:ok, user} = Accounts.set_user_flags(user, %{admin: true})
       user
     end)
   end
@@ -63,25 +65,43 @@ defmodule TannhauserGate.Seeds do
   ## Story
 
   def seed_story do
+    attrs = %{
+      name: @story_name,
+      summary: summary(),
+      world_background: world_background(),
+      customs: customs(),
+      rules: rules(),
+      status: "published",
+      theme: "tannhauser",
+      currency_name: "credits",
+      map_svg: map_svg(),
+      map_width: 1000,
+      map_height: 700,
+      is_default: true
+    }
+
     story =
       case Stories.get_story_by_name(@story_name) do
         nil ->
-          {:ok, story} =
-            Stories.create_story(%{
-              name: @story_name,
-              summary: summary(),
-              world_background: world_background(),
-              customs: customs(),
-              map_svg: map_svg(),
-              map_width: 1000,
-              map_height: 700,
-              is_default: true
-            })
-
+          {:ok, story} = Stories.create_story(attrs)
           story
 
         story ->
-          story
+          # The migration may have created a bare placeholder for the old
+          # forum: fill in whatever is still blank, never overwrite edits.
+          blanks =
+            for {key, value} <-
+                  Map.take(attrs, [:summary, :world_background, :customs, :rules, :map_svg]),
+                Map.get(story, key) in [nil, ""],
+                into: %{},
+                do: {key, value}
+
+          if blanks == %{} do
+            story
+          else
+            {:ok, story} = Stories.update_story(story, blanks)
+            story
+          end
       end
 
     existing = MapSet.new(Stories.list_locations(story), & &1.name)
@@ -95,7 +115,7 @@ defmodule TannhauserGate.Seeds do
 
   ## Forum
 
-  def seed_sections do
+  def seed_sections(story) do
     sections = [
       %{
         name: "Out of Character",
@@ -110,14 +130,96 @@ defmodule TannhauserGate.Seeds do
       %{name: "Character Workshop", description: "Share and refine your characters.", position: 2}
     ]
 
-    for attrs <- sections, is_nil(Repo.get_by(Section, name: attrs.name)) do
-      {:ok, _} = Forum.create_section(attrs)
+    for attrs <- sections, is_nil(Repo.get_by(Section, story_id: story.id, name: attrs.name)) do
+      {:ok, _} = Forum.create_section(story, attrs)
+    end
+
+    :ok
+  end
+
+  ## Sheet and jobs
+
+  @doc "Attributes, skills and powers of the default story."
+  def sheet_items do
+    attribute = fn name, description ->
+      %{kind: "attribute", name: name, description: description, min_value: 1, max_value: 5}
+    end
+
+    skill = fn name, description ->
+      %{kind: "skill", name: name, description: description, min_value: 0, max_value: 5}
+    end
+
+    power = fn name, description ->
+      %{kind: "power", name: name, description: description, min_value: 0, max_value: 3}
+    end
+
+    [
+      attribute.("Body", "Strength, endurance and the ability to take a hit."),
+      attribute.("Reflex", "Speed, agility and aim."),
+      attribute.("Mind", "Reasoning, memory and focus."),
+      attribute.("Empathy", "Reading and moving people, human or Echo."),
+      attribute.("Resolve", "Willpower against fear, pain and temptation."),
+      skill.("Investigation", "Finding clues and reconstructing a scene."),
+      skill.("Streetwise", "Navigating the Undercity and its Gutterline."),
+      skill.("Firearms", "Shooting, from sidearms to rain-slicked rooftops."),
+      skill.("Hacking", "Breaking into terminals, drones and memory vaults."),
+      skill.("Persuasion", "Charm, intimidation and bargaining over noodles."),
+      skill.("Piloting", "Spinners, barges and shuttles."),
+      skill.("Medicine", "Patching flesh and decoding Echo biology."),
+      power.("Echo Memory", "Recall implanted memories as if they were your own."),
+      power.("Lumen Sight", "See the telltale iris pattern of an Echo at a glance."),
+      power.("Ghost Signal", "Slip unseen through surveillance networks."),
+      power.("Warden's Instinct", "A flash of intuition at the moment it matters.")
+    ]
+  end
+
+  def seed_sheet(story) do
+    if Sheet.list_items(story) == [] do
+      sheet_items()
+      |> Enum.with_index()
+      |> Enum.each(fn {attrs, index} ->
+        {:ok, _} = Sheet.create_item(story, Map.put(attrs, :position, index))
+      end)
+    end
+
+    :ok
+  end
+
+  @doc "Jobs and their pay (per pay interval) in the default story."
+  def jobs do
+    [
+      %{name: "Warden", description: "Hunt illegal Echoes for Precinct 9.", pay: 120},
+      %{name: "Noodle Cook", description: "Feed the Undercity at Ozu's counter.", pay: 40},
+      %{name: "Memory Artisan", description: "Craft memories at the Lacuna Atelier.", pay: 90},
+      %{name: "Bazaar Trader", description: "Buy and sell anything in the Neon Bazaar.", pay: 60},
+      %{name: "Spaceport Clerk", description: "Check Lumen scans at Gate 7.", pay: 50}
+    ]
+  end
+
+  def seed_jobs(story) do
+    existing = MapSet.new(Bank.list_jobs(story), & &1.name)
+
+    for attrs <- jobs(), not MapSet.member?(existing, attrs.name) do
+      {:ok, _} = Bank.create_job(story, attrs)
     end
 
     :ok
   end
 
   ## Lore
+
+  defp rules do
+    """
+    Tannhauser Gate is a noir cyberpunk role play set in Neo-Meridian, 2121.
+
+    1. Play your character, not yourself. Speak in the rooms of the city through your character.
+    2. Characters start with 1 to 5 points in each attribute, up to 5 in skills and up to 3 in powers. Spend them as you like within those limits.
+    3. Echoes live at most six years; humans and Echoes are equals at the table. No player may kill another player's character without their consent.
+    4. Keep the tone noir: rain, neon, moral grey. Keep it respectful: no real-world hate, no harassment.
+    5. Earn credits through your job; the Warden desk and the Bazaar pay once a day. You can send credits to other characters from the bank.
+    6. The game master has the final word on any dispute.
+    """
+  end
 
   defp summary do
     "Neo-Meridian, 2121. Acid rain never stops, the ads never sleep, and somewhere " <>

@@ -9,23 +9,19 @@ defmodule TannhauserGate.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
-    field :role, :string, default: "user"
+    field :admin, :boolean, default: false
+    field :gm, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
 
-  @roles ~w(user admin)
-
-  def roles, do: @roles
-
   @doc """
-  A changeset used by admins to change a user's role.
+  A changeset used by admins to change a user's `admin` and `gm` flags.
   """
-  def role_changeset(user, attrs) do
+  def flags_changeset(user, attrs) do
     user
-    |> cast(attrs, [:role])
-    |> validate_required([:role])
-    |> validate_inclusion(:role, @roles)
+    |> cast(attrs, [:admin, :gm])
+    |> validate_required([:admin, :gm])
   end
 
   @doc """

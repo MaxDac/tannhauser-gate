@@ -21,7 +21,7 @@ defmodule TannhauserGateWeb.EmailAuthDisabledTest do
     render_submit(form)
     conn = follow_trigger_action(form, conn)
 
-    assert redirected_to(conn) == ~p"/characters"
+    assert redirected_to(conn) == ~p"/gdrs"
     assert_no_email_sent()
     assert %{confirmed_at: nil} = Accounts.get_user_by_email(attrs.email)
   end
@@ -52,7 +52,7 @@ defmodule TannhauserGateWeb.EmailAuthDisabledTest do
         "user" => %{"login" => user.username, "password" => valid_user_password()}
       })
 
-    assert redirected_to(by_username) == ~p"/characters"
+    assert redirected_to(by_username) == ~p"/gdrs"
   end
 
   test "login page hides the forgot password link", %{conn: conn} do
@@ -96,6 +96,6 @@ defmodule TannhauserGateWeb.EmailAuthEnabledLoginTest do
         "user" => %{"login" => user.email, "password" => valid_user_password()}
       })
 
-    assert redirected_to(conn) == ~p"/characters"
+    assert redirected_to(conn) == ~p"/gdrs"
   end
 end

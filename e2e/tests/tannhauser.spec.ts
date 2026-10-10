@@ -6,6 +6,9 @@ import path from "node:path";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121";
 
+// The seeded Tannhauser Gate story is the first row of a fresh database.
+const GDR = "/g/1";
+
 const stamp = Date.now();
 const username = `runner${stamp}`;
 const email = `runner${stamp}@example.com`;
@@ -26,7 +29,7 @@ async function logIn(page: Page, user: string, pass: string) {
   await page.getByLabel("Username").fill(user);
   await page.getByLabel("Password").fill(pass);
   await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/characters$/);
+  await expect(page).toHaveURL(/\/gdrs$/);
   await dismissFlashes(page);
 }
 
@@ -48,15 +51,18 @@ test("registers a new user", async ({ page }) => {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create an account" }).click();
-  await expect(page).toHaveURL(/\/characters$/);
-  await expect(page.locator("#drawer")).toContainText("City Map");
+  await expect(page).toHaveURL(/\/gdrs$/);
+  await expect(page.locator("#gdrs")).toContainText("Tannhauser Gate");
 });
 
 test("plays: character, map, room chat, forum", async ({ page }) => {
   await logIn(page, username, password);
 
-  // Character with avatar
-  await page.getByRole("link", { name: /new character/i }).click();
+  // Enter the GDR and create a character with avatar
+  await page.locator("#gdrs").getByRole("link", { name: /Tannhauser Gate/ }).click();
+  await expect(page).toHaveURL(new RegExp(`${GDR}$`));
+  await page.locator("#drawer").getByRole("link", { name: "Characters", exact: true }).click();
+  await page.locator("#new-character").click();
   await connected(page);
   await page.getByLabel("Character name").fill(characterName);
   await page
@@ -77,10 +83,10 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
   await expect(page.locator("#character-sheet img[src^='/uploads/']")).toBeVisible();
 
   // Map -> room
-  await page.locator("#drawer").getByRole("link", { name: "City Map" }).click();
+  await page.locator("#drawer").getByRole("link", { name: "Map", exact: true }).click();
   await expect(page.locator("#city-map")).toBeVisible();
   await page.locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]").click({ force: true });
-  await expect(page).toHaveURL(/\/rooms\/\d+$/);
+  await expect(page).toHaveURL(/\/g\/\d+\/rooms\/\d+$/);
   await expect(page.locator("h1")).toContainText("Ozu's Noodle Counter");
 
   const messageBounds = await page.getByLabel("Message").boundingBox();
@@ -117,14 +123,14 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
 
   // Admin denied
   await page.goto("/admin");
-  await expect(page).toHaveURL(/\/characters$/);
+  await expect(page).toHaveURL(/\/gdrs$/);
   await expect(page.getByText("Admins only.")).toBeVisible();
-  await expect(page.locator("#drawer").getByRole("link", { name: "Admin" })).toHaveCount(0);
+  await expect(page.locator("#admin-link")).toHaveCount(0);
 });
 
 test("admin can reach the control room and read conversations", async ({ page }) => {
   await logIn(page, ADMIN_USERNAME, ADMIN_PASSWORD);
-  await page.locator("#drawer").getByRole("link", { name: "Admin" }).click();
+  await page.locator("#admin-link").click();
   await expect(page.locator("#admin-stats")).toBeVisible();
 
   await page.locator("#admin-nav").getByRole("link", { name: /rooms/i }).click();

@@ -36,14 +36,6 @@ avatar = Storage.store_upload!(Path.expand("../../e2e/fixtures/avatar.png", __DI
     avatar
   )
 
-{:ok, _gaff} =
-  Characters.create_character(player, %{
-    "name" => "Gaff",
-    "story_id" => story.id,
-    "description" => "Cane, bowler hat, origami.",
-    "background" => "Speaks Gutterline and leaves paper animals behind."
-  })
-
 room = Enum.find(Stories.list_locations(story), &(&1.name == "Ozu's Noodle Counter"))
 
 for body <- [
@@ -54,7 +46,7 @@ for body <- [
   {:ok, _} = Chat.create_message(player, room, %{character_id: deckard.id, body: body})
 end
 
-section = Repo.get_by!(Section, name: "Out of Character")
+section = Repo.get_by!(Section, name: "Out of Character", story_id: story.id)
 
 {:ok, topic} =
   Forum.create_topic(player, section, %{title: "Origami unicorns", body: "Did you make this?"})

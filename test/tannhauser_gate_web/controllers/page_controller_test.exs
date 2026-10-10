@@ -8,8 +8,8 @@ defmodule TannhauserGateWeb.PageControllerTest do
     assert redirected_to(conn) == ~p"/users/log_in"
   end
 
-  test "GET / redirects logged in users to their characters", %{conn: conn} do
+  test "GET / redirects logged in users to the GDR selection", %{conn: conn} do
     conn = conn |> log_in_user(user_fixture()) |> get(~p"/")
-    assert redirected_to(conn) == ~p"/characters"
+    assert redirected_to(conn) == ~p"/gdrs"
   end
 end

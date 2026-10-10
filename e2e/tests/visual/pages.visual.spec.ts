@@ -3,6 +3,7 @@ import { test, expect, Page } from "@playwright/test";
 // Screenshot tests. The database must hold only the deterministic fixtures
 // from priv/repo/visual_seeds.exs (see playwright.visual.config.ts).
 const ADMIN = { username: "admin", password: "change-me-tannhauser-2121" };
+const GDR = "/g/1";
 const PLAYER = { username: "player", password: "more-human-than-human" };
 
 // Hide things that are never stable between runs: the LiveView progress bar,
@@ -46,7 +47,7 @@ async function logIn(page: Page, user: { username: string; password: string }) {
   await page.getByLabel("Username").fill(user.username);
   await page.getByLabel("Password").fill(user.password);
   await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/characters$/);
+  await expect(page).toHaveURL(/\/gdrs$/);
 }
 
 test.describe("guest", () => {
@@ -78,44 +79,52 @@ test.describe("player", () => {
     await logIn(page, PLAYER);
   });
 
+  test("GDR picker", async ({ page }) => {
+    await expect(page.locator("#gdrs")).toBeVisible();
+    await snap(page, "gdrs");
+  });
+
   test("characters (drawer layout)", async ({ page }) => {
+    await page.goto(`${GDR}/characters`);
+    await expect(page.locator("#characters")).toBeVisible();
     await snap(page, "characters");
   });
 
   test("character sheet", async ({ page }) => {
+    await page.goto(`${GDR}/characters`);
     await page.locator("#characters").getByRole("link", { name: /Rick Deckard/ }).first().click();
     await expect(page.locator("#character-sheet")).toBeVisible();
     await snap(page, "character-sheet");
   });
 
   test("new character form", async ({ page }) => {
-    await visit(page, "/characters/new", "character-new");
+    await visit(page, `${GDR}/characters/new`, "character-new");
   });
 
   test("mobile character form", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await visit(page, "/characters/new", "character-new-mobile");
+    await visit(page, `${GDR}/characters/new`, "character-new-mobile");
   });
 
   test("map", async ({ page }) => {
-    await page.goto("/map");
+    await page.goto(`${GDR}/map`);
     await expect(page.locator("#city-map")).toBeVisible();
     await snap(page, "map");
   });
 
   test("room chat", async ({ page }) => {
-    await page.goto("/map");
+    await page.goto(`${GDR}/map`);
     await settle(page);
     await page
       .locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]")
       .click({ force: true });
-    await expect(page).toHaveURL(/\/rooms\/\d+$/);
+    await expect(page).toHaveURL(/\/g\/\d+\/rooms\/\d+$/);
     await expect(page.locator("#messages li.chat-message")).toHaveCount(3);
     await snap(page, "room-chat");
   });
 
   test("forum", async ({ page }) => {
-    await visit(page, "/forum", "forum-index");
+    await visit(page, `${GDR}/forum`, "forum-index");
     await page.locator("#forum-sections").getByRole("link", { name: "Out of Character" }).click();
     await expect(page.locator("#forum-topics")).toContainText("Origami unicorns");
     await snap(page, "forum-section");

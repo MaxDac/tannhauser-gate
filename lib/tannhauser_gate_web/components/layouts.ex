@@ -6,6 +6,10 @@ defmodule TannhauserGateWeb.Layouts do
   use TannhauserGateWeb, :html
 
   alias TannhauserGate.Accounts
+  alias TannhauserGate.Stories.Themes
+
+  defp home_path(nil), do: ~p"/gdrs"
+  defp home_path(story), do: ~p"/g/#{story}"
 
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
@@ -30,6 +34,7 @@ defmodule TannhauserGateWeb.Layouts do
   attr :flash, :map, required: true, doc: "the map of flash messages"
   attr :current_user, :map, default: nil, doc: "the signed-in user, if any"
   attr :current_path, :string, default: nil, doc: "the current path, to highlight the drawer"
+  attr :current_story, :map, default: nil, doc: "the GDR being visited, if any"
 
   slot :inner_block, required: true
 
@@ -52,13 +57,18 @@ defmodule TannhauserGateWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="drawer lg:drawer-open">
+    <div
+      id="app-shell"
+      data-theme={@current_story && @current_story.theme}
+      style={@current_story && Themes.style(@current_story.theme_overrides)}
+      class="drawer bg-base-100 text-base-content lg:drawer-open"
+    >
       <input id="drawer-toggle" type="checkbox" class="drawer-toggle" aria-label="Toggle navigation" />
 
       <div class="drawer-content flex min-h-screen min-w-0 flex-col">
         <header class="navbar border-b border-secondary/20 bg-base-200/90 px-4 lg:hidden">
           <div class="flex-1">
-            <.link navigate={~p"/characters"}><.brand size={32} /></.link>
+            <.link navigate={home_path(@current_story)}><.brand size={32} /></.link>
           </div>
           <label
             for="drawer-toggle"
@@ -82,14 +92,47 @@ defmodule TannhauserGateWeb.Layouts do
           id="drawer"
           class="flex min-h-full w-64 flex-col gap-6 border-r border-secondary/20 bg-base-200/95 p-4"
         >
-          <.link navigate={~p"/characters"}>
+          <.link navigate={home_path(@current_story)}>
             <.brand size={36} />
           </.link>
+          <p
+            :if={@current_story}
+            id="current-gdr-name"
+            class="-mt-3 truncate px-1 text-xs font-bold uppercase tracking-[0.2em] text-secondary"
+          >
+            {@current_story.name}
+          </p>
 
-          <ul class="menu w-full gap-1 p-0" aria-label="Sections">
+          <ul :if={is_nil(@current_story)} class="menu w-full gap-1 p-0" aria-label="Sections">
+            <li>
+              <.nav_link navigate={~p"/gdrs"} icon="hero-squares-2x2" current_path={@current_path}>
+                GDRs
+              </.nav_link>
+            </li>
+            <li :if={@current_user.gm}>
+              <.nav_link
+                navigate={~p"/gdrs/request"}
+                icon="hero-sparkles"
+                current_path={@current_path}
+              >
+                My GDR
+              </.nav_link>
+            </li>
+          </ul>
+
+          <ul :if={@current_story} class="menu w-full gap-1 p-0" aria-label="Sections">
             <li>
               <.nav_link
-                navigate={~p"/characters"}
+                navigate={~p"/g/#{@current_story}"}
+                icon="hero-home"
+                current_path={@current_path}
+              >
+                Home
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
+                navigate={~p"/g/#{@current_story}/characters"}
                 icon="hero-identification"
                 current_path={@current_path}
               >
@@ -97,17 +140,57 @@ defmodule TannhauserGateWeb.Layouts do
               </.nav_link>
             </li>
             <li>
-              <.nav_link navigate={~p"/map"} icon="hero-map" current_path={@current_path}>
-                City Map
+              <.nav_link
+                navigate={~p"/g/#{@current_story}/map"}
+                icon="hero-map"
+                current_path={@current_path}
+              >
+                Map
               </.nav_link>
             </li>
             <li>
               <.nav_link
-                navigate={~p"/forum"}
+                navigate={~p"/g/#{@current_story}/forum"}
                 icon="hero-chat-bubble-left-right"
                 current_path={@current_path}
               >
                 Forum
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
+                navigate={~p"/g/#{@current_story}/bank"}
+                icon="hero-banknotes"
+                current_path={@current_path}
+              >
+                Bank
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
+                navigate={~p"/g/#{@current_story}/jobs"}
+                icon="hero-briefcase"
+                current_path={@current_path}
+              >
+                Jobs
+              </.nav_link>
+            </li>
+            <li :if={Accounts.admin?(@current_user) or @current_user.id == @current_story.owner_id}>
+              <.nav_link
+                navigate={~p"/g/#{@current_story}/gm"}
+                icon="hero-adjustments-horizontal"
+                current_path={@current_path}
+              >
+                GM dashboard
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
+                navigate={~p"/gdrs"}
+                icon="hero-arrow-uturn-left"
+                current_path={@current_path}
+              >
+                All GDRs
               </.nav_link>
             </li>
             <li :if={Accounts.admin?(@current_user)}>

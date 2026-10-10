@@ -12,25 +12,36 @@ defmodule TannhauserGate.Forum do
 
   ## Sections
 
-  def list_sections do
+  @doc """
+  Lists the sections of a story with their topic counts; with `nil`, all of them.
+  """
+  def list_sections(story \\ nil) do
     topic_counts =
       from t in Topic,
         group_by: t.section_id,
         select: %{section_id: t.section_id, count: count(t.id)}
 
-    from(s in Section,
-      left_join: c in subquery(topic_counts),
-      on: c.section_id == s.id,
-      order_by: [asc: s.position, asc: s.name],
-      select: {s, coalesce(c.count, 0)}
-    )
-    |> Repo.all()
+    query =
+      from(s in Section,
+        left_join: c in subquery(topic_counts),
+        on: c.section_id == s.id,
+        order_by: [asc: s.position, asc: s.name],
+        select: {s, coalesce(c.count, 0)}
+      )
+
+    query =
+      case story do
+        %{id: story_id} -> where(query, [s], s.story_id == ^story_id)
+        _ -> query
+      end
+
+    Repo.all(query)
   end
 
   def get_section!(id), do: Repo.get!(Section, id)
 
-  def create_section(attrs \\ %{}) do
-    %Section{}
+  def create_section(%{id: story_id}, attrs) do
+    %Section{story_id: story_id}
     |> Section.changeset(attrs)
     |> Repo.insert()
   end

@@ -8,6 +8,8 @@ defmodule TannhauserGateWeb.UserAuth do
   import Phoenix.Controller
 
   alias TannhauserGate.Accounts
+  alias TannhauserGate.Stories
+  alias TannhauserGate.Stories.Story
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
@@ -196,7 +198,42 @@ defmodule TannhauserGateWeb.UserAuth do
         {:halt,
          socket
          |> Phoenix.LiveView.put_flash(:error, "Admins only.")
-         |> Phoenix.LiveView.redirect(to: ~p"/characters")}
+         |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
+    end
+  end
+
+  # Loads the GDR (story) from the `story_id` route param and makes sure the
+  # user can enter it: it is published, or the user runs it, or is an admin.
+  def on_mount(:load_story, params, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {id, ""} <- Integer.parse(to_string(params["story_id"])),
+         %Story{} = story <- Stories.get_story(id),
+         true <- Stories.accessible?(user, story) do
+      {:cont,
+       socket
+       |> Phoenix.Component.assign(:current_story, story)
+       |> Phoenix.Component.assign(:story_manager?, Stories.manager?(user, story))}
+    else
+      _ ->
+        {:halt,
+         socket
+         |> Phoenix.LiveView.put_flash(:error, "That GDR does not exist or is not open.")
+         |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
+    end
+  end
+
+  # Only the game master of the GDR (or an admin) may continue.
+  def on_mount(:ensure_story_manager, _params, _session, socket) do
+    if socket.assigns.story_manager? do
+      {:cont, socket}
+    else
+      story = socket.assigns.current_story
+
+      {:halt,
+       socket
+       |> Phoenix.LiveView.put_flash(:error, "Only the game master can do that.")
+       |> Phoenix.LiveView.redirect(to: ~p"/g/#{story.id}")}
     end
   end
 
@@ -206,6 +243,8 @@ defmodule TannhauserGateWeb.UserAuth do
     {:cont,
      socket
      |> Phoenix.Component.assign(:current_path, nil)
+     |> Phoenix.Component.assign(:current_story, nil)
+     |> Phoenix.Component.assign(:story_manager?, false)
      |> Phoenix.LiveView.attach_hook(:current_path, :handle_params, fn _params, url, socket ->
        {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url).path)}
      end)}
@@ -269,7 +308,7 @@ defmodule TannhauserGateWeb.UserAuth do
     else
       conn
       |> put_flash(:error, "Admins only.")
-      |> redirect(to: ~p"/characters")
+      |> redirect(to: ~p"/gdrs")
       |> halt()
     end
   end
@@ -286,5 +325,5 @@ defmodule TannhauserGateWeb.UserAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/characters"
+  defp signed_in_path(_conn), do: ~p"/gdrs"
 end

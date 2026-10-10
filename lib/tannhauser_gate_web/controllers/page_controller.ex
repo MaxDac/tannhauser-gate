@@ -3,7 +3,7 @@ defmodule TannhauserGateWeb.PageController do
 
   def home(conn, _params) do
     if conn.assigns[:current_user] do
-      redirect(conn, to: ~p"/characters")
+      redirect(conn, to: ~p"/gdrs")
     else
       redirect(conn, to: ~p"/users/log_in")
     end

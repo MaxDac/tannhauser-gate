@@ -8,15 +8,16 @@ defmodule TannhauserGate.GameContextsTest do
   alias TannhauserGate.Stories.Location
 
   describe "accounts roles" do
-    test "users default to the user role and can be promoted" do
+    test "users default to regular users and can be promoted" do
       user = user_fixture()
-      assert user.role == "user"
+      refute user.admin
+      refute user.gm
       refute Accounts.admin?(user)
+      refute Accounts.gm?(user)
 
-      assert {:ok, admin} = Accounts.set_user_role(user, "admin")
-      assert Accounts.admin?(admin)
-      assert {:error, changeset} = Accounts.set_user_role(user, "overlord")
-      assert "is invalid" in errors_on(changeset).role
+      assert {:ok, promoted} = Accounts.set_user_flags(user, %{admin: true, gm: true})
+      assert Accounts.admin?(promoted)
+      assert Accounts.gm?(promoted)
     end
   end
 
@@ -216,6 +217,18 @@ defmodule TannhauserGate.GameContextsTest do
       assert length(again.locations) == length(TannhauserGate.Seeds.locations())
       assert length(again.locations) >= 8
       assert length(Forum.list_sections()) >= 3
+    end
+
+    test "run/0 completes a bare placeholder story without overwriting edits" do
+      {:ok, placeholder} =
+        TannhauserGate.Stories.create_story(%{name: "Tannhauser Gate", summary: "Custom"})
+
+      %{story: story} = TannhauserGate.Seeds.run()
+
+      assert story.id == placeholder.id
+      assert story.summary == "Custom"
+      assert story.world_background not in [nil, ""]
+      assert story.map_svg == TannhauserGate.Seeds.map_svg()
     end
   end
 end

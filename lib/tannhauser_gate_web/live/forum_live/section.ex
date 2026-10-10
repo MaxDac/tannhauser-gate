@@ -7,13 +7,24 @@ defmodule TannhauserGateWeb.ForumLive.Section do
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     section = Forum.get_section!(id)
+    story = socket.assigns.current_story
 
-    {:ok,
-     socket
-     |> assign(:page_title, section.name)
-     |> assign(:section, section)
-     |> assign(:topics, Forum.list_topics(section))
-     |> assign(:form, to_form(%{"title" => "", "body" => ""}, as: "topic"))}
+    if section.story_id != story.id do
+      {:ok,
+       socket
+       |> put_flash(:error, "That section does not exist in this GDR.")
+       |> push_navigate(to: ~p"/g/#{story}/forum")}
+    else
+      {:ok, load(socket, section)}
+    end
+  end
+
+  defp load(socket, section) do
+    socket
+    |> assign(:page_title, section.name)
+    |> assign(:section, section)
+    |> assign(:topics, Forum.list_topics(section))
+    |> assign(:form, to_form(%{"title" => "", "body" => ""}, as: "topic"))
   end
 
   @impl true
@@ -23,7 +34,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
         {:noreply,
          socket
          |> put_flash(:info, "Topic created")
-         |> push_navigate(to: ~p"/forum/topics/#{topic}")}
+         |> push_navigate(to: ~p"/g/#{socket.assigns.current_story}/forum/topics/#{topic}")}
 
       {:error, changeset} ->
         {:noreply,
@@ -38,9 +49,17 @@ defmodule TannhauserGateWeb.ForumLive.Section do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
+    <Layouts.app
+      flash={@flash}
+      current_user={@current_user}
+      current_path={@current_path}
+      current_story={@current_story}
+    >
       <div class="mb-4">
-        <.link navigate={~p"/forum"} class="text-sm font-semibold text-mint hover:text-phosphor">
+        <.link
+          navigate={~p"/g/#{@current_story}/forum"}
+          class="text-sm font-semibold text-mint hover:text-phosphor"
+        >
           <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Forum
         </.link>
       </div>
@@ -59,7 +78,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
         </li>
         <li :for={topic <- @topics}>
           <.link
-            navigate={~p"/forum/topics/#{topic}"}
+            navigate={~p"/g/#{@current_story}/forum/topics/#{topic}"}
             class="flex items-center justify-between gap-4 p-4 hover:bg-white/5"
           >
             <div class="min-w-0">

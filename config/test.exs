@@ -3,6 +3,9 @@ import Config
 # Only in tests, remove the complexity from the password hashing algorithm
 config :pbkdf2_elixir, :rounds, 1
 
+# The periodic bank payer is driven manually in tests
+config :tannhauser_gate, :start_payer, false
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

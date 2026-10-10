@@ -13,25 +13,38 @@
 Neo-Meridian, 2121. The acid rain never stops, the advertising never sleeps, and somewhere past
 the orbital relay called the *Tannhauser Gate* the Echoes are coming home.
 
-Tannhauser Gate is a small, self-hostable platform for running text role-playing games. Admins
-write a story with its world background, customs and an interactive map. Players create
-characters and play them in real-time chat rooms placed on that map. The default story is an
-original setting inspired by the mood of *Blade Runner*.
+Tannhauser Gate is a small, self-hostable platform for running many text role-playing games
+(GDRs). Each GDR is run by a game master (GM) with its own rules, world background, theme,
+character sheet, map, forum, bank and jobs. Players pick a GDR after login, create one
+character in it, and play in real-time chat rooms placed on its map. *Tannhauser Gate* is also
+the name of the default GDR, an original setting inspired by the mood of *Blade Runner*.
 
 ## Features
 
-- **Accounts:** email and password registration and login, built on `phx.gen.auth`. Roles are `user` and `admin`.
-- **Left drawer navigation** covering Characters, City Map, Forum and Admin. The Admin entry is shown to admins only.
-- **Characters:** a list of your characters. Each one opens a character sheet styled as a detective's spiral-bound notepad, with an avatar photo, name, description and background.
-- **City map and chat rooms:** each story ships an SVG map with clickable polygon areas. Every area is a chat room. Messages show the speaking character's avatar, name, time and text, and arrive live through Phoenix PubSub.
-- **Forum:** simple sections → topics → posts, with posts listed oldest first.
+- **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master).
+- **GDR selection** (`/gdrs`): after login, players choose a published GDR to enter. Each GDR lives under `/g/:id/...`.
+- **Requesting a GDR:** a GM files a request (`/gdrs/request`). An admin approves or rejects it (`/admin/requests`). Approval creates a draft GDR owned by the GM. Each GM runs at most one GDR.
+- **GM dashboard** (`/g/:id/gm`, only the GDR's GM and admins):
+  - name, summary, world background, rules, customs, status (draft or published);
+  - theme preset plus optional custom colours (hex only);
+  - attributes, skills and powers, each with a name, description and min/max range;
+  - jobs and their pay, the currency name and the pay interval;
+  - character balances (adjustments are recorded in the ledger);
+  - map artwork and rooms;
+  - forum sections.
+- **Characters:** one character per user per GDR. The character sheet, styled as a detective's spiral-bound notepad, shows the avatar, name, description, background and the GDR's attributes, skills and powers.
+- **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
+- **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs and, for its GM, the dashboard.
+- **City map and chat rooms:** each GDR has an SVG map with clickable polygon areas. Every area is a chat room. Messages show the speaking character's avatar, name, time and text, and arrive live through Phoenix PubSub. GM artwork is rendered as an inert SVG image, so it can't run scripts.
+- **Forum:** one forum per GDR: sections → topics → posts, with posts listed oldest first.
 - **Admin control room:**
-  - create and edit stories, their map artwork and rooms (polygon areas);
+  - create and edit GDRs, their map artwork and rooms (polygon areas);
+  - review GDR requests;
   - edit any character;
   - read and moderate every room's conversation;
-  - manage forum sections;
-  - promote or revoke admins.
-- **Default content:** the *Tannhauser Gate* story with nine rooms in the city of Neo-Meridian, three forum sections and an admin account.
+  - moderate forum sections;
+  - grant or revoke the admin and GM flags.
+- **Default content:** the *Tannhauser Gate* GDR with nine rooms in the city of Neo-Meridian, attributes, skills, powers, jobs, three forum sections and an admin account.
 
 ## Stack
 
@@ -53,6 +66,11 @@ actions.
 The theme, extra design tokens (`phosphor`, `mint`, `night`, `ink`, `fog-*`, fonts) and the
 notepad, map and polaroid styles are all in [`assets/css/app.css`](assets/css/app.css).
 UI components use daisyUI classes (`btn`, `input`, `select`, `drawer`, `alert`, ...).
+
+`tannhauser` is the theme of the default GDR. The platform pages (GDR selection, account,
+admin) use a neutral `platform` theme. GMs choose a preset for their GDR (`tannhauser`,
+`ember`, `azure` or `crimson`) and can override its main colours with hex values. The
+design tokens follow the active daisyUI theme, so the custom components restyle with it.
 
 Shared form controls add scoped `console-field`, `console-check`, and `console-action` styles:
 inset dark surfaces, readable borders, restrained green focus rings, and distinct error,
