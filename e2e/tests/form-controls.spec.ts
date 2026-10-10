@@ -43,7 +43,7 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await page.goto("/users/log_in");
   await connected(page);
   const email = page.locator('#login_form input[name="user[login]"]');
-  await expect(email).toHaveCSS("background-color", "rgb(11, 16, 13)");
+  await expect(email).toHaveCSS("background-color", "rgb(14, 16, 20)");
   const colors = await email.evaluate((input) => {
     const style = getComputedStyle(input);
     return { border: style.borderColor, background: style.backgroundColor, text: style.color };
@@ -56,7 +56,7 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await page.keyboard.press("Tab");
   await expect(email).toBeFocused();
   await expect(email).toHaveCSS("outline-width", "2px");
-  await expect(email).toHaveCSS("outline-color", "rgb(74, 224, 138)");
+  await expect(email).toHaveCSS("outline-color", "rgb(122, 162, 247)");
 
   const password = page.getByLabel("Password", { exact: true });
   await page.keyboard.press("Tab");
@@ -67,9 +67,9 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await expect(remember).toHaveCSS("outline-width", "2px");
   await page.keyboard.press("Space");
   await expect(remember).toBeChecked();
-  await expect(remember).toHaveCSS("background-color", "rgb(74, 224, 138)");
+  await expect(remember).toHaveCSS("background-color", "rgb(122, 162, 247)");
   await remember.evaluate((input: HTMLInputElement) => { input.disabled = true; });
-  await expect(remember).toHaveCSS("background-color", "rgb(18, 26, 21)");
+  await expect(remember).toHaveCSS("background-color", "rgb(21, 25, 32)");
   await remember.evaluate((input: HTMLInputElement) => { input.disabled = false; });
   await remember.focus();
   await page.keyboard.press("Space");
