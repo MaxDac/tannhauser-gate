@@ -108,18 +108,20 @@ defmodule TannhauserGate.GdrRequests do
 
   def reject_request(%GdrRequest{status: "pending"} = request, %User{} = admin) do
     if Accounts.admin?(admin) do
-      Repo.transaction(fn ->
-        case claim_pending(Repo, request, "rejected", admin) do
-          {:ok, _} -> get_request!(request.id)
-          {:error, reason} -> Repo.rollback(reason)
-        end
-      end)
+      Repo.transaction(fn -> do_reject(request, admin) end)
     else
       {:error, :unauthorized}
     end
   end
 
   def reject_request(_, _), do: {:error, :not_pending}
+
+  defp do_reject(request, admin) do
+    case claim_pending(Repo, request, "rejected", admin) do
+      {:ok, _} -> get_request!(request.id)
+      {:error, reason} -> Repo.rollback(reason)
+    end
+  end
 
   # Moves the request out of "pending" only if nobody else did it first, so
   # concurrent approve/reject clicks can't both win.

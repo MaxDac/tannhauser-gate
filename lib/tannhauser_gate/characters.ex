@@ -153,14 +153,16 @@ defmodule TannhauserGate.Characters do
     if is_map(params) and is_integer(story_id) do
       items = Repo.all(from i in Item, where: i.story_id == ^story_id)
 
-      Enum.reduce(items, changeset, fn item, cs ->
-        case fetch_param(params, item.id) do
-          :error -> cs
-          {:ok, raw} -> check_trait(cs, item, raw)
-        end
-      end)
+      Enum.reduce(items, changeset, &check_submitted_trait(&1, params, &2))
     else
       changeset
+    end
+  end
+
+  defp check_submitted_trait(item, params, changeset) do
+    case fetch_param(params, item.id) do
+      :error -> changeset
+      {:ok, raw} -> check_trait(changeset, item, raw)
     end
   end
 

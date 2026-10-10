@@ -10,7 +10,19 @@ async function adminLogin(page: Page) {
   await page.getByLabel("Username").fill(process.env.ADMIN_USERNAME || "admin");
   await page.getByLabel("Password").fill(process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121");
   await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/characters$/);
+  await expect(page).toHaveURL(/\/gdrs$/);
+}
+
+// Computed colors may be oklab()/color-mix() values; normalise them to rgb().
+async function toRgb(page: Page, color: string) {
+  return page.evaluate((value) => {
+    const context = document.createElement("canvas").getContext("2d")!;
+    context.fillStyle = "#000";
+    context.fillStyle = value;
+    context.fillRect(0, 0, 1, 1);
+    const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+    return `rgb(${r}, ${g}, ${b})`;
+  }, color);
 }
 
 function contrast(first: string, second: string) {
@@ -31,12 +43,13 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await page.goto("/users/log_in");
   await connected(page);
   const email = page.locator('#login_form input[name="user[login]"]');
-  await expect(email).toHaveCSS("border-color", "rgb(114, 137, 122)");
   await expect(email).toHaveCSS("background-color", "rgb(11, 16, 13)");
   const colors = await email.evaluate((input) => {
     const style = getComputedStyle(input);
     return { border: style.borderColor, background: style.backgroundColor, text: style.color };
   });
+  colors.border = await toRgb(page, colors.border);
+  colors.text = await toRgb(page, colors.text);
   expect(contrast(colors.border, colors.background)).toBeGreaterThanOrEqual(3);
   expect(contrast(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5);
   await page.getByRole("link", { name: "Register", exact: true }).focus();
@@ -99,7 +112,7 @@ test("admin artwork keeps textarea styling and accessible red validation states"
   await expect(artwork).toHaveCSS("border-color", "rgb(248, 113, 113)");
 });
 
-test("the compact map selector preserves story switching", async ({ page }) => {
+test("the GDR picker preserves story switching", async ({ page }) => {
   await adminLogin(page);
   await page.goto("/admin/stories/new");
   await connected(page);
@@ -107,20 +120,18 @@ test("the compact map selector preserves story switching", async ({ page }) => {
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("button", { name: "Save story" }).click();
   await expect(page).toHaveURL(/\/admin\/stories\/\d+\/edit$/);
-  await page.goto("/map");
+  await page.goto("/gdrs");
   await connected(page);
-  const story = page.locator("#map-story");
-  await expect(story).toHaveClass(/select-sm console-field/);
-  await story.selectOption({ label: name });
-  await expect(page).toHaveURL(/\/stories\/\d+\/map$/);
-  await expect(page.locator("h1")).toHaveText(name);
+  await page.locator("#gdrs").getByRole("link", { name: new RegExp(name) }).click();
+  await expect(page).toHaveURL(/\/g\/\d+$/);
+  await expect(page.locator("#current-gdr-name")).toHaveText(name);
 });
 
 test("forms remain within the mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await adminLogin(page);
 
-  for (const route of ["/characters/new", "/admin/stories/new", "/users/settings", "/map"]) {
+  for (const route of ["/g/1/characters/new", "/admin/stories/new", "/users/settings", "/g/1/map"]) {
     await page.goto(route);
     await connected(page);
     const dimensions = await page.evaluate(() => ({

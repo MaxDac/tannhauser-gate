@@ -125,15 +125,7 @@ defmodule TannhauserGate.Bank do
          true <- to.id != from.id || {:error, :same_character} do
       Multi.new()
       |> Multi.run(:lock, fn repo, _ -> lock_in_order(repo, [from.id, to.id]) end)
-      |> Multi.run(:debit, fn repo, _ ->
-        {count, _} =
-          repo.update_all(
-            from(c in Character, where: c.id == ^from.id and c.balance >= ^amount),
-            inc: [balance: -amount]
-          )
-
-        if count == 1, do: {:ok, amount}, else: {:error, :insufficient_funds}
-      end)
+      |> Multi.run(:debit, fn repo, _ -> debit(repo, from.id, amount) end)
       |> Multi.update_all(:credit, from(c in Character, where: c.id == ^to.id),
         inc: [balance: amount]
       )
@@ -163,15 +155,7 @@ defmodule TannhauserGate.Bank do
   def adjust(%Character{} = character, amount, note \\ nil) do
     with {:ok, amount} <- parse_amount(amount, allow_negative: true) do
       Multi.new()
-      |> Multi.run(:update, fn repo, _ ->
-        {count, _} =
-          repo.update_all(
-            from(c in Character, where: c.id == ^character.id and c.balance + ^amount >= 0),
-            inc: [balance: amount]
-          )
-
-        if count == 1, do: {:ok, amount}, else: {:error, :insufficient_funds}
-      end)
+      |> Multi.run(:update, fn repo, _ -> apply_adjustment(repo, character.id, amount) end)
       |> Multi.insert(:transaction, %Transaction{
         story_id: character.story_id,
         to_character_id: character.id,
@@ -185,6 +169,26 @@ defmodule TannhauserGate.Bank do
         {:error, _step, reason, _} -> {:error, reason}
       end
     end
+  end
+
+  defp debit(repo, character_id, amount) do
+    {count, _} =
+      repo.update_all(
+        from(c in Character, where: c.id == ^character_id and c.balance >= ^amount),
+        inc: [balance: -amount]
+      )
+
+    if count == 1, do: {:ok, amount}, else: {:error, :insufficient_funds}
+  end
+
+  defp apply_adjustment(repo, character_id, amount) do
+    {count, _} =
+      repo.update_all(
+        from(c in Character, where: c.id == ^character_id and c.balance + ^amount >= 0),
+        inc: [balance: amount]
+      )
+
+    if count == 1, do: {:ok, amount}, else: {:error, :insufficient_funds}
   end
 
   @doc "Recent transactions involving a character, newest first."
