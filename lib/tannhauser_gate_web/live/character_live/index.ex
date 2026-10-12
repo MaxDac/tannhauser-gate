@@ -66,12 +66,21 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
         >
           <.avatar character={character} class="h-16 w-16 text-2xl" />
           <div class="min-w-0">
-            <p class="truncate text-lg font-bold text-base-content group-hover:text-primary">
+            <p class="flex items-center gap-2 truncate text-lg font-bold text-base-content group-hover:text-primary">
               {character.name}
+              <span :if={character.is_npc} class="badge badge-xs badge-secondary">NPC</span>
+              <span
+                :if={!character.is_npc and character.approval_status != "approved"}
+                class="badge badge-xs badge-warning badge-soft"
+              >
+                {Characters.approval_label(character.approval_status)}
+              </span>
             </p>
 
             <p class="truncate text-xs uppercase tracking-wider text-secondary">
-              {(character.job && character.job.name) || "No job"} · {character.user.username}
+              {(character.job && character.job.name) || "No job"} · {if character.is_npc,
+                do: "NPC",
+                else: character.user.username}
             </p>
 
             <p class="mt-1 line-clamp-2 text-sm text-base-content/60">{character.description}</p>

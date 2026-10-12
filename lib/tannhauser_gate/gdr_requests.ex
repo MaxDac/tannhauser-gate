@@ -9,6 +9,7 @@ defmodule TannhauserGate.GdrRequests do
   alias Ecto.Multi
   alias TannhauserGate.Accounts
   alias TannhauserGate.Accounts.User
+  alias TannhauserGate.Characters
   alias TannhauserGate.GdrRequests.GdrRequest
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories
@@ -90,6 +91,9 @@ defmodule TannhauserGate.GdrRequests do
     |> Multi.insert(:story, fn _ ->
       %Story{owner_id: request.user_id, status: "draft"}
       |> Story.changeset(%{name: request.name, summary: request.pitch})
+    end)
+    |> Multi.run(:states, fn repo, %{story: story} ->
+      Characters.create_default_states(story, repo)
     end)
     |> Multi.run(:linked, fn repo, %{story: story} ->
       {1, _} =

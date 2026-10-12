@@ -117,6 +117,9 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :ensure_master}
       ] do
       live "/g/:story_id/master", MasterLive, :index
+      live "/g/:story_id/master/characters", MasterLive.Characters, :index
+      live "/g/:story_id/master/moderation", MasterLive.Moderation, :index
+      live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end
 

@@ -19,7 +19,9 @@ defmodule TannhauserGateWeb.RoomLive do
   end
 
   defp load(socket, location) do
-    characters = Characters.list_user_characters(socket.assigns.current_user, location.story_id)
+    %{current_user: user, current_story: story} = socket.assigns
+    characters = Characters.playable_characters(user, story)
+    own = Characters.get_user_story_character(user, story.id)
 
     if connected?(socket), do: Chat.subscribe(location.id)
 
@@ -27,6 +29,7 @@ defmodule TannhauserGateWeb.RoomLive do
     |> assign(:page_title, location.name)
     |> assign(:location, location)
     |> assign(:characters, characters)
+    |> assign(:own_character, own)
     |> assign(:form_id, 0)
     |> assign(:form, new_form(characters))
     |> stream(:messages, Chat.list_messages(location.id))
@@ -58,9 +61,20 @@ defmodule TannhauserGateWeb.RoomLive do
            to_form(params, as: "message", errors: changeset_errors(changeset))
          )}
 
-      {:error, _reason} ->
-        {:noreply,
-         put_flash(socket, :error, "You can only speak as one of your characters in this story.")}
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, Chat.error_message(reason))}
+    end
+  end
+
+  def handle_event("delete_message", %{"id" => id}, socket) do
+    story = socket.assigns.current_story
+
+    with true <- socket.assigns.master?,
+         %{} = message <- Chat.get_story_message(story.id, id) do
+      {:ok, _} = Chat.delete_message(message)
+      {:noreply, socket}
+    else
+      _ -> {:noreply, put_flash(socket, :error, "Only the GDR masters can delete messages.")}
     end
   end
 
@@ -72,6 +86,9 @@ defmodule TannhauserGateWeb.RoomLive do
   def handle_info({:deleted_message, message}, socket) do
     {:noreply, stream_delete(socket, :messages, message)}
   end
+
+  defp speaker_label(%{is_npc: true, name: name}), do: "#{name} (NPC)"
+  defp speaker_label(%{name: name}), do: name
 
   defp changeset_errors(changeset) do
     Enum.map(changeset.errors, fn {field, error} -> {field, error} end)
@@ -128,6 +145,18 @@ defmodule TannhauserGateWeb.RoomLive do
                 <time class="text-xs text-fog-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
                   {format_time(message.inserted_at)}
                 </time>
+                <button
+                  :if={@master?}
+                  type="button"
+                  id={"delete-message-#{message.id}"}
+                  phx-click="delete_message"
+                  phx-value-id={message.id}
+                  data-confirm="Delete this message?"
+                  class="console-link-action text-xs text-error/70 hover:text-error"
+                  aria-label="Delete message"
+                >
+                  <.icon name="hero-trash" class="size-3" />
+                </button>
               </p>
               <p class="chat-body whitespace-pre-line break-words text-fog-200">{message.body}</p>
             </div>
@@ -135,11 +164,22 @@ defmodule TannhauserGateWeb.RoomLive do
         </ol>
 
         <div class="border-t border-mint/20 bg-night/60 p-4">
-          <p :if={@characters == []} class="text-sm text-fog-400">
+          <p :if={@characters == [] and is_nil(@own_character)} class="text-sm text-fog-400">
             You need a character in this GDR to speak. <.link
               navigate={~p"/g/#{@current_story}/characters/new"}
               class="font-semibold text-mint hover:underline"
             >Create one</.link>.
+          </p>
+          <p
+            :if={@own_character && !Characters.can_play?(@own_character)}
+            id="cannot-play-notice"
+            class="mb-3 text-sm text-fog-400"
+          >
+            {@own_character.name} cannot speak yet: a master must approve it and its state
+            must allow playing. <.link
+              navigate={~p"/g/#{@current_story}/characters/#{@own_character}"}
+              class="font-semibold text-mint hover:underline"
+            >Open the sheet</.link>.
           </p>
           <.form
             :if={@characters != []}
@@ -153,7 +193,7 @@ defmodule TannhauserGateWeb.RoomLive do
                 field={@form[:character_id]}
                 type="select"
                 label="Speak as"
-                options={Enum.map(@characters, &{&1.name, &1.id})}
+                options={Enum.map(@characters, &{speaker_label(&1), &1.id})}
               />
             </div>
             <div class="flex-1">

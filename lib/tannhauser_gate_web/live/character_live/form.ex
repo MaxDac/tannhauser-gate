@@ -20,6 +20,18 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     {:ok, apply_action(socket, socket.assigns.live_action, params)}
   end
 
+  defp apply_action(socket, :new_npc, _params) do
+    story = socket.assigns.current_story
+    character = %Character{story_id: story.id, is_npc: true}
+
+    socket
+    |> assign(:page_title, "New NPC")
+    |> assign(:character, character)
+    |> assign(:master_notes?, true)
+    |> assign(:trait_values, default_traits(socket.assigns.items, %{}))
+    |> assign_form(Characters.change_character(character, %{}, master?: true))
+  end
+
   defp apply_action(socket, :new, _params) do
     story = socket.assigns.current_story
 
@@ -30,6 +42,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         socket
         |> assign(:page_title, "New character")
         |> assign(:character, character)
+        |> assign(:master_notes?, false)
         |> assign(:trait_values, default_traits(socket.assigns.items, %{}))
         |> assign_form(Characters.change_character(character))
 
@@ -52,12 +65,14 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
       Characters.can_edit?(socket.assigns.current_user, character) ->
         values = Characters.trait_values(character)
+        master? = Characters.can_view_master_notes?(socket.assigns.current_user, character)
 
         socket
         |> assign(:page_title, "Edit #{character.name}")
         |> assign(:character, character)
+        |> assign(:master_notes?, master?)
         |> assign(:trait_values, default_traits(socket.assigns.items, values))
-        |> assign_form(Characters.change_character(character))
+        |> assign_form(Characters.change_character(character, %{}, master?: master?))
 
       true ->
         socket
@@ -76,7 +91,11 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   @impl true
   def handle_event("validate", %{"character" => params}, socket) do
     params = scope_params(params, socket)
-    changeset = Characters.change_character(socket.assigns.character, params)
+
+    changeset =
+      Characters.change_character(socket.assigns.character, params,
+        master?: socket.assigns.master_notes?
+      )
 
     {:noreply,
      socket
@@ -113,7 +132,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       {:ok, character} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Character created")
+         |> put_flash(:info, "Character created as a draft: submit it for approval when ready.")
          |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")}
 
       {:error, changeset} ->
@@ -121,10 +140,29 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     end
   end
 
-  defp save(socket, :edit, params, avatar_path) do
+  defp save(socket, :new_npc, params, avatar_path) do
     story = socket.assigns.current_story
 
-    case Characters.update_character(socket.assigns.character, params, avatar_path) do
+    case Characters.create_npc(socket.assigns.current_user, story, params, avatar_path) do
+      {:ok, character} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "NPC created")
+         |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign_form(socket, changeset)}
+
+      {:error, _reason} ->
+        {:noreply, put_flash(socket, :error, "Only the GDR masters can create NPCs.")}
+    end
+  end
+
+  defp save(socket, :edit, params, avatar_path) do
+    story = socket.assigns.current_story
+    opts = [master?: socket.assigns.master_notes?]
+
+    case Characters.update_character(socket.assigns.character, params, avatar_path, opts) do
       {:ok, character} ->
         {:noreply,
          socket
@@ -164,7 +202,10 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     >
       <.header>
         {@page_title}
-        <:subtitle>Who are you in {@current_story.name}?</:subtitle>
+        <:subtitle :if={!@character.is_npc}>Who are you in {@current_story.name}?</:subtitle>
+        <:subtitle :if={@character.is_npc}>
+          A non-player character of {@current_story.name}, played by its masters.
+        </:subtitle>
       </.header>
 
       <div class="mt-6 max-w-2xl rounded-xl border border-secondary/20 bg-base-200/80 p-6">
@@ -219,6 +260,25 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
           </div>
           <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
           <.input field={@form[:background]} type="textarea" label="Background" rows="10" />
+          <.input
+            field={@form[:off_game_info]}
+            type="textarea"
+            label="Off-game info (public)"
+            rows="3"
+          />
+          <.input
+            field={@form[:player_notes]}
+            type="textarea"
+            label="Player notes (only you and the masters)"
+            rows="4"
+          />
+          <.input
+            :if={@master_notes?}
+            field={@form[:master_notes]}
+            type="textarea"
+            label="Master notes (hidden from the player)"
+            rows="4"
+          />
           <section
             :for={{kind, items} <- @items}
             :if={items != []}

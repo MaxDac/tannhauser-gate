@@ -6,7 +6,7 @@ defmodule TannhauserGateWeb.MasterLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Repo, Stories}
+  alias TannhauserGate.{Characters, Repo, Stories}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -16,6 +16,7 @@ defmodule TannhauserGateWeb.MasterLive do
      socket
      |> assign(:page_title, "Master tools")
      |> assign(:owner, story.owner)
+     |> assign(:queue_count, length(Characters.list_approval_queue(story.id)))
      |> stream(:masters, Stories.list_masters(story))}
   end
 
@@ -47,11 +48,32 @@ defmodule TannhauserGateWeb.MasterLive do
       <div id="master-entry-points" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <.entry_point
           id="master-characters"
-          navigate={~p"/g/#{@current_story}/characters"}
+          navigate={~p"/g/#{@current_story}/master/characters"}
           icon="hero-identification"
-          title="Characters"
+          title="Character dashboard"
         >
-          Open any character of this GDR and edit its sheet.
+          Approve new characters, set their state and edit any sheet.
+          <span id="master-approval-count" class="badge badge-sm badge-info badge-soft ml-1">
+            {@queue_count} awaiting approval
+          </span>
+        </.entry_point>
+
+        <.entry_point
+          id="master-npcs"
+          navigate={~p"/g/#{@current_story}/master/npcs/new"}
+          icon="hero-user-plus"
+          title="New NPC"
+        >
+          Create a non-player character to speak as in the chat rooms.
+        </.entry_point>
+
+        <.entry_point
+          id="master-moderation"
+          navigate={~p"/g/#{@current_story}/master/moderation"}
+          icon="hero-shield-check"
+          title="Moderation"
+        >
+          Review and delete the latest chat messages and forum posts.
         </.entry_point>
 
         <.entry_point
