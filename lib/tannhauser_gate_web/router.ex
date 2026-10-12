@@ -79,7 +79,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
-        {TannhauserGateWeb.GdrPresence, :track}
+        {TannhauserGateWeb.GdrPresence, :track},
+        {TannhauserGateWeb.MailNotifier, :subscribe}
       ] do
       live "/g/:story_id", GdrLive.Home, :show
 
@@ -95,6 +96,11 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/forum/sections/:id", ForumLive.Section, :show
       live "/g/:story_id/forum/topics/:id", ForumLive.Topic, :show
 
+      live "/g/:story_id/mail", MailLive, :inbox
+      live "/g/:story_id/mail/sent", MailLive, :sent
+      live "/g/:story_id/mail/new", MailLive, :new
+      live "/g/:story_id/mail/:id", MailLive, :show
+
       live "/g/:story_id/bank", BankLive, :index
       live "/g/:story_id/jobs", JobsLive, :index
     end
@@ -105,7 +111,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
         {TannhauserGateWeb.UserAuth, :ensure_gdr_admin},
-        {TannhauserGateWeb.GdrPresence, :track}
+        {TannhauserGateWeb.GdrPresence, :track},
+        {TannhauserGateWeb.MailNotifier, :subscribe}
       ] do
       live "/g/:story_id/gm", GmLive, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
@@ -117,7 +124,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
         {TannhauserGateWeb.UserAuth, :ensure_master},
-        {TannhauserGateWeb.GdrPresence, :track}
+        {TannhauserGateWeb.GdrPresence, :track},
+        {TannhauserGateWeb.MailNotifier, :subscribe}
       ] do
       live "/g/:story_id/master", MasterLive, :index
       live "/g/:story_id/master/characters", MasterLive.Characters, :index

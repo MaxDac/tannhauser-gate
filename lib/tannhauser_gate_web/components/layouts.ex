@@ -44,6 +44,10 @@ defmodule TannhauserGateWeb.Layouts do
     default: nil,
     doc: "the users online in the GDR (see `TannhauserGateWeb.GdrPresence`)"
 
+  attr :mail_unread, :integer,
+    default: 0,
+    doc: "the unread messages of the GDR mailbox (see `TannhauserGateWeb.MailNotifier`)"
+
   slot :inner_block, required: true
 
   def app(%{current_user: nil} = assigns) do
@@ -163,6 +167,24 @@ defmodule TannhauserGateWeb.Layouts do
                 current_path={@current_path}
               >
                 Forum
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
+                id="nav-mail"
+                navigate={~p"/g/#{@current_story}/mail"}
+                icon="hero-envelope"
+                current_path={@current_path}
+              >
+                Mail
+                <span
+                  :if={@mail_unread > 0}
+                  id="nav-mail-unread"
+                  class="badge badge-sm badge-secondary ml-auto"
+                  aria-label={"#{@mail_unread} unread"}
+                >
+                  {@mail_unread}
+                </span>
               </.nav_link>
             </li>
             <li>

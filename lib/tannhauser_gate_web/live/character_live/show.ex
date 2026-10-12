@@ -221,6 +221,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <.link
@@ -230,29 +231,42 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
           <.icon name="hero-arrow-left-solid" class="size-3" /> Back to characters
         </.link>
 
-        <div :if={@can_edit?} class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <.button
-            :if={@owner? and @character.approval_status in ["draft", "rejected"]}
-            id="submit-for-approval"
-            phx-click="submit_for_approval"
-            class="btn btn-primary console-action"
+            :if={
+              not @owner? and not @character.is_npc and
+                (@master? or @character.approval_status == "approved")
+            }
+            id="send-message"
+            navigate={~p"/g/#{@current_story}/mail/new?to=#{@character.id}"}
           >
-            <.icon name="hero-paper-airplane" class="size-4" /> Submit for approval
+            <.icon name="hero-envelope" class="size-4" /> Send message
           </.button>
-          <.button
-            id="edit-character"
-            navigate={~p"/g/#{@current_story}/characters/#{@character}/edit"}
-          >
-            Edit
-          </.button>
-          <.button
-            id="delete-character"
-            phx-click="delete"
-            data-confirm="Delete this character? Their messages will be deleted too."
-            class="btn btn-error btn-outline console-action"
-          >
-            Delete
-          </.button>
+
+          <div :if={@can_edit?} class="contents">
+            <.button
+              :if={@owner? and @character.approval_status in ["draft", "rejected"]}
+              id="submit-for-approval"
+              phx-click="submit_for_approval"
+              class="btn btn-primary console-action"
+            >
+              <.icon name="hero-paper-airplane" class="size-4" /> Submit for approval
+            </.button>
+            <.button
+              id="edit-character"
+              navigate={~p"/g/#{@current_story}/characters/#{@character}/edit"}
+            >
+              Edit
+            </.button>
+            <.button
+              id="delete-character"
+              phx-click="delete"
+              data-confirm="Delete this character? Their messages will be deleted too."
+              class="btn btn-error btn-outline console-action"
+            >
+              Delete
+            </.button>
+          </div>
         </div>
       </div>
 

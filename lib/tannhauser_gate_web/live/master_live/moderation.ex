@@ -53,6 +53,7 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <div class="mb-4">
         <.link

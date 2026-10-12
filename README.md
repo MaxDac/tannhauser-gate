@@ -39,13 +39,13 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - character balances (adjustments are recorded in the ledger);
   - map artwork and rooms (rooms can be flagged private);
   - **chat & dice:** the dice system and its parameters, and the chat archive age;
-  - forum sections;
+  - forum sections: name, description, position, **on game** (written in character) or off game, and **visibility** (all members, approved characters only, masters only);
   - masters (added by username, removed with one click);
   - character states (name, whether the character can play, position). Every GDR starts with an "Active" playable state.
 - **Master tools** (`/g/:id/master`, masters, the GDR admin and platform admins): entry points to the GDR's characters, rooms and forum, plus the list of the GDR's narrators. They also include:
   - the **character dashboard** (`/g/:id/master/characters`): the approval queue (approve, or reject with notes), every character filtered by approval status, state and player/NPC, a state selector and the available/earned XP per row, links to edit any sheet, an XP award form (positive, or negative to correct, always with a reason) and the GDR XP log;
   - **NPC creation** (`/g/:id/master/npcs/new`);
-  - **moderation** (`/g/:id/master/moderation`): the latest chat messages and forum posts of the GDR, each with a delete button. Masters can also delete messages directly in the chat rooms;
+  - **moderation** (`/g/:id/master/moderation`): the latest chat messages and forum posts of the GDR, each with a delete button. Masters can also delete messages directly in the chat rooms, and edit, delete, lock and pin forum topics and posts from the forum itself;
   - the **chat log** (`/g/:id/master/chat-log`): live and archived chat entries, filtered by room and dates.
 - **Characters:** one character per user per GDR. The character sheet, styled as a detective's spiral-bound notepad, shows the avatar, name, description, background and the GDR's attributes, skills and powers.
   - **Creation wizard:** players create their character step by step: identity, one step per category with items, then a review. Each step enforces the creation budget of its category on the server; categories without a budget accept any value within the item range. Masters (NPCs and edits) are never limited by the budgets. The owner can change trait values only until the character is approved; after that the sheet grows with XP.
@@ -56,14 +56,19 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - **Formulas** (`TannhauserGate.Formula`) are evaluated by a small safe parser, never by `Code.eval`: whole numbers, `+ - * /` (integer division), `min(a, b)`, `max(a, b)`, parentheses, item keys and the variables `current` and `next`. They are validated when saved.
   - **NPCs:** masters create non-player characters. NPCs are approved from the start and don't count toward the one-character limit. Masters pick an NPC (or their own character) in the chat "Speak as" selector.
 - **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
-- **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
+- **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Mail (with an unread badge), Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
 - **City map and chat rooms:** each GDR has an SVG map with clickable polygon areas. Every area is a chat room. Messages show the speaking character's avatar, name, time and text, and arrive live through Phoenix PubSub. GM artwork is rendered as an inert SVG image, so it can't run scripts.
   - **Entry types** (`TannhauserGate.Chat`): in-character speech (the default; the character must pass `Characters.can_play?/1`), **OFF** (out of character; allowed to the owner of any draft or approved character, rendered dimmed with an "OFF" badge), **narration** (masters only, posted as the "Narrator"), **room status** (masters only: sets the status text shown in the room header and logs it in the chat; an empty text clears it) and **dice** rolls.
   - **Dice** (`TannhauserGate.Dice`, always rolled on the server): every GDR picks its system in the GM dashboard: a generic `NdX+M` expression, d20 + modifier (with optional natural 20/1 criticals), or a **success pool** (die size, success threshold, default difficulty, "each pair of maxima adds N successes" criticals, optional special dice counted from a tracker such as hunger, with messy criticals and bestial failures). Rolls sum chosen sheet items into the pool or modifier, plus a manual modifier, an optional difficulty and a label. The structured result is stored on the dice entry and shown with every die. A pool GDR can configure a reroll: spend a tracker (e.g. willpower, or damage on a damage tracker) to reroll up to N failed regular dice once.
   - **History:** rooms show the latest 50 entries with a "Load older messages" button. An hourly job (`TannhauserGate.Chat.Archiver`) moves entries older than the GDR's archive age (default 30 days, empty = never) into `archived_messages`. Masters read live and archived entries in the **chat log** (`/g/:id/master/chat-log`), filtered by room and date range.
   - **Private rooms** (`TannhauserGate.Bookings`): the GDR admin flags rooms as private. A player with a playable character books a time slot (up to 12 hours, starting within 30 days, no overlaps) and invites characters. During a booking only the booker, the invitees' owners and the masters can read and post. Outside bookings only the masters can. Bookings are listed in the room and on the map.
 - **Presence** (`TannhauserGateWeb.GdrPresence`): the drawer lists who is online in the GDR, with their character and current room.
+- **Mailbox** (`TannhauserGate.Mailbox`, `/g/:id/mail`): character-to-character letters inside one GDR. A message is sent *as* one of the characters the user can play (masters also as their NPCs or as "The masters") to any approved character, or to "The masters" (a shared mailbox read by every master). Masters can write to any character of the GDR. The inbox and sent views show read state; messages can be replied to (prefilled "Re:" subject) and deleted one by one or in bulk, independently on each side. The drawer shows the unread count, and a new letter flashes a live notification (PubSub topic `"mailbox:story:#{id}"`). Character pages have a "Send message" button and the master character dashboard a "Message owner" action.
 - **Forum:** one forum per GDR: sections → topics → posts, with posts listed oldest first.
+  - **On-game / off-game sections:** on-game topics and posts are written as one of the user's characters that can play (`Characters.can_play?/1`; masters can also write as NPCs); off-game ones are signed by the user.
+  - **Visibility:** each section is visible to all members, to users with an approved character, or to masters only. Hidden sections are neither listed nor reachable.
+  - **Editing and moderation:** authors edit and delete their own topics and posts (edited posts are marked). Masters can edit and delete anything, and **lock** (only masters can still reply) and **pin** (listed first) topics.
+  - **Unread markers:** per user, each topic tracks the last read post (`forum_reads`); sections and topics with new posts are highlighted.
 - **Admin control room:**
   - create and edit GDRs, their map artwork and rooms (polygon areas);
   - review GDR requests;
@@ -234,7 +239,7 @@ DEV_DATABASE=tannhauser_gate_e2e_dev E2E_PORT=4210 npx playwright test
 
 [`e2e/tests/visual`](e2e/tests/visual) takes full-page screenshots of the key pages and compares
 them with the committed baselines in `e2e/tests/visual/__screenshots__/`. Covered pages: login,
-register, characters (drawer layout), character sheet and form, map, room chat, forum, and admin.
+register, characters (drawer layout), character sheet and form, map, room chat, forum, mailbox, and admin.
 
 The screenshots stay deterministic because:
 
@@ -364,8 +369,8 @@ down migrations automatically.
 ## Project layout
 
 ```
-lib/tannhauser_gate/          domain: Accounts, Stories, Characters, Chat, Forum, Storage, Seeds
-lib/tannhauser_gate_web/live/ LiveViews (characters, map, rooms, forum, admin)
+lib/tannhauser_gate/          domain: Accounts, Stories, Characters, Chat, Forum, Mailbox, Storage, Seeds
+lib/tannhauser_gate_web/live/ LiveViews (characters, map, rooms, forum, mail, admin)
 assets/css/app.css            Tailwind v4 + daisyUI theme (console-green palette, notepad styles)
 assets/js/app.js              LiveSocket setup (hooks are colocated in the LiveViews)
 priv/static/images/logo.svg   brand mark; priv/static/favicon.svg
