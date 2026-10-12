@@ -63,6 +63,7 @@ async function approveCharacter(browser: Browser, name: string) {
   await logIn(admin, ADMIN_USERNAME, ADMIN_PASSWORD);
   await admin.goto(`${GDR}/master/characters`);
   await connected(admin);
+  await admin.setViewportSize({ width: 1280, height: 900 });
   const card = admin.locator("#approval-queue li").filter({ hasText: name });
   await card.getByRole("button", { name: "Approve" }).click();
   await expect(admin.locator("#approval-queue li").filter({ hasText: name })).toHaveCount(0);
@@ -98,8 +99,10 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
 
   // Approval: drafts cannot speak until a master approves them
   await expect(page.locator("#character-approval-status")).toContainText("Draft");
+  await dismissFlashes(page);
   await page.locator("#submit-for-approval").click();
   await expect(page.locator("#character-approval-status")).toContainText("Awaiting approval");
+  await dismissFlashes(page);
   await approveCharacter(browser, characterName);
 
   // Map -> room
