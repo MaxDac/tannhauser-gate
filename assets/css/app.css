@@ -532,3 +532,21 @@
     color: #2f4136;
   }
 }
+
+/* Rendered Markdown of the GDR guide and zone events. */
+.guide-prose { line-height: 1.7; color: color-mix(in oklab, var(--color-base-content) 85%, transparent); }
+.guide-prose > * + * { margin-top: 0.9em; }
+.guide-prose h1, .guide-prose h2, .guide-prose h3, .guide-prose h4 { color: var(--color-primary); font-weight: 700; line-height: 1.3; margin-top: 1.4em; }
+.guide-prose h1 { font-size: 1.6rem; }
+.guide-prose h2 { font-size: 1.35rem; }
+.guide-prose h3 { font-size: 1.15rem; }
+.guide-prose a { color: var(--color-secondary); text-decoration: underline; text-underline-offset: 2px; }
+.guide-prose ul { list-style: disc; padding-left: 1.4em; }
+.guide-prose ol { list-style: decimal; padding-left: 1.4em; }
+.guide-prose blockquote { border-left: 3px solid var(--color-secondary); padding-left: 1em; font-style: italic; opacity: 0.85; }
+.guide-prose code { font-family: ui-monospace, monospace; font-size: 0.9em; background: var(--color-base-300); border-radius: 0.25rem; padding: 0.1em 0.3em; }
+.guide-prose pre { background: var(--color-base-300); border-radius: 0.5rem; padding: 0.8em 1em; overflow-x: auto; }
+.guide-prose pre code { background: none; padding: 0; }
+.guide-prose table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+.guide-prose th, .guide-prose td { border: 1px solid color-mix(in oklab, var(--color-secondary) 30%, transparent); padding: 0.35em 0.6em; text-align: left; }
+.guide-prose hr { border-color: color-mix(in oklab, var(--color-secondary) 30%, transparent); }

@@ -89,6 +89,9 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/characters/:id", CharacterLive.Show, :show
       live "/g/:story_id/characters/:id/edit", CharacterLive.Form, :edit
 
+      live "/g/:story_id/guide", GuideLive, :index
+      live "/g/:story_id/guide/:page_id", GuideLive, :show
+
       live "/g/:story_id/map", MapLive, :index
       live "/g/:story_id/rooms/:id", RoomLive, :show
 
@@ -115,6 +118,9 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.MailNotifier, :subscribe}
       ] do
       live "/g/:story_id/gm", GmLive, :index
+      live "/g/:story_id/gm/guide", GmLive.Guide, :index
+      live "/g/:story_id/gm/zones", GmLive.Zones, :index
+      live "/g/:story_id/gm/actions", GmLive.Actions, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
     end
 
@@ -131,6 +137,8 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/characters", MasterLive.Characters, :index
       live "/g/:story_id/master/moderation", MasterLive.Moderation, :index
       live "/g/:story_id/master/chat-log", MasterLive.ChatLog, :index
+      live "/g/:story_id/master/zones", MasterLive.Zones, :index
+      live "/g/:story_id/master/actions", MasterLive.Actions, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

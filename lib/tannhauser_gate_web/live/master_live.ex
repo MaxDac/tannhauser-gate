@@ -88,6 +88,24 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          id="master-zones"
+          navigate={~p"/g/#{@current_story}/master/zones"}
+          icon="hero-globe-europe-africa"
+          title="Zone events"
+        >
+          Post what happens in the zones; players see it in the zone's rooms.
+        </.entry_point>
+
+        <.entry_point
+          id="master-actions"
+          navigate={~p"/g/#{@current_story}/master/actions"}
+          icon="hero-bolt"
+          title="Periodic actions"
+        >
+          Set per-character difficulties, reset cooldowns and read the action log.
+        </.entry_point>
+
+        <.entry_point
           id="master-map"
           navigate={~p"/g/#{@current_story}/map"}
           icon="hero-map"

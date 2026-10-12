@@ -2,11 +2,16 @@ defmodule TannhauserGateWeb.GmLive do
   @moduledoc """
   Dashboard where the GDR admin (or a platform admin) configures the GDR:
   general info, theme, character sheet, jobs, balances, map, forum sections and
-  masters. Masters narrate the GDR from `TannhauserGateWeb.MasterLive`.
+  masters. The guide, zones and periodic actions have their own LiveViews
+  (`GmLive.Guide`, `GmLive.Zones`, `GmLive.Actions`) sharing `GmNav`.
+  Masters narrate the GDR from `TannhauserGateWeb.MasterLive`.
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bank, Characters, Dice, Forum, Sheet, Stories, Trackers}
+  import TannhauserGateWeb.GmNav
+  alias TannhauserGateWeb.GmNav
+
+  alias TannhauserGate.{Bank, Characters, Dice, Forum, Sheet, Stories, Trackers, Zones}
   alias TannhauserGate.Bank.Job
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
@@ -14,31 +19,16 @@ defmodule TannhauserGateWeb.GmLive do
   alias TannhauserGate.Stories.{Location, Themes}
   alias TannhauserGate.Trackers.Tracker
 
-  @tabs [
-    {"general", "General"},
-    {"theme", "Theme"},
-    {"sheet", "Sheet"},
-    {"creation", "Creation & XP"},
-    {"trackers", "Trackers"},
-    {"states", "States"},
-    {"jobs", "Jobs"},
-    {"balances", "Balances"},
-    {"map", "Map"},
-    {"chat", "Chat & dice"},
-    {"forum", "Forum"},
-    {"masters", "Masters"}
-  ]
-
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :tabs, @tabs)}
+    {:ok, socket}
   end
 
   @impl true
   def handle_params(params, _uri, socket) do
     tab = params["tab"] || "general"
 
-    if tab in Enum.map(@tabs, &elem(&1, 0)) do
+    if tab in GmNav.core_tabs() do
       {:noreply, socket |> assign(:tab, tab) |> assign(:page_title, "GM dashboard") |> load(tab)}
     else
       {:noreply, push_patch(socket, to: ~p"/g/#{socket.assigns.current_story}/gm")}
@@ -167,6 +157,7 @@ defmodule TannhauserGateWeb.GmLive do
   defp reload_locations(socket) do
     socket
     |> assign(:locations, Stories.list_locations(story(socket)))
+    |> assign(:zones, Zones.list_zones(story(socket)))
     |> assign_location_form(%Location{})
   end
 
@@ -466,38 +457,8 @@ defmodule TannhauserGateWeb.GmLive do
       online={@online}
       mail_unread={@mail_unread}
     >
-      <.header>
-        GM dashboard
-        <:subtitle>
-          Shape {@current_story.name}: rules, look, sheet, economy, map and masters.
-        </:subtitle>
-        <:actions>
-          <.button id="gm-master-tools-link" navigate={~p"/g/#{@current_story}/master"}>
-            <.icon name="hero-megaphone" class="size-4" /> Master tools
-          </.button>
-        </:actions>
-      </.header>
-
-      <nav
-        id="gm-tabs"
-        class="mt-6 flex flex-wrap gap-2 border-b border-secondary/20 pb-3"
-        aria-label="Dashboard"
-      >
-        <.link
-          :for={{key, label} <- @tabs}
-          id={"gm-tab-#{key}"}
-          patch={~p"/g/#{@current_story}/gm/#{key}"}
-          class={[
-            "rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-            if(@tab == key,
-              do: "bg-primary/20 text-primary",
-              else: "text-base-content/60 hover:text-secondary"
-            )
-          ]}
-        >
-          {label}
-        </.link>
-      </nav>
+      <.gm_header story={@current_story} />
+      <.gm_tabs story={@current_story} tab={@tab} />
 
       <div class="mt-6">
         <.general_tab :if={@tab == "general"} {assigns} />
@@ -529,13 +490,15 @@ defmodule TannhauserGateWeb.GmLive do
       <.form for={@story_form} id="general-form" phx-submit="save_story">
         <.input field={@story_form[:name]} type="text" label="Name" required />
         <.input field={@story_form[:summary]} type="textarea" label="Summary" rows="3" />
-        <.input
-          field={@story_form[:world_background]}
-          type="textarea"
-          label="Background / story"
-          rows="8"
-        /> <.input field={@story_form[:rules]} type="textarea" label="Rules" rows="8" />
-        <.input field={@story_form[:customs]} type="textarea" label="Customs" rows="4" />
+        <p class="mb-2 text-sm text-base-content/70">
+          The background, rules and customs of the world are written in the <.link
+            id="general-guide-link"
+            navigate={~p"/g/#{@current_story}/gm/guide"}
+            class="link link-primary"
+          >
+            guide
+          </.link>.
+        </p>
         <.input field={@story_form[:currency_name]} type="text" label="Currency name" />
         <.input
           field={@story_form[:pay_interval_hours]}
@@ -1037,6 +1000,13 @@ defmodule TannhauserGateWeb.GmLive do
               type="checkbox"
               label="Private (players book it for a time slot and invite characters)"
             />
+            <.input
+              field={@location_form[:zone_id]}
+              type="select"
+              label="Zone"
+              prompt="No zone"
+              options={Enum.map(@zones, &{&1.name, &1.id})}
+            />
             <div class="flex gap-3">
               <.button phx-disable-with="Saving...">Save room</.button>
               <.link
@@ -1064,6 +1034,13 @@ defmodule TannhauserGateWeb.GmLive do
             <span>
               {l.name}
               <span :if={l.private} class="badge badge-xs badge-error badge-soft ml-1">private</span>
+              <span
+                :if={zone = Enum.find(@zones, &(&1.id == l.zone_id))}
+                id={"location-zone-#{l.id}"}
+                class="badge badge-xs badge-soft ml-1"
+              >
+                {zone.name}
+              </span>
             </span>
             <span class="flex gap-3">
               <.link phx-click="edit_location" phx-value-id={l.id}>Edit</.link>

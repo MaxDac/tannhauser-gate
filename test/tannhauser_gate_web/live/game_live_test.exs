@@ -426,10 +426,11 @@ defmodule TannhauserGateWeb.GameLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/g/#{story}/gm")
 
       lv
-      |> form("#general-form", story: %{rules: "Be kind.", status: "published"})
+      |> form("#general-form", story: %{summary: "Be kind.", status: "published"})
       |> render_submit()
 
-      assert Stories.get_story!(story.id).rules == "Be kind."
+      assert Stories.get_story!(story.id).summary == "Be kind."
+      assert has_element?(lv, "#general-guide-link")
 
       {:ok, lv, _html} = live(conn, ~p"/g/#{story}/gm/theme")
 

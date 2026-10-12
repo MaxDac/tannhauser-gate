@@ -269,15 +269,13 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
       <.admin_nav current_path={@current_path} />
       <.header>
         {@page_title}
-        <:subtitle>Background story, customs and the map of the world.</:subtitle>
+        <:subtitle>The story and the map of its world. Its masters write the world guide.</:subtitle>
       </.header>
 
       <div class="mt-6 rounded-xl border border-mint/20 bg-ink/80 p-6">
         <.form for={@form} id="story-form" phx-change="validate" phx-submit="save">
           <.input field={@form[:name]} type="text" label="Name" required />
           <.input field={@form[:summary]} type="textarea" label="Summary" rows="2" />
-          <.input field={@form[:world_background]} type="textarea" label="World background" rows="8" />
-          <.input field={@form[:customs]} type="textarea" label="Customs" rows="5" />
           <div class="grid gap-4 sm:grid-cols-3">
             <.input field={@form[:map_width]} type="number" label="Map width" />
             <.input field={@form[:map_height]} type="number" label="Map height" />

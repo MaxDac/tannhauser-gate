@@ -162,6 +162,16 @@ defmodule TannhauserGateWeb.Layouts do
             </li>
             <li>
               <.nav_link
+                id="nav-guide"
+                navigate={~p"/g/#{@current_story}/guide"}
+                icon="hero-book-open"
+                current_path={@current_path}
+              >
+                Guide
+              </.nav_link>
+            </li>
+            <li>
+              <.nav_link
                 navigate={~p"/g/#{@current_story}/forum"}
                 icon="hero-chat-bubble-left-right"
                 current_path={@current_path}

@@ -227,8 +227,14 @@ defmodule TannhauserGate.GameContextsTest do
 
       assert story.id == placeholder.id
       assert story.summary == "Custom"
-      assert story.world_background not in [nil, ""]
+      assert [%{title: "The world", pages: [_ | _]}] = TannhauserGate.Guide.list_sections(story)
+      assert [_ | _] = TannhauserGate.Zones.list_zones(story)
       assert story.map_svg == TannhauserGate.Seeds.map_svg()
+
+      # Idempotent: a second run adds nothing.
+      TannhauserGate.Seeds.run()
+      assert [_] = TannhauserGate.Guide.list_sections(story)
+      assert length(TannhauserGate.Zones.list_zones(story)) == 2
     end
   end
 end

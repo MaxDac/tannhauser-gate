@@ -1,7 +1,7 @@
 defmodule TannhauserGateWeb.GdrLive.Home do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Sheet}
+  alias TannhauserGate.{Characters, Guide, Sheet}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -12,6 +12,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
      socket
      |> assign(:page_title, story.name)
      |> assign(:mine, mine)
+     |> assign(:guide, Guide.list_sections(story))
      |> assign(:items, Sheet.items_by_kind(story))}
   end
 
@@ -54,24 +55,21 @@ defmodule TannhauserGateWeb.GdrLive.Home do
         This GDR is a draft and only visible to its admin and masters.
       </p>
 
-      <section :if={present?(@current_story.world_background)} id="gdr-background" class="mt-8">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Background</h2>
+      <section :if={@guide != []} id="gdr-guide" class="mt-8">
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Guide</h2>
 
-        <p class="mt-2 whitespace-pre-line text-base-content/80">
-          {@current_story.world_background}
+        <p class="mt-1 text-sm text-base-content/70">
+          The world, its rules and customs.
+          <.link
+            id="gdr-guide-link"
+            navigate={~p"/g/#{@current_story}/guide"}
+            class="link link-primary"
+          >
+            Read the guide
+          </.link>
         </p>
-      </section>
 
-      <section :if={present?(@current_story.rules)} id="gdr-rules" class="mt-8">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Rules</h2>
-
-        <p class="mt-2 whitespace-pre-line text-base-content/80">{@current_story.rules}</p>
-      </section>
-
-      <section :if={present?(@current_story.customs)} id="gdr-customs" class="mt-8">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Customs</h2>
-
-        <p class="mt-2 whitespace-pre-line text-base-content/80">{@current_story.customs}</p>
+        <.guide_toc id="gdr-guide-toc" story={@current_story} sections={@guide} />
       </section>
 
       <section :for={{kind, items} <- @items} :if={items != []} id={"home-#{kind}"} class="mt-8">
@@ -93,6 +91,4 @@ defmodule TannhauserGateWeb.GdrLive.Home do
     </Layouts.app>
     """
   end
-
-  defp present?(value), do: is_binary(value) and String.trim(value) != ""
 end

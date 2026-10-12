@@ -122,14 +122,13 @@ defmodule TannhauserGateWeb.MapLive do
             </li>
           </ul>
 
-          <details class="mt-6 rounded-md border border-mint/20 bg-ink/80 p-3 text-sm">
-            <summary class="cursor-pointer font-semibold text-mint">World background</summary>
-            <p class="mt-2 whitespace-pre-line text-fog-300">{@story.world_background}</p>
-          </details>
-          <details class="mt-3 rounded-md border border-mint/20 bg-ink/80 p-3 text-sm">
-            <summary class="cursor-pointer font-semibold text-mint">Customs</summary>
-            <p class="mt-2 whitespace-pre-line text-fog-300">{@story.customs}</p>
-          </details>
+          <.link
+            id="map-guide-link"
+            navigate={~p"/g/#{@story}/guide"}
+            class="mt-6 flex items-center gap-2 rounded-md border border-mint/20 bg-ink/80 p-3 text-sm font-semibold text-mint transition-colors hover:border-mint/50"
+          >
+            <.icon name="hero-book-open" class="size-4" /> World guide: background, rules, customs
+          </.link>
         </aside>
       </div>
     </Layouts.app>

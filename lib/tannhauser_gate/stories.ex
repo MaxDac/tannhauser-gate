@@ -247,13 +247,29 @@ defmodule TannhauserGate.Stories do
   def create_location(%Story{} = story, attrs \\ %{}) do
     %Location{story_id: story.id}
     |> Location.changeset(attrs)
+    |> validate_zone()
     |> Repo.insert()
   end
 
   def update_location(%Location{} = location, attrs) do
     location
     |> Location.changeset(attrs)
+    |> validate_zone()
     |> Repo.update()
+  end
+
+  # A location may only belong to a zone of its own story.
+  defp validate_zone(changeset) do
+    story_id = Ecto.Changeset.get_field(changeset, :story_id)
+
+    Ecto.Changeset.validate_change(changeset, :zone_id, fn :zone_id, zone_id ->
+      if Repo.exists?(
+           from z in TannhauserGate.Zones.Zone,
+             where: z.id == ^zone_id and z.story_id == ^story_id
+         ),
+         do: [],
+         else: [zone_id: "is not a zone of this story"]
+    end)
   end
 
   def delete_location(%Location{} = location), do: Repo.delete(location)
