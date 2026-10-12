@@ -498,10 +498,16 @@ defmodule TannhauserGateWeb.Admin.RoomsLive do
           id={dom_id}
           class="flex gap-3 rounded-lg border border-mint/20 bg-ink/80 p-3"
         >
-          <.avatar character={m.character} class="h-9 w-9 shrink-0" />
+          <.avatar :if={m.character} character={m.character} class="h-9 w-9 shrink-0" />
+          <span
+            :if={!m.character}
+            class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-warning/10 text-warning ring-2 ring-warning/40"
+          >
+            <.icon name="hero-book-open" class="size-4" />
+          </span>
           <div class="min-w-0 flex-1">
             <p class="text-xs text-fog-500">
-              <span class="font-bold text-phosphor">{m.character.name}</span>
+              <span class="font-bold text-phosphor">{TannhauserGate.Chat.speaker_name(m)}</span>
               ({m.user.username}) · {format_time(m.inserted_at)}
             </p>
             <p class="whitespace-pre-line break-words">{m.body}</p>

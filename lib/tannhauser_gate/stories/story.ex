@@ -28,6 +28,9 @@ defmodule TannhauserGate.Stories.Story do
     field :theme_overrides, :map, default: %{}
     field :currency_name, :string, default: "credits"
     field :pay_interval_hours, :integer, default: 24
+    field :archive_after_days, :integer, default: 30
+
+    embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
     belongs_to :owner, User
     has_many :locations, Location, preload_order: [asc: :name]
@@ -54,7 +57,8 @@ defmodule TannhauserGate.Stories.Story do
     :theme,
     :theme_overrides,
     :currency_name,
-    :pay_interval_hours
+    :pay_interval_hours,
+    :archive_after_days
   ]
 
   @doc """
@@ -63,6 +67,7 @@ defmodule TannhauserGate.Stories.Story do
   def changeset(story, attrs) do
     story
     |> cast(attrs, @gm_fields ++ [:is_default])
+    |> cast_embed(:dice_config)
     |> validate_story()
   end
 
@@ -72,6 +77,7 @@ defmodule TannhauserGate.Stories.Story do
   def gm_changeset(story, attrs) do
     story
     |> cast(attrs, @gm_fields)
+    |> cast_embed(:dice_config)
     |> validate_story()
   end
 
@@ -85,6 +91,7 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_number(:map_width, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:map_height, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:pay_interval_hours, greater_than: 0, less_than_or_equal_to: 720)
+    |> validate_number(:archive_after_days, greater_than: 0, less_than_or_equal_to: 3650)
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)

@@ -1,6 +1,8 @@
 defmodule TannhauserGate.Stories.Location do
   @moduledoc """
-  A location (chat room) inside a story. Its `area` is an SVG polygon
+  A location (chat room) inside a story. Private locations can only be
+  used by masters and by whoever booked them (see `TannhauserGate.Bookings`);
+  `status` is the current room status set by the masters. Its `area` is an SVG polygon
   `points` string (e.g. `"10,10 120,10 120,90 10,90"`) in map coordinates.
   """
   use Ecto.Schema
@@ -15,6 +17,9 @@ defmodule TannhauserGate.Stories.Location do
     field :description, :string
     field :area, :string
     field :color, :string, default: "#4ae08a"
+    field :private, :boolean, default: false
+    field :status, :string
+    field :status_updated_at, :utc_datetime
 
     belongs_to :story, Story
 
@@ -24,7 +29,7 @@ defmodule TannhauserGate.Stories.Location do
   @doc false
   def changeset(location, attrs) do
     location
-    |> cast(attrs, [:name, :description, :area, :color])
+    |> cast(attrs, [:name, :description, :area, :color, :private])
     |> validate_required([:name, :area, :color])
     |> validate_length(:name, max: 120)
     |> validate_format(:area, @points_format,
@@ -33,6 +38,14 @@ defmodule TannhauserGate.Stories.Location do
     |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/, message: "must be a hex color like #4ae08a")
     |> foreign_key_constraint(:story_id)
     |> unique_constraint([:story_id, :name])
+  end
+
+  @doc "Changeset for the room status set by the masters."
+  def status_changeset(location, status) do
+    location
+    |> change(status: status, status_updated_at: DateTime.utc_now(:second))
+    |> update_change(:status, &(&1 && String.trim(&1)))
+    |> validate_length(:status, max: 500)
   end
 
   @doc """

@@ -1,0 +1,79 @@
+defmodule TannhauserGateWeb.GdrPresence do
+  @moduledoc """
+  Tracks the users online in a GDR, with the character they play and the
+  location they are in, and keeps the `:online` assign (shown in the
+  layout) up to date.
+
+  Mounted with `on_mount {TannhauserGateWeb.GdrPresence, :track}` after
+  `UserAuth`'s `:load_story`; rooms call `enter_location/2`.
+  """
+
+  import Phoenix.Component, only: [assign: 3]
+  import Phoenix.LiveView, only: [attach_hook: 4, connected?: 1]
+
+  alias TannhauserGate.Characters
+  alias TannhauserGateWeb.Presence
+
+  def topic(story_id), do: "presence:story:#{story_id}"
+
+  def on_mount(:track, _params, _session, socket) do
+    story = socket.assigns.current_story
+    user = socket.assigns.current_user
+
+    if connected?(socket) do
+      topic = topic(story.id)
+      character = Characters.get_user_story_character(user, story.id)
+
+      {:ok, _} =
+        Presence.track(self(), topic, to_string(user.id), %{
+          user_id: user.id,
+          username: user.username,
+          character_name: character && character.name,
+          location_id: nil,
+          location_name: nil,
+          online_at: System.system_time(:millisecond)
+        })
+
+      Phoenix.PubSub.subscribe(TannhauserGate.PubSub, topic)
+
+      {:cont,
+       socket
+       |> assign(:online, list_online(story.id))
+       |> attach_hook(:gdr_presence, :handle_info, &handle_info/2)}
+    else
+      {:cont, assign(socket, :online, [])}
+    end
+  end
+
+  defp handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
+    {:halt, assign(socket, :online, list_online(socket.assigns.current_story.id))}
+  end
+
+  defp handle_info(_message, socket), do: {:cont, socket}
+
+  @doc "Records that the current LiveView user is in a location."
+  def enter_location(socket, location) do
+    if connected?(socket) do
+      user = socket.assigns.current_user
+      topic = topic(socket.assigns.current_story.id)
+
+      Presence.update(self(), topic, to_string(user.id), fn meta ->
+        %{meta | location_id: location.id, location_name: location.name}
+      end)
+    end
+
+    socket
+  end
+
+  @doc """
+  The users online in a GDR: one entry per user (their most recent page),
+  sorted by username.
+  """
+  def list_online(story_id) do
+    story_id
+    |> topic()
+    |> Presence.list()
+    |> Enum.map(fn {_key, %{metas: metas}} -> Enum.max_by(metas, & &1.online_at) end)
+    |> Enum.sort_by(&String.downcase(&1.username))
+  end
+end

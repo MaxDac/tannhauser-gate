@@ -12,9 +12,11 @@ defmodule TannhauserGate.Application do
         TannhauserGateWeb.Telemetry,
         TannhauserGate.Repo,
         {DNSCluster, query: Application.get_env(:tannhauser_gate, :dns_cluster_query) || :ignore},
-        {Phoenix.PubSub, name: TannhauserGate.PubSub}
+        {Phoenix.PubSub, name: TannhauserGate.PubSub},
+        TannhauserGateWeb.Presence
       ] ++
         payer_children() ++
+        archiver_children() ++
         [
           # Start to serve requests, typically the last entry
           TannhauserGateWeb.Endpoint
@@ -29,6 +31,12 @@ defmodule TannhauserGate.Application do
   defp payer_children do
     if Application.get_env(:tannhauser_gate, :start_payer, true),
       do: [TannhauserGate.Bank.Payer],
+      else: []
+  end
+
+  defp archiver_children do
+    if Application.get_env(:tannhauser_gate, :start_archiver, true),
+      do: [TannhauserGate.Chat.Archiver],
       else: []
   end
 

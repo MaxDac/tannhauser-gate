@@ -49,6 +49,7 @@ defmodule TannhauserGateWeb.JobsLive do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <.header>
         Jobs

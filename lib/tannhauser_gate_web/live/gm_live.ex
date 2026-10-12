@@ -6,7 +6,7 @@ defmodule TannhauserGateWeb.GmLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bank, Characters, Forum, Sheet, Stories, Trackers}
+  alias TannhauserGate.{Bank, Characters, Dice, Forum, Sheet, Stories, Trackers}
   alias TannhauserGate.Bank.Job
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
@@ -24,6 +24,7 @@ defmodule TannhauserGateWeb.GmLive do
     {"jobs", "Jobs"},
     {"balances", "Balances"},
     {"map", "Map"},
+    {"chat", "Chat & dice"},
     {"forum", "Forum"},
     {"masters", "Masters"}
   ]
@@ -49,6 +50,16 @@ defmodule TannhauserGateWeb.GmLive do
   defp load(socket, "general"), do: assign_story_form(socket, story(socket))
   defp load(socket, "theme"), do: assign_story_form(socket, story(socket))
   defp load(socket, "map"), do: socket |> assign_story_form(story(socket)) |> reload_locations()
+
+  defp load(socket, "chat") do
+    story = story(socket)
+    # Show the defaults in the form when the GDR never configured its dice.
+    story = if story.dice_config, do: story, else: %{story | dice_config: %Dice.Config{}}
+
+    socket
+    |> assign_story_form(story)
+    |> assign(:trackers, Trackers.list_trackers(story))
+  end
 
   defp load(socket, "sheet") do
     socket
@@ -427,6 +438,7 @@ defmodule TannhauserGateWeb.GmLive do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <.header>
         GM dashboard
@@ -469,7 +481,8 @@ defmodule TannhauserGateWeb.GmLive do
         <.states_tab :if={@tab == "states"} {assigns} />
         <.jobs_tab :if={@tab == "jobs"} {assigns} />
         <.balances_tab :if={@tab == "balances"} {assigns} />
-        <.map_tab :if={@tab == "map"} {assigns} /> <.forum_tab :if={@tab == "forum"} {assigns} />
+        <.map_tab :if={@tab == "map"} {assigns} /> <.chat_tab :if={@tab == "chat"} {assigns} />
+        <.forum_tab :if={@tab == "forum"} {assigns} />
         <.masters_tab :if={@tab == "masters"} {assigns} />
       </div>
     </Layouts.app>
@@ -993,6 +1006,11 @@ defmodule TannhauserGateWeb.GmLive do
             <.input field={@location_form[:description]} type="textarea" label="Description" rows="2" />
             <.input field={@location_form[:area]} type="text" label="Map area (SVG path)" />
             <.input field={@location_form[:color]} type="text" label="Color" />
+            <.input
+              field={@location_form[:private]}
+              type="checkbox"
+              label="Private (players book it for a time slot and invite characters)"
+            />
             <div class="flex gap-3">
               <.button phx-disable-with="Saving...">Save room</.button>
               <.link
@@ -1017,7 +1035,10 @@ defmodule TannhauserGateWeb.GmLive do
             id={"location-#{l.id}"}
             class="flex items-center justify-between gap-2 py-1.5 text-sm"
           >
-            <span>{l.name}</span>
+            <span>
+              {l.name}
+              <span :if={l.private} class="badge badge-xs badge-error badge-soft ml-1">private</span>
+            </span>
             <span class="flex gap-3">
               <.link phx-click="edit_location" phx-value-id={l.id}>Edit</.link>
               <.link
@@ -1032,6 +1053,119 @@ defmodule TannhauserGateWeb.GmLive do
         </ul>
       </.panel>
     </div>
+    """
+  end
+
+  defp chat_tab(assigns) do
+    assigns =
+      assign(assigns,
+        tracker_options: Enum.map(assigns.trackers, &{&1.name, &1.slug}),
+        damage_types: assigns.trackers |> Enum.flat_map(& &1.damage_types) |> Enum.uniq()
+      )
+
+    ~H"""
+    <.panel>
+      <.form for={@story_form} id="dice-config-form" phx-submit="save_story">
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Chat history</h2>
+        <.input
+          field={@story_form[:archive_after_days]}
+          type="number"
+          label="Archive messages older than (days, empty = never)"
+          min="1"
+        />
+
+        <h2 class="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          Dice system
+        </h2>
+        <.inputs_for :let={dice} field={@story_form[:dice_config]}>
+          <.input
+            field={dice[:system]}
+            type="select"
+            label="System"
+            options={[
+              {"Dice expression (NdX+modifier)", "expression"},
+              {"d20 + modifier", "d20"},
+              {"Success pool", "pool"}
+            ]}
+          />
+
+          <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
+            <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
+              Expression and d20
+            </legend>
+            <.input field={dice[:default_expression]} type="text" label="Default expression" />
+            <.input
+              field={dice[:natural_crits]}
+              type="checkbox"
+              label="Natural 20/1 are criticals (d20)"
+            />
+          </fieldset>
+
+          <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
+            <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
+              Success pool
+            </legend>
+            <div class="grid gap-x-4 sm:grid-cols-3">
+              <.input field={dice[:die_size]} type="number" label="Die size" min="2" />
+              <.input field={dice[:success_threshold]} type="number" label="Success on" min="1" />
+              <.input field={dice[:default_difficulty]} type="number" label="Default difficulty" />
+            </div>
+            <div class="grid gap-x-4 sm:grid-cols-2">
+              <.input
+                field={dice[:crit_rule]}
+                type="select"
+                label="Criticals"
+                options={[{"Each pair of max results", "pairs"}, {"None", "none"}]}
+              />
+              <.input field={dice[:crit_bonus]} type="number" label="Extra successes per pair" />
+            </div>
+            <.input
+              field={dice[:special_tracker]}
+              type="select"
+              label="Special dice count (tracker, e.g. hunger)"
+              prompt="No special dice"
+              options={@tracker_options}
+            />
+            <.input
+              field={dice[:messy_crit]}
+              type="checkbox"
+              label="Messy critical: a critical with a special max result"
+            />
+            <.input
+              field={dice[:bestial_failure]}
+              type="checkbox"
+              label="Bestial failure: a failure with a special 1"
+            />
+          </fieldset>
+
+          <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
+            <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
+              Rerolls (pool only)
+            </legend>
+            <.input
+              field={dice[:reroll_tracker]}
+              type="select"
+              label="Spend tracker (e.g. willpower)"
+              prompt="No rerolls"
+              options={@tracker_options}
+            />
+            <div class="grid gap-x-4 sm:grid-cols-3">
+              <.input
+                field={dice[:reroll_damage_type]}
+                type="select"
+                label="As damage of type"
+                prompt="Lower the value"
+                options={@damage_types}
+              />
+              <.input field={dice[:reroll_cost]} type="number" label="Cost" min="1" />
+              <.input field={dice[:reroll_max_dice]} type="number" label="Max dice" min="0" />
+            </div>
+          </fieldset>
+        </.inputs_for>
+
+        <.button phx-disable-with="Saving..." class="mt-4">Save chat & dice</.button>
+      </.form>
+    </.panel>
     """
   end
 

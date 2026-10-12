@@ -220,6 +220,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <.link

@@ -26,6 +26,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <.header>
         Characters
