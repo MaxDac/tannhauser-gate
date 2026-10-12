@@ -16,6 +16,7 @@ defmodule TannhauserGate.Characters do
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Characters.{Character, State}
   alias TannhauserGate.Repo
+  alias TannhauserGate.Sheet
   alias TannhauserGate.Sheet.{Item, Trait}
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
@@ -109,6 +110,14 @@ defmodule TannhauserGate.Characters do
   def get_character!(id),
     do: Character |> Repo.get!(id) |> Repo.preload([:user, :story, :job, :state, :reviewed_by])
 
+  @doc "Like `get_character!/1`, but returns nil when the character does not exist."
+  def get_character(id) do
+    case Repo.get(Character, id) do
+      nil -> nil
+      character -> Repo.preload(character, [:user, :story, :job, :state, :reviewed_by])
+    end
+  end
+
   @doc """
   Returns the sheet of a character: `%{kind => [{item, value}]}` with every item
   of the GDR (missing values default to the item minimum).
@@ -141,12 +150,21 @@ defmodule TannhauserGate.Characters do
   Creates a player character owned by `user`, as a draft in the default state
   of its GDR. `attrs["traits"]` maps sheet item ids to values. `avatar_path`
   (optional) is the public path of an already stored avatar image.
+
+  The creation budgets configured by the GDR admin (see
+  `TannhauserGate.Sheet.budget_status/3`) are enforced: missing values get
+  the category default and the complete set must fit the budgets.
   """
   def create_character(%User{} = user, attrs, avatar_path \\ nil) do
-    %Character{user_id: user.id}
-    |> Character.changeset(attrs)
-    |> put_default_state()
-    |> insert_with_traits(attrs, avatar_path)
+    attrs = stringify_keys(attrs)
+
+    changeset =
+      %Character{user_id: user.id}
+      |> Character.changeset(attrs)
+      |> put_default_state()
+
+    {changeset, attrs} = apply_budgets(changeset, attrs, %{})
+    insert_with_traits(changeset, attrs, avatar_path)
   end
 
   @doc """
@@ -207,12 +225,19 @@ defmodule TannhauserGate.Characters do
 
   @doc """
   Updates a character. Pass `master?: true` when a master edits it, so the
-  master-only notes can be changed too.
+  master-only notes can be changed too and the sheet is not restricted.
+
+  Without `master?`, the owner of a player character can change its trait
+  values only before approval (within the creation budgets); once approved,
+  submitted traits are ignored and items are raised by spending XP
+  (`TannhauserGate.Experience.spend/3`).
   """
   def update_character(%Character{} = character, attrs, avatar_path \\ nil, opts \\ []) do
+    attrs = stringify_keys(attrs)
+    {changeset, attrs} = owner_sheet_rules(character, attrs, opts)
+
     changeset =
-      character
-      |> Character.changeset(attrs, opts)
+      changeset
       |> maybe_put_avatar(avatar_path)
       |> validate_traits(attrs)
 
@@ -227,6 +252,87 @@ defmodule TannhauserGate.Characters do
       {:error, _step, changeset, _} -> {:error, changeset}
     end
   end
+
+  defp owner_sheet_rules(character, attrs, opts) do
+    changeset = Character.changeset(character, attrs, opts)
+
+    cond do
+      opts[:master?] || character.is_npc || not is_map(attrs["traits"]) ->
+        {changeset, attrs}
+
+      character.approval_status == "approved" ->
+        {changeset, Map.delete(attrs, "traits")}
+
+      true ->
+        apply_budgets(changeset, attrs, trait_values(character))
+    end
+  end
+
+  @doc """
+  Whether the owner can still set the trait values directly (before approval).
+  Approved characters raise their items with XP instead.
+  """
+  def sheet_editable_by_owner?(%Character{is_npc: false, approval_status: status}),
+    do: status != "approved"
+
+  def sheet_editable_by_owner?(_), do: false
+
+  @doc """
+  Map of `slug => value` for every sheet item of the character's GDR
+  (missing values default to the item minimum), used to evaluate formulas.
+  """
+  def values_by_slug(%Character{} = character) do
+    character
+    |> sheet()
+    |> Enum.flat_map(fn {_kind, entries} -> Enum.map(entries, fn {i, v} -> {i.slug, v} end) end)
+    |> Map.new()
+  end
+
+  # Fills missing values with the category defaults and checks the creation
+  # budgets. Returns the changeset (with budget errors on :traits) and the
+  # attrs carrying the complete set of values to persist.
+  defp apply_budgets(changeset, attrs, base_values) do
+    with story_id when is_integer(story_id) <- Ecto.Changeset.get_field(changeset, :story_id),
+         %Story{} = story <- Stories.get_story(story_id) do
+      items_by_kind = Sheet.items_by_kind(story)
+      categories = Sheet.categories(story)
+      params = if is_map(attrs["traits"]), do: attrs["traits"], else: %{}
+
+      submitted =
+        items_by_kind
+        |> Map.values()
+        |> List.flatten()
+        |> trait_values_from(params)
+        |> Map.new()
+
+      values =
+        base_values
+        |> Map.merge(submitted)
+        |> Sheet.with_defaults(items_by_kind, categories)
+
+      changeset =
+        items_by_kind
+        |> Sheet.creation_errors(categories, values)
+        |> Enum.reduce(changeset, fn {_kind, message}, acc ->
+          Ecto.Changeset.add_error(acc, :traits, message)
+        end)
+
+      # Keep unparseable submitted values so validate_traits reports them.
+      traits =
+        Map.merge(
+          params,
+          Map.new(values, fn {id, v} -> {to_string(id), v} end),
+          &keep_unparseable/3
+        )
+
+      {changeset, Map.put(attrs, "traits", traits)}
+    else
+      _ -> {changeset, attrs}
+    end
+  end
+
+  defp keep_unparseable(_id, raw, value),
+    do: if(match?({_, ""}, parse_int(raw)), do: value, else: raw)
 
   def delete_character(%Character{} = character), do: Repo.delete(character)
 

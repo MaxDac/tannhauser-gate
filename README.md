@@ -32,7 +32,9 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
 - **GM dashboard** (`/g/:id/gm`, only the GDR admin and platform admins):
   - name, summary, world background, rules, customs, status (draft or published);
   - theme preset plus optional custom colours (hex only);
-  - attributes, skills and powers, each with a name, description and min/max range;
+  - attributes, skills and powers, each with a name, description, min/max range and a key used in formulas (e.g. `strength`);
+  - **creation and XP** per category (attribute/skill/power): free entry, a points pool (points to spend above the starting value) or a distribution (values like `4,3,3,2,2,2,1` to assign to items), the starting value, and the XP cost formula to raise an item by one point (e.g. `next * 5`);
+  - **trackers** (health, willpower, hunger…): a name, a maximum given by a number or a formula over the item keys (e.g. `stamina + 3`), optional damage types (e.g. `superficial, aggravated`), whether it starts full and whether it is shown on the public sheet;
   - jobs and their pay, the currency name and the pay interval;
   - character balances (adjustments are recorded in the ledger);
   - map artwork and rooms;
@@ -40,12 +42,16 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - masters (added by username, removed with one click);
   - character states (name, whether the character can play, position). Every GDR starts with an "Active" playable state.
 - **Master tools** (`/g/:id/master`, masters, the GDR admin and platform admins): entry points to the GDR's characters, rooms and forum, plus the list of the GDR's narrators. They also include:
-  - the **character dashboard** (`/g/:id/master/characters`): the approval queue (approve, or reject with notes), every character filtered by approval status, state and player/NPC, a state selector per row, and links to edit any sheet;
+  - the **character dashboard** (`/g/:id/master/characters`): the approval queue (approve, or reject with notes), every character filtered by approval status, state and player/NPC, a state selector and the available/earned XP per row, links to edit any sheet, an XP award form (positive, or negative to correct, always with a reason) and the GDR XP log;
   - **NPC creation** (`/g/:id/master/npcs/new`);
   - **moderation** (`/g/:id/master/moderation`): the latest chat messages and forum posts of the GDR, each with a delete button. Masters can also delete messages directly in the chat rooms.
 - **Characters:** one character per user per GDR. The character sheet, styled as a detective's spiral-bound notepad, shows the avatar, name, description, background and the GDR's attributes, skills and powers.
+  - **Creation wizard:** players create their character step by step: identity, one step per category with items, then a review. Each step enforces the creation budget of its category on the server; categories without a budget accept any value within the item range. Masters (NPCs and edits) are never limited by the budgets. The owner can change trait values only until the character is approved; after that the sheet grows with XP.
   - **Approval:** new characters start as drafts. A draft can use every feature except playing. The owner submits it for approval; a master approves it or rejects it with notes. After a rejection the owner can edit the character and submit it again. Only characters that are approved *and* whose state allows playing can speak in the chat rooms (`Characters.can_play?/1`).
-  - **Visibility:** everyone sees the public sheet (avatar, name, description, background, off-game info). The owner and the masters also see the full sheet (trait values, state, player notes). Master notes are visible only to the masters.
+  - **Visibility:** everyone sees the public sheet (avatar, name, description, background, off-game info, public trackers). The owner and the masters also see the full sheet (trait values, every tracker, XP totals and log, state, player notes). Master notes are visible only to the masters.
+  - **Trackers:** each character has a current value (or damage per type) for every tracker of the GDR. Masters edit them from the sheet. Other features use `TannhauserGate.Trackers` (`get/2`, `adjust/3`, `set/3`, `set_damage/4`).
+  - **Experience:** masters award XP with a reason. The owner of a playable character spends it from the sheet to raise an item by one point, at the cost of its category formula (never above the item maximum). Every award and spend is in the XP log, with earned, spent and available totals (`TannhauserGate.Experience`).
+  - **Formulas** (`TannhauserGate.Formula`) are evaluated by a small safe parser, never by `Code.eval`: whole numbers, `+ - * /` (integer division), `min(a, b)`, `max(a, b)`, parentheses, item keys and the variables `current` and `next`. They are validated when saved.
   - **NPCs:** masters create non-player characters. NPCs are approved from the start and don't count toward the one-character limit. Masters pick an NPC (or their own character) in the chat "Speak as" selector.
 - **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
 - **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
@@ -187,7 +193,7 @@ The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) create an adm
 mix test
 ```
 
-These cover the contexts, authorization, the seeds, and every LiveView, including avatar uploads and admin access control.
+These cover the contexts, authorization, the seeds, and every LiveView, including avatar uploads, admin access control, the formula evaluator, creation budgets and the wizard, trackers and XP.
 
 ### End-to-end tests (Playwright)
 
@@ -195,7 +201,7 @@ The E2E suite lives in [`e2e/`](e2e). It boots `mix phx.server` against the seed
 drives Chromium through the full journey:
 
 1. register;
-2. create a character with an avatar and submit it for approval;
+2. create a character with an avatar through the creation wizard and submit it for approval;
 3. approve it as the admin from the master character dashboard;
 4. open a room from the map;
 5. send a chat message;

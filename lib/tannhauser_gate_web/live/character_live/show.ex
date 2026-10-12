@@ -1,13 +1,15 @@
 defmodule TannhauserGateWeb.CharacterLive.Show do
   @moduledoc """
   A character sheet. Everyone sees the public sheet (avatar, name, description,
-  background, off-game info); the owner and the masters see the full sheet
-  (trait values, state, player notes). Masters also see their private notes,
-  review the character and set its state.
+  background, off-game info, public trackers); the owner and the masters see
+  the full sheet (trait values, every tracker, XP, state, player notes).
+  The owner of a playable character spends XP to raise items. Masters also see
+  their private notes, review the character, set its state, edit its trackers
+  and award XP.
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Sheet}
+  alias TannhauserGate.{Characters, Experience, Sheet, Trackers}
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -41,8 +43,23 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       :states,
       if(master?, do: Characters.list_states(socket.assigns.current_story), else: [])
     )
+    |> assign_progress(character, full?, master?)
     |> assign(:review_form, to_form(%{"notes" => ""}, as: :review))
     |> assign(:state_form, to_form(%{"state_id" => character.state_id}, as: :character_state))
+  end
+
+  defp assign_progress(socket, character, full?, master?) do
+    owner? = not character.is_npc and character.user_id == socket.assigns.current_user.id
+    can_spend? = owner? and Characters.can_play?(character)
+
+    socket
+    |> assign(:trackers, Trackers.character_trackers(character, public_only: not full?))
+    |> assign(:xp, if(full?, do: Experience.totals(character)))
+    |> assign(:xp_entries, if(full?, do: Experience.list_entries(character), else: []))
+    |> assign(:can_spend?, can_spend?)
+    |> assign(:costs, if(can_spend?, do: Experience.costs(character), else: %{}))
+    |> assign(:award_form, to_form(%{"amount" => "", "reason" => ""}, as: :award))
+    |> assign(:tracker_master?, master?)
   end
 
   defp reload(socket) do
@@ -115,6 +132,84 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       {:noreply, put_flash(socket, :error, "Only the GDR masters can change the state.")}
     end
   end
+
+  def handle_event("raise", %{"item" => item_id}, socket) do
+    %{character: character, current_user: user} = socket.assigns
+
+    case Experience.spend(user, character, item_id) do
+      {:ok, entry} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           "#{entry.item_name} raised to #{entry.to_value} (#{entry.amount} XP)"
+         )
+         |> reload()}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, Experience.error_message(reason))}
+    end
+  end
+
+  def handle_event("award_xp", %{"award" => params}, socket) do
+    %{character: character, current_user: user} = socket.assigns
+
+    case Experience.award(user, character, params["amount"], params["reason"]) do
+      {:ok, entry} ->
+        {:noreply, socket |> put_flash(:info, "#{entry.amount} XP recorded") |> reload()}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, Experience.error_message(reason))
+         |> assign(:award_form, to_form(params, as: :award))}
+    end
+  end
+
+  def handle_event("set_tracker", %{"tracker_id" => id} = params, socket) do
+    if socket.assigns.tracker_master? do
+      character = socket.assigns.character
+      tracker = Trackers.get_tracker!(socket.assigns.current_story, id)
+
+      case set_tracker(character, tracker, params) do
+        :ok ->
+          {:noreply, socket |> put_flash(:info, "#{tracker.name} updated") |> reload()}
+
+        {:error, reason} ->
+          {:noreply, put_flash(socket, :error, Trackers.error_message(reason))}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Only the GDR masters can change trackers.")}
+    end
+  end
+
+  # Applies a tracker form: `value` for simple trackers, `damage[type]` for
+  # trackers with damage types.
+  defp set_tracker(character, %{damage_types: []} = tracker, %{"value" => raw}) do
+    with {value, ""} <- Integer.parse(String.trim(raw)),
+         {:ok, _} <- Trackers.set(character, tracker, value) do
+      :ok
+    else
+      {:error, reason} -> {:error, reason}
+      _ -> {:error, :invalid_value}
+    end
+  end
+
+  defp set_tracker(character, tracker, %{"damage" => damage}) when is_map(damage) do
+    Enum.reduce_while(tracker.damage_types, :ok, fn type, :ok ->
+      with {:ok, raw} <- Map.fetch(damage, type),
+           {value, ""} <- Integer.parse(String.trim(raw)),
+           {:ok, _} <- Trackers.set_damage(character, tracker, type, value) do
+        {:cont, :ok}
+      else
+        :error -> {:cont, :ok}
+        {:error, reason} -> {:halt, {:error, reason}}
+        _ -> {:halt, {:error, :invalid_value}}
+      end
+    end)
+  end
+
+  defp set_tracker(_character, _tracker, _params), do: {:error, :invalid_value}
 
   @impl true
   def render(assigns) do
@@ -234,6 +329,25 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
             <.button class="btn btn-sm console-action">Set state</.button>
           </.form>
         </div>
+
+        <div class="sm:col-span-2">
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Award XP</h2>
+          <.form
+            for={@award_form}
+            id="xp-award-form"
+            phx-submit="award_xp"
+            class="grid gap-x-3 sm:grid-cols-[8rem_1fr_auto] sm:items-end"
+          >
+            <.input
+              field={@award_form[:amount]}
+              type="number"
+              label="Amount (negative to correct)"
+              required
+            />
+            <.input field={@award_form[:reason]} type="text" label="Reason" required />
+            <.button class="btn btn-sm console-action mb-2">Record</.button>
+          </.form>
+        </div>
       </section>
 
       <article id="character-sheet" class="notepad mx-auto max-w-3xl">
@@ -295,11 +409,105 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
             <ul class="notepad-text">
               <li
                 :for={{item, value} <- entries}
-                class="flex justify-between gap-4"
+                class="flex items-center justify-between gap-4"
                 title={item.description}
               >
                 <span>{item.name}</span>
-                <span id={"trait-value-#{item.id}"} class="font-bold">{value}</span>
+                <span class="flex items-center gap-3">
+                  <.raise_button
+                    :if={@can_spend?}
+                    item={item}
+                    cost={@costs[item.id]}
+                    available={@xp.available}
+                  />
+                  <span id={"trait-value-#{item.id}"} class="font-bold">{value}</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div :if={@trackers != []} id="trackers" class="mt-8">
+            <p class="notepad-label">Trackers</p>
+
+            <div
+              :for={state <- @trackers}
+              id={"tracker-#{state.tracker.id}"}
+              class="notepad-text mt-2"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <span>{state.tracker.name}</span>
+                <span id={"tracker-value-#{state.tracker.id}"} class="font-bold tabular-nums">
+                  {state.value} / {state.max}
+                </span>
+              </div>
+              <.tracker_boxes state={state} />
+              <p :if={state.tracker.damage_types != []} class="text-xs opacity-70">
+                <span :for={{type, amount} <- state.damage} class="mr-3">{type}: {amount}</span>
+              </p>
+              <p :if={state.error} class="text-xs text-error">{state.error}</p>
+
+              <.form
+                :if={@tracker_master?}
+                for={%{}}
+                id={"tracker-edit-#{state.tracker.id}"}
+                phx-submit="set_tracker"
+                class="mt-1 flex flex-wrap items-end gap-2 text-sm"
+              >
+                <input type="hidden" name="tracker_id" value={state.tracker.id} />
+                <label :if={state.tracker.damage_types == []} class="flex items-center gap-2">
+                  <span class="text-xs">Value</span>
+                  <input
+                    type="number"
+                    name="value"
+                    value={state.value}
+                    min="0"
+                    max={state.max}
+                    class="input input-xs w-20"
+                  />
+                </label>
+                <label
+                  :for={{type, amount} <- state.damage}
+                  class="flex items-center gap-2"
+                >
+                  <span class="text-xs">{type}</span>
+                  <input
+                    type="number"
+                    name={"damage[#{type}]"}
+                    value={amount}
+                    min="0"
+                    max={state.max}
+                    class="input input-xs w-20"
+                  />
+                </label>
+                <button class="btn btn-xs console-action">Set</button>
+              </.form>
+            </div>
+          </div>
+
+          <div :if={@full?} id="experience" class="mt-8">
+            <p class="notepad-label">Experience</p>
+            <p id="xp-totals" class="notepad-text flex flex-wrap gap-x-6">
+              <span>Earned <strong id="xp-earned">{@xp.earned}</strong></span>
+              <span>Spent <strong id="xp-spent">{@xp.spent}</strong></span>
+              <span>Available <strong id="xp-available">{@xp.available}</strong></span>
+            </p>
+            <p :if={@owner? and not @can_spend?} class="text-xs opacity-70">
+              XP can be spent once the character is approved and can play.
+            </p>
+
+            <ul id="xp-log" class="notepad-text mt-2 text-sm">
+              <li :if={@xp_entries == []} class="opacity-60">No XP recorded yet.</li>
+              <li :for={entry <- @xp_entries} id={"xp-entry-#{entry.id}"} class="flex gap-3">
+                <span class="w-12 shrink-0 text-right font-bold tabular-nums">
+                  {xp_amount(entry)}
+                </span>
+                <span class="min-w-0 flex-1">{xp_description(entry)}</span>
+                <time
+                  class="shrink-0 text-xs opacity-60"
+                  datetime={DateTime.to_iso8601(entry.inserted_at)}
+                >
+                  {Calendar.strftime(entry.inserted_at, "%d/%m/%Y")}
+                </time>
               </li>
             </ul>
           </div>
@@ -323,6 +531,81 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       </article>
     </Layouts.app>
     """
+  end
+
+  attr :item, :map, required: true
+  attr :cost, :any, required: true
+  attr :available, :integer, required: true
+
+  defp raise_button(%{cost: {:ok, cost}} = assigns) do
+    assigns = assign(assigns, :amount, cost)
+
+    ~H"""
+    <button
+      type="button"
+      id={"raise-#{@item.id}"}
+      phx-click="raise"
+      phx-value-item={@item.id}
+      disabled={@amount > @available}
+      data-confirm={"Spend #{@amount} XP to raise #{@item.name}?"}
+      class="btn btn-ghost btn-xs console-action"
+      title={"Raise for #{@amount} XP"}
+    >
+      +1 · {@amount} XP
+    </button>
+    """
+  end
+
+  defp raise_button(assigns), do: ~H""
+
+  attr :state, :map, required: true
+
+  # One box per point of the maximum (capped), filled by the current value
+  # or by the damage of each type.
+  defp tracker_boxes(assigns) do
+    marks =
+      if assigns.state.tracker.damage_types == [] do
+        List.duplicate(:full, assigns.state.value)
+      else
+        assigns.state.tracker.damage_types
+        |> Enum.with_index()
+        |> Enum.reverse()
+        |> Enum.flat_map(fn {type, index} ->
+          List.duplicate({:damage, index}, Map.get(assigns.state.damage, type, 0))
+        end)
+      end
+
+    empty = List.duplicate(:empty, max(assigns.state.max - length(marks), 0))
+    assigns = assign(assigns, :marks, Enum.take(marks ++ empty, 30))
+
+    ~H"""
+    <div class="mt-1 flex flex-wrap gap-1" aria-hidden="true">
+      <span
+        :for={mark <- @marks}
+        class={[
+          "inline-block size-3 rounded-sm border border-current",
+          mark_class(mark)
+        ]}
+      ></span>
+    </div>
+    """
+  end
+
+  defp mark_class(:full), do: "bg-current"
+  defp mark_class(:empty), do: "opacity-40"
+  defp mark_class({:damage, 0}), do: "bg-current opacity-50"
+  defp mark_class({:damage, _}), do: "bg-current"
+
+  defp xp_amount(%{kind: "spend", amount: amount}), do: "−#{amount}"
+  defp xp_amount(%{amount: amount}) when amount > 0, do: "+#{amount}"
+  defp xp_amount(%{amount: amount}), do: "−#{abs(amount)}"
+
+  defp xp_description(%{kind: "spend"} = entry),
+    do: "#{entry.item_name}: #{entry.from_value} → #{entry.to_value}"
+
+  defp xp_description(entry) do
+    by = if entry.author, do: " (#{entry.author.username})", else: ""
+    "#{entry.reason}#{by}"
   end
 
   defp state_label(state),
