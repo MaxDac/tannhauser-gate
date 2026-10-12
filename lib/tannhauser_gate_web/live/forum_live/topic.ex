@@ -49,7 +49,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
   end
 
   def handle_event("delete_post", %{"id" => id}, socket) do
-    if socket.assigns.story_manager? do
+    if socket.assigns.master? do
       post = Forum.get_post!(id)
 
       if post.topic_id == socket.assigns.topic.id do
@@ -59,7 +59,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         {:noreply, put_flash(socket, :error, "That post is not in this topic.")}
       end
     else
-      {:noreply, put_flash(socket, :error, "Only the game master can delete posts.")}
+      {:noreply, put_flash(socket, :error, "Only the GDR masters can delete posts.")}
     end
   end
 
@@ -71,6 +71,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <div class="mb-4">
         <.link
@@ -100,7 +101,8 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               · {format_time(post.inserted_at)}
             </span>
             <button
-              :if={@story_manager?}
+              :if={@master?}
+              id={"delete-post-#{post.id}"}
               type="button"
               phx-click="delete_post"
               phx-value-id={post.id}

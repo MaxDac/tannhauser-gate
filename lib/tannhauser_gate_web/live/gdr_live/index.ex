@@ -23,6 +23,7 @@ defmodule TannhauserGateWeb.GdrLive.Index do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <.header>
         Choose your GDR
@@ -63,6 +64,14 @@ defmodule TannhauserGateWeb.GdrLive.Index do
           <p class="mt-auto flex items-center justify-between pt-2 text-xs uppercase tracking-wider text-secondary">
             <span>GM {(story.owner && story.owner.username) || "Platform"}</span>
             <span :if={story.status == "draft"} class="badge badge-warning badge-sm">Draft</span>
+          </p>
+
+          <p
+            :if={story.masters != []}
+            id={"gdr-masters-#{story.id}"}
+            class="truncate text-xs text-base-content/60"
+          >
+            Masters: {Enum.map_join(story.masters, ", ", & &1.username)}
           </p>
         </.link>
       </div>

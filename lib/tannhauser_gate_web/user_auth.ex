@@ -203,17 +203,18 @@ defmodule TannhauserGateWeb.UserAuth do
   end
 
   # Loads the GDR (story) from the `story_id` route param and makes sure the
-  # user can enter it: it is published, or the user runs it, or is an admin.
+  # user can enter it: it is published, or the user is its GDR admin, one of its
+  # masters, or a platform admin. Assigns the user's role in the GDR.
   def on_mount(:load_story, params, _session, socket) do
     user = socket.assigns.current_user
 
     with {id, ""} <- Integer.parse(to_string(params["story_id"])),
          %Story{} = story <- Stories.get_story(id),
-         true <- Stories.accessible?(user, story) do
+         role when not is_nil(role) <- Stories.role(user, story) do
       {:cont,
        socket
        |> Phoenix.Component.assign(:current_story, story)
-       |> Phoenix.Component.assign(:story_manager?, Stories.manager?(user, story))}
+       |> assign_story_role(role)}
     else
       _ ->
         {:halt,
@@ -223,17 +224,21 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
-  # Only the game master of the GDR (or an admin) may continue.
-  def on_mount(:ensure_story_manager, _params, _session, socket) do
-    if socket.assigns.story_manager? do
+  # Only the GDR admin (or a platform admin) may configure the GDR.
+  def on_mount(:ensure_gdr_admin, _params, _session, socket) do
+    if socket.assigns.gdr_admin? do
       {:cont, socket}
     else
-      story = socket.assigns.current_story
+      deny_story_access(socket, "Only the GDR admin can do that.")
+    end
+  end
 
-      {:halt,
-       socket
-       |> Phoenix.LiveView.put_flash(:error, "Only the game master can do that.")
-       |> Phoenix.LiveView.redirect(to: ~p"/g/#{story.id}")}
+  # Masters, the GDR admin and platform admins may use the master tools.
+  def on_mount(:ensure_master, _params, _session, socket) do
+    if socket.assigns.master? do
+      {:cont, socket}
+    else
+      deny_story_access(socket, "Only the GDR masters can do that.")
     end
   end
 
@@ -244,7 +249,7 @@ defmodule TannhauserGateWeb.UserAuth do
      socket
      |> Phoenix.Component.assign(:current_path, nil)
      |> Phoenix.Component.assign(:current_story, nil)
-     |> Phoenix.Component.assign(:story_manager?, false)
+     |> assign_story_role(nil)
      |> Phoenix.LiveView.attach_hook(:current_path, :handle_params, fn _params, url, socket ->
        {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url).path)}
      end)}
@@ -266,6 +271,20 @@ defmodule TannhauserGateWeb.UserAuth do
         Accounts.get_user_by_session_token(user_token)
       end
     end)
+  end
+
+  defp assign_story_role(socket, role) do
+    socket
+    |> Phoenix.Component.assign(:story_role, role)
+    |> Phoenix.Component.assign(:gdr_admin?, Stories.admin_role?(role))
+    |> Phoenix.Component.assign(:master?, Stories.master_role?(role))
+  end
+
+  defp deny_story_access(socket, message) do
+    {:halt,
+     socket
+     |> Phoenix.LiveView.put_flash(:error, message)
+     |> Phoenix.LiveView.redirect(to: ~p"/g/#{socket.assigns.current_story.id}")}
   end
 
   @doc """

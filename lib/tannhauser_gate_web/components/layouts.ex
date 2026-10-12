@@ -5,7 +5,7 @@ defmodule TannhauserGateWeb.Layouts do
   """
   use TannhauserGateWeb, :html
 
-  alias TannhauserGate.Accounts
+  alias TannhauserGate.{Accounts, Stories}
   alias TannhauserGate.Stories.Themes
 
   defp home_path(nil), do: ~p"/gdrs"
@@ -35,6 +35,10 @@ defmodule TannhauserGateWeb.Layouts do
   attr :current_user, :map, default: nil, doc: "the signed-in user, if any"
   attr :current_path, :string, default: nil, doc: "the current path, to highlight the drawer"
   attr :current_story, :map, default: nil, doc: "the GDR being visited, if any"
+
+  attr :story_role, :atom,
+    default: nil,
+    doc: "the user's role in the GDR being visited (see `TannhauserGate.Stories.role/2`)"
 
   slot :inner_block, required: true
 
@@ -175,8 +179,19 @@ defmodule TannhauserGateWeb.Layouts do
                 Jobs
               </.nav_link>
             </li>
-            <li :if={Accounts.admin?(@current_user) or @current_user.id == @current_story.owner_id}>
+            <li :if={Stories.master_role?(@story_role)}>
               <.nav_link
+                id="nav-master-tools"
+                navigate={~p"/g/#{@current_story}/master"}
+                icon="hero-megaphone"
+                current_path={@current_path}
+              >
+                Master tools
+              </.nav_link>
+            </li>
+            <li :if={Stories.admin_role?(@story_role)}>
+              <.nav_link
+                id="nav-gm-dashboard"
                 navigate={~p"/g/#{@current_story}/gm"}
                 icon="hero-adjustments-horizontal"
                 current_path={@current_path}

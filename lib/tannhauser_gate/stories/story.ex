@@ -1,14 +1,15 @@
 defmodule TannhauserGate.Stories.Story do
   @moduledoc """
   A story is a GDR (role playing game): its world, rules, theme and map. It is
-  run by a game master (the owner), or by the platform when it has no owner.
+  configured by its GDR admin (the owner, a game master), or by the platform
+  when it has no owner, and narrated by its masters.
   """
 
   use Ecto.Schema
   import Ecto.Changeset
 
   alias TannhauserGate.Accounts.User
-  alias TannhauserGate.Stories.{Location, Themes}
+  alias TannhauserGate.Stories.{Location, StoryMaster, Themes}
 
   @statuses ~w(draft published)
 
@@ -30,6 +31,10 @@ defmodule TannhauserGate.Stories.Story do
 
     belongs_to :owner, User
     has_many :locations, Location, preload_order: [asc: :name]
+
+    many_to_many :masters, User,
+      join_through: StoryMaster,
+      preload_order: [asc: :username]
 
     timestamps(type: :utc_datetime)
   end

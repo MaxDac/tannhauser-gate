@@ -23,6 +23,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <.header>
         {@current_story.name}
@@ -48,7 +49,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
         id="draft-notice"
         class="mt-4 rounded-md border border-warning/40 p-3 text-sm text-warning"
       >
-        This GDR is a draft and only visible to its game master.
+        This GDR is a draft and only visible to its admin and masters.
       </p>
 
       <section :if={present?(@current_story.world_background)} id="gdr-background" class="mt-8">

@@ -45,6 +45,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <.link
