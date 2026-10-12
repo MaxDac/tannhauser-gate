@@ -46,7 +46,8 @@ defmodule TannhauserGate.Seeds do
             Accounts.register_user(%{
               username: System.get_env("ADMIN_USERNAME") || @default_admin_username,
               email: email,
-              password: password
+              password: password,
+              terms_accepted: true
             })
 
           user

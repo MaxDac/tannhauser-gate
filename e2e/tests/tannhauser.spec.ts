@@ -50,6 +50,8 @@ test("registers a new user", async ({ page }) => {
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
+  await expect(page.locator("#terms-link")).toHaveAttribute("href", "/terms");
+  await page.getByLabel("I accept the terms and disclaimer").check();
   await page.getByRole("button", { name: "Create an account" }).click();
   await expect(page).toHaveURL(/\/gdrs$/);
   await expect(page.locator("#gdrs")).toContainText("Tannhauser Gate");

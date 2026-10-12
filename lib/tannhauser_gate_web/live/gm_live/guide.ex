@@ -130,6 +130,7 @@ defmodule TannhauserGateWeb.GmLive.Guide do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      last_location={@last_location}
       mail_unread={@mail_unread}
     >
       <.gm_header story={@current_story} />

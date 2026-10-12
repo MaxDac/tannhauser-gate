@@ -30,6 +30,8 @@ defmodule TannhauserGate.Stories.Story do
     field :currency_name, :string, default: "credits"
     field :pay_interval_hours, :integer, default: 24
     field :archive_after_days, :integer, default: 30
+    field :community_url, :string
+    field :community_label, :string
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -56,7 +58,9 @@ defmodule TannhauserGate.Stories.Story do
     :theme_overrides,
     :currency_name,
     :pay_interval_hours,
-    :archive_after_days
+    :archive_after_days,
+    :community_url,
+    :community_label
   ]
 
   @doc """
@@ -92,8 +96,23 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)
     |> validate_map_svg()
+    |> validate_length(:community_url, max: 500)
+    |> validate_length(:community_label, max: 60)
+    |> validate_change(:community_url, &validate_http_url/2)
     |> unique_constraint(:name)
     |> unique_constraint(:owner_id, message: "already runs a GDR")
+  end
+
+  # The community link (e.g. a Discord invite) is rendered as an external link.
+  defp validate_http_url(field, url) do
+    case URI.parse(url) do
+      %URI{scheme: scheme, host: host}
+      when scheme in ["http", "https"] and host not in [nil, ""] ->
+        if String.match?(url, ~r/\s/), do: [{field, "must not contain spaces"}], else: []
+
+      _ ->
+        [{field, "must be an http(s) URL"}]
+    end
   end
 
   # The map artwork is rendered as an inert SVG image (see

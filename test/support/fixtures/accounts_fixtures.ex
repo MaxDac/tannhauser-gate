@@ -12,7 +12,8 @@ defmodule TannhauserGate.AccountsFixtures do
     Enum.into(attrs, %{
       username: unique_username(),
       email: unique_user_email(),
-      password: valid_user_password()
+      password: valid_user_password(),
+      terms_accepted: true
     })
   end
 

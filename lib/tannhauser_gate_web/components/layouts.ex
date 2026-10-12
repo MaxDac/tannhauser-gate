@@ -11,6 +11,16 @@ defmodule TannhauserGateWeb.Layouts do
   defp home_path(nil), do: ~p"/gdrs"
   defp home_path(story), do: ~p"/g/#{story}"
 
+  defp room_path(story, location), do: ~p"/g/#{story}/rooms/#{location.id}"
+
+  # The "Return to chat" link shows in a GDR with a remembered room, unless
+  # the user is already there.
+  defp return_to_chat?(%{current_story: story, last_location: %{} = location} = assigns)
+       when not is_nil(story),
+       do: assigns.current_path != room_path(story, location)
+
+  defp return_to_chat?(_assigns), do: false
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
@@ -48,6 +58,10 @@ defmodule TannhauserGateWeb.Layouts do
     default: 0,
     doc: "the unread messages of the GDR mailbox (see `TannhauserGateWeb.MailNotifier`)"
 
+  attr :last_location, :map,
+    default: nil,
+    doc: "the user's last chat room in the GDR, for the \"Return to chat\" link"
+
   slot :inner_block, required: true
 
   def app(%{current_user: nil} = assigns) do
@@ -82,6 +96,16 @@ defmodule TannhauserGateWeb.Layouts do
           <div class="flex-1">
             <.link navigate={home_path(@current_story)}><.brand size={32} /></.link>
           </div>
+          <.link
+            :if={return_to_chat?(assigns)}
+            id="header-return-to-chat"
+            navigate={room_path(@current_story, @last_location)}
+            class="btn btn-square btn-ghost btn-sm mr-2 border-secondary/40 text-mint"
+            aria-label={"Return to chat: #{@last_location.name}"}
+            title={"Return to chat: #{@last_location.name}"}
+          >
+            <.icon name="hero-chat-bubble-bottom-center-text" class="size-5" />
+          </.link>
           <label
             for="drawer-toggle"
             class="btn btn-square btn-ghost btn-sm border-secondary/40 text-secondary"
@@ -114,6 +138,21 @@ defmodule TannhauserGateWeb.Layouts do
           >
             {@current_story.name}
           </p>
+          <.link
+            :if={return_to_chat?(assigns)}
+            id="nav-return-to-chat"
+            navigate={room_path(@current_story, @last_location)}
+            class="group -mt-2 flex items-center gap-2 rounded-md border border-mint/40 bg-mint/10 px-3 py-2 text-xs font-semibold text-mint transition-all hover:border-mint hover:bg-mint/20 hover:shadow-[0_0_12px] hover:shadow-mint/30"
+          >
+            <.icon
+              name="hero-chat-bubble-bottom-center-text"
+              class="size-4 transition-transform group-hover:-translate-x-0.5"
+            />
+            <span class="min-w-0 flex-1">
+              <span class="block uppercase tracking-[0.15em]">Return to chat</span>
+              <span class="block truncate font-normal text-fog-400">{@last_location.name}</span>
+            </span>
+          </.link>
 
           <ul :if={is_nil(@current_story)} class="menu w-full gap-1 p-0" aria-label="Sections">
             <li>
@@ -235,6 +274,19 @@ defmodule TannhauserGateWeb.Layouts do
                 GM dashboard
               </.nav_link>
             </li>
+            <li :if={@current_story.community_url}>
+              <a
+                id="nav-community"
+                href={@current_story.community_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-3 rounded-md text-sm"
+              >
+                <.icon name="hero-user-group" class="size-5" />
+                <span class="flex-1 truncate">{@current_story.community_label || "Community"}</span>
+                <.icon name="hero-arrow-top-right-on-square-micro" class="size-3 opacity-60" />
+              </a>
+            </li>
             <li>
               <.nav_link
                 navigate={~p"/gdrs"}
@@ -261,13 +313,35 @@ defmodule TannhauserGateWeb.Layouts do
               <span class="size-2 rounded-full bg-mint shadow-[0_0_8px] shadow-mint/70"></span>
               Online <span class="text-fog-500">({length(@online)})</span>
             </h2>
-            <ul class="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
+            <ul class="mt-2 flex flex-col gap-1">
               <li
                 :for={entry <- @online}
                 id={"online-user-#{entry.user_id}"}
                 class="rounded-md px-2 py-1 text-xs transition-colors hover:bg-mint/5"
               >
-                <span class="block truncate font-semibold text-fog-200">
+                <div
+                  :if={entry[:character_id]}
+                  class="flex min-w-0 items-baseline gap-1 font-semibold text-fog-200"
+                >
+                  <.character_quick_links
+                    id={"online-user-#{entry.user_id}-links"}
+                    story={@current_story}
+                    character={%{id: entry.character_id, name: entry.character_name}}
+                    location={
+                      TannhauserGateWeb.GdrPresence.character_location(
+                        @online,
+                        entry.character_id,
+                        Stories.master_role?(@story_role)
+                      )
+                    }
+                    class="hover:text-mint"
+                  />
+                  <span class="truncate font-normal text-fog-500">· {entry.username}</span>
+                </div>
+                <span
+                  :if={!entry[:character_id]}
+                  class="block truncate font-semibold text-fog-200"
+                >
                   {entry.character_name || entry.username}
                   <span :if={entry.character_name} class="font-normal text-fog-500">
                     · {entry.username}

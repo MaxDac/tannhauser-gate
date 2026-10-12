@@ -455,6 +455,7 @@ defmodule TannhauserGateWeb.GmLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      last_location={@last_location}
       mail_unread={@mail_unread}
     >
       <.gm_header story={@current_story} />
@@ -511,7 +512,26 @@ defmodule TannhauserGateWeb.GmLive do
           type="select"
           label="Status"
           options={[{"Draft (only you and your masters)", "draft"}, {"Published", "published"}]}
-        /> <.button phx-disable-with="Saving...">Save</.button>
+        />
+        <fieldset id="community-link-settings" class="mt-2 border-t border-secondary/20 pt-4">
+          <legend class="text-sm font-semibold text-base-content/80">Community link</legend>
+          <p class="mb-2 text-xs text-base-content/60">
+            An external community for the players (e.g. a Discord server), shown in the GDR navigation.
+          </p>
+          <.input
+            field={@story_form[:community_url]}
+            type="url"
+            label="Community URL"
+            placeholder="https://discord.gg/..."
+          />
+          <.input
+            field={@story_form[:community_label]}
+            type="text"
+            label="Community label"
+            placeholder="Community"
+          />
+        </fieldset>
+        <.button phx-disable-with="Saving...">Save</.button>
       </.form>
     </.panel>
     """

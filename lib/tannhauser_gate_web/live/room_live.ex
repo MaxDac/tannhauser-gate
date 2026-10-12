@@ -424,6 +424,7 @@ defmodule TannhauserGateWeb.RoomLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      last_location={@last_location}
       mail_unread={@mail_unread}
     >
       <div class="mb-4">
@@ -549,17 +550,18 @@ defmodule TannhauserGateWeb.RoomLive do
             </span>
 
             <div class="min-w-0 flex-1">
-              <p class="flex flex-wrap items-baseline gap-x-3">
-                <.link
+              <div class="flex flex-wrap items-baseline gap-x-3">
+                <.character_quick_links
                   :if={message.character}
-                  navigate={~p"/g/#{@current_story}/characters/#{message.character}"}
+                  id={"message-#{message.id}-speaker"}
+                  story={@current_story}
+                  character={message.character}
+                  location={GdrPresence.character_location(@online, message.character.id, @master?)}
                   class={[
-                    "chat-name font-bold hover:underline",
+                    "chat-name font-bold",
                     if(message.kind == "ooc", do: "text-fog-300", else: "text-phosphor")
                   ]}
-                >
-                  {message.character.name}
-                </.link>
+                />
 
                 <span
                   :if={!message.character}
@@ -599,7 +601,7 @@ defmodule TannhauserGateWeb.RoomLive do
                 >
                   <.icon name="hero-trash" class="size-3" />
                 </button>
-              </p>
+              </div>
 
               <.dice_result
                 :if={message.kind == "dice" && message.data}

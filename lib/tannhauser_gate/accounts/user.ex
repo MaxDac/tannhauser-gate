@@ -11,7 +11,8 @@ defmodule TannhauserGate.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :admin, :boolean, default: false
     field :gm, :boolean, default: false
-
+    field :accepted_terms_at, :utc_datetime
+    field :terms_accepted, :boolean, virtual: true
     timestamps(type: :utc_datetime)
   end
 
@@ -56,10 +57,23 @@ defmodule TannhauserGate.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:username, :email, :password])
+    |> cast(attrs, [:username, :email, :password, :terms_accepted])
     |> validate_username(opts)
     |> validate_email(opts)
+    |> validate_terms()
     |> validate_password(opts)
+  end
+
+  # Registration requires accepting the terms (see `/terms`); the acceptance
+  # time is stored. Users registered before the terms existed keep `nil`.
+  defp validate_terms(changeset) do
+    if get_field(changeset, :terms_accepted) == true do
+      put_change(changeset, :accepted_terms_at, DateTime.utc_now(:second))
+    else
+      add_error(changeset, :terms_accepted, "must be accepted to register",
+        validation: :acceptance
+      )
+    end
   end
 
   defp validate_username(changeset, opts) do

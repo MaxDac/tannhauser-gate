@@ -50,6 +50,7 @@ defmodule TannhauserGateWeb.JobsLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      last_location={@last_location}
       mail_unread={@mail_unread}
     >
       <.header>
