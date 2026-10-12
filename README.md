@@ -37,9 +37,16 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - character balances (adjustments are recorded in the ledger);
   - map artwork and rooms;
   - forum sections;
-  - masters (added by username, removed with one click).
-- **Master tools** (`/g/:id/master`, masters, the GDR admin and platform admins): entry points to the GDR's characters, rooms and forum moderation, plus the list of the GDR's narrators.
+  - masters (added by username, removed with one click);
+  - character states (name, whether the character can play, position). Every GDR starts with an "Active" playable state.
+- **Master tools** (`/g/:id/master`, masters, the GDR admin and platform admins): entry points to the GDR's characters, rooms and forum, plus the list of the GDR's narrators. They also include:
+  - the **character dashboard** (`/g/:id/master/characters`): the approval queue (approve, or reject with notes), every character filtered by approval status, state and player/NPC, a state selector per row, and links to edit any sheet;
+  - **NPC creation** (`/g/:id/master/npcs/new`);
+  - **moderation** (`/g/:id/master/moderation`): the latest chat messages and forum posts of the GDR, each with a delete button. Masters can also delete messages directly in the chat rooms.
 - **Characters:** one character per user per GDR. The character sheet, styled as a detective's spiral-bound notepad, shows the avatar, name, description, background and the GDR's attributes, skills and powers.
+  - **Approval:** new characters start as drafts. A draft can use every feature except playing. The owner submits it for approval; a master approves it or rejects it with notes. After a rejection the owner can edit the character and submit it again. Only characters that are approved *and* whose state allows playing can speak in the chat rooms (`Characters.can_play?/1`).
+  - **Visibility:** everyone sees the public sheet (avatar, name, description, background, off-game info). The owner and the masters also see the full sheet (trait values, state, player notes). Master notes are visible only to the masters.
+  - **NPCs:** masters create non-player characters. NPCs are approved from the start and don't count toward the one-character limit. Masters pick an NPC (or their own character) in the chat "Speak as" selector.
 - **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
 - **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
 - **City map and chat rooms:** each GDR has an SVG map with clickable polygon areas. Every area is a chat room. Messages show the speaking character's avatar, name, time and text, and arrive live through Phoenix PubSub. GM artwork is rendered as an inert SVG image, so it can't run scripts.
@@ -188,12 +195,13 @@ The E2E suite lives in [`e2e/`](e2e). It boots `mix phx.server` against the seed
 drives Chromium through the full journey:
 
 1. register;
-2. create a character with an avatar;
-3. open a room from the map;
-4. send a chat message;
-5. open a forum topic and reply;
-6. check that a regular user is denied admin access;
-7. check that the admin can read the conversation.
+2. create a character with an avatar and submit it for approval;
+3. approve it as the admin from the master character dashboard;
+4. open a room from the map;
+5. send a chat message;
+6. open a forum topic and reply;
+7. check that a regular user is denied admin access;
+8. check that the admin can read the conversation.
 
 ```bash
 mix ecto.reset                     # fresh, seeded dev database

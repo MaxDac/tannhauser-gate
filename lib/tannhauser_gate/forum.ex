@@ -130,5 +130,31 @@ defmodule TannhauserGate.Forum do
 
   def get_post!(id), do: Repo.get!(Post, id)
 
+  @doc """
+  The latest `limit` posts of every section of a story, newest first, with
+  their topic and author (used by the master moderation tools).
+  """
+  def list_story_posts(story_id, limit \\ 50) do
+    Repo.all(
+      from p in Post,
+        join: t in assoc(p, :topic),
+        join: s in assoc(t, :section),
+        where: s.story_id == ^story_id,
+        order_by: [desc: p.inserted_at, desc: p.id],
+        limit: ^limit,
+        preload: [:user, topic: t]
+    )
+  end
+
+  @doc "Gets a post of the given story, or `nil`."
+  def get_story_post(story_id, id) do
+    Repo.one(
+      from p in Post,
+        join: t in assoc(p, :topic),
+        join: s in assoc(t, :section),
+        where: p.id == ^id and s.story_id == ^story_id
+    )
+  end
+
   def delete_post(%Post{} = post), do: Repo.delete(post)
 end

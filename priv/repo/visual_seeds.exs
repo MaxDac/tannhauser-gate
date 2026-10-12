@@ -36,6 +36,9 @@ avatar = Storage.store_upload!(Path.expand("../../e2e/fixtures/avatar.png", __DI
     avatar
   )
 
+# Approved directly, so it can speak in the chat room below.
+deckard = deckard |> Ecto.Changeset.change(approval_status: "approved") |> Repo.update!()
+
 room = Enum.find(Stories.list_locations(story), &(&1.name == "Ozu's Noodle Counter"))
 
 for body <- [

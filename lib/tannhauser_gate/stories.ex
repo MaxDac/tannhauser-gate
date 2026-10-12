@@ -8,6 +8,7 @@ defmodule TannhauserGate.Stories do
 
   alias TannhauserGate.Accounts
   alias TannhauserGate.Accounts.User
+  alias TannhauserGate.Characters
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories.{Location, Story, StoryMaster}
 
@@ -196,10 +197,16 @@ defmodule TannhauserGate.Stories do
 
   def get_story_by_name(name), do: Repo.get_by(Story, name: name)
 
+  @doc "Creates a story with its default \"Active\" character state."
   def create_story(attrs \\ %{}) do
-    %Story{}
-    |> Story.changeset(attrs)
-    |> Repo.insert()
+    Repo.transaction(fn ->
+      with {:ok, story} <- %Story{} |> Story.changeset(attrs) |> Repo.insert(),
+           {:ok, _state} <- Characters.create_default_states(story) do
+        story
+      else
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
     |> tap_default()
   end
 

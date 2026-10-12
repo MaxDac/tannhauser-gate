@@ -8,6 +8,7 @@ defmodule TannhauserGateWeb.GmLive do
 
   alias TannhauserGate.{Bank, Characters, Forum, Sheet, Stories}
   alias TannhauserGate.Bank.Job
+  alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Sheet.Item
   alias TannhauserGate.Stories.{Location, Themes}
@@ -16,6 +17,7 @@ defmodule TannhauserGateWeb.GmLive do
     {"general", "General"},
     {"theme", "Theme"},
     {"sheet", "Sheet"},
+    {"states", "States"},
     {"jobs", "Jobs"},
     {"balances", "Balances"},
     {"map", "Map"},
@@ -49,6 +51,12 @@ defmodule TannhauserGateWeb.GmLive do
     socket
     |> assign(:items, Sheet.list_items(story(socket)))
     |> assign_item_form(%Item{})
+  end
+
+  defp load(socket, "states") do
+    socket
+    |> assign(:states, Characters.list_states(story(socket)))
+    |> assign_state_form(%State{})
   end
 
   defp load(socket, "jobs") do
@@ -90,6 +98,12 @@ defmodule TannhauserGateWeb.GmLive do
       socket
       |> assign(:item, item)
       |> assign(:item_form, to_form(Sheet.change_item(item), as: :item))
+
+  defp assign_state_form(socket, state),
+    do:
+      socket
+      |> assign(:state, state)
+      |> assign(:state_form, to_form(Characters.change_state(state), as: :state))
 
   defp assign_job_form(socket, job),
     do: socket |> assign(:job, job) |> assign(:job_form, to_form(Bank.change_job(job), as: :job))
@@ -152,6 +166,37 @@ defmodule TannhauserGateWeb.GmLive do
   end
 
   def handle_event("cancel_item", _, socket), do: {:noreply, assign_item_form(socket, %Item{})}
+
+  ## Character states
+
+  def handle_event("save_state", %{"state" => params}, socket) do
+    state = socket.assigns.state
+
+    result =
+      if state.id,
+        do: Characters.update_state(state, params),
+        else: Characters.create_state(story(socket), params)
+
+    case result do
+      {:ok, _} ->
+        {:noreply, socket |> put_flash(:info, "Saved") |> load("states")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :state_form, to_form(changeset, as: :state))}
+    end
+  end
+
+  def handle_event("edit_state", %{"id" => id}, socket) do
+    {:noreply, assign_state_form(socket, Characters.get_state!(story(socket), id))}
+  end
+
+  def handle_event("delete_state", %{"id" => id}, socket) do
+    {:ok, _} = story(socket) |> Characters.get_state!(id) |> Characters.delete_state()
+    {:noreply, load(socket, "states")}
+  end
+
+  def handle_event("cancel_state", _, socket),
+    do: {:noreply, assign_state_form(socket, %State{})}
 
   ## Jobs
 
@@ -333,6 +378,7 @@ defmodule TannhauserGateWeb.GmLive do
       <div class="mt-6">
         <.general_tab :if={@tab == "general"} {assigns} />
         <.theme_tab :if={@tab == "theme"} {assigns} /> <.sheet_tab :if={@tab == "sheet"} {assigns} />
+        <.states_tab :if={@tab == "states"} {assigns} />
         <.jobs_tab :if={@tab == "jobs"} {assigns} />
         <.balances_tab :if={@tab == "balances"} {assigns} />
         <.map_tab :if={@tab == "map"} {assigns} /> <.forum_tab :if={@tab == "forum"} {assigns} />
@@ -473,6 +519,74 @@ defmodule TannhauserGateWeb.GmLive do
             </li>
           </ul>
         </div>
+      </.panel>
+    </div>
+    """
+  end
+
+  defp states_tab(assigns) do
+    ~H"""
+    <div class="grid gap-6 lg:grid-cols-2">
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {if @state.id, do: "Edit state", else: "New state"}
+        </h2>
+        <p class="mt-1 text-sm text-base-content/60">
+          Masters move characters between states. Characters in a state that cannot play
+          (e.g. dead or in torpor) cannot speak in the chat rooms. New characters get the
+          first state.
+        </p>
+
+        <.form for={@state_form} id="state-form" phx-submit="save_state">
+          <.input field={@state_form[:name]} type="text" label="Name" required />
+          <.input field={@state_form[:can_play]} type="checkbox" label="Can play" />
+          <.input field={@state_form[:position]} type="number" label="Order" />
+          <div class="flex gap-3">
+            <.button phx-disable-with="Saving...">Save state</.button>
+            <.link :if={@state.id} id="cancel-state" phx-click="cancel_state" class="self-center">
+              Cancel
+            </.link>
+          </div>
+        </.form>
+      </.panel>
+
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">States</h2>
+
+        <p :if={@states == []} class="mt-2 text-sm text-base-content/60">
+          No states: every approved character can play.
+        </p>
+
+        <ul id="states" class="mt-1 divide-y divide-secondary/10">
+          <li
+            :for={s <- @states}
+            id={"state-#{s.id}"}
+            class="flex items-center justify-between gap-2 py-1.5 text-sm"
+          >
+            <span>
+              {s.name}
+              <span class={[
+                "badge badge-sm badge-soft ml-2",
+                if(s.can_play, do: "badge-success", else: "badge-error")
+              ]}>
+                {if s.can_play, do: "plays", else: "cannot play"}
+              </span>
+            </span>
+            <span class="flex gap-3">
+              <.link id={"edit-state-#{s.id}"} phx-click="edit_state" phx-value-id={s.id}>
+                Edit
+              </.link>
+              <.link
+                id={"delete-state-#{s.id}"}
+                phx-click="delete_state"
+                phx-value-id={s.id}
+                data-confirm="Delete this state? Its characters are left without a state."
+              >
+                Delete
+              </.link>
+            </span>
+          </li>
+        </ul>
       </.panel>
     </div>
     """

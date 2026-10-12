@@ -85,7 +85,34 @@ defmodule TannhauserGate.GameFixtures do
     location
   end
 
+  # An approved character, ready to play.
   def character_fixture(user \\ nil, story \\ nil, attrs \\ %{}) do
+    character = draft_character_fixture(user, story, attrs)
+
+    {:ok, _} =
+      character
+      |> Ecto.Changeset.change(approval_status: "approved")
+      |> TannhauserGate.Repo.update()
+
+    Characters.get_character!(character.id)
+  end
+
+  def npc_fixture(master, story, attrs \\ %{}) do
+    {:ok, npc} =
+      Characters.create_npc(
+        master,
+        story,
+        Enum.into(attrs, %{
+          "name" => "NPC #{System.unique_integer([:positive])}",
+          "description" => "A shadow at the bar."
+        })
+      )
+
+    Characters.get_character!(npc.id)
+  end
+
+  # A freshly created character, still a draft.
+  def draft_character_fixture(user \\ nil, story \\ nil, attrs \\ %{}) do
     user = user || user_fixture()
     story = story || story_fixture()
 

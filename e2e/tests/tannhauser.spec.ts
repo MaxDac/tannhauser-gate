@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, Browser, Page } from "@playwright/test";
 import path from "node:path";
 
 // Runs against a dev database prepared with `mix ecto.setup` (seeds the
@@ -55,7 +55,21 @@ test("registers a new user", async ({ page }) => {
   await expect(page.locator("#gdrs")).toContainText("Tannhauser Gate");
 });
 
-test("plays: character, map, room chat, forum", async ({ page }) => {
+// A master (here the platform admin) approves the character from the master
+// character dashboard, so it can speak in the chat rooms.
+async function approveCharacter(browser: Browser, name: string) {
+  const context = await browser.newContext();
+  const admin = await context.newPage();
+  await logIn(admin, ADMIN_USERNAME, ADMIN_PASSWORD);
+  await admin.goto(`${GDR}/master/characters`);
+  await connected(admin);
+  const card = admin.locator("#approval-queue li").filter({ hasText: name });
+  await card.getByRole("button", { name: "Approve" }).click();
+  await expect(admin.locator("#approval-queue li").filter({ hasText: name })).toHaveCount(0);
+  await context.close();
+}
+
+test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await logIn(page, username, password);
 
   // Enter the GDR and create a character with avatar
@@ -81,6 +95,12 @@ test("plays: character, map, room chat, forum", async ({ page }) => {
   await expect(page.locator("#character-sheet")).toContainText(characterName);
   await expect(page.locator("#character-sheet")).toContainText("A former Warden of Precinct 9.");
   await expect(page.locator("#character-sheet img[src^='/uploads/']")).toBeVisible();
+
+  // Approval: drafts cannot speak until a master approves them
+  await expect(page.locator("#character-approval-status")).toContainText("Draft");
+  await page.locator("#submit-for-approval").click();
+  await expect(page.locator("#character-approval-status")).toContainText("Awaiting approval");
+  await approveCharacter(browser, characterName);
 
   // Map -> room
   await page.locator("#drawer").getByRole("link", { name: "Map", exact: true }).click();
