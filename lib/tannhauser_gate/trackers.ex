@@ -148,20 +148,21 @@ defmodule TannhauserGate.Trackers do
 
       tracker ->
         values = Characters.values_by_slug(character)
+        Repo.transaction(fn -> do_change(character, tracker, values, fun) end)
+    end
+  end
 
-        Repo.transaction(fn ->
-          row = lock_row(character, tracker)
-          state = build_state(tracker, row, values)
+  defp do_change(character, tracker, values, fun) do
+    row = lock_row(character, tracker)
+    state = build_state(tracker, row, values)
 
-          case apply_change(tracker, state, fun.(state)) do
-            {:ok, attrs} ->
-              updated = row |> Ecto.Changeset.change(attrs) |> Repo.update!()
-              build_state(tracker, updated, values)
+    case apply_change(tracker, state, fun.(state)) do
+      {:ok, attrs} ->
+        updated = row |> Ecto.Changeset.change(attrs) |> Repo.update!()
+        build_state(tracker, updated, values)
 
-            {:error, reason} ->
-              Repo.rollback(reason)
-          end
-        end)
+      {:error, reason} ->
+        Repo.rollback(reason)
     end
   end
 
@@ -244,24 +245,24 @@ defmodule TannhauserGate.Trackers do
 
     total = damage |> Map.values() |> Enum.sum() |> min(max)
 
-    value =
-      cond do
-        tracker.damage_types != [] -> max - total
-        row && is_integer(row.value) -> clamp(row.value, 0, max)
-        tracker.starts_full -> max
-        true -> 0
-      end
-
     %{
       tracker: tracker,
       max: max,
-      value: value,
+      value: current_value(tracker, row, max, total),
       damage: damage,
       total_damage: total,
       remaining: max - total,
       error: error
     }
   end
+
+  defp current_value(%Tracker{damage_types: [_ | _]}, _row, max, total), do: max - total
+
+  defp current_value(_tracker, %{value: value}, max, _total) when is_integer(value),
+    do: clamp(value, 0, max)
+
+  defp current_value(%Tracker{starts_full: true}, _row, max, _total), do: max
+  defp current_value(_tracker, _row, _max, _total), do: 0
 
   defp to_int(n) when is_integer(n), do: n
   defp to_int(_), do: 0

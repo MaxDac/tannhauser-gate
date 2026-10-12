@@ -39,21 +39,23 @@ defmodule TannhauserGate.Experience do
     with :ok <- authorize_master(master, character),
          {:ok, amount} <- parse_amount(amount),
          :ok <- if(reason == "", do: {:error, :reason_required}, else: :ok) do
-      Repo.transaction(fn ->
-        lock_character!(character)
-
-        if amount < 0 and totals(character).available + amount < 0 do
-          Repo.rollback(:insufficient_xp)
-        end
-
-        insert_entry!(character, %{
-          kind: "award",
-          amount: amount,
-          reason: String.slice(reason, 0, 500),
-          author_id: master.id
-        })
-      end)
+      Repo.transaction(fn -> do_award(master, character, amount, reason) end)
     end
+  end
+
+  defp do_award(master, character, amount, reason) do
+    lock_character!(character)
+
+    if amount < 0 and totals(character).available + amount < 0 do
+      Repo.rollback(:insufficient_xp)
+    end
+
+    insert_entry!(character, %{
+      kind: "award",
+      amount: amount,
+      reason: String.slice(reason, 0, 500),
+      author_id: master.id
+    })
   end
 
   defp authorize_master(user, character) do
@@ -91,28 +93,30 @@ defmodule TannhauserGate.Experience do
         {:error, :cannot_play}
 
       true ->
-        Repo.transaction(fn ->
-          lock_character!(character)
+        Repo.transaction(fn -> do_spend(user_id, character, item_id) end)
+    end
+  end
 
-          with %Item{} = item <- get_item(character, item_id),
-               {:ok, offer} <- price_raise(character, item),
-               :ok <- check_available(character, offer.cost) do
-            upsert_trait!(character, item, offer.next)
+  defp do_spend(user_id, character, item_id) do
+    lock_character!(character)
 
-            insert_entry!(character, %{
-              kind: "spend",
-              amount: offer.cost,
-              author_id: user_id,
-              sheet_item_id: item.id,
-              item_name: item.name,
-              from_value: offer.current,
-              to_value: offer.next
-            })
-          else
-            nil -> Repo.rollback(:not_found)
-            {:error, reason} -> Repo.rollback(reason)
-          end
-        end)
+    with %Item{} = item <- get_item(character, item_id),
+         {:ok, offer} <- price_raise(character, item),
+         :ok <- check_available(character, offer.cost) do
+      upsert_trait!(character, item, offer.next)
+
+      insert_entry!(character, %{
+        kind: "spend",
+        amount: offer.cost,
+        author_id: user_id,
+        sheet_item_id: item.id,
+        item_name: item.name,
+        from_value: offer.current,
+        to_value: offer.next
+      })
+    else
+      nil -> Repo.rollback(:not_found)
+      {:error, reason} -> Repo.rollback(reason)
     end
   end
 

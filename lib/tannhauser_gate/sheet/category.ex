@@ -16,6 +16,7 @@ defmodule TannhauserGate.Sheet.Category do
   import Ecto.Changeset
 
   alias TannhauserGate.Formula
+  alias TannhauserGate.Sheet.Item
   alias TannhauserGate.Stories.Story
 
   @modes ~w(free points distribution)
@@ -52,7 +53,7 @@ defmodule TannhauserGate.Sheet.Category do
     ])
     |> update_change(:xp_cost_formula, &(&1 && String.trim(&1)))
     |> validate_required([:kind, :creation_mode, :starting_value])
-    |> validate_inclusion(:kind, TannhauserGate.Sheet.Item.kinds())
+    |> validate_inclusion(:kind, Item.kinds())
     |> validate_inclusion(:creation_mode, @modes)
     |> validate_number(:starting_value,
       greater_than_or_equal_to: -1_000,

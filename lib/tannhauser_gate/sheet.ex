@@ -217,12 +217,10 @@ defmodule TannhauserGate.Sheet do
   defp budget_errors(%{mode: "points"} = status, kind) do
     label = String.downcase(kind_label(kind))
 
-    cond do
-      status.below_start? ->
-        [{kind, "#{label} cannot go below their starting value"}]
-
-      true ->
-        [{kind, "#{label} use #{status.spent} points but only #{status.total} are available"}]
+    if status.below_start? do
+      [{kind, "#{label} cannot go below their starting value"}]
+    else
+      [{kind, "#{label} use #{status.spent} points but only #{status.total} are available"}]
     end
   end
 

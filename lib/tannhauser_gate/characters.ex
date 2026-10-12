@@ -319,15 +319,20 @@ defmodule TannhauserGate.Characters do
 
       # Keep unparseable submitted values so validate_traits reports them.
       traits =
-        Map.merge(params, Map.new(values, fn {id, v} -> {to_string(id), v} end), fn
-          _id, raw, value -> if match?({_, ""}, parse_int(raw)), do: value, else: raw
-        end)
+        Map.merge(
+          params,
+          Map.new(values, fn {id, v} -> {to_string(id), v} end),
+          &keep_unparseable/3
+        )
 
       {changeset, Map.put(attrs, "traits", traits)}
     else
       _ -> {changeset, attrs}
     end
   end
+
+  defp keep_unparseable(_id, raw, value),
+    do: if(match?({_, ""}, parse_int(raw)), do: value, else: raw)
 
   def delete_character(%Character{} = character), do: Repo.delete(character)
 

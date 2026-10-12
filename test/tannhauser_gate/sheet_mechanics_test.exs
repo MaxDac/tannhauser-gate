@@ -5,6 +5,7 @@ defmodule TannhauserGate.SheetMechanicsTest do
   import TannhauserGate.GameFixtures
 
   alias TannhauserGate.{Characters, Experience, Sheet, Trackers}
+  alias TannhauserGate.Sheet.Category
 
   describe "sheet item slugs" do
     test "derived from the name, unique per GDR and stable on rename" do
@@ -34,7 +35,7 @@ defmodule TannhauserGate.SheetMechanicsTest do
     test "default to free entry" do
       categories = Sheet.categories(story_fixture())
       assert categories["attribute"].creation_mode == "free"
-      refute TannhauserGate.Sheet.Category.budgeted?(categories["skill"])
+      refute Category.budgeted?(categories["skill"])
     end
 
     test "validate points, distribution and the XP formula" do
