@@ -73,6 +73,7 @@ defmodule TannhauserGateWeb.BankLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <.header>
         Bank

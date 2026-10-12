@@ -132,6 +132,13 @@ test.describe("player", () => {
     await expect(page.locator("#forum-posts .forum-post")).toHaveCount(2);
     await snap(page, "forum-topic");
   });
+
+  test("mailbox", async ({ page }) => {
+    await visit(page, `${GDR}/mail`, "mail-inbox");
+    await page.locator("#mail-inbox").getByRole("link", { name: /You've done a man's job/ }).click();
+    await expect(page.locator("#mail-show")).toBeVisible();
+    await snap(page, "mail-message");
+  });
 });
 
 test.describe("admin", () => {

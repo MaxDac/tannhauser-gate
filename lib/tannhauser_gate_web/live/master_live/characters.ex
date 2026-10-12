@@ -157,6 +157,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <div class="mb-4">
         <.link
@@ -336,7 +337,15 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                 <td id={"xp-#{character.id}"} class="tabular-nums" title="Available / earned">
                   {xp_cell(@xp_totals, character.id)}
                 </td>
-                <td class="text-right">
+                <td class="space-x-3 text-right whitespace-nowrap">
+                  <.link
+                    :if={!character.is_npc}
+                    id={"message-#{character.id}"}
+                    navigate={~p"/g/#{@current_story}/mail/new?to=#{character.id}"}
+                    class="text-sm font-semibold text-secondary hover:text-primary"
+                  >
+                    Message owner
+                  </.link>
                   <.link
                     id={"edit-#{character.id}"}
                     navigate={~p"/g/#{@current_story}/characters/#{character}/edit"}

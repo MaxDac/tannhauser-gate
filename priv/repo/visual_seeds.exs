@@ -8,10 +8,10 @@
 #
 # Every row gets a fixed timestamp at the end, so rendered dates never change.
 
-alias TannhauserGate.{Accounts, Characters, Chat, Forum, Repo, Seeds, Storage, Stories}
+alias TannhauserGate.{Accounts, Characters, Chat, Forum, Mailbox, Repo, Seeds, Storage, Stories}
 alias TannhauserGate.Forum.Section
 
-%{story: story} = Seeds.run()
+%{story: story, admin: admin} = Seeds.run()
 
 player_email = "player@tannhauser.gate"
 player_password = "more-human-than-human"
@@ -56,9 +56,36 @@ section = Repo.get_by!(Section, name: "Out of Character", story_id: story.id)
 
 {:ok, _} = Forum.create_post(player, topic, %{body: "It's too bad she won't live."})
 
+# An NPC (played by the admin, a platform-wide master) writes to Deckard.
+{:ok, gaff} =
+  Characters.create_npc(admin, story, %{
+    "name" => "Gaff",
+    "description" => "Cane, bowler hat, a pocketful of origami."
+  })
+
+# The first letter is already read (the screenshot opens it, so it must not
+# change the unread badge of the other pages); the second one stays unread.
+{:ok, read} =
+  Mailbox.send_message(admin, story, %{
+    "sender" => to_string(gaff.id),
+    "recipient" => to_string(deckard.id),
+    "subject" => "You've done a man's job, sir",
+    "body" => "I guess you're through, huh? It's too bad she won't live. But then again, who does?"
+  })
+
+{:ok, _} = Mailbox.mark_read(player, story, read)
+
+{:ok, _} =
+  Mailbox.send_message(admin, story, %{
+    "sender" => to_string(gaff.id),
+    "recipient" => to_string(deckard.id),
+    "subject" => "Origami",
+    "body" => "A little chicken, a little man, a unicorn."
+  })
+
 # Fixed, monotonic timestamps: 2121-11-03 21:00 UTC plus one minute per row id.
 for table <-
-      ~w(users stories locations characters messages forum_sections forum_topics forum_posts) do
+      ~w(users stories locations characters messages forum_sections forum_topics forum_posts mail_messages) do
   Repo.query!(
     """
     UPDATE #{table}
@@ -68,5 +95,7 @@ for table <-
     []
   )
 end
+
+Repo.query!("UPDATE mail_messages SET read_at = inserted_at WHERE read_at IS NOT NULL", [])
 
 IO.puts("Visual fixtures ready (player: #{player_email})")

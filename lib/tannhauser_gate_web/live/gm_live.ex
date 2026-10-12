@@ -109,7 +109,7 @@ defmodule TannhauserGateWeb.GmLive do
   defp load(socket, "forum") do
     socket
     |> assign(:sections, Forum.list_sections(story(socket)))
-    |> assign(:section_form, to_form(Forum.change_section(%Section{}), as: :section))
+    |> assign_section_form(%Section{})
   end
 
   defp load(socket, "masters") do
@@ -148,6 +148,12 @@ defmodule TannhauserGateWeb.GmLive do
       socket
       |> assign(:state, state)
       |> assign(:state_form, to_form(Characters.change_state(state), as: :state))
+
+  defp assign_section_form(socket, section),
+    do:
+      socket
+      |> assign(:section, section)
+      |> assign(:section_form, to_form(Forum.change_section(section), as: :section))
 
   defp assign_job_form(socket, job),
     do: socket |> assign(:job, job) |> assign(:job_form, to_form(Bank.change_job(job), as: :job))
@@ -374,15 +380,34 @@ defmodule TannhauserGateWeb.GmLive do
 
   ## Forum sections
 
-  def handle_event("create_section", %{"section" => params}, socket) do
-    case Forum.create_section(story(socket), params) do
+  def handle_event("save_section", %{"section" => params}, socket) do
+    section = socket.assigns.section
+
+    result =
+      if section.id,
+        do: Forum.update_section(section, params),
+        else: Forum.create_section(story(socket), params)
+
+    case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Section created") |> load("forum")}
+        message = if section.id, do: "Section updated", else: "Section created"
+        {:noreply, socket |> put_flash(:info, message) |> load("forum")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :section_form, to_form(changeset, as: :section))}
     end
   end
+
+  def handle_event("edit_section", %{"id" => id}, socket) do
+    section = Forum.get_section!(id)
+
+    if section.story_id == story(socket).id,
+      do: {:noreply, assign_section_form(socket, section)},
+      else: {:noreply, put_flash(socket, :error, "That section is not in this GDR.")}
+  end
+
+  def handle_event("cancel_section", _, socket),
+    do: {:noreply, assign_section_form(socket, %Section{})}
 
   def handle_event("delete_section", %{"id" => id}, socket) do
     section = Forum.get_section!(id)
@@ -439,6 +464,7 @@ defmodule TannhauserGateWeb.GmLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <.header>
         GM dashboard
@@ -1173,13 +1199,38 @@ defmodule TannhauserGateWeb.GmLive do
     ~H"""
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">New section</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {if @section.id, do: "Edit section", else: "New section"}
+        </h2>
+        <p class="mt-1 text-sm text-base-content/60">
+          On-game sections are written in character (only characters that can play);
+          off-game ones as the player. Visibility limits who can read and write.
+        </p>
 
-        <.form for={@section_form} id="section-form" phx-submit="create_section">
+        <.form for={@section_form} id="section-form" phx-submit="save_section">
           <.input field={@section_form[:name]} type="text" label="Name" required />
           <.input field={@section_form[:description]} type="text" label="Description" />
           <.input field={@section_form[:position]} type="number" label="Position" />
-          <.button phx-disable-with="Saving...">Create section</.button>
+          <.input field={@section_form[:on_game]} type="checkbox" label="On game (in character)" />
+          <.input
+            field={@section_form[:visibility]}
+            type="select"
+            label="Visible to"
+            options={Enum.map(Section.visibilities(), &{Forum.visibility_label(&1), &1})}
+          />
+          <div class="flex gap-3">
+            <.button phx-disable-with="Saving...">
+              {if @section.id, do: "Save section", else: "Create section"}
+            </.button>
+            <.link
+              :if={@section.id}
+              id="cancel-section"
+              phx-click="cancel_section"
+              class="self-center"
+            >
+              Cancel
+            </.link>
+          </div>
         </.form>
       </.panel>
 
@@ -1192,14 +1243,32 @@ defmodule TannhauserGateWeb.GmLive do
             id={"section-#{s.id}"}
             class="flex items-center justify-between gap-2 py-1.5 text-sm"
           >
-            <span>{s.name} <span class="text-base-content/50">{count} topics</span></span>
-            <.link
-              phx-click="delete_section"
-              phx-value-id={s.id}
-              data-confirm="Delete this section and all its topics?"
-            >
-              Delete
-            </.link>
+            <span class="flex flex-wrap items-center gap-1.5">
+              {s.name}
+              <span class={[
+                "badge badge-xs",
+                if(s.on_game, do: "badge-primary badge-soft", else: "badge-ghost")
+              ]}>
+                {if s.on_game, do: "On game", else: "Off game"}
+              </span>
+              <span :if={s.visibility != "all"} class="badge badge-xs badge-warning badge-soft">
+                {Forum.visibility_label(s.visibility)}
+              </span>
+              <span class="text-base-content/50">{count} topics</span>
+            </span>
+            <span class="flex shrink-0 gap-3">
+              <.link id={"edit-section-#{s.id}"} phx-click="edit_section" phx-value-id={s.id}>
+                Edit
+              </.link>
+              <.link
+                id={"delete-section-#{s.id}"}
+                phx-click="delete_section"
+                phx-value-id={s.id}
+                data-confirm="Delete this section and all its topics?"
+              >
+                Delete
+              </.link>
+            </span>
           </li>
         </ul>
       </.panel>

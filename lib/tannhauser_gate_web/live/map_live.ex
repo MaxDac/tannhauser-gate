@@ -44,6 +44,7 @@ defmodule TannhauserGateWeb.MapLive do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <.header>
         {@story.name}

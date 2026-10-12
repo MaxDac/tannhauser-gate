@@ -25,6 +25,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      mail_unread={@mail_unread}
     >
       <.header>
         {@current_story.name}
