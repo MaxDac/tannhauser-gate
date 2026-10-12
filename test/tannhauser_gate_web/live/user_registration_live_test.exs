@@ -38,7 +38,11 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
     test "shows the terms checkbox, linked to the terms page", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
-      assert has_element?(lv, "#registration_form input[type=checkbox][name='user[terms_accepted]']")
+      assert has_element?(
+               lv,
+               "#registration_form input[type=checkbox][name='user[terms_accepted]']"
+             )
+
       assert has_element?(lv, "#terms-link[href='/terms'][target='_blank']")
     end
 
@@ -76,7 +80,9 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
       conn = follow_trigger_action(form, conn)
 
       assert redirected_to(conn) == ~p"/gdrs"
-      assert %{accepted_terms_at: %DateTime{}} = TannhauserGate.Accounts.get_user_by_email(attrs.email)
+
+      assert %{accepted_terms_at: %DateTime{}} =
+               TannhauserGate.Accounts.get_user_by_email(attrs.email)
 
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/gdrs")

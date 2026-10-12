@@ -28,7 +28,8 @@ player =
       1
     )
 
-avatar = Storage.store_upload!(Path.expand("../../e2e/fixtures/avatar.png", __DIR__), "avatar.png")
+avatar =
+  Storage.store_upload!(Path.expand("../../e2e/fixtures/avatar.png", __DIR__), "avatar.png")
 
 {:ok, deckard} =
   Characters.create_character(
@@ -78,7 +79,8 @@ section = Repo.get_by!(Section, name: "Out of Character", story_id: story.id)
     "sender" => to_string(gaff.id),
     "recipient" => to_string(deckard.id),
     "subject" => "You've done a man's job, sir",
-    "body" => "I guess you're through, huh? It's too bad she won't live. But then again, who does?"
+    "body" =>
+      "I guess you're through, huh? It's too bad she won't live. But then again, who does?"
   })
 
 {:ok, _} = Mailbox.mark_read(player, story, read)

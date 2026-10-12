@@ -77,7 +77,10 @@ defmodule TannhauserGateWeb.UxLiveTest do
                "#{id}-message[href='/g/#{ctx.story.id}/mail/new?to=#{ctx.character.id}']"
              )
 
-      assert has_element?(lv, "#{id}-location[href='/g/#{ctx.story.id}/rooms/#{ctx.location.id}']")
+      assert has_element?(
+               lv,
+               "#{id}-location[href='/g/#{ctx.story.id}/rooms/#{ctx.location.id}']"
+             )
     end
 
     test "chat speakers and the character list get quick links", ctx do
@@ -95,7 +98,12 @@ defmodule TannhauserGateWeb.UxLiveTest do
       [message] = Chat.list_messages(ctx.location.id)
       id = "#message-#{message.id}-speaker"
       assert has_element?(room, "#{id}-trigger.chat-name", ctx.character.name)
-      assert has_element?(room, "#{id}-message[href='/g/#{ctx.story.id}/mail/new?to=#{ctx.character.id}']")
+
+      assert has_element?(
+               room,
+               "#{id}-message[href='/g/#{ctx.story.id}/mail/new?to=#{ctx.character.id}']"
+             )
+
       assert has_element?(room, "#{id}-location")
 
       {:ok, lv, _} = live(conn_for(ctx.gm), ~p"/g/#{ctx.story}/characters")
@@ -103,7 +111,11 @@ defmodule TannhauserGateWeb.UxLiveTest do
       assert has_element?(lv, "#{id}-trigger", ctx.character.name)
       assert has_element?(lv, "#{id}-sheet")
       assert has_element?(lv, "#{id}-message")
-      assert has_element?(lv, "#{id}-location[href='/g/#{ctx.story.id}/rooms/#{ctx.location.id}']")
+
+      assert has_element?(
+               lv,
+               "#{id}-location[href='/g/#{ctx.story.id}/rooms/#{ctx.location.id}']"
+             )
     end
 
     test "private rooms are only offered to the masters" do

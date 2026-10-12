@@ -87,7 +87,7 @@ defmodule TannhauserGateWeb.GdrPresence do
   def character_location(online, character_id, master?)
       when is_list(online) and not is_nil(character_id) do
     Enum.find_value(online, fn entry ->
-      if entry[:character_id] == character_id and entry[:location_id] &&
+      if (entry[:character_id] == character_id and entry[:location_id]) &&
            (master? or !entry[:location_private]),
          do: %{id: entry.location_id, name: entry.location_name}
     end)

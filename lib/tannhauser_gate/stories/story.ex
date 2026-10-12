@@ -106,7 +106,8 @@ defmodule TannhauserGate.Stories.Story do
   # The community link (e.g. a Discord invite) is rendered as an external link.
   defp validate_http_url(field, url) do
     case URI.parse(url) do
-      %URI{scheme: scheme, host: host} when scheme in ["http", "https"] and host not in [nil, ""] ->
+      %URI{scheme: scheme, host: host}
+      when scheme in ["http", "https"] and host not in [nil, ""] ->
         if String.match?(url, ~r/\s/), do: [{field, "must not contain spaces"}], else: []
 
       _ ->

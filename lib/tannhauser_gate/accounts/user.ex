@@ -70,7 +70,9 @@ defmodule TannhauserGate.Accounts.User do
     if get_field(changeset, :terms_accepted) == true do
       put_change(changeset, :accepted_terms_at, DateTime.utc_now(:second))
     else
-      add_error(changeset, :terms_accepted, "must be accepted to register", validation: :acceptance)
+      add_error(changeset, :terms_accepted, "must be accepted to register",
+        validation: :acceptance
+      )
     end
   end
 
