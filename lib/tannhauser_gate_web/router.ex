@@ -78,7 +78,8 @@ defmodule TannhauserGateWeb.Router do
       on_mount: [
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
-        {TannhauserGateWeb.UserAuth, :load_story}
+        {TannhauserGateWeb.UserAuth, :load_story},
+        {TannhauserGateWeb.GdrPresence, :track}
       ] do
       live "/g/:story_id", GdrLive.Home, :show
 
@@ -103,7 +104,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
-        {TannhauserGateWeb.UserAuth, :ensure_gdr_admin}
+        {TannhauserGateWeb.UserAuth, :ensure_gdr_admin},
+        {TannhauserGateWeb.GdrPresence, :track}
       ] do
       live "/g/:story_id/gm", GmLive, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
@@ -114,11 +116,13 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
-        {TannhauserGateWeb.UserAuth, :ensure_master}
+        {TannhauserGateWeb.UserAuth, :ensure_master},
+        {TannhauserGateWeb.GdrPresence, :track}
       ] do
       live "/g/:story_id/master", MasterLive, :index
       live "/g/:story_id/master/characters", MasterLive.Characters, :index
       live "/g/:story_id/master/moderation", MasterLive.Moderation, :index
+      live "/g/:story_id/master/chat-log", MasterLive.ChatLog, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

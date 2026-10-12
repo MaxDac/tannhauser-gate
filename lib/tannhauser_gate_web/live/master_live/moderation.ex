@@ -52,6 +52,7 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <div class="mb-4">
         <.link

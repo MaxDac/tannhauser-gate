@@ -91,13 +91,32 @@ defmodule TannhauserGateWeb.CharacterLifecycleLiveTest do
   end
 
   describe "chat rooms" do
-    test "unapproved characters cannot speak", ctx do
+    test "unapproved characters cannot speak in character but can post OFF", ctx do
       character = draft_character_fixture(ctx.player, ctx.story)
       location = location_fixture(ctx.story)
 
       {:ok, lv, _} = live(conn_for(ctx.player), ~p"/g/#{ctx.story}/rooms/#{location}")
       assert has_element?(lv, "#cannot-play-notice", character.name)
-      refute has_element?(lv, "#message-form-0")
+      refute has_element?(lv, "#dice-panel")
+
+      html =
+        lv
+        |> form("#message-form-0",
+          message: %{character_id: character.id, body: "Hi in character"}
+        )
+        |> render_submit()
+
+      assert html =~ "approved"
+      assert Chat.list_messages(location.id) == []
+
+      lv
+      |> form("#message-form-0",
+        message: %{character_id: character.id, kind: "ooc", body: "Waiting for approval"}
+      )
+      |> render_submit()
+
+      assert [%{kind: "ooc", body: "Waiting for approval"}] = Chat.list_messages(location.id)
+      assert has_element?(lv, "#messages li.chat-ooc", "Waiting for approval")
     end
 
     test "masters speak as NPCs and delete messages", ctx do

@@ -29,6 +29,7 @@ defmodule TannhauserGateWeb.MasterLive do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <.header>
         Master tools
@@ -74,6 +75,15 @@ defmodule TannhauserGateWeb.MasterLive do
           title="Moderation"
         >
           Review and delete the latest chat messages and forum posts.
+        </.entry_point>
+
+        <.entry_point
+          id="master-chat-log"
+          navigate={~p"/g/#{@current_story}/master/chat-log"}
+          icon="hero-document-magnifying-glass"
+          title="Chat log"
+        >
+          Read the history of every room, archived messages included, by room and date.
         </.entry_point>
 
         <.entry_point

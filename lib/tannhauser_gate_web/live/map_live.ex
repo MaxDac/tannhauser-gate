@@ -1,7 +1,7 @@
 defmodule TannhauserGateWeb.MapLive do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Chat, Stories}
+  alias TannhauserGate.{Bookings, Chat, Stories}
   alias TannhauserGate.Stories.Location
 
   @impl true
@@ -12,12 +12,26 @@ defmodule TannhauserGateWeb.MapLive do
      socket
      |> assign(:story, story)
      |> assign(:counts, Chat.count_messages_by_location())
+     |> assign(:bookings, Bookings.upcoming_by_location(story.id))
      |> assign(:page_title, "#{story.name} · Map")}
   end
 
   @impl true
   def handle_event("enter_room", %{"id" => id}, socket) do
     {:noreply, push_navigate(socket, to: ~p"/g/#{socket.assigns.current_story}/rooms/#{id}")}
+  end
+
+  defp booking_line([]), do: "Private: free to book."
+
+  defp booking_line([booking | rest]) do
+    now = DateTime.utc_now()
+    who = booking.character.name
+    more = if rest == [], do: "", else: " (+#{length(rest)} more)"
+
+    if DateTime.compare(booking.starts_at, now) == :gt,
+      do:
+        "Next booking: #{who}, #{Calendar.strftime(booking.starts_at, "%d %b %H:%M")} UTC#{more}",
+      else: "Booked by #{who} until #{Calendar.strftime(booking.ends_at, "%H:%M")} UTC#{more}"
   end
 
   @impl true
@@ -29,6 +43,7 @@ defmodule TannhauserGateWeb.MapLive do
       current_path={@current_path}
       current_story={@current_story}
       story_role={@story_role}
+      online={@online}
     >
       <.header>
         {@story.name}
@@ -88,9 +103,21 @@ defmodule TannhauserGateWeb.MapLive do
                 <span class="flex items-center gap-2">
                   <span class="h-2.5 w-2.5 rounded-full" style={"background: #{location.color}"}></span>
                   {location.name}
+                  <.icon
+                    :if={location.private}
+                    name="hero-lock-closed"
+                    class="size-3 text-error"
+                  />
                 </span>
                 <span class="text-xs text-fog-500">{Map.get(@counts, location.id, 0)} msg</span>
               </.link>
+              <p
+                :if={location.private}
+                id={"room-bookings-#{location.id}"}
+                class="mt-1 px-3 text-xs text-fog-400"
+              >
+                {booking_line(Map.get(@bookings, location.id, []))}
+              </p>
             </li>
           </ul>
 

@@ -40,6 +40,10 @@ defmodule TannhauserGateWeb.Layouts do
     default: nil,
     doc: "the user's role in the GDR being visited (see `TannhauserGate.Stories.role/2`)"
 
+  attr :online, :list,
+    default: nil,
+    doc: "the users online in the GDR (see `TannhauserGateWeb.GdrPresence`)"
+
   slot :inner_block, required: true
 
   def app(%{current_user: nil} = assigns) do
@@ -214,6 +218,35 @@ defmodule TannhauserGateWeb.Layouts do
               </.nav_link>
             </li>
           </ul>
+
+          <section
+            :if={@current_story && @online}
+            id="online-users"
+            class="border-t border-secondary/20 pt-4"
+            aria-label="Online"
+          >
+            <h2 class="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-[0.2em] text-fog-400">
+              <span class="size-2 rounded-full bg-mint shadow-[0_0_8px] shadow-mint/70"></span>
+              Online <span class="text-fog-500">({length(@online)})</span>
+            </h2>
+            <ul class="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
+              <li
+                :for={entry <- @online}
+                id={"online-user-#{entry.user_id}"}
+                class="rounded-md px-2 py-1 text-xs transition-colors hover:bg-mint/5"
+              >
+                <span class="block truncate font-semibold text-fog-200">
+                  {entry.character_name || entry.username}
+                  <span :if={entry.character_name} class="font-normal text-fog-500">
+                    · {entry.username}
+                  </span>
+                </span>
+                <span :if={entry.location_name} class="block truncate text-fog-500">
+                  <.icon name="hero-map-pin-micro" class="size-3" /> {entry.location_name}
+                </span>
+              </li>
+            </ul>
+          </section>
 
           <ul class="menu mt-auto w-full gap-1 border-t border-secondary/20 p-0 pt-4">
             <li class="menu-title min-w-0 px-3 normal-case">
