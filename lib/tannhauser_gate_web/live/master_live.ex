@@ -32,7 +32,7 @@ defmodule TannhauserGateWeb.MasterLive do
       <.header>
         Master tools
         <:subtitle>Narrate {@current_story.name}: run its scenes, characters and forum.</:subtitle>
-        
+
         <:actions>
           <.button
             :if={@gdr_admin?}
@@ -43,7 +43,7 @@ defmodule TannhauserGateWeb.MasterLive do
           </.button>
         </:actions>
       </.header>
-      
+
       <div id="master-entry-points" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <.entry_point
           id="master-characters"
@@ -53,7 +53,7 @@ defmodule TannhauserGateWeb.MasterLive do
         >
           Open any character of this GDR and edit its sheet.
         </.entry_point>
-        
+
         <.entry_point
           id="master-map"
           navigate={~p"/g/#{@current_story}/map"}
@@ -62,7 +62,7 @@ defmodule TannhauserGateWeb.MasterLive do
         >
           Enter the chat rooms to narrate scenes.
         </.entry_point>
-        
+
         <.entry_point
           id="master-forum"
           navigate={~p"/g/#{@current_story}/forum"}
@@ -72,22 +72,22 @@ defmodule TannhauserGateWeb.MasterLive do
           Read every topic and delete posts that break the rules.
         </.entry_point>
       </div>
-      
+
       <section id="master-team" class="mt-10 max-w-3xl">
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">The team</h2>
-        
+
         <p class="mt-2 text-sm text-base-content/70">
           GDR admin:
           <span id="master-team-admin" class="font-semibold text-primary">
             {(@owner && @owner.username) || "Platform"}
           </span>
         </p>
-        
+
         <ul id="master-team-masters" phx-update="stream" class="mt-2 flex flex-wrap gap-2">
           <li id="master-team-empty" class="hidden text-sm text-base-content/60 only:block">
             No other masters yet.
           </li>
-          
+
           <li
             :for={{dom_id, master} <- @streams.masters}
             id={dom_id}
@@ -117,7 +117,7 @@ defmodule TannhauserGateWeb.MasterLive do
       <span class="flex items-center gap-2 font-bold uppercase tracking-wider text-primary">
         <.icon name={@icon} class="size-5" /> {@title}
       </span>
-       <span class="text-sm text-base-content/70">{render_slot(@inner_block)}</span>
+      <span class="text-sm text-base-content/70">{render_slot(@inner_block)}</span>
     </.link>
     """
   end
