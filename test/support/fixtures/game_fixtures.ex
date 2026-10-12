@@ -59,8 +59,6 @@ defmodule TannhauserGate.GameFixtures do
       |> Enum.into(%{
         name: "Story #{System.unique_integer([:positive])}",
         summary: "A rainy city.",
-        world_background: "Long ago...",
-        customs: "Bow politely.",
         map_svg: ~s(<rect width="1000" height="700" fill="#000"/>)
       })
       |> Stories.create_story()

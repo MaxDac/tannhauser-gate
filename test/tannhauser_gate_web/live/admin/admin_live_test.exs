@@ -55,7 +55,7 @@ defmodule TannhauserGateWeb.AdminLiveTest do
         |> form("#story-form",
           story: %{
             name: "Off-world",
-            world_background: "Colonies",
+            summary: "Colonies",
             map_width: 800,
             map_height: 600
           }

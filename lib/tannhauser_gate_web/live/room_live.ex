@@ -7,8 +7,9 @@ defmodule TannhauserGateWeb.RoomLive do
   use TannhauserGateWeb, :live_view
 
   import TannhauserGateWeb.ChatComponents
+  import TannhauserGateWeb.ZoneComponents
 
-  alias TannhauserGate.{Bookings, Characters, Chat, Dice, Sheet, Stories}
+  alias TannhauserGate.{Bookings, Characters, Chat, Dice, PeriodicActions, Sheet, Stories, Zones}
   alias TannhauserGateWeb.GdrPresence
 
   @page_size 50
@@ -56,8 +57,42 @@ defmodule TannhauserGateWeb.RoomLive do
     |> stream(:messages, [])
     |> assign(:access?, nil)
     |> GdrPresence.enter_location(location)
+    |> load_zone()
+    |> assign(:periodic_actions, PeriodicActions.list_actions(story))
+    |> assign(:action_result, nil)
+    |> load_cooldowns()
     |> load_bookings()
     |> refresh_access()
+  end
+
+  ## Zone and periodic actions
+
+  defp load_zone(socket) do
+    case Zones.zone_of(socket.assigns.location) do
+      nil ->
+        assign(socket, zone: nil, zone_values: [], zone_events: [])
+
+      zone ->
+        assign(socket,
+          zone: zone,
+          zone_values: Zones.zone_values(zone, public_only: !socket.assigns.master?),
+          zone_events: Zones.list_events(zone, 5)
+        )
+    end
+  end
+
+  defp load_cooldowns(socket) do
+    now = DateTime.utc_now()
+
+    cooldowns =
+      for action <- socket.assigns.periodic_actions,
+          character <- socket.assigns.characters,
+          into: %{},
+          do:
+            {{action.id, character.id},
+             PeriodicActions.cooldown_remaining(action, character, now)}
+
+    assign(socket, :cooldowns, cooldowns)
   end
 
   defp new_form(speakers, params \\ %{}) do
@@ -200,6 +235,28 @@ defmodule TannhauserGateWeb.RoomLive do
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Chat.error_message(reason))}
+    end
+  end
+
+  def handle_event(
+        "perform_action",
+        %{"action_id" => action_id, "character_id" => character_id},
+        socket
+      ) do
+    %{current_user: user, location: location} = socket.assigns
+    action = Enum.find(socket.assigns.periodic_actions, &(to_string(&1.id) == action_id))
+    character = Enum.find(socket.assigns.characters, &(to_string(&1.id) == character_id))
+
+    with true <- socket.assigns.access? == true and action != nil and character != nil,
+         true <- Characters.can_act_as?(user, character),
+         {:ok, log} <- PeriodicActions.perform(action, character, location, user: user) do
+      {:noreply, socket |> assign(:action_result, log) |> load_cooldowns()}
+    else
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, PeriodicActions.error_message(reason))}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "You cannot perform this action here.")}
     end
   end
 
@@ -420,6 +477,7 @@ defmodule TannhauserGateWeb.RoomLive do
         current_user={@current_user}
         master?={@master?}
       />
+      <.zone_panel :if={@zone} zone={@zone} values={@zone_values} events={@zone_events} />
       <section
         :if={!@access?}
         id="private-locked"
@@ -696,6 +754,14 @@ defmodule TannhauserGateWeb.RoomLive do
           </details>
         </div>
       </section>
+
+      <.actions_panel
+        :if={@access? && @periodic_actions != [] && @characters != []}
+        actions={@periodic_actions}
+        characters={@characters}
+        cooldowns={@cooldowns}
+        result={@action_result}
+      />
 
       <script :type={Phoenix.LiveView.ColocatedHook} name=".ScrollBottom">
         // Keeps the chat scrolled to the newest message unless the reader scrolled up,

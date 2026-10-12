@@ -9,7 +9,7 @@ defmodule TannhauserGate.Seeds do
 
   import Ecto.Query, warn: false
 
-  alias TannhauserGate.{Accounts, Bank, Forum, Repo, Sheet, Stories}
+  alias TannhauserGate.{Accounts, Bank, Forum, Guide, Repo, Sheet, Stories, Zones}
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Stories.Location
@@ -28,6 +28,8 @@ defmodule TannhauserGate.Seeds do
     seed_sections(story)
     seed_sheet(story)
     seed_jobs(story)
+    seed_guide(story)
+    seed_zones(story)
     %{admin: admin, story: story}
   end
 
@@ -68,9 +70,6 @@ defmodule TannhauserGate.Seeds do
     attrs = %{
       name: @story_name,
       summary: summary(),
-      world_background: world_background(),
-      customs: customs(),
-      rules: rules(),
       status: "published",
       theme: "tannhauser",
       currency_name: "credits",
@@ -91,7 +90,7 @@ defmodule TannhauserGate.Seeds do
           # forum: fill in whatever is still blank, never overwrite edits.
           blanks =
             for {key, value} <-
-                  Map.take(attrs, [:summary, :world_background, :customs, :rules, :map_svg]),
+                  Map.take(attrs, [:summary, :map_svg]),
                 Map.get(story, key) in [nil, ""],
                 into: %{},
                 do: {key, value}
@@ -204,6 +203,77 @@ defmodule TannhauserGate.Seeds do
     end
 
     :ok
+  end
+
+  ## Guide and zones
+
+  @doc "Seeds the guide of the default story when it has none."
+  def seed_guide(story) do
+    if Guide.list_sections(story) == [] do
+      {:ok, world} = Guide.create_section(story, %{title: "The world", position: 0})
+
+      [{"Background", world_background()}, {"Rules", rules()}, {"Customs", customs()}]
+      |> Enum.with_index()
+      |> Enum.each(fn {{title, body}, index} ->
+        {:ok, _} =
+          Guide.create_page(story, %{
+            section_id: world.id,
+            title: title,
+            body: body,
+            position: index
+          })
+      end)
+    end
+
+    :ok
+  end
+
+  @doc "Seeds the zones of the default city when it has none."
+  def seed_zones(story) do
+    if Zones.list_zones(story) == [] do
+      {:ok, _} =
+        Zones.create_property(story, %{name: "Danger", slug: "danger", default_value: 2})
+
+      {:ok, _} =
+        Zones.create_property(story, %{
+          name: "Surveillance",
+          slug: "surveillance",
+          default_value: 3,
+          public: false
+        })
+
+      locations = Map.new(Stories.list_locations(story), &{&1.name, &1})
+
+      Enum.each(zones(), &seed_zone(story, locations, &1))
+    end
+
+    :ok
+  end
+
+  defp seed_zone(story, locations, {name, description, values, rooms}) do
+    {:ok, zone} =
+      Zones.create_zone(story, %{name: name, description: description, values: values})
+
+    for {_name, location} <- Map.take(locations, rooms) do
+      {:ok, _} = Stories.update_location(location, %{zone_id: zone.id})
+    end
+  end
+
+  defp zones do
+    [
+      {"Upper tiers", "Corporate towers above the haze, watched by every lens in the city.",
+       %{"danger" => 1, "surveillance" => 5},
+       ["Zenith Spire", "Precinct 9 Station", "Sentinel Tower Rooftop"]},
+      {"Undercity", "Canals, markets and alleys where nobody asks your name.",
+       %{"danger" => 4, "surveillance" => 1},
+       [
+         "Neon Bazaar",
+         "Ozu's Noodle Counter",
+         "Old Arcade Hotel",
+         "Lacuna Memory Atelier",
+         "Undercity Docks"
+       ]}
+    ]
   end
 
   ## Lore

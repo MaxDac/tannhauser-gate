@@ -1,8 +1,12 @@
 defmodule TannhauserGate.Stories.Story do
   @moduledoc """
-  A story is a GDR (role playing game): its world, rules, theme and map. It is
+  A story is a GDR (role playing game): its theme, map and settings. Its world,
+  rules and customs live in its guide (`TannhauserGate.Guide`). It is
   configured by its GDR admin (the owner, a game master), or by the platform
   when it has no owner, and narrated by its masters.
+
+  The legacy `world_background`, `rules` and `customs` columns are deprecated:
+  they were migrated to guide pages, are no longer mapped and will be dropped.
   """
 
   use Ecto.Schema
@@ -16,9 +20,6 @@ defmodule TannhauserGate.Stories.Story do
   schema "stories" do
     field :name, :string
     field :summary, :string
-    field :world_background, :string
-    field :rules, :string
-    field :customs, :string
     field :map_svg, :string
     field :map_width, :integer, default: 1000
     field :map_height, :integer, default: 700
@@ -47,9 +48,6 @@ defmodule TannhauserGate.Stories.Story do
   @gm_fields [
     :name,
     :summary,
-    :world_background,
-    :rules,
-    :customs,
     :map_svg,
     :map_width,
     :map_height,
@@ -86,8 +84,6 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_required([:name, :map_width, :map_height, :currency_name])
     |> validate_length(:name, max: 120)
     |> validate_length(:currency_name, max: 30)
-    |> validate_length(:rules, max: 50_000)
-    |> validate_length(:world_background, max: 50_000)
     |> validate_number(:map_width, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:map_height, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:pay_interval_hours, greater_than: 0, less_than_or_equal_to: 720)
