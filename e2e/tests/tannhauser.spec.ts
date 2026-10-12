@@ -92,6 +92,13 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await expect(page.locator("#character-form").getByRole("button", { name: "Remove image" })).toBeVisible();
   await page.getByLabel("Description").fill("Trench coat, tired eyes.");
   await page.getByLabel("Background").fill("A former Warden of Precinct 9.");
+  // Wizard: identity, then one step per sheet category, then the review
+  for (const step of ["attribute", "skill", "power"]) {
+    await page.locator("#wizard-next").click();
+    await expect(page.locator(`#sheet-${step}`)).toBeVisible();
+  }
+  await page.locator("#wizard-next").click();
+  await expect(page.locator("#review-step")).toContainText(characterName);
   await page.getByRole("button", { name: "Save character" }).click();
   await expect(page.locator("#character-sheet")).toContainText(characterName);
   await expect(page.locator("#character-sheet")).toContainText("A former Warden of Precinct 9.");

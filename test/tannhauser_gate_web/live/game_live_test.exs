@@ -91,7 +91,8 @@ defmodule TannhauserGateWeb.GameLiveTest do
 
       assert has_element?(lv, "#character-form input[type='file'].console-field")
       assert has_element?(lv, "#avatar-hint")
-      assert has_element?(lv, "#trait-#{strength.id}")
+      assert has_element?(lv, "#wizard-step-identity")
+      refute has_element?(lv, "#trait-#{strength.id}")
 
       avatar =
         file_input(lv, "#character-form", :avatar, [
@@ -100,16 +101,28 @@ defmodule TannhauserGateWeb.GameLiveTest do
 
       assert render_upload(avatar, "deckard.png") =~ "Remove"
 
+      lv
+      |> form("#character-form",
+        character: %{
+          name: "Deckard",
+          description: "Trench coat, tired eyes.",
+          background: "Former Warden."
+        }
+      )
+      |> render_submit()
+
+      assert has_element?(lv, "#trait-#{strength.id}")
+
+      lv
+      |> form("#character-form", character: %{traits: %{to_string(strength.id) => "4"}})
+      |> render_submit()
+
+      assert has_element?(lv, "#review-step")
+      assert has_element?(lv, "#review-attribute", "Strength")
+
       assert {:ok, _show, html} =
                lv
-               |> form("#character-form",
-                 character: %{
-                   name: "Deckard",
-                   description: "Trench coat, tired eyes.",
-                   background: "Former Warden.",
-                   traits: %{to_string(strength.id) => "4"}
-                 }
-               )
+               |> form("#character-form")
                |> render_submit()
                |> follow_redirect(conn)
 
@@ -128,15 +141,14 @@ defmodule TannhauserGateWeb.GameLiveTest do
       strength = sheet_item_fixture(story, %{name: "Strength", min_value: 1, max_value: 5})
       {:ok, lv, _html} = live(conn, ~p"/g/#{story}/characters/new")
 
-      html =
-        lv
-        |> form("#character-form",
-          character: %{name: "Too strong", traits: %{to_string(strength.id) => "9"}}
-        )
-        |> render_submit()
+      lv |> form("#character-form", character: %{name: "Too strong"}) |> render_submit()
 
-      assert html =~ "Strength"
-      assert html =~ "between"
+      lv
+      |> form("#character-form", character: %{traits: %{to_string(strength.id) => "9"}})
+      |> render_submit()
+
+      assert has_element?(lv, "#step-errors", "between")
+      refute has_element?(lv, "#review-step")
       assert Characters.list_story_characters(story.id) == []
     end
 

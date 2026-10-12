@@ -6,17 +6,20 @@ defmodule TannhauserGateWeb.GmLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bank, Characters, Forum, Sheet, Stories}
+  alias TannhauserGate.{Bank, Characters, Forum, Sheet, Stories, Trackers}
   alias TannhauserGate.Bank.Job
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Sheet.Item
   alias TannhauserGate.Stories.{Location, Themes}
+  alias TannhauserGate.Trackers.Tracker
 
   @tabs [
     {"general", "General"},
     {"theme", "Theme"},
     {"sheet", "Sheet"},
+    {"creation", "Creation & XP"},
+    {"trackers", "Trackers"},
     {"states", "States"},
     {"jobs", "Jobs"},
     {"balances", "Balances"},
@@ -51,6 +54,27 @@ defmodule TannhauserGateWeb.GmLive do
     socket
     |> assign(:items, Sheet.list_items(story(socket)))
     |> assign_item_form(%Item{})
+  end
+
+  defp load(socket, "creation") do
+    story = story(socket)
+
+    socket
+    |> assign(:items_by_kind, Sheet.items_by_kind(story))
+    |> assign(:slugs, Sheet.slugs(story))
+    |> assign(
+      :category_forms,
+      Map.new(Sheet.categories(story), fn {kind, category} ->
+        {kind, category_form(Sheet.change_category(category), kind)}
+      end)
+    )
+  end
+
+  defp load(socket, "trackers") do
+    socket
+    |> assign(:trackers, Trackers.list_trackers(story(socket)))
+    |> assign(:slugs, Sheet.slugs(story(socket)))
+    |> assign_tracker_form(%Tracker{story_id: story(socket).id})
   end
 
   defp load(socket, "states") do
@@ -98,6 +122,15 @@ defmodule TannhauserGateWeb.GmLive do
       socket
       |> assign(:item, item)
       |> assign(:item_form, to_form(Sheet.change_item(item), as: :item))
+
+  defp category_form(changeset, kind),
+    do: to_form(changeset, as: :category, id: "category-#{kind}")
+
+  defp assign_tracker_form(socket, tracker) do
+    socket
+    |> assign(:tracker, tracker)
+    |> assign(:tracker_form, to_form(Trackers.change_tracker(tracker), as: :tracker))
+  end
 
   defp assign_state_form(socket, state),
     do:
@@ -166,6 +199,59 @@ defmodule TannhauserGateWeb.GmLive do
   end
 
   def handle_event("cancel_item", _, socket), do: {:noreply, assign_item_form(socket, %Item{})}
+
+  ## Creation budgets and XP costs
+
+  def handle_event("save_category", %{"kind" => kind, "category" => params}, socket) do
+    if kind in Sheet.kinds() do
+      case Sheet.save_category(story(socket), kind, params) do
+        {:ok, _} ->
+          {:noreply,
+           socket |> put_flash(:info, "#{Sheet.kind_label(kind)} saved") |> load("creation")}
+
+        {:error, changeset} ->
+          {:noreply,
+           assign(
+             socket,
+             :category_forms,
+             Map.put(socket.assigns.category_forms, kind, category_form(changeset, kind))
+           )}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  ## Trackers
+
+  def handle_event("save_tracker", %{"tracker" => params}, socket) do
+    tracker = socket.assigns.tracker
+
+    result =
+      if tracker.id,
+        do: Trackers.update_tracker(tracker, params),
+        else: Trackers.create_tracker(story(socket), params)
+
+    case result do
+      {:ok, _} ->
+        {:noreply, socket |> put_flash(:info, "Tracker saved") |> load("trackers")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :tracker_form, to_form(changeset, as: :tracker))}
+    end
+  end
+
+  def handle_event("edit_tracker", %{"id" => id}, socket) do
+    {:noreply, assign_tracker_form(socket, Trackers.get_tracker!(story(socket), id))}
+  end
+
+  def handle_event("delete_tracker", %{"id" => id}, socket) do
+    {:ok, _} = story(socket) |> Trackers.get_tracker!(id) |> Trackers.delete_tracker()
+    {:noreply, load(socket, "trackers")}
+  end
+
+  def handle_event("cancel_tracker", _, socket),
+    do: {:noreply, assign_tracker_form(socket, %Tracker{story_id: story(socket).id})}
 
   ## Character states
 
@@ -378,6 +464,8 @@ defmodule TannhauserGateWeb.GmLive do
       <div class="mt-6">
         <.general_tab :if={@tab == "general"} {assigns} />
         <.theme_tab :if={@tab == "theme"} {assigns} /> <.sheet_tab :if={@tab == "sheet"} {assigns} />
+        <.creation_tab :if={@tab == "creation"} {assigns} />
+        <.trackers_tab :if={@tab == "trackers"} {assigns} />
         <.states_tab :if={@tab == "states"} {assigns} />
         <.jobs_tab :if={@tab == "jobs"} {assigns} />
         <.balances_tab :if={@tab == "balances"} {assigns} />
@@ -477,6 +565,12 @@ defmodule TannhauserGateWeb.GmLive do
             label="Kind"
             options={Enum.map(Sheet.kinds(), &{String.capitalize(&1), &1})}
           /> <.input field={@item_form[:name]} type="text" label="Name" required />
+          <.input
+            field={@item_form[:slug]}
+            type="text"
+            label="Key for formulas"
+            placeholder="Derived from the name, e.g. blood_potency"
+          />
           <.input field={@item_form[:description]} type="textarea" label="Description" rows="2" />
           <div class="grid grid-cols-3 gap-3">
             <.input field={@item_form[:min_value]} type="number" label="Min" />
@@ -505,7 +599,10 @@ defmodule TannhauserGateWeb.GmLive do
               id={"item-#{i.id}"}
               class="flex items-center justify-between gap-2 py-1.5 text-sm"
             >
-              <span>{i.name} <span class="text-base-content/50">{i.min_value}–{i.max_value}</span></span>
+              <span>
+                {i.name} <span class="text-base-content/50">{i.min_value}–{i.max_value}</span>
+                <code class="ml-1 text-xs text-secondary/70">{i.slug}</code>
+              </span>
               <span class="flex gap-3">
                 <.link phx-click="edit_item" phx-value-id={i.id}>Edit</.link>
                 <.link
@@ -519,6 +616,191 @@ defmodule TannhauserGateWeb.GmLive do
             </li>
           </ul>
         </div>
+      </.panel>
+    </div>
+    """
+  end
+
+  defp creation_tab(assigns) do
+    ~H"""
+    <div class="space-y-6">
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          Character creation and XP
+        </h2>
+        <p class="mt-1 text-sm text-base-content/70">
+          For each category choose how players build a new character: <strong>free</strong>
+          (any value within each item range), a <strong>points pool</strong>
+          to spend above the starting value, or a <strong>distribution</strong>
+          of values to assign (e.g. <code>4,3,3,2,2,2,1</code>; the other items keep the
+          starting value). Masters creating NPCs or editing characters are never limited.
+        </p>
+        <p class="mt-2 text-sm text-base-content/70">
+          The XP cost formula gives the price to raise an item by one point. It can use <code>current</code>, <code>next</code>, whole numbers, <code>+ - * /</code>, <code>min(a, b)</code>, <code>max(a, b)</code>, parentheses and the item keys. Leave it
+          empty to forbid raising that category with XP.
+        </p>
+        <p :if={@slugs != []} id="formula-keys" class="mt-2 text-xs text-base-content/60">
+          Item keys: <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
+        </p>
+      </.panel>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <.panel :for={kind <- Sheet.kinds()}>
+          <h3 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {Sheet.kind_label(kind)}
+            <span class="ml-1 text-xs font-normal normal-case tracking-normal text-base-content/50">
+              {length(@items_by_kind[kind])} items
+            </span>
+          </h3>
+
+          <.form
+            for={@category_forms[kind]}
+            id={"category-form-#{kind}"}
+            phx-submit="save_category"
+          >
+            <input type="hidden" name="kind" value={kind} />
+            <.input
+              field={@category_forms[kind][:creation_mode]}
+              type="select"
+              label="Creation"
+              options={[
+                {"Free", "free"},
+                {"Points pool", "points"},
+                {"Distribution", "distribution"}
+              ]}
+            />
+            <.input
+              field={@category_forms[kind][:starting_value]}
+              type="number"
+              label="Starting value"
+            />
+            <.input
+              field={@category_forms[kind][:creation_points]}
+              type="number"
+              label="Points pool (points mode)"
+              min="0"
+            />
+            <.input
+              field={@category_forms[kind][:creation_distribution]}
+              type="text"
+              label="Values to assign (distribution mode)"
+              placeholder="4,3,3,2,2,2,1"
+            />
+            <.input
+              field={@category_forms[kind][:xp_cost_formula]}
+              type="text"
+              label="XP cost formula"
+              placeholder="next * 5"
+            />
+            <.button phx-disable-with="Saving...">Save {String.downcase(Sheet.kind_label(kind))}</.button>
+          </.form>
+        </.panel>
+      </div>
+    </div>
+    """
+  end
+
+  defp trackers_tab(assigns) do
+    ~H"""
+    <div class="grid gap-6 lg:grid-cols-2">
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {if @tracker.id, do: "Edit tracker", else: "New tracker"}
+        </h2>
+        <p class="mt-1 text-sm text-base-content/60">
+          Trackers are resources every character has, like health, willpower or hunger.
+          The maximum is a number or a formula over the item keys (e.g. <code>stamina + 3</code>). With damage types (e.g. <code>superficial, aggravated</code>)
+          the tracker counts damage of each type instead of a single value.
+        </p>
+
+        <.form for={@tracker_form} id="tracker-form" phx-submit="save_tracker">
+          <.input field={@tracker_form[:name]} type="text" label="Name" required />
+          <.input
+            field={@tracker_form[:slug]}
+            type="text"
+            label="Key"
+            placeholder="Derived from the name, e.g. willpower"
+          />
+          <.input
+            field={@tracker_form[:max_formula]}
+            type="text"
+            label="Maximum (number or formula)"
+            placeholder="composure + resolve"
+            required
+          />
+          <.input
+            field={@tracker_form[:damage_types]}
+            type="text"
+            label="Damage types (optional, comma separated)"
+            value={Enum.join(List.wrap(@tracker_form[:damage_types].value), ", ")}
+            placeholder="superficial, aggravated"
+          />
+          <div class="grid grid-cols-2 gap-3">
+            <.input field={@tracker_form[:position]} type="number" label="Order" />
+          </div>
+          <.input
+            field={@tracker_form[:starts_full]}
+            type="checkbox"
+            label="Starts full (otherwise starts at 0)"
+          />
+          <.input
+            field={@tracker_form[:public]}
+            type="checkbox"
+            label="Visible to everyone on the public sheet"
+          />
+          <p :if={@slugs != []} class="mb-3 text-xs text-base-content/60">
+            Item keys: <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
+          </p>
+          <div class="flex gap-3">
+            <.button phx-disable-with="Saving...">Save tracker</.button>
+            <.link
+              :if={@tracker.id}
+              id="cancel-tracker"
+              phx-click="cancel_tracker"
+              class="self-center"
+            >
+              Cancel
+            </.link>
+          </div>
+        </.form>
+      </.panel>
+
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Trackers</h2>
+
+        <p :if={@trackers == []} class="mt-2 text-sm text-base-content/60">No trackers yet.</p>
+
+        <ul id="trackers" class="mt-1 divide-y divide-secondary/10">
+          <li
+            :for={t <- @trackers}
+            id={"tracker-#{t.id}"}
+            class="flex items-center justify-between gap-2 py-1.5 text-sm"
+          >
+            <span>
+              {t.name} <code class="ml-1 text-xs text-secondary/70">{t.slug}</code>
+              <span class="block text-xs text-base-content/60">
+                max <code>{t.max_formula}</code>
+                <span :if={t.damage_types != []}>· {Enum.join(t.damage_types, " / ")}</span>
+                <span class="badge badge-xs badge-soft ml-1">
+                  {if t.public, do: "public", else: "private"}
+                </span>
+              </span>
+            </span>
+            <span class="flex gap-3">
+              <.link id={"edit-tracker-#{t.id}"} phx-click="edit_tracker" phx-value-id={t.id}>
+                Edit
+              </.link>
+              <.link
+                id={"delete-tracker-#{t.id}"}
+                phx-click="delete_tracker"
+                phx-value-id={t.id}
+                data-confirm="Delete this tracker? Every character loses its value."
+              >
+                Delete
+              </.link>
+            </span>
+          </li>
+        </ul>
       </.panel>
     </div>
     """

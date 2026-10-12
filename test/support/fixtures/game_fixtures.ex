@@ -130,6 +130,24 @@ defmodule TannhauserGate.GameFixtures do
     Characters.get_character!(character.id)
   end
 
+  def tracker_fixture(story, attrs \\ %{}) do
+    {:ok, tracker} =
+      TannhauserGate.Trackers.create_tracker(
+        story,
+        Enum.into(attrs, %{
+          "name" => "Tracker #{System.unique_integer([:positive])}",
+          "max_formula" => "5"
+        })
+      )
+
+    tracker
+  end
+
+  def category_fixture(story, kind, attrs) do
+    {:ok, category} = TannhauserGate.Sheet.save_category(story, kind, attrs)
+    category
+  end
+
   def message_fixture(user, location, character, body \\ "Hello from the rain") do
     {:ok, message} =
       Chat.create_message(user, location, %{"character_id" => character.id, "body" => body})
