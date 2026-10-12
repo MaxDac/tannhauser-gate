@@ -21,6 +21,7 @@ defmodule TannhauserGateWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/terms", PageController, :terms
   end
 
   scope "/", TannhauserGateWeb do

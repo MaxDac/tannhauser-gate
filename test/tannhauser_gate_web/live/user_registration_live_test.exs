@@ -34,6 +34,36 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
       assert result =~ "must have the @ sign and no spaces"
       assert result =~ "should be at least 12 character"
     end
+
+    test "shows the terms checkbox, linked to the terms page", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      assert has_element?(lv, "#registration_form input[type=checkbox][name='user[terms_accepted]']")
+      assert has_element?(lv, "#terms-link[href='/terms'][target='_blank']")
+    end
+
+    test "requires accepting the terms", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      attrs = valid_user_attributes(terms_accepted: false)
+
+      result =
+        lv
+        |> form("#registration_form", user: attrs)
+        |> render_submit()
+
+      assert result =~ "must be accepted to register"
+      refute TannhauserGate.Accounts.get_user_by_email(attrs.email)
+    end
+  end
+
+  describe "terms page" do
+    test "is public and describes the terms", %{conn: conn} do
+      html = conn |> get(~p"/terms") |> html_response(200)
+
+      assert html =~ ~s(id="terms")
+      assert html =~ "Terms and disclaimer"
+    end
   end
 
   describe "register user" do
@@ -46,6 +76,7 @@ defmodule TannhauserGateWeb.UserRegistrationLiveTest do
       conn = follow_trigger_action(form, conn)
 
       assert redirected_to(conn) == ~p"/gdrs"
+      assert %{accepted_terms_at: %DateTime{}} = TannhauserGate.Accounts.get_user_by_email(attrs.email)
 
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/gdrs")

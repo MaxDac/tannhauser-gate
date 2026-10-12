@@ -2,6 +2,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
   use TannhauserGateWeb, :live_view
 
   alias TannhauserGate.Characters
+  alias TannhauserGateWeb.GdrPresence
 
   @impl true
   def mount(_params, _session, socket) do
@@ -27,6 +28,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       current_story={@current_story}
       story_role={@story_role}
       online={@online}
+      last_location={@last_location}
       mail_unread={@mail_unread}
     >
       <.header>
@@ -60,16 +62,27 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       </p>
 
       <div id="characters" phx-update="stream" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <.link
+        <article
           :for={{dom_id, character} <- @streams.characters}
           id={dom_id}
-          navigate={~p"/g/#{@current_story}/characters/#{character}"}
-          class="group flex items-center gap-4 rounded-xl border border-secondary/20 bg-base-200/80 p-4 transition hover:border-primary/60 hover:shadow-phosphor"
+          class="group relative flex items-center gap-4 rounded-xl border border-secondary/20 bg-base-200/80 p-4 transition hover:border-primary/60 hover:shadow-phosphor focus-within:z-10"
         >
-          <.avatar character={character} class="h-16 w-16 text-2xl" />
+          <.link
+            navigate={~p"/g/#{@current_story}/characters/#{character}"}
+            aria-label={"#{character.name}'s sheet"}
+            class="shrink-0 transition-transform hover:scale-105"
+          >
+            <.avatar character={character} class="h-16 w-16 text-2xl" />
+          </.link>
           <div class="min-w-0">
-            <p class="flex items-center gap-2 truncate text-lg font-bold text-base-content group-hover:text-primary">
-              {character.name}
+            <div class="flex items-center gap-2 text-lg font-bold text-base-content">
+              <.character_quick_links
+                id={"#{dom_id}-links"}
+                story={@current_story}
+                character={character}
+                location={GdrPresence.character_location(@online, character.id, @master?)}
+                class="truncate hover:text-primary"
+              />
               <span :if={character.is_npc} class="badge badge-xs badge-secondary">NPC</span>
               <span
                 :if={!character.is_npc and character.approval_status != "approved"}
@@ -77,7 +90,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
               >
                 {Characters.approval_label(character.approval_status)}
               </span>
-            </p>
+            </div>
 
             <p class="truncate text-xs uppercase tracking-wider text-secondary">
               {(character.job && character.job.name) || "No job"} · {if character.is_npc,
@@ -87,7 +100,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
 
             <p class="mt-1 line-clamp-2 text-sm text-base-content/60">{character.description}</p>
           </div>
-        </.link>
+        </article>
       </div>
     </Layouts.app>
     """

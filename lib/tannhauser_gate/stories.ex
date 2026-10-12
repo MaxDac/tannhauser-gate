@@ -10,7 +10,7 @@ defmodule TannhauserGate.Stories do
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Characters
   alias TannhauserGate.Repo
-  alias TannhauserGate.Stories.{Location, Story, StoryMaster}
+  alias TannhauserGate.Stories.{LastLocation, Location, Story, StoryMaster}
 
   ## Stories
 
@@ -276,4 +276,42 @@ defmodule TannhauserGate.Stories do
 
   def change_location(%Location{} = location, attrs \\ %{}),
     do: Location.changeset(location, attrs)
+
+  ## Return to chat
+
+  @doc "Remembers `location` as the last chat room the user visited in its GDR."
+  def remember_location(%User{id: user_id}, %Location{id: location_id, story_id: story_id}) do
+    now = DateTime.utc_now(:second)
+
+    Repo.insert_all(
+      LastLocation,
+      [
+        %{
+          user_id: user_id,
+          story_id: story_id,
+          location_id: location_id,
+          inserted_at: now,
+          updated_at: now
+        }
+      ],
+      on_conflict: [set: [location_id: location_id, updated_at: now]],
+      conflict_target: [:user_id, :story_id]
+    )
+
+    :ok
+  end
+
+  def remember_location(_, _), do: :ok
+
+  @doc "The last chat room the user visited in the GDR, if any."
+  def last_location(%User{id: user_id}, story_id) do
+    Repo.one(
+      from ll in LastLocation,
+        join: l in assoc(ll, :location),
+        where: ll.user_id == ^user_id and ll.story_id == ^story_id and l.story_id == ^story_id,
+        select: l
+    )
+  end
+
+  def last_location(_, _), do: nil
 end

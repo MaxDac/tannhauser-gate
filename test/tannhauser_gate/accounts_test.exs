@@ -91,6 +91,18 @@ defmodule TannhauserGate.AccountsTest do
       assert is_binary(user.hashed_password)
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
+      assert %DateTime{} = user.accepted_terms_at
+    end
+
+    test "requires accepting the terms" do
+      {:error, changeset} =
+        Accounts.register_user(valid_user_attributes(terms_accepted: false))
+
+      assert %{terms_accepted: ["must be accepted to register"]} = errors_on(changeset)
+
+      attrs = Map.delete(valid_user_attributes(), :terms_accepted)
+      {:error, changeset} = Accounts.register_user(attrs)
+      assert %{terms_accepted: ["must be accepted to register"]} = errors_on(changeset)
     end
   end
 

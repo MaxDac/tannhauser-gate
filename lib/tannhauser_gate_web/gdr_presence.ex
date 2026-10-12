@@ -11,7 +11,7 @@ defmodule TannhauserGateWeb.GdrPresence do
   import Phoenix.Component, only: [assign: 3]
   import Phoenix.LiveView, only: [attach_hook: 4, connected?: 1]
 
-  alias TannhauserGate.Characters
+  alias TannhauserGate.{Characters, Stories}
   alias TannhauserGateWeb.Presence
 
   def topic(story_id), do: "presence:story:#{story_id}"
@@ -19,6 +19,7 @@ defmodule TannhauserGateWeb.GdrPresence do
   def on_mount(:track, _params, _session, socket) do
     story = socket.assigns.current_story
     user = socket.assigns.current_user
+    socket = assign(socket, :last_location, Stories.last_location(user, story.id))
 
     if connected?(socket) do
       topic = topic(story.id)
@@ -28,9 +29,11 @@ defmodule TannhauserGateWeb.GdrPresence do
         Presence.track(self(), topic, to_string(user.id), %{
           user_id: user.id,
           username: user.username,
+          character_id: character && character.id,
           character_name: character && character.name,
           location_id: nil,
           location_name: nil,
+          location_private: false,
           online_at: System.system_time(:millisecond)
         })
 
@@ -51,19 +54,46 @@ defmodule TannhauserGateWeb.GdrPresence do
 
   defp handle_info(_message, socket), do: {:cont, socket}
 
-  @doc "Records that the current LiveView user is in a location."
+  @doc """
+  Records that the current LiveView user is in a location: updates their
+  presence and remembers it as their last chat room (see "Return to chat").
+  """
   def enter_location(socket, location) do
+    user = socket.assigns.current_user
+
     if connected?(socket) do
-      user = socket.assigns.current_user
       topic = topic(socket.assigns.current_story.id)
+      :ok = Stories.remember_location(user, location)
 
       Presence.update(self(), topic, to_string(user.id), fn meta ->
-        %{meta | location_id: location.id, location_name: location.name}
+        Map.merge(meta, %{
+          location_id: location.id,
+          location_name: location.name,
+          location_private: location.private
+        })
       end)
     end
 
-    socket
+    assign(socket, :last_location, location)
   end
+
+  @doc """
+  The location a character is in, from the online list, when the viewer may
+  follow them there: public locations for everyone, private ones only for
+  the masters (who can always enter). `nil` when offline or not in a room.
+  """
+  def character_location(online, character_id, master? \\ false)
+
+  def character_location(online, character_id, master?)
+      when is_list(online) and not is_nil(character_id) do
+    Enum.find_value(online, fn entry ->
+      if entry[:character_id] == character_id and entry[:location_id] &&
+           (master? or !entry[:location_private]),
+         do: %{id: entry.location_id, name: entry.location_name}
+    end)
+  end
+
+  def character_location(_, _, _), do: nil
 
   @doc """
   The users online in a GDR: one entry per user (their most recent page),

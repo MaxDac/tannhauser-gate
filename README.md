@@ -21,7 +21,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
 
 ## Features
 
-- **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master).
+- **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master). Registering requires ticking "I accept the terms and disclaimer" (linked to the static `/terms` page); the acceptance time is stored in `users.accepted_terms_at` (nil for accounts created before the checkbox existed).
 - **GDR selection** (`/gdrs`): after login, players choose a published GDR to enter. Each GDR lives under `/g/:id/...`.
 - **Requesting a GDR:** a GM files a request (`/gdrs/request`). An admin approves or rejects it (`/admin/requests`). Approval creates a draft GDR owned by the GM. Each GM runs at most one GDR.
 - **Roles per GDR** (helpers in `TannhauserGate.Stories`: `role/2`, `gdr_admin?/2`, `master?/2`):
@@ -31,6 +31,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - **players**: everyone else. Draft GDRs are visible only to their admin and masters.
 - **GM dashboard** (`/g/:id/gm`, only the GDR admin and platform admins):
   - name, summary, status (draft or published);
+  - the **community link**: an optional http(s) URL (e.g. a Discord server) with a label, shown in the GDR navigation as an external link;
   - the **guide** (`/g/:id/gm/guide`): sections holding ordered Markdown pages, edited with a live preview;
   - **zones** (`/g/:id/gm/zones`): numeric zone properties (name, key, default, visible to players or masters only) and zones with a value per property. Each room belongs to at most one zone, picked in the map tab;
   - **periodic actions** (`/g/:id/gm/actions`, e.g. a hunt): a dice pool of sheet items, a difficulty taken from a zone property of the room's zone or set by the masters per character (with a default), a tracker effect on success and on failure (a change, optionally on a damage type) and a cooldown in hours;
@@ -71,6 +72,8 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
 - **Zones** (`TannhauserGate.Zones`): rooms are grouped into zones carrying the GDR's numeric properties. A room shows its zone, the public property values (all of them for masters) and the latest zone events.
 - **Periodic actions** (`TannhauserGate.PeriodicActions`): from a room, a player with a playable character performs a configured action. It rolls the dice pool with the GDR dice system against the difficulty (zone property of the room or per-character value), applies the success or failure effect through `Trackers.adjust/3`, starts the cooldown and logs the result. The result is shown to the player and in the masters' log.
 - **Presence** (`TannhauserGateWeb.GdrPresence`): the drawer lists who is online in the GDR, with their character and current room.
+- **Return to chat:** entering a room remembers it as the user's last chat room in that GDR (`user_story_locations`, `Stories.remember_location/2` and `Stories.last_location/2`). The drawer (and the mobile top bar) shows a "Return to chat" link to it everywhere in the GDR except in that room.
+- **Character quick links** (`<.character_quick_links>` in `TannhauserGateWeb.CharacterComponents`): character names in the online list, the chat speakers and the character list open a small menu to view the sheet, send a letter (compose page with the character prefilled) and, when the character is online in a room, go there. Public rooms are offered to everyone, private ones only to the masters (who can always enter them).
 - **Mailbox** (`TannhauserGate.Mailbox`, `/g/:id/mail`): character-to-character letters inside one GDR. A message is sent *as* one of the characters the user can play (masters also as their NPCs or as "The masters") to any approved character, or to "The masters" (a shared mailbox read by every master). Masters can write to any character of the GDR. The inbox and sent views show read state; messages can be replied to (prefilled "Re:" subject) and deleted one by one or in bulk, independently on each side. The drawer shows the unread count, and a new letter flashes a live notification (PubSub topic `"mailbox:story:#{id}"`). Character pages have a "Send message" button and the master character dashboard a "Message owner" action.
 - **Forum:** one forum per GDR: sections → topics → posts, with posts listed oldest first.
   - **On-game / off-game sections:** on-game topics and posts are written as one of the user's characters that can play (`Characters.can_play?/1`; masters can also write as NPCs); off-game ones are signed by the user.

@@ -41,6 +41,24 @@ defmodule TannhauserGateWeb.UserRegistrationLive do
           />
           <.input field={@form[:email]} type="email" label="Email" required />
           <.input field={@form[:password]} type="password" label="Password" required />
+          <.input
+            field={@form[:terms_accepted]}
+            type="checkbox"
+            label="I accept the terms and disclaimer"
+          />
+          <p id="terms-link-hint" class="-mt-1 mb-2 text-xs text-fog-400">
+            Read the
+            <.link
+              id="terms-link"
+              href={~p"/terms"}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-semibold text-mint hover:underline"
+            >
+              terms and disclaimer
+            </.link>
+            before registering.
+          </p>
 
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
             <.button
