@@ -45,6 +45,13 @@ defmodule TannhauserGate.Accounts do
   end
 
   @doc """
+  Gets a user by username.
+  """
+  def get_user_by_username(username) when is_binary(username) do
+    Repo.get_by(User, username: String.trim(username))
+  end
+
+  @doc """
   Gets a user by username and password.
   """
   def get_user_by_username_and_password(username, password)

@@ -13,6 +13,7 @@ defmodule TannhauserGate.Characters do
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Repo
   alias TannhauserGate.Sheet.{Item, Trait}
+  alias TannhauserGate.Stories
 
   def list_characters do
     Repo.all(
@@ -128,21 +129,15 @@ defmodule TannhauserGate.Characters do
     do: character |> Character.changeset(attrs) |> validate_traits(attrs)
 
   @doc """
-  Owners, admins and the game master of the character's GDR can edit a character.
+  Owners, platform admins and the GDR admin and masters of the character's GDR
+  can edit a character.
   """
   def can_edit?(%User{} = user, %Character{} = character) do
-    character.user_id == user.id or Accounts.admin?(user) or gm_of?(user, character)
+    character.user_id == user.id or Accounts.admin?(user) or
+      Stories.master?(user, Stories.get_story(character.story_id))
   end
 
   def can_edit?(_, _), do: false
-
-  defp gm_of?(%User{id: user_id} = user, %Character{story_id: story_id}) do
-    Accounts.gm?(user) and
-      Repo.exists?(
-        from s in TannhauserGate.Stories.Story,
-          where: s.id == ^story_id and s.owner_id == ^user_id
-      )
-  end
 
   ## Traits
 

@@ -1,7 +1,8 @@
 defmodule TannhauserGateWeb.GmLive do
   @moduledoc """
-  Dashboard where the game master (or an admin) edits the GDR: general info,
-  theme, character sheet, jobs, balances, map and forum sections.
+  Dashboard where the GDR admin (or a platform admin) configures the GDR:
+  general info, theme, character sheet, jobs, balances, map, forum sections and
+  masters. Masters narrate the GDR from `TannhauserGateWeb.MasterLive`.
   """
   use TannhauserGateWeb, :live_view
 
@@ -18,7 +19,8 @@ defmodule TannhauserGateWeb.GmLive do
     {"jobs", "Jobs"},
     {"balances", "Balances"},
     {"map", "Map"},
-    {"forum", "Forum"}
+    {"forum", "Forum"},
+    {"masters", "Masters"}
   ]
 
   @impl true
@@ -65,6 +67,15 @@ defmodule TannhauserGateWeb.GmLive do
     socket
     |> assign(:sections, Forum.list_sections(story(socket)))
     |> assign(:section_form, to_form(Forum.change_section(%Section{}), as: :section))
+  end
+
+  defp load(socket, "masters") do
+    masters = Stories.list_masters(story(socket))
+
+    socket
+    |> assign(:masters_empty?, masters == [])
+    |> assign(:master_form, to_form(%{"username" => ""}, as: :master))
+    |> stream(:masters, masters, reset: true)
   end
 
   defp assign_story_form(socket, story) do
@@ -242,6 +253,32 @@ defmodule TannhauserGateWeb.GmLive do
     end
   end
 
+  ## Masters
+
+  def handle_event("add_master", %{"master" => %{"username" => username}}, socket) do
+    case Stories.add_master(story(socket), username) do
+      {:ok, user} ->
+        {:noreply,
+         socket |> put_flash(:info, "#{user.username} is now a master") |> load("masters")}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, Stories.master_error_message(reason))
+         |> assign(:master_form, to_form(%{"username" => username}, as: :master))}
+    end
+  end
+
+  def handle_event("remove_master", %{"id" => id}, socket) do
+    case Stories.remove_master(story(socket), id) do
+      :ok ->
+        {:noreply, socket |> put_flash(:info, "Master removed") |> load("masters")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, Stories.master_error_message(reason))}
+    end
+  end
+
   defp own_location!(socket, id) do
     location = Stories.get_location!(id)
     true = location.story_id == story(socket).id
@@ -258,10 +295,18 @@ defmodule TannhauserGateWeb.GmLive do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <.header>
         GM dashboard
-        <:subtitle>Shape {@current_story.name}: rules, look, sheet, economy and map.</:subtitle>
+        <:subtitle>
+          Shape {@current_story.name}: rules, look, sheet, economy, map and masters.
+        </:subtitle>
+        <:actions>
+          <.button id="gm-master-tools-link" navigate={~p"/g/#{@current_story}/master"}>
+            <.icon name="hero-megaphone" class="size-4" /> Master tools
+          </.button>
+        </:actions>
       </.header>
 
       <nav
@@ -291,6 +336,7 @@ defmodule TannhauserGateWeb.GmLive do
         <.jobs_tab :if={@tab == "jobs"} {assigns} />
         <.balances_tab :if={@tab == "balances"} {assigns} />
         <.map_tab :if={@tab == "map"} {assigns} /> <.forum_tab :if={@tab == "forum"} {assigns} />
+        <.masters_tab :if={@tab == "masters"} {assigns} />
       </div>
     </Layouts.app>
     """
@@ -328,7 +374,7 @@ defmodule TannhauserGateWeb.GmLive do
           field={@story_form[:status]}
           type="select"
           label="Status"
-          options={[{"Draft (only you)", "draft"}, {"Published", "published"}]}
+          options={[{"Draft (only you and your masters)", "draft"}, {"Published", "published"}]}
         /> <.button phx-disable-with="Saving...">Save</.button>
       </.form>
     </.panel>
@@ -623,6 +669,57 @@ defmodule TannhauserGateWeb.GmLive do
               data-confirm="Delete this section and all its topics?"
             >
               Delete
+            </.link>
+          </li>
+        </ul>
+      </.panel>
+    </div>
+    """
+  end
+
+  defp masters_tab(assigns) do
+    ~H"""
+    <div class="grid gap-6 lg:grid-cols-2">
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Add a master</h2>
+        <p class="mt-1 text-sm text-base-content/60">
+          Masters narrate the GDR: they run chats, edit characters and moderate the forum,
+          but cannot change this configuration.
+        </p>
+
+        <.form for={@master_form} id="master-form" phx-submit="add_master">
+          <.input
+            field={@master_form[:username]}
+            type="text"
+            label="Username"
+            autocomplete="off"
+            required
+          />
+          <.button phx-disable-with="Adding...">Add master</.button>
+        </.form>
+      </.panel>
+
+      <.panel>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Masters</h2>
+
+        <p :if={@masters_empty?} id="no-masters" class="mt-2 text-sm text-base-content/60">
+          No masters yet.
+        </p>
+
+        <ul id="masters" phx-update="stream" class="mt-1 divide-y divide-secondary/10">
+          <li
+            :for={{dom_id, master} <- @streams.masters}
+            id={dom_id}
+            class="flex items-center justify-between gap-2 py-1.5 text-sm"
+          >
+            <span>{master.username}</span>
+            <.link
+              id={"remove-master-#{master.id}"}
+              phx-click="remove_master"
+              phx-value-id={master.id}
+              data-confirm={"Remove #{master.username} from the masters?"}
+            >
+              Remove
             </.link>
           </li>
         </ul>

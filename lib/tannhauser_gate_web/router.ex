@@ -98,15 +98,25 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/jobs", JobsLive, :index
     end
 
-    live_session :gdr_manager,
+    live_session :gdr_admin,
       on_mount: [
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
-        {TannhauserGateWeb.UserAuth, :ensure_story_manager}
+        {TannhauserGateWeb.UserAuth, :ensure_gdr_admin}
       ] do
       live "/g/:story_id/gm", GmLive, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
+    end
+
+    live_session :gdr_master,
+      on_mount: [
+        {TannhauserGateWeb.UserAuth, :ensure_authenticated},
+        {TannhauserGateWeb.UserAuth, :assign_current_path},
+        {TannhauserGateWeb.UserAuth, :load_story},
+        {TannhauserGateWeb.UserAuth, :ensure_master}
+      ] do
+      live "/g/:story_id/master", MasterLive, :index
     end
   end
 

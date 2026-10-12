@@ -24,17 +24,24 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
 - **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master).
 - **GDR selection** (`/gdrs`): after login, players choose a published GDR to enter. Each GDR lives under `/g/:id/...`.
 - **Requesting a GDR:** a GM files a request (`/gdrs/request`). An admin approves or rejects it (`/admin/requests`). Approval creates a draft GDR owned by the GM. Each GM runs at most one GDR.
-- **GM dashboard** (`/g/:id/gm`, only the GDR's GM and admins):
+- **Roles per GDR** (helpers in `TannhauserGate.Stories`: `role/2`, `gdr_admin?/2`, `master?/2`):
+  - **platform admin** (global `admin` flag): every power in every GDR;
+  - **GDR admin**: the GM who owns the GDR; edits all of its configuration and picks its masters;
+  - **masters**: narrators chosen by the GDR admin; they edit the GDR's characters, moderate its forum and use the master tools (`/g/:id/master`), but cannot change the configuration;
+  - **players**: everyone else. Draft GDRs are visible only to their admin and masters.
+- **GM dashboard** (`/g/:id/gm`, only the GDR admin and platform admins):
   - name, summary, world background, rules, customs, status (draft or published);
   - theme preset plus optional custom colours (hex only);
   - attributes, skills and powers, each with a name, description and min/max range;
   - jobs and their pay, the currency name and the pay interval;
   - character balances (adjustments are recorded in the ledger);
   - map artwork and rooms;
-  - forum sections.
+  - forum sections;
+  - masters (added by username, removed with one click).
+- **Master tools** (`/g/:id/master`, masters, the GDR admin and platform admins): entry points to the GDR's characters, rooms and forum moderation, plus the list of the GDR's narrators.
 - **Characters:** one character per user per GDR. The character sheet, styled as a detective's spiral-bound notepad, shows the avatar, name, description, background and the GDR's attributes, skills and powers.
 - **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
-- **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs and, for its GM, the dashboard.
+- **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Forum, Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
 - **City map and chat rooms:** each GDR has an SVG map with clickable polygon areas. Every area is a chat room. Messages show the speaking character's avatar, name, time and text, and arrive live through Phoenix PubSub. GM artwork is rendered as an inert SVG image, so it can't run scripts.
 - **Forum:** one forum per GDR: sections → topics → posts, with posts listed oldest first.
 - **Admin control room:**

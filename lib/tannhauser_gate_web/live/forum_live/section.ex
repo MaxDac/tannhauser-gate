@@ -54,6 +54,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
       current_user={@current_user}
       current_path={@current_path}
       current_story={@current_story}
+      story_role={@story_role}
     >
       <div class="mb-4">
         <.link
