@@ -338,28 +338,23 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   defp approval_icon("submitted"), do: "hero-clock"
   defp approval_icon(_), do: "hero-pencil-square"
 
-  defp approval_hint(character, owner?) do
-    cond do
-      character.approval_status == "approved" and not Characters.can_play?(character) ->
-        "Approved, but the current state does not allow playing."
-
-      character.approval_status == "approved" ->
-        "Approved: this character can play."
-
-      character.approval_status == "submitted" ->
-        "Waiting for a master to review it. Until then it cannot speak in the chat rooms."
-
-      character.approval_status == "rejected" and owner? ->
-        "Rejected: edit it following the notes below and submit it again."
-
-      character.approval_status == "rejected" ->
-        "Rejected: the player can edit it and submit it again."
-
-      owner? ->
-        "Draft: you can use every feature except playing. Submit it when ready."
-
-      true ->
-        "Draft: not submitted yet."
-    end
+  defp approval_hint(%{approval_status: "approved"} = character, _owner?) do
+    if Characters.can_play?(character),
+      do: "Approved: this character can play.",
+      else: "Approved, but the current state does not allow playing."
   end
+
+  defp approval_hint(%{approval_status: "submitted"}, _owner?),
+    do: "Waiting for a master to review it. Until then it cannot speak in the chat rooms."
+
+  defp approval_hint(%{approval_status: "rejected"}, true),
+    do: "Rejected: edit it following the notes below and submit it again."
+
+  defp approval_hint(%{approval_status: "rejected"}, _owner?),
+    do: "Rejected: the player can edit it and submit it again."
+
+  defp approval_hint(_character, true),
+    do: "Draft: you can use every feature except playing. Submit it when ready."
+
+  defp approval_hint(_character, _owner?), do: "Draft: not submitted yet."
 end
