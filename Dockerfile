@@ -44,14 +44,14 @@ ENV MIX_ENV="prod"
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
-COPY rel/fetch-precompiled-nifs.sh rel/
-RUN bash rel/fetch-precompiled-nifs.sh
 RUN mkdir config
 
 # copy compile-time config files before we compile dependencies
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/config.exs config/${MIX_ENV}.exs config/
+COPY rel/fetch-github-binaries.sh rel/
+RUN bash rel/fetch-github-binaries.sh
 RUN mix deps.compile
 
 RUN mix assets.setup

@@ -22,4 +22,4 @@ runs:
     - shell: bash
       run: mix deps.get
     - shell: bash
-      run: bash rel/fetch-precompiled-nifs.sh
+      run: bash rel/fetch-github-binaries.sh
