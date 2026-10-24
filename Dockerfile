@@ -28,7 +28,7 @@ FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential git \
+  && apt-get install -y --no-install-recommends build-essential git curl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 # prepare build dir
@@ -50,6 +50,8 @@ RUN mkdir config
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/config.exs config/${MIX_ENV}.exs config/
+COPY rel/fetch-github-binaries.sh rel/
+RUN bash rel/fetch-github-binaries.sh
 RUN mix deps.compile
 
 RUN mix assets.setup
