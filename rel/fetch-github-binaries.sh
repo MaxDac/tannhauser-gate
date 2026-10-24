@@ -7,7 +7,7 @@
 # ({:error, {:header_too_long, {:max, 10240}}}). curl has no such limit.
 # - The NIF goes into rustler_precompiled's cache, which still verifies it
 #   against the checksum shipped in the package.
-# - The tailwind CLI goes to its default path, which
+# - The tailwind CLI goes to its default versioned path, which
 #   `mix tailwind.install --if-missing` then skips.
 # Run from the project root after `mix deps.get`, with config/config.exs present.
 # Used by CI (.github/actions/setup-elixir) and the Dockerfile.
@@ -39,6 +39,6 @@ if [ -n "$tailwind" ]; then
     *) echo "Unsupported architecture $arch for tailwind" >&2; exit 1 ;;
   esac
   fetch "https://github.com/tailwindlabs/tailwindcss/releases/download/v${tailwind}/tailwindcss-${target}" \
-    "_build/tailwind-${target}"
-  chmod +x "_build/tailwind-${target}"
+    "_build/tailwind-${target}-${tailwind}"
+  chmod +x "_build/tailwind-${target}-${tailwind}"
 fi
