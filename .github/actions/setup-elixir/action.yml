@@ -21,3 +21,5 @@ runs:
           ${{ runner.os }}-mix-${{ inputs.mix-env }}-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
     - shell: bash
       run: mix deps.get
+    - shell: bash
+      run: bash rel/fetch-precompiled-nifs.sh
