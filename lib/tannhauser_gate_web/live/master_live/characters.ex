@@ -7,7 +7,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience}
+  alias TannhauserGate.{Characters, Experience, Origins}
   alias TannhauserGate.Characters.Character
 
   @filter_keys ~w(approval_status state_id npc)
@@ -49,6 +49,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
     queue = Characters.list_approval_queue(socket.assigns.current_story.id)
 
     socket
+    |> assign_origins(queue)
     |> assign(:queue_count, length(queue))
     |> stream(:queue, queue, reset: true)
   end
@@ -58,9 +59,18 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
     characters = Characters.list_story_characters(story.id, filters)
 
     socket
+    |> assign_origins(characters)
     |> assign(:filter_form, to_form(filters, as: :filters))
     |> assign(:characters_count, length(characters))
     |> stream(:characters, characters, reset: true)
+  end
+
+  # The chosen origins (options) of the listed characters, when the module is on.
+  defp assign_origins(socket, characters) do
+    origins =
+      Origins.origins_by_character(socket.assigns.current_story, Enum.map(characters, & &1.id))
+
+    assign(socket, :origins, Map.merge(socket.assigns[:origins] || %{}, origins))
   end
 
   @impl true
@@ -206,6 +216,27 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                   {character.name}
                 </.link>
                 <p class="text-xs text-base-content/60">by {character.user.username}</p>
+                <p
+                  :if={@origins[character.id]}
+                  id={"queue-origins-#{character.id}"}
+                  class="mt-1 flex flex-wrap gap-1"
+                >
+                  <span
+                    :for={option <- @origins[character.id]}
+                    class={[
+                      "badge badge-xs badge-soft",
+                      if(option.requires_approval, do: "badge-warning", else: "badge-secondary")
+                    ]}
+                    title={if option.requires_approval, do: "Requires master approval"}
+                  >
+                    <.icon
+                      :if={option.requires_approval}
+                      name="hero-shield-exclamation-micro"
+                      class="size-3"
+                    />
+                    {option.name}
+                  </span>
+                </p>
               </div>
             </div>
 
@@ -304,6 +335,13 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                     {character.name}
                   </.link>
                   <span :if={character.is_npc} class="badge badge-xs badge-secondary ml-1">NPC</span>
+                  <p
+                    :if={@origins[character.id]}
+                    id={"character-origins-#{character.id}"}
+                    class="text-xs text-base-content/60"
+                  >
+                    {Enum.map_join(@origins[character.id], " · ", & &1.name)}
+                  </p>
                 </td>
                 <td class="text-base-content/70">
                   {if character.is_npc, do: "—", else: character.user.username}

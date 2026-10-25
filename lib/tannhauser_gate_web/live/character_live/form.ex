@@ -2,16 +2,17 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   @moduledoc """
   Character creation and editing.
 
-  Players create their character with a multi-step wizard: identity, one step
-  per sheet category with items (enforcing the creation budgets configured by
-  the GDR admin) and a final review. NPC creation (`:new_npc`) and edits are
+  Players create their character with a multi-step wizard: identity, origins
+  (when the origins module is enabled and groups exist; required groups must
+  be chosen), one step per sheet category with items (enforcing the creation
+  budgets configured by the GDR admin) and a final review. NPC creation (`:new_npc`) and edits are
   single-page; masters are never limited by the budgets, while owners can
   change trait values only until the character is approved (then they raise
   items by spending XP).
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Sheet, Storage}
+  alias TannhauserGate.{Characters, Origins, Sheet, Storage}
   alias TannhauserGate.Characters.Character
 
   @impl true
@@ -27,6 +28,8 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       |> assign(:steps, [])
       |> assign(:step_errors, [])
       |> assign(:traits_locked?, false)
+      |> assign(:origin_groups, origin_groups(story))
+      |> assign(:origin_choices, %{})
       |> allow_upload(:avatar,
         accept: Storage.allowed_extensions(),
         max_entries: 1,
@@ -55,8 +58,11 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       nil ->
         character = %Character{story_id: story.id}
 
+        origins_step = if socket.assigns.origin_groups != [], do: ["origins"], else: []
+
         steps =
           ["identity"] ++
+            origins_step ++
             Enum.filter(Sheet.kinds(), &(socket.assigns.items[&1] != [])) ++ ["review"]
 
         socket
@@ -99,6 +105,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
           not master? and not Characters.sheet_editable_by_owner?(character)
         )
         |> assign(:trait_values, default_traits(socket, values))
+        |> assign(:origin_choices, stringify_choices(Origins.choices(character)))
         |> assign_form(Characters.change_character(character, %{}, master?: master?))
 
       true ->
@@ -107,6 +114,17 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")
     end
   end
+
+  # Only groups with options can be picked.
+  defp origin_groups(story) do
+    if Origins.enabled?(story),
+      do: story |> Origins.list_groups() |> Enum.reject(&(&1.options == [])),
+      else: []
+  end
+
+  defp stringify_choices(choices),
+    do:
+      Map.new(choices, fn {group_id, option_id} -> {to_string(group_id), to_string(option_id)} end)
 
   # Current value of every sheet item as a string, keyed by item id. Missing
   # values get the category default (its starting value when budgeted).
@@ -131,6 +149,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     {:noreply,
      socket
      |> assign(:trait_values, merge_traits(socket.assigns.trait_values, params))
+     |> assign(:origin_choices, merge_origins(socket, params))
      |> assign_form(Map.put(changeset, :action, :validate))}
   end
 
@@ -154,7 +173,9 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     params = scope_params(params, socket)
 
     socket =
-      assign(socket, :trait_values, merge_traits(socket.assigns.trait_values, params))
+      socket
+      |> assign(:trait_values, merge_traits(socket.assigns.trait_values, params))
+      |> assign(:origin_choices, merge_origins(socket, params))
 
     case step_errors(socket, step, params) do
       {[], changeset} ->
@@ -187,6 +208,14 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
   defp merge_traits(values, _params), do: values
 
+  # Only choices of existing groups are kept.
+  defp merge_origins(socket, %{"origins" => %{} = origins}) do
+    ids = Enum.map(socket.assigns.origin_groups, &to_string(&1.id))
+    Map.merge(socket.assigns.origin_choices, Map.take(origins, ids))
+  end
+
+  defp merge_origins(socket, _params), do: socket.assigns.origin_choices
+
   defp next_step(socket) do
     index = Enum.find_index(socket.assigns.steps, &(&1 == socket.assigns.step))
     assign(socket, :step, Enum.at(socket.assigns.steps, index + 1))
@@ -199,6 +228,27 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       |> Map.put(:action, :validate)
 
     {if(changeset.valid?, do: [], else: ["Fix the errors above to continue."]), changeset}
+  end
+
+  defp step_errors(socket, "origins", params) do
+    changeset =
+      Characters.change_character(
+        socket.assigns.character,
+        Map.drop(params, ["traits", "origins"])
+      )
+
+    groups = socket.assigns.origin_groups
+
+    errors =
+      case Origins.normalize_choices(groups, socket.assigns.origin_choices) do
+        {:ok, choices} ->
+          for group <- Origins.missing_required(groups, choices), do: "Choose your #{group.name}."
+
+        {:error, message} ->
+          [message]
+      end
+
+    {errors, changeset}
   end
 
   defp step_errors(socket, kind, params) do
@@ -253,7 +303,11 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   defp scope_params(params, socket) do
     params = Map.put(params, "story_id", socket.assigns.current_story.id)
 
-    if socket.assigns.traits_locked?, do: Map.delete(params, "traits"), else: params
+    cond do
+      socket.assigns.traits_locked? -> Map.drop(params, ["traits", "origins"])
+      socket.assigns.origin_groups == [] -> Map.delete(params, "origins")
+      true -> Map.put(params, "origins", merge_origins(socket, params))
+    end
   end
 
   defp save(socket, :new, params, avatar_path) do
@@ -312,6 +366,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   defp changeset_messages(changeset) do
     Enum.map(changeset.errors, fn
       {:traits, error} -> translate_error(error)
+      {:origins, error} -> translate_error(error)
       {field, error} -> "#{Phoenix.Naming.humanize(field)} #{translate_error(error)}"
     end)
   end
@@ -324,6 +379,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   defp upload_error(other), do: "Upload error: #{inspect(other)}"
 
   defp step_label("identity"), do: "Identity"
+  defp step_label("origins"), do: "Origins"
   defp step_label("review"), do: "Review"
   defp step_label(kind), do: Sheet.kind_label(kind)
 
@@ -470,6 +526,109 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             />
           </div>
 
+          <section
+            :if={@origin_groups != [] and not @traits_locked? and shown?(assigns, "origins")}
+            id="origins-step"
+            class={["space-y-6 border-secondary/20", !@wizard? && "mt-6 border-t pt-4"]}
+          >
+            <div :for={group <- @origin_groups} id={"origin-group-#{group.id}"}>
+              <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+                {group.name}
+                <span
+                  :if={group.required}
+                  class="text-[0.65rem] text-warning normal-case tracking-normal"
+                >
+                  required
+                </span>
+              </h2>
+              <p :if={group.description} class="mt-1 text-sm text-base-content/70">
+                {group.description}
+              </p>
+              <div class="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={group.name}>
+                <label
+                  :if={!group.required}
+                  for={"origin-#{group.id}-none"}
+                  class={[
+                    "flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition hover:border-primary/50",
+                    if(@origin_choices[to_string(group.id)] in [nil, ""],
+                      do: "border-primary bg-primary/10",
+                      else: "border-secondary/20"
+                    )
+                  ]}
+                >
+                  <input
+                    type="radio"
+                    id={"origin-#{group.id}-none"}
+                    name={"character[origins][#{group.id}]"}
+                    value=""
+                    checked={@origin_choices[to_string(group.id)] in [nil, ""]}
+                    class="radio radio-primary radio-sm"
+                  />
+                  <span class="text-sm text-base-content/70">None</span>
+                </label>
+                <label
+                  :for={option <- group.options}
+                  for={"origin-option-#{option.id}"}
+                  class={[
+                    "flex cursor-pointer gap-3 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:border-primary/50",
+                    if(@origin_choices[to_string(group.id)] == to_string(option.id),
+                      do: "border-primary bg-primary/10 shadow-phosphor",
+                      else: "border-secondary/20"
+                    )
+                  ]}
+                >
+                  <input
+                    type="radio"
+                    id={"origin-option-#{option.id}"}
+                    name={"character[origins][#{group.id}]"}
+                    value={option.id}
+                    checked={@origin_choices[to_string(group.id)] == to_string(option.id)}
+                    class="radio radio-primary radio-sm mt-1"
+                  />
+                  <img
+                    :if={option.image_path}
+                    src={option.image_path}
+                    alt=""
+                    class="size-12 shrink-0 rounded object-cover"
+                  />
+                  <span class="min-w-0 flex-1">
+                    <span class="block font-semibold">{option.name}</span>
+                    <span
+                      :if={Origins.bonus_label(option.bonuses)}
+                      class="block text-xs tabular-nums text-secondary"
+                    >
+                      {Origins.bonus_label(option.bonuses)}
+                    </span>
+                    <span
+                      :if={option.requires_approval}
+                      id={"origin-option-approval-#{option.id}"}
+                      class="mt-1 flex items-center gap-1 text-xs text-warning"
+                    >
+                      <.icon name="hero-shield-exclamation-micro" class="size-3.5" />
+                      The masters review this choice
+                    </span>
+                    <.markdown
+                      :if={option.description}
+                      content={option.description}
+                      class="mt-1 text-xs text-base-content/70"
+                    />
+                  </span>
+                </label>
+              </div>
+            </div>
+            <.error :for={msg <- Enum.map(@form[:origins].errors, &translate_error/1)}>
+              {msg}
+            </.error>
+          </section>
+          <%!-- Choices of the other wizard steps travel with the form. --%>
+          <input
+            :for={{group_id, option_id} <- @origin_choices}
+            :if={@origin_groups != [] and not @traits_locked? and !shown?(assigns, "origins")}
+            type="hidden"
+            name={"character[origins][#{group_id}]"}
+            value={option_id}
+          />
+
           <p
             :if={@traits_locked?}
             id="traits-locked"
@@ -526,6 +685,19 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
               The character is saved as a draft: you can still change it, then submit it to the
               masters for approval from its page.
             </p>
+            <div
+              :if={@origin_groups != []}
+              id="review-origins"
+              class="rounded-lg border border-secondary/15 p-3"
+            >
+              <h3 class="text-xs font-bold uppercase tracking-wider text-secondary">Origins</h3>
+              <dl class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                <div :for={group <- @origin_groups} class="flex justify-between gap-2">
+                  <dt class="text-base-content/70">{group.name}</dt>
+                  <dd class="font-semibold">{chosen_name(group, @origin_choices)}</dd>
+                </div>
+              </dl>
+            </div>
             <div
               :for={{kind, items} <- @items}
               :if={items != []}
@@ -591,6 +763,15 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       </div>
     </Layouts.app>
     """
+  end
+
+  defp chosen_name(group, choices) do
+    chosen = choices[to_string(group.id)]
+
+    case Enum.find(group.options, &(to_string(&1.id) == chosen)) do
+      nil -> "—"
+      option -> option.name
+    end
   end
 
   defp budgets(assigns, values, true) do

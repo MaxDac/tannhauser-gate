@@ -122,6 +122,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/gm/guide", GmLive.Guide, :index
       live "/g/:story_id/gm/zones", GmLive.Zones, :index
       live "/g/:story_id/gm/actions", GmLive.Actions, :index
+      live "/g/:story_id/gm/origins", GmLive.Origins, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
     end
 
