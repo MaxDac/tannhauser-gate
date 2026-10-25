@@ -107,6 +107,9 @@ defmodule TannhauserGateWeb.Router do
 
       live "/g/:story_id/bank", BankLive, :index
       live "/g/:story_id/jobs", JobsLive, :index
+
+      live "/g/:story_id/market", MarketLive, :index
+      live "/g/:story_id/market/:shop_id", MarketLive, :show
     end
 
     live_session :gdr_admin,
@@ -123,6 +126,8 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/gm/zones", GmLive.Zones, :index
       live "/g/:story_id/gm/actions", GmLive.Actions, :index
       live "/g/:story_id/gm/origins", GmLive.Origins, :index
+      live "/g/:story_id/gm/items", GmLive.Items, :index
+      live "/g/:story_id/gm/shops", GmLive.Shops, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
     end
 
@@ -141,6 +146,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/chat-log", MasterLive.ChatLog, :index
       live "/g/:story_id/master/zones", MasterLive.Zones, :index
       live "/g/:story_id/master/actions", MasterLive.Actions, :index
+      live "/g/:story_id/master/items", MasterLive.Items, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

@@ -9,7 +9,18 @@ defmodule TannhauserGateWeb.RoomLive do
   import TannhauserGateWeb.ChatComponents
   import TannhauserGateWeb.ZoneComponents
 
-  alias TannhauserGate.{Bookings, Characters, Chat, Dice, PeriodicActions, Sheet, Stories, Zones}
+  alias TannhauserGate.{
+    Bookings,
+    Characters,
+    Chat,
+    Dice,
+    Items,
+    PeriodicActions,
+    Sheet,
+    Stories,
+    Zones
+  }
+
   alias TannhauserGateWeb.GdrPresence
 
   @page_size 50
@@ -45,6 +56,7 @@ defmodule TannhauserGateWeb.RoomLive do
     socket
     |> assign(:page_title, location.name)
     |> assign(:location, location)
+    |> assign(:shops, Items.list_location_shops(location))
     |> assign(:characters, characters)
     |> assign(:speakers, speakers)
     |> assign(:own_character, own)
@@ -447,6 +459,18 @@ defmodule TannhauserGateWeb.RoomLive do
         </span>
 
         <:subtitle>{@location.description}</:subtitle>
+        <:actions :if={@shops != []}>
+          <div id="room-shops" class="flex flex-wrap justify-end gap-2">
+            <.link
+              :for={shop <- @shops}
+              id={"room-shop-#{shop.id}"}
+              navigate={~p"/g/#{@current_story}/market/#{shop}"}
+              class="inline-flex items-center gap-1.5 rounded-md border border-primary/40 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary transition hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-phosphor"
+            >
+              <.icon name="hero-building-storefront" class="size-4" /> {shop.name}
+            </.link>
+          </div>
+        </:actions>
       </.header>
 
       <div
