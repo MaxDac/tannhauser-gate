@@ -333,6 +333,10 @@ defmodule TannhauserGateWeb.Layouts do
               <span class="size-2 rounded-full bg-mint shadow-[0_0_8px] shadow-mint/70"></span>
               Online <span class="text-fog-500">({length(@online)})</span>
             </h2>
+            <.presence_status_form
+              :if={TannhauserGateWeb.GdrPresence.user_status(@online, @current_user.id)}
+              status={TannhauserGateWeb.GdrPresence.user_status(@online, @current_user.id)}
+            />
             <ul class="mt-2 flex flex-col gap-1">
               <li
                 :for={entry <- @online}
@@ -343,6 +347,10 @@ defmodule TannhauserGateWeb.Layouts do
                   :if={entry[:character_id]}
                   class="flex min-w-0 items-baseline gap-1 font-semibold text-fog-200"
                 >
+                  <.presence_dot
+                    id={"online-user-#{entry.user_id}-status"}
+                    status={entry[:status] || "available"}
+                  />
                   <.character_quick_links
                     id={"online-user-#{entry.user_id}-links"}
                     story={@current_story}
@@ -354,14 +362,19 @@ defmodule TannhauserGateWeb.Layouts do
                         Stories.master_role?(@story_role)
                       )
                     }
+                    status={entry[:status] || "available"}
                     class="hover:text-mint"
                   />
                   <span class="truncate font-normal text-fog-500">· {entry.username}</span>
                 </div>
                 <span
                   :if={!entry[:character_id]}
-                  class="block truncate font-semibold text-fog-200"
+                  class="flex min-w-0 items-baseline gap-1 truncate font-semibold text-fog-200"
                 >
+                  <.presence_dot
+                    id={"online-user-#{entry.user_id}-status"}
+                    status={entry[:status] || "available"}
+                  />
                   {entry.character_name || entry.username}
                   <span :if={entry.character_name} class="font-normal text-fog-500">
                     · {entry.username}
@@ -408,6 +421,43 @@ defmodule TannhauserGateWeb.Layouts do
       </div>
     </div>
     <.flash_group flash={@flash} />
+    """
+  end
+
+  # The selector of the current user's presence status in the GDR (handled
+  # by `TannhauserGateWeb.GdrPresence`).
+  attr :status, :string, required: true
+
+  defp presence_status_form(assigns) do
+    assigns =
+      assign(assigns,
+        form: to_form(%{"status" => assigns.status}, as: :presence),
+        options:
+          Enum.map(
+            TannhauserGate.Stories.presence_statuses(),
+            &{TannhauserGateWeb.CharacterComponents.presence_label(&1), &1}
+          )
+      )
+
+    ~H"""
+    <.form
+      for={@form}
+      id="presence-status-form"
+      phx-change="set_presence_status"
+      class="mt-2 flex items-center gap-2 px-1"
+    >
+      <.presence_dot id="presence-status-dot" status={@status} />
+      <div class="min-w-0 flex-1 [&_.fieldset]:mb-0 [&_.fieldset]:p-0">
+        <.input
+          field={@form[:status]}
+          id="presence-status"
+          type="select"
+          aria-label="Your status"
+          options={@options}
+          class="select select-xs w-full border-secondary/30 bg-ink/80 text-xs text-fog-200 transition-colors hover:border-mint/60 focus:border-mint"
+        />
+      </div>
+    </.form>
     """
   end
 

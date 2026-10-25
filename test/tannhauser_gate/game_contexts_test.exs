@@ -234,6 +234,10 @@ defmodule TannhauserGate.GameContextsTest do
                TannhauserGate.Guilds.list_guilds(again)
 
       assert Enum.any?(again.locations, &(&1.guild_id == police.id))
+
+      assert TannhauserGate.Stories.module_enabled?(again, :chat_rp)
+      assert TannhauserGate.Stories.module_enabled?(again, :auto_xp)
+      assert %{chat_max_length: 2000, auto_xp_amount: 1, auto_xp_min_length: 300} = again
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do

@@ -34,6 +34,12 @@ defmodule TannhauserGate.Stories.Story do
     field :community_label, :string
     field :modules, :map, default: %{}
     field :max_guilds_per_character, :integer, default: 1
+    field :chat_min_length, :integer
+    field :chat_max_length, :integer
+    field :auto_xp_amount, :integer
+    field :auto_xp_min_length, :integer
+    field :auto_xp_daily_cap, :integer
+    field :auto_xp_cooldown_minutes, :integer
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -63,7 +69,13 @@ defmodule TannhauserGate.Stories.Story do
     :archive_after_days,
     :community_url,
     :community_label,
-    :max_guilds_per_character
+    :max_guilds_per_character,
+    :chat_min_length,
+    :chat_max_length,
+    :auto_xp_amount,
+    :auto_xp_min_length,
+    :auto_xp_daily_cap,
+    :auto_xp_cooldown_minutes
   ]
 
   @doc """
@@ -114,6 +126,19 @@ defmodule TannhauserGate.Stories.Story do
       greater_than: 0,
       less_than_or_equal_to: 20
     )
+    |> validate_number(:chat_min_length, greater_than_or_equal_to: 0, less_than_or_equal_to: 4000)
+    |> validate_number(:chat_max_length, greater_than: 0, less_than_or_equal_to: 4000)
+    |> validate_chat_limits()
+    |> validate_number(:auto_xp_amount, greater_than: 0, less_than_or_equal_to: 1000)
+    |> validate_number(:auto_xp_min_length,
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: 4000
+    )
+    |> validate_number(:auto_xp_daily_cap, greater_than: 0, less_than_or_equal_to: 10_000)
+    |> validate_number(:auto_xp_cooldown_minutes,
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: 1440
+    )
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)
@@ -123,6 +148,15 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_change(:community_url, &validate_http_url/2)
     |> unique_constraint(:name)
     |> unique_constraint(:owner_id, message: "already runs a GDR")
+  end
+
+  defp validate_chat_limits(changeset) do
+    min = get_field(changeset, :chat_min_length)
+    max = get_field(changeset, :chat_max_length)
+
+    if is_integer(min) and is_integer(max) and min > max,
+      do: add_error(changeset, :chat_max_length, "must be at least the minimum length"),
+      else: changeset
   end
 
   # The community link (e.g. a Discord invite) is rendered as an external link.
