@@ -5,7 +5,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:62
+#: lib/tannhauser_gate_web/live/map_live.ex:65
 #, elixir-format, elixir-autogen
 msgid " (+%{value} more)"
 msgstr ""
@@ -55,7 +55,7 @@ msgstr[1] ""
 msgid "%{item_name} raised to %{to_value} (%{amount} XP)"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:111
+#: lib/tannhauser_gate_web/live/bank_live.ex:118
 #, elixir-format, elixir-autogen
 msgid "%{job}: %{pay} %{currency} every %{hours}h"
 msgstr ""
@@ -101,12 +101,12 @@ msgstr ""
 msgid "%{name} used: %{name_2} %{value}/%{max}"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:22
+#: lib/tannhauser_gate_web/live/map_live.ex:25
 #, elixir-format, elixir-autogen
 msgid "%{name} · Map"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:95
+#: lib/tannhauser_gate_web/live/bank_live.ex:80
 #, elixir-format, elixir-autogen
 msgid "%{name}'s account"
 msgstr ""
@@ -248,7 +248,7 @@ msgstr ""
 msgid "Also involved:"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:134
+#: lib/tannhauser_gate_web/live/bank_live.ex:141
 #, elixir-autogen
 msgid "Amount"
 msgstr ""
@@ -395,12 +395,12 @@ msgstr ""
 msgid "Background"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:102
+#: lib/tannhauser_gate_web/live/bank_live.ex:109
 #, elixir-autogen
 msgid "Balance"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:93
+#: lib/tannhauser_gate_web/live/bank_live.ex:100
 #, elixir-autogen
 msgid "Bank"
 msgstr ""
@@ -435,7 +435,7 @@ msgstr ""
 msgid "Book this location"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:72
+#: lib/tannhauser_gate_web/live/map_live.ex:75
 #, elixir-format, elixir-autogen
 msgid "Booked by %{who} until %{value} UTC%{more}"
 msgstr ""
@@ -594,7 +594,7 @@ msgstr ""
 msgid "Checking..."
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:131
+#: lib/tannhauser_gate_web/live/bank_live.ex:138
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:498
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:524
 #: lib/tannhauser_gate_web/live/room_live.ex:925
@@ -1256,7 +1256,7 @@ msgstr ""
 msgid "Guild members"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:47
+#: lib/tannhauser_gate_web/live/map_live.ex:50
 #, elixir-autogen
 msgid "Guild members only"
 msgstr ""
@@ -1283,7 +1283,7 @@ msgstr ""
 msgid "Hide"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:145
+#: lib/tannhauser_gate_web/live/bank_live.ex:152
 #, elixir-autogen
 msgid "History"
 msgstr ""
@@ -1542,7 +1542,7 @@ msgstr ""
 msgid "Manage your account email address and password settings"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:107
+#: lib/tannhauser_gate_web/live/map_live.ex:113
 #, elixir-format, elixir-autogen
 msgid "Map of %{name}"
 msgstr ""
@@ -1722,7 +1722,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:66
+#: lib/tannhauser_gate_web/live/map_live.ex:69
 #, elixir-format, elixir-autogen
 msgid "Next booking: %{who}, %{value} UTC%{more}"
 msgstr ""
@@ -1767,7 +1767,7 @@ msgstr ""
 msgid "No job"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:118
+#: lib/tannhauser_gate_web/live/bank_live.ex:125
 #, elixir-autogen
 msgid "No job."
 msgstr ""
@@ -1862,7 +1862,7 @@ msgstr ""
 msgid "No topics yet. Start the first one."
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:150
+#: lib/tannhauser_gate_web/live/bank_live.ex:157
 #, elixir-autogen
 msgid "No transactions yet."
 msgstr ""
@@ -1887,7 +1887,7 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:135
+#: lib/tannhauser_gate_web/live/bank_live.ex:142
 #, elixir-autogen
 msgid "Note"
 msgstr ""
@@ -2165,7 +2165,7 @@ msgstr ""
 msgid "Pick a reason"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:119
+#: lib/tannhauser_gate_web/live/bank_live.ex:126
 #, elixir-autogen
 msgid "Pick one"
 msgstr ""
@@ -2264,7 +2264,7 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:55
+#: lib/tannhauser_gate_web/live/map_live.ex:58
 #, elixir-autogen
 msgid "Private: free to book."
 msgstr ""
@@ -2647,11 +2647,6 @@ msgstr ""
 msgid "Room status"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:145
-#, elixir-autogen
-msgid "Rooms"
-msgstr ""
-
 #: lib/tannhauser_gate_web/live/diary_live.ex:237
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:342
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:405
@@ -2732,7 +2727,7 @@ msgstr ""
 msgid "Send message"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:136
+#: lib/tannhauser_gate_web/live/bank_live.ex:143
 #, elixir-autogen
 msgid "Send money"
 msgstr ""
@@ -2747,12 +2742,12 @@ msgstr ""
 msgid "Send report"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:130
+#: lib/tannhauser_gate_web/live/bank_live.ex:137
 #, elixir-autogen
 msgid "Send to"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:136
+#: lib/tannhauser_gate_web/live/bank_live.ex:143
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:377
 #: lib/tannhauser_gate_web/live/gdr_live/request.ex:123
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:265
@@ -3187,7 +3182,7 @@ msgstr ""
 msgid "Unhide"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:212
+#: lib/tannhauser_gate_web/live/map_live.ex:250
 #, elixir-autogen
 msgid "Unknown"
 msgstr ""
@@ -3299,7 +3294,7 @@ msgstr ""
 msgid "We'll send a password reset link to your inbox"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:197
+#: lib/tannhauser_gate_web/live/map_live.ex:235
 #, elixir-autogen
 msgid "Weather"
 msgstr ""
@@ -3357,7 +3352,7 @@ msgstr ""
 msgid "Withdraw this request?"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:225
+#: lib/tannhauser_gate_web/live/map_live.ex:263
 #, elixir-autogen
 msgid "World guide: background, rules, customs"
 msgstr ""
@@ -3681,7 +3676,7 @@ msgstr ""
 msgid "modifier"
 msgstr ""
 
-#: lib/tannhauser_gate_web/live/map_live.ex:171
+#: lib/tannhauser_gate_web/live/map_live.ex:209
 #, elixir-autogen
 msgid "msg"
 msgstr ""

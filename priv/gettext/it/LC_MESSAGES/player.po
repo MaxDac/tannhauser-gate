@@ -7,7 +7,7 @@ msgstr ""
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:62
+#: lib/tannhauser_gate_web/live/map_live.ex:65
 #, elixir-format, elixir-autogen
 msgid " (+%{value} more)"
 msgstr " (+altri %{value})"
@@ -57,7 +57,7 @@ msgstr[1] "%{count} discussioni"
 msgid "%{item_name} raised to %{to_value} (%{amount} XP)"
 msgstr "%{item_name} aumentato a %{to_value} (%{amount} XP)"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:111
+#: lib/tannhauser_gate_web/live/bank_live.ex:118
 #, elixir-format, elixir-autogen
 msgid "%{job}: %{pay} %{currency} every %{hours}h"
 msgstr "%{job}: %{pay} %{currency} ogni %{hours}h"
@@ -103,12 +103,12 @@ msgstr "%{name} aggiornato"
 msgid "%{name} used: %{name_2} %{value}/%{max}"
 msgstr "%{name} usato: %{name_2} %{value}/%{max}"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:22
+#: lib/tannhauser_gate_web/live/map_live.ex:25
 #, elixir-format, elixir-autogen
 msgid "%{name} · Map"
 msgstr "%{name} · Mappa"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:95
+#: lib/tannhauser_gate_web/live/bank_live.ex:80
 #, elixir-format, elixir-autogen
 msgid "%{name}'s account"
 msgstr "Conto di %{name}"
@@ -250,7 +250,7 @@ msgstr "Applica anche ai personaggi coinvolti"
 msgid "Also involved:"
 msgstr "Coinvolti anche:"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:134
+#: lib/tannhauser_gate_web/live/bank_live.ex:141
 #, elixir-autogen
 msgid "Amount"
 msgstr "Importo"
@@ -397,12 +397,12 @@ msgstr "Torna alla registrazione"
 msgid "Background"
 msgstr "Background"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:102
+#: lib/tannhauser_gate_web/live/bank_live.ex:109
 #, elixir-autogen
 msgid "Balance"
 msgstr "Saldo"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:93
+#: lib/tannhauser_gate_web/live/bank_live.ex:100
 #, elixir-autogen
 msgid "Bank"
 msgstr "Banca"
@@ -437,7 +437,7 @@ msgstr "Prenota come"
 msgid "Book this location"
 msgstr "Prenota questo luogo"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:72
+#: lib/tannhauser_gate_web/live/map_live.ex:75
 #, elixir-format, elixir-autogen
 msgid "Booked by %{who} until %{value} UTC%{more}"
 msgstr "Prenotato da %{who} fino alle %{value} UTC%{more}"
@@ -596,7 +596,7 @@ msgstr "Registro chat"
 msgid "Checking..."
 msgstr "Verifica..."
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:131
+#: lib/tannhauser_gate_web/live/bank_live.ex:138
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:498
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:524
 #: lib/tannhauser_gate_web/live/room_live.ex:925
@@ -1258,7 +1258,7 @@ msgstr "Registro della gilda"
 msgid "Guild members"
 msgstr "Membri della gilda"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:47
+#: lib/tannhauser_gate_web/live/map_live.ex:50
 #, elixir-autogen
 msgid "Guild members only"
 msgstr "Solo membri della gilda"
@@ -1285,7 +1285,7 @@ msgstr "Nascosto"
 msgid "Hide"
 msgstr "Nascondi"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:145
+#: lib/tannhauser_gate_web/live/bank_live.ex:152
 #, elixir-autogen
 msgid "History"
 msgstr "Cronologia"
@@ -1544,7 +1544,7 @@ msgstr "Gestisci gilde"
 msgid "Manage your account email address and password settings"
 msgstr "Gestisci l'indirizzo email e la password del tuo account"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:107
+#: lib/tannhauser_gate_web/live/map_live.ex:113
 #, elixir-format, elixir-autogen
 msgid "Map of %{name}"
 msgstr "Mappa di %{name}"
@@ -1724,7 +1724,7 @@ msgstr "Nuova discussione"
 msgid "Next"
 msgstr "Avanti"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:66
+#: lib/tannhauser_gate_web/live/map_live.ex:69
 #, elixir-format, elixir-autogen
 msgid "Next booking: %{who}, %{value} UTC%{more}"
 msgstr "Prossima prenotazione: %{who}, %{value} UTC%{more}"
@@ -1769,7 +1769,7 @@ msgstr "Nessuna gilda da mostrare."
 msgid "No job"
 msgstr "Nessun lavoro"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:118
+#: lib/tannhauser_gate_web/live/bank_live.ex:125
 #, elixir-autogen
 msgid "No job."
 msgstr "Nessun lavoro."
@@ -1864,7 +1864,7 @@ msgstr "Nessuno stato"
 msgid "No topics yet. Start the first one."
 msgstr "Nessuna discussione. Apri la prima."
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:150
+#: lib/tannhauser_gate_web/live/bank_live.ex:157
 #, elixir-autogen
 msgid "No transactions yet."
 msgstr "Nessuna transazione."
@@ -1889,7 +1889,7 @@ msgstr "Personaggio non giocante"
 msgid "None"
 msgstr "Nessuno"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:135
+#: lib/tannhauser_gate_web/live/bank_live.ex:142
 #, elixir-autogen
 msgid "Note"
 msgstr "Nota"
@@ -2167,7 +2167,7 @@ msgstr "Foto di %{name}"
 msgid "Pick a reason"
 msgstr "Scegli un motivo"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:119
+#: lib/tannhauser_gate_web/live/bank_live.ex:126
 #, elixir-autogen
 msgid "Pick one"
 msgstr "Scegline uno"
@@ -2266,7 +2266,7 @@ msgstr "Pubblicazione..."
 msgid "Private"
 msgstr "Privato"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:55
+#: lib/tannhauser_gate_web/live/map_live.ex:58
 #, elixir-autogen
 msgid "Private: free to book."
 msgstr "Privato: disponibile per la prenotazione."
@@ -2649,11 +2649,6 @@ msgstr "Stanza (facoltativa)"
 msgid "Room status"
 msgstr "Stato della stanza"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:145
-#, elixir-autogen
-msgid "Rooms"
-msgstr "Stanze"
-
 #: lib/tannhauser_gate_web/live/diary_live.ex:237
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:342
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:405
@@ -2734,7 +2729,7 @@ msgstr "Invia"
 msgid "Send message"
 msgstr "Invia messaggio"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:136
+#: lib/tannhauser_gate_web/live/bank_live.ex:143
 #, elixir-autogen
 msgid "Send money"
 msgstr "Invia denaro"
@@ -2749,12 +2744,12 @@ msgstr "Invia istruzioni per reimpostare la password"
 msgid "Send report"
 msgstr "Invia segnalazione"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:130
+#: lib/tannhauser_gate_web/live/bank_live.ex:137
 #, elixir-autogen
 msgid "Send to"
 msgstr "Invia a"
 
-#: lib/tannhauser_gate_web/live/bank_live.ex:136
+#: lib/tannhauser_gate_web/live/bank_live.ex:143
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:377
 #: lib/tannhauser_gate_web/live/gdr_live/request.ex:123
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:265
@@ -3189,7 +3184,7 @@ msgstr "Rimuovi equipaggiamento"
 msgid "Unhide"
 msgstr "Mostra"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:212
+#: lib/tannhauser_gate_web/live/map_live.ex:250
 #, elixir-autogen
 msgid "Unknown"
 msgstr "Sconosciuto"
@@ -3301,7 +3296,7 @@ msgstr "Invieremo un nuovo link di conferma alla tua casella di posta"
 msgid "We'll send a password reset link to your inbox"
 msgstr "Invieremo un link per reimpostare la password alla tua casella di posta"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:197
+#: lib/tannhauser_gate_web/live/map_live.ex:235
 #, elixir-autogen
 msgid "Weather"
 msgstr "Meteo"
@@ -3359,7 +3354,7 @@ msgstr "Ritira richiesta"
 msgid "Withdraw this request?"
 msgstr "Ritirare questa richiesta?"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:225
+#: lib/tannhauser_gate_web/live/map_live.ex:263
 #, elixir-autogen
 msgid "World guide: background, rules, customs"
 msgstr "Guida al mondo: ambientazione, regole, usanze"
@@ -3683,7 +3678,7 @@ msgstr "min"
 msgid "modifier"
 msgstr "modificatore"
 
-#: lib/tannhauser_gate_web/live/map_live.ex:171
+#: lib/tannhauser_gate_web/live/map_live.ex:209
 #, elixir-autogen
 msgid "msg"
 msgstr "msg"

@@ -75,6 +75,13 @@ defmodule TannhauserGateWeb.BankLive do
 
   @impl true
   def render(assigns) do
+    # Keep the name as a DOM node while allowing translations to place it anywhere.
+    [account_prefix, account_suffix] =
+      dgettext("player", "%{name}'s account", name: "%{name}")
+      |> String.split("%{name}", parts: 2)
+
+    assigns = assign(assigns, account_prefix: account_prefix, account_suffix: account_suffix)
+
     ~H"""
     <Layouts.app
       flash={@flash}
@@ -92,7 +99,7 @@ defmodule TannhauserGateWeb.BankLive do
       <.header>
         {dgettext("player", "Bank")}
         <:subtitle>
-          <span id="bank-character">{dgettext("player", "%{name}'s account", name: @character.name)}</span>
+          {@account_prefix}<span id="bank-character">{@character.name}</span>{@account_suffix}
         </:subtitle>
       </.header>
 

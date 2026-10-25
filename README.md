@@ -30,7 +30,9 @@ The application interface supports English (default), Italian, Spanish, and Euro
 Portuguese. Use the **Language** selector on authentication pages or in the navigation
 drawer, then select **Change language**. The choice is stored in the browser session,
 survives login and logout, and applies to connected LiveViews as well as regular pages.
-It does not translate player-written content, GDR names, or existing fictional settings.
+It does not translate player-written content, GDR names, existing fictional settings,
+or stored in-game system-mail snapshots. Live status messages and account emails use
+the selected language.
 
 Translations use `TannhauserGateWeb.Gettext` and catalogs in `priv/gettext`, with `it`,
 `es`, and `pt_PT` locales. Wrap interface strings in the appropriate Gettext domain,

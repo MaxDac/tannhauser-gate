@@ -36,7 +36,7 @@ test("account recovery fields retain visible labels after typing", async ({ page
     await page.goto(route);
     await connected(page);
     await page.getByLabel("Email", { exact: true }).fill("player@example.com");
-    await expect(page.locator("label .console-label")).toHaveText("Email");
+    await expect(page.locator('label[for="user_email"] .console-label')).toHaveText("Email");
   }
 });
 
