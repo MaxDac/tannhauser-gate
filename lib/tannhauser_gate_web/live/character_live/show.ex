@@ -9,7 +9,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience, Guilds, Items, Origins, Sheet, Trackers}
+  alias TannhauserGate.{Characters, Experience, Guilds, Items, Origins, Quests, Sheet, Trackers}
   alias TannhauserGate.Items.Item
 
   @impl true
@@ -41,6 +41,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:sheet, if(full?, do: Characters.sheet(character), else: %{}))
     |> assign(:origins, Origins.character_origins(character))
     |> assign(:guilds, Guilds.character_guilds(character, user))
+    |> assign(:quests, Quests.character_quests(character, user))
     |> assign(:bonuses, if(full?, do: bonuses(character), else: %{}))
     |> assign(:can_edit?, Characters.can_edit?(user, character))
     |> assign(
@@ -543,6 +544,26 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                     </span>
                   </span>
                 </.link>
+              </li>
+            </ul>
+          </div>
+
+          <div :if={@quests != []} id="character-quests" class="mt-8">
+            <p class="notepad-label">Quests</p>
+            <ul class="notepad-text mt-1">
+              <li :for={quest <- @quests} id={"character-quest-#{quest.id}"}>
+                <.link
+                  navigate={~p"/g/#{@current_story}/quests"}
+                  class="transition hover:text-primary"
+                >
+                  {quest.title}
+                </.link>
+                <span class="text-sm opacity-70">
+                  · {Calendar.strftime(quest.held_on, "%d/%m/%Y")}
+                </span>
+                <span :if={quest.visibility == "masters"} class="text-sm opacity-70">
+                  · masters only
+                </span>
               </li>
             </ul>
           </div>

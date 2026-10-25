@@ -17,6 +17,7 @@ defmodule TannhauserGate.Seeds do
     Guilds,
     Items,
     Origins,
+    Quests,
     Repo,
     Sheet,
     Stories,
@@ -25,7 +26,10 @@ defmodule TannhauserGate.Seeds do
   }
 
   alias TannhauserGate.Accounts.User
+  alias TannhauserGate.Characters.Character
+  alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
+  alias TannhauserGate.Quests.Quest
   alias TannhauserGate.Stories.Location
 
   @story_name "Tannhauser Gate"
@@ -48,6 +52,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_items(story)
     story = seed_guilds(story)
     story = seed_chat_rp(story)
+    story = seed_esiti_and_quests(story, admin)
     %{admin: admin, story: story}
   end
 
@@ -390,6 +395,108 @@ defmodule TannhauserGate.Seeds do
       Stories.get_story!(story.id)
     else
       story
+    end
+  end
+
+  ## Esiti and quests
+
+  @sample_npc "Mara Quill"
+  @sample_esito "Shadowing the Undercity fixer"
+  @sample_quest "The Undercity Docks blackout"
+
+  @doc """
+  Enables the esiti and quests modules the first time, with a sample NPC
+  informant, one resolved esito filed as her and one public quest she took
+  part in, its rewards handed out. Later runs (or a GM who disabled the
+  modules) leave everything as it is.
+  """
+  def seed_esiti_and_quests(story, admin) do
+    if Repo.exists?(from e in Esito, where: e.story_id == ^story.id and e.title == @sample_esito) do
+      story
+    else
+      {:ok, story} = Stories.set_module_enabled(story, :esiti, true)
+      {:ok, story} = Stories.set_module_enabled(story, :quests, true)
+      npc = seed_sample_npc(story, admin)
+      pier = Repo.get_by(Location, story_id: story.id, name: "Undercity Docks")
+      seed_sample_esito(story, admin, npc, pier)
+      seed_sample_quest(story, admin, npc, pier)
+      Stories.get_story!(story.id)
+    end
+  end
+
+  defp seed_sample_npc(story, admin) do
+    case Repo.get_by(Character, story_id: story.id, name: @sample_npc) do
+      nil ->
+        Repo.insert!(%Character{
+          story_id: story.id,
+          user_id: admin.id,
+          name: @sample_npc,
+          description: "An informant with a debt to every fixer on the docks.",
+          is_npc: true,
+          approval_status: "approved",
+          reviewed_by_id: admin.id,
+          reviewed_at: DateTime.utc_now(:second)
+        })
+
+      npc ->
+        npc
+    end
+  end
+
+  defp seed_sample_esito(story, admin, npc, pier) do
+    now = DateTime.utc_now(:second)
+
+    esito =
+      Repo.insert!(%Esito{
+        story_id: story.id,
+        character_id: npc.id,
+        user_id: admin.id,
+        title: @sample_esito,
+        body:
+          "Mara follows the fixer known as *Gutter Saint* from the noodle bar to the " <>
+            "docks, keeping to the rain shadows. **Who is he meeting?**",
+        location_id: pier && pier.id,
+        status: "resolved",
+        claimed_by_id: admin.id,
+        claimed_at: now,
+        resolved_by_id: admin.id,
+        resolved_at: now,
+        outcome:
+          "Gutter Saint meets a courier from the Tyrell-Kade arcology. A crate changes " <>
+            "hands: its seal reads *Nexus lot 7*. Nobody noticed Mara.",
+        effects: %{"targets" => [npc.name], "xp" => 0, "money" => 0}
+      })
+
+    Repo.insert!(%Message{
+      esito_id: esito.id,
+      user_id: admin.id,
+      from_masters: true,
+      author_name: "The masters",
+      body: "Roll Stealth when you reach the docks: it is raining, that helps you."
+    })
+  end
+
+  defp seed_sample_quest(story, admin, npc, pier) do
+    if is_nil(Repo.get_by(Quest, story_id: story.id, title: @sample_quest)) do
+      {:ok, quest} =
+        Quests.create_quest(admin, story, %{
+          "title" => @sample_quest,
+          "summary" =>
+            "The lights of the docks went out for an hour and three containers vanished. " <>
+              "The crew followed the trail to a flooded warehouse and **got one back**.",
+          "held_on" => Date.to_iso8601(Date.utc_today()),
+          "visibility" => "public",
+          "location_id" => pier && pier.id
+        })
+
+      {:ok, _} =
+        Quests.add_participant(admin, story, quest, %{
+          "character_id" => npc.id,
+          "money" => "50",
+          "note" => "Found the warehouse."
+        })
+
+      {:ok, _} = Quests.apply_rewards(admin, story, Quests.get_quest(story, quest.id))
     end
   end
 

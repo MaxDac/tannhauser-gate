@@ -274,6 +274,26 @@ defmodule TannhauserGateWeb.Layouts do
                 Guilds
               </.nav_link>
             </li>
+            <li :if={Stories.module_enabled?(@current_story, :esiti)}>
+              <.nav_link
+                id="nav-esiti"
+                navigate={~p"/g/#{@current_story}/esiti"}
+                icon="hero-scale"
+                current_path={@current_path}
+              >
+                Esiti
+              </.nav_link>
+            </li>
+            <li :if={Stories.module_enabled?(@current_story, :quests)}>
+              <.nav_link
+                id="nav-quests"
+                navigate={~p"/g/#{@current_story}/quests"}
+                icon="hero-book-open"
+                current_path={@current_path}
+              >
+                Quests
+              </.nav_link>
+            </li>
             <li :if={Stories.master_role?(@story_role)}>
               <.nav_link
                 id="nav-master-tools"
@@ -281,7 +301,7 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-megaphone"
                 current_path={@current_path}
               >
-                Master tools
+                Master tools <.open_esiti_badge story={@current_story} />
               </.nav_link>
             </li>
             <li :if={Stories.admin_role?(@story_role)}>
@@ -507,6 +527,25 @@ defmodule TannhauserGateWeb.Layouts do
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
     </div>
+    """
+  end
+
+  attr :story, :map, required: true
+
+  # The number of esiti waiting for a master, next to the Master tools link.
+  defp open_esiti_badge(assigns) do
+    assigns = assign(assigns, :count, TannhauserGate.Esiti.open_count(assigns.story))
+
+    ~H"""
+    <span
+      :if={@count > 0}
+      id="nav-esiti-open"
+      class="badge badge-sm badge-warning ml-auto"
+      aria-label={"#{@count} open esiti"}
+      title="Open esiti"
+    >
+      {@count}
+    </span>
     """
   end
 end
