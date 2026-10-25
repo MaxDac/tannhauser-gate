@@ -5,7 +5,7 @@ defmodule TannhauserGate.GameContextsTest do
   import TannhauserGate.GameFixtures
 
   alias TannhauserGate.{Accounts, Characters, Chat, Forum, Stories}
-  alias TannhauserGate.Seeds.{ArkhamAdrift, NeonRepublic}
+  alias TannhauserGate.Seeds.{ArkhamAdrift, DefaultGdr, NeonRepublic}
   alias TannhauserGate.Stories.Location
 
   describe "accounts roles" do
@@ -215,7 +215,7 @@ defmodule TannhauserGate.GameContextsTest do
       assert story.id == again.id
       assert story.name == "Tannhauser Gate"
       assert story.is_default
-      assert again.banner_path == TannhauserGate.Seeds.DefaultGdr.banner_path()
+      assert again.banner_path == DefaultGdr.banner_path()
       # The seeded rooms plus the guild briefing room.
       assert length(again.locations) == length(TannhauserGate.Seeds.locations()) + 1
       assert length(again.locations) >= 8
