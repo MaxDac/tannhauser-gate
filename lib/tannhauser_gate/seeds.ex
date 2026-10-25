@@ -9,7 +9,7 @@ defmodule TannhauserGate.Seeds do
 
   import Ecto.Query, warn: false
 
-  alias TannhauserGate.{Accounts, Bank, Forum, Guide, Repo, Sheet, Stories, Zones}
+  alias TannhauserGate.{Accounts, Bank, Forum, Guide, Origins, Repo, Sheet, Stories, Zones}
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Stories.Location
@@ -30,6 +30,7 @@ defmodule TannhauserGate.Seeds do
     seed_jobs(story)
     seed_guide(story)
     seed_zones(story)
+    story = seed_origins(story)
     %{admin: admin, story: story}
   end
 
@@ -204,6 +205,55 @@ defmodule TannhauserGate.Seeds do
     end
 
     :ok
+  end
+
+  ## Origins
+
+  @doc """
+  Enables the origins module on the default story and seeds its "Origin"
+  group the first time (an admin who later disables the module keeps it off).
+  Returns the (possibly updated) story.
+  """
+  def seed_origins(story) do
+    if Origins.list_groups(story) == [] do
+      {:ok, story} = Stories.set_module_enabled(story, :origins, true)
+
+      {:ok, group} =
+        Origins.create_group(story, %{
+          name: "Origin",
+          description: "Born in Neo-Meridian, or grown in a Lumen vat?",
+          required: true,
+          position: 0
+        })
+
+      {:ok, _} =
+        Origins.create_option(story, %{
+          group_id: group.id,
+          name: "Human",
+          position: 0,
+          description:
+            "Flesh, blood and real memories. Humans run the Precincts, the corporations " <>
+              "and the noodle stalls of Neo-Meridian, 2121."
+        })
+
+      {:ok, _} =
+        Origins.create_option(story, %{
+          group_id: group.id,
+          name: "Replicant",
+          position: 1,
+          requires_approval: true,
+          # Only the items still present in the (editable) sheet.
+          bonuses: Map.take(%{"body" => 1, "empathy" => -1}, Sheet.slugs(story)),
+          description:
+            "An **Echo**: engineered stronger than any human, with implanted memories and an " <>
+              "iris pattern Lumen scanners can read. Wardens hunt the illegal ones.\n\n" <>
+              "*Requires the masters' approval.*"
+        })
+
+      story
+    else
+      story
+    end
   end
 
   ## Guide and zones

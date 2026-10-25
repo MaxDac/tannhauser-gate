@@ -35,6 +35,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - the **community link**: an optional http(s) URL (e.g. a Discord server) with a label, shown in the GDR navigation as an external link;
   - the **guide** (`/g/:id/gm/guide`): sections holding ordered Markdown pages, edited with a live preview;
   - **zones** (`/g/:id/gm/zones`): numeric zone properties (name, key, default, visible to players or masters only) and zones with a value per property. Each room belongs to at most one zone, picked in the map tab;
+  - **origins** (`/g/:id/gm/origins`, module *Races & classes*): origin groups (e.g. "Race", "Class") with a description, position and a *required* flag, each with options: a name, a Markdown description, an optional image, sheet bonuses (item key → ±N, validated against the GDR's item keys) and a *requires master approval* flag;
   - **periodic actions** (`/g/:id/gm/actions`, e.g. a hunt): a dice pool of sheet items, a difficulty taken from a zone property of the room's zone or set by the masters per character (with a default), a tracker effect on success and on failure (a change, optionally on a damage type) and a cooldown in hours;
   - theme preset plus optional custom colours (hex only);
   - attributes, skills and powers, each with a name, description, min/max range and a key used in formulas (e.g. `strength`);
@@ -61,6 +62,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - **Trackers:** each character has a current value (or damage per type) for every tracker of the GDR. Masters edit them from the sheet. Other features use `TannhauserGate.Trackers` (`get/2`, `adjust/3`, `set/3`, `set_damage/4`).
   - **Experience:** masters award XP with a reason. The owner of a playable character spends it from the sheet to raise an item by one point, at the cost of its category formula (never above the item maximum). Every award and spend is in the XP log, with earned, spent and available totals (`TannhauserGate.Experience`).
   - **Formulas** (`TannhauserGate.Formula`) are evaluated by a small safe parser, never by `Code.eval`: whole numbers, `+ - * /` (integer division), `min(a, b)`, `max(a, b)`, parentheses, item keys and the variables `current` and `next`. They are validated when saved.
+  - **Origins** (`TannhauserGate.Origins`, module `:origins`): a character picks one option per origin group (`character_origins`), in an "Origins" wizard step right after identity; required groups must be chosen before submitting for approval. Like trait values, owners change origins only until approval, masters always (NPCs and edits). Options flagged *requires master approval* can be picked by players but are highlighted in the masters' approval queue, so approving the character approves them. Bonuses are added to the trait values in one place, `Characters.values_by_slug/1`, which feeds formulas, tracker maximums, dice pools and periodic actions; creation budgets and XP costs keep the base values, and the effective value may exceed the item maximum by the bonus. The public sheet shows the origins with their descriptions; the full sheet also shows the bonuses (base value and bonus next to each item), and the master character dashboard lists each character's origins. With the module off nothing applies.
   - **NPCs:** masters create non-player characters. NPCs are approved from the start and don't count toward the one-character limit. Masters pick an NPC (or their own character) in the chat "Speak as" selector.
 - **Bank and jobs:** characters pick a job and receive its pay automatically every pay interval. They can send money to other characters of the same GDR. Every movement is stored in a transaction ledger.
 - **Left drawer navigation:** inside a GDR it covers Home, Characters, Map, Guide, Forum, Mail (with an unread badge), Bank, Jobs, the master tools for its masters and the GM dashboard for its admin.
@@ -88,7 +90,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - read and moderate every room's conversation;
   - moderate forum sections;
   - grant or revoke the admin and GM flags.
-- **Default content:** the *Tannhauser Gate* GDR with nine rooms in the city of Neo-Meridian, attributes, skills, powers, jobs, three forum sections and an admin account.
+- **Default content:** the *Tannhauser Gate* GDR with nine rooms in the city of Neo-Meridian, attributes, skills, powers, jobs, three forum sections, a required "Origin" group (Human, or Replicant: +1 Body, −1 Empathy, requires master approval) with the origins module enabled, and an admin account.
 
 ## Stack
 
@@ -301,7 +303,7 @@ gh api -X PUT repos/MaxDac/tannhauser-gate/rulesets/<id> --input .github/ruleset
 
 ## Uploads
 
-Character avatars are stored on local disk and served from `/uploads`. By default they go to
+Character avatars and origin images are stored on local disk and served from `/uploads`. By default they go to
 `priv/static/uploads`. In production, set `UPLOADS_DIR` to a persistent directory. Uploads accept
 `.jpg`, `.jpeg`, `.png`, `.webp` and `.gif` files.
 
