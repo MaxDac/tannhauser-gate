@@ -11,6 +11,12 @@ defmodule TannhauserGateWeb.Layouts do
   defp home_path(nil), do: ~p"/gdrs"
   defp home_path(story), do: ~p"/g/#{story}"
 
+  # The calendar of the GDR for the drawer clock (calendar module on and set).
+  defp story_calendar(%{calendar: %TannhauserGate.Calendar.Config{} = calendar} = story),
+    do: if(Stories.module_enabled?(story, :calendar), do: calendar)
+
+  defp story_calendar(_story), do: nil
+
   defp room_path(story, location), do: ~p"/g/#{story}/rooms/#{location.id}"
 
   # The "Return to chat" link shows in a GDR with a remembered room, unless
@@ -142,6 +148,12 @@ defmodule TannhauserGateWeb.Layouts do
           >
             {@current_story.name}
           </p>
+          <.game_clock
+            :if={story_calendar(@current_story)}
+            id="drawer-game-clock"
+            calendar={story_calendar(@current_story)}
+            class="-mt-5 px-1 text-[0.7rem] font-semibold tracking-wide text-fog-400"
+          />
           <.link
             :if={return_to_chat?(assigns)}
             id="nav-return-to-chat"

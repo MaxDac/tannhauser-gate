@@ -7,7 +7,7 @@ defmodule TannhauserGateWeb.DiaryLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Diary}
+  alias TannhauserGate.{Calendars, Characters, Diary}
   alias TannhauserGate.Diary.Entry
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :diary}}
@@ -42,7 +42,8 @@ defmodule TannhauserGateWeb.DiaryLive do
   @impl true
   def handle_event("new_entry", _params, socket) do
     if socket.assigns.writer? do
-      {:noreply, open_editor(socket, %Entry{})}
+      label = Calendars.current_label(socket.assigns.current_story)
+      {:noreply, open_editor(socket, %Entry{game_date_label: label})}
     else
       {:noreply, put_flash(socket, :error, Diary.error_message(:unauthorized))}
     end

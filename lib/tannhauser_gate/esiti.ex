@@ -28,7 +28,19 @@ defmodule TannhauserGate.Esiti do
   import Ecto.Query, warn: false
 
   alias TannhauserGate.Accounts.User
-  alias TannhauserGate.{Bank, Characters, Dice, Experience, Items, Mailbox, Repo, Stories}
+
+  alias TannhauserGate.{
+    Bank,
+    Calendars,
+    Characters,
+    Dice,
+    Experience,
+    Items,
+    Mailbox,
+    Repo,
+    Stories
+  }
+
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Stories.{Location, Story}
@@ -222,7 +234,8 @@ defmodule TannhauserGate.Esiti do
           user_id: user.id,
           location_id: location_id,
           zone_id: zone_id,
-          status: "open"
+          status: "open",
+          game_date_label: Calendars.current_label(story)
         }
         |> insert_esito!(story, character, attrs, related)
       end)

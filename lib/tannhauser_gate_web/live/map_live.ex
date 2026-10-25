@@ -1,21 +1,35 @@
 defmodule TannhauserGateWeb.MapLive do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bookings, Chat, Guilds, Stories}
+  alias TannhauserGate.{Bookings, Chat, Guilds, Stories, Weather, Zones}
   alias TannhauserGate.Stories.Location
 
   @impl true
   def mount(_params, _session, socket) do
     story = Stories.get_story!(socket.assigns.current_story.id)
+    weather? = Weather.enabled?(story)
+    if weather? and connected?(socket), do: Weather.subscribe(story.id)
 
     {:ok,
      socket
      |> assign(:story, story)
+     |> assign(:weather?, weather?)
+     |> assign(:zones, if(weather?, do: Zones.list_zones(story), else: []))
+     |> load_weather()
      |> assign(:counts, Chat.count_messages_by_location())
      |> assign(:bookings, Bookings.upcoming_by_location(story.id))
      |> assign(:guild_names, guild_names(socket.assigns.current_user, story))
      |> assign(:page_title, "#{story.name} · Map")}
   end
+
+  defp load_weather(%{assigns: %{weather?: true, story: story}} = socket),
+    do: assign(socket, :weathers, Weather.zone_weathers(story))
+
+  defp load_weather(socket), do: assign(socket, :weathers, %{})
+
+  @impl true
+  def handle_info({:weather_changed, _story_id}, socket), do: {:noreply, load_weather(socket)}
+  def handle_info(_message, socket), do: {:noreply, socket}
 
   @impl true
   def handle_event("enter_room", %{"id" => id}, socket) do
@@ -125,6 +139,14 @@ defmodule TannhauserGateWeb.MapLive do
                     name="hero-lock-closed"
                     class="size-3 text-error"
                   />
+                  <span
+                    :if={@weathers[location.zone_id]}
+                    id={"room-weather-#{location.id}"}
+                    title={@weathers[location.zone_id].condition}
+                    class="text-info"
+                  >
+                    <.icon name={@weathers[location.zone_id].icon} class="size-3.5" />
+                  </span>
                 </span>
                 <span class="text-xs text-fog-500">{Map.get(@counts, location.id, 0)} msg</span>
               </.link>
@@ -144,6 +166,25 @@ defmodule TannhauserGateWeb.MapLive do
               </p>
             </li>
           </ul>
+
+          <section :if={@weather? and @zones != []} id="map-weather" class="mt-6">
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">Weather</h2>
+            <ul class="mt-3 space-y-2">
+              <li
+                :for={zone <- @zones}
+                id={"map-weather-zone-#{zone.id}"}
+                class="flex items-center justify-between gap-2 rounded-md border border-mint/20 bg-ink/80 px-3 py-2 text-sm"
+              >
+                <span class="truncate">{zone.name}</span>
+                <.weather_badge
+                  :if={@weathers[zone.id]}
+                  id={"map-weather-badge-#{zone.id}"}
+                  weather={@weathers[zone.id]}
+                />
+                <span :if={!@weathers[zone.id]} class="text-xs text-fog-500">Unknown</span>
+              </li>
+            </ul>
+          </section>
 
           <.link
             id="map-guide-link"

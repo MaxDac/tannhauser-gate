@@ -639,7 +639,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                   {quest.title}
                 </.link>
                 <span class="text-sm opacity-70">
-                  · {Calendar.strftime(quest.held_on, "%d/%m/%Y")}
+                  · {quest.game_date_label || Calendar.strftime(quest.held_on, "%d/%m/%Y")}
                 </span>
                 <span :if={quest.visibility == "masters"} class="text-sm opacity-70">
                   · masters only

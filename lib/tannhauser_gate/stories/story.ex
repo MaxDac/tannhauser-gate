@@ -43,11 +43,13 @@ defmodule TannhauserGate.Stories.Story do
     field :esiti_max_open, :integer, default: 2
     field :esiti_min_xp, :integer
     field :sheet_template, :string
+    field :weather_interval_hours, :integer, default: 6
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
     belongs_to :owner, User
     has_many :locations, Location, preload_order: [asc: :name]
+    has_one :calendar, TannhauserGate.Calendar.Config
 
     many_to_many :masters, User,
       join_through: StoryMaster,
@@ -81,7 +83,8 @@ defmodule TannhauserGate.Stories.Story do
     :auto_xp_cooldown_minutes,
     :esiti_max_open,
     :esiti_min_xp,
-    :sheet_template
+    :sheet_template,
+    :weather_interval_hours
   ]
 
   @doc """
@@ -133,7 +136,8 @@ defmodule TannhauserGate.Stories.Story do
       :map_width,
       :map_height,
       :currency_name,
-      :max_guilds_per_character
+      :max_guilds_per_character,
+      :weather_interval_hours
     ])
     |> validate_length(:name, max: 120)
     |> validate_length(:currency_name, max: 30)
@@ -164,6 +168,7 @@ defmodule TannhauserGate.Stories.Story do
       less_than_or_equal_to: 1_000_000
     )
     |> validate_length(:sheet_template, max: 20_000)
+    |> validate_number(:weather_interval_hours, greater_than: 0, less_than_or_equal_to: 168)
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)

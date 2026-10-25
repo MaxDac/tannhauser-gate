@@ -13,6 +13,14 @@ alias TannhauserGate.Forum.Section
 
 %{story: story, admin: admin} = Seeds.run()
 
+# The game clock advances with real time and the weather is rolled at random:
+# keep both off so the screenshots never change.
+story =
+  Enum.reduce([:calendar, :weather], story, fn key, story ->
+    {:ok, story} = Stories.set_module_enabled(story, key, false)
+    story
+  end)
+
 player_email = "player@tannhauser.gate"
 player_password = "more-human-than-human"
 

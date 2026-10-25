@@ -5,7 +5,7 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.Zones
+  alias TannhauserGate.{Calendars, Zones}
   alias TannhauserGate.Zones.Event
 
   @impl true
@@ -13,6 +13,7 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
     {:ok,
      socket
      |> assign(:page_title, "Zone events")
+     |> assign(:calendar?, Calendars.enabled?(socket.assigns.current_story))
      |> reload()
      |> reset_form()}
   end
@@ -31,7 +32,10 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
 
   defp reset_form(socket) do
     form =
-      %Event{happened_on: Date.utc_today()}
+      %Event{
+        happened_on: Date.utc_today(),
+        game_date_label: Calendars.current_label(story(socket))
+      }
       |> Zones.change_event()
       |> to_form()
 
@@ -118,6 +122,12 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
                 />
                 <.input field={@form[:happened_on]} type="date" label="Date" required />
               </div>
+              <.input
+                :if={@calendar?}
+                field={@form[:game_date_label]}
+                type="text"
+                label="In-game date"
+              />
               <.input field={@form[:title]} type="text" label="Title" required />
               <.input field={@form[:body]} type="textarea" label="What happened (Markdown)" rows="5" />
               <.button id="post-zone-event" phx-disable-with="Posting...">Post event</.button>
@@ -136,6 +146,7 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
                   <h3 class="font-semibold text-primary">{event.title}</h3>
                   <p class="text-xs text-base-content/60">
                     {event.zone.name} · {event.happened_on}
+                    <span :if={event.game_date_label}>· {event.game_date_label}</span>
                     <span :if={event.user}>· {event.user.username}</span>
                   </p>
                 </div>

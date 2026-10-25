@@ -81,6 +81,7 @@ defmodule TannhauserGateWeb do
       import Phoenix.HTML
       # Core UI components
       import TannhauserGateWeb.CoreComponents
+      import TannhauserGateWeb.CalendarComponents
       import TannhauserGateWeb.CharacterComponents
       import TannhauserGateWeb.GameComponents
       import TannhauserGateWeb.GuideComponents

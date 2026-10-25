@@ -38,7 +38,9 @@ defmodule TannhauserGateWeb.ZoneComponents do
           >
             <p class="text-sm">
               <span class="font-semibold text-phosphor">{event.title}</span>
-              <span class="ml-2 font-mono text-xs text-fog-500">{event.happened_on}</span>
+              <span class="ml-2 font-mono text-xs text-fog-500">
+                {event.game_date_label || event.happened_on}
+              </span>
             </p>
             <.markdown content={event.body} class="mt-1 text-sm" />
           </li>
