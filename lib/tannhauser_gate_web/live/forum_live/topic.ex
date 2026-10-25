@@ -127,6 +127,9 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         {:ok, post} = fetch_post(socket, socket.assigns.editing_post_id)
         {:noreply, socket |> assign(:edit_form, form) |> stream_insert(:posts, post)}
 
+      {:error, :muted} ->
+        {:noreply, put_flash(socket, :error, TannhauserGate.Sanctions.muted_message(user, story))}
+
       _ ->
         {:noreply, put_flash(socket, :error, "You cannot edit that post.")}
     end
@@ -183,6 +186,9 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
            :title_form,
            to_form(params, as: "topic", errors: changeset.errors, action: :update)
          )}
+
+      {:error, :muted} ->
+        {:noreply, put_flash(socket, :error, TannhauserGate.Sanctions.muted_message(user, story))}
 
       _ ->
         {:noreply, put_flash(socket, :error, "You cannot edit this topic.")}

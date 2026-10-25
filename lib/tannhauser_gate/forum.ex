@@ -261,12 +261,16 @@ defmodule TannhauserGate.Forum do
 
   @doc "Renames a topic, if the user can edit it."
   def update_topic(user, %Story{} = story, %Topic{} = topic, attrs) do
-    if can_edit_topic?(user, story, topic) do
-      topic |> Topic.changeset(attrs) |> Repo.update()
-    else
-      {:error, :unauthorized}
+    cond do
+      not can_edit_topic?(user, story, topic) -> {:error, :unauthorized}
+      muted_author?(user, story) -> {:error, :muted}
+      true -> topic |> Topic.changeset(attrs) |> Repo.update()
     end
   end
+
+  # Moderators may still fix content; everyone else is blocked while muted.
+  defp muted_author?(user, story),
+    do: not Stories.can?(user, story, :can_moderate) and Sanctions.muted?(user, story)
 
   @doc """
   Locks/unlocks or pins/unpins a topic (`"locked"`, `"pinned"`): masters only.
@@ -385,13 +389,18 @@ defmodule TannhauserGate.Forum do
 
   @doc "Edits the body of a post, if the user can edit it, stamping `edited_at`."
   def update_post(user, %Story{} = story, %Post{} = post, attrs) do
-    if can_edit_post?(user, story, post) do
-      post
-      |> Post.changeset(attrs)
-      |> Changeset.put_change(:edited_at, DateTime.utc_now(:second))
-      |> Repo.update()
-    else
-      {:error, :unauthorized}
+    cond do
+      not can_edit_post?(user, story, post) ->
+        {:error, :unauthorized}
+
+      muted_author?(user, story) ->
+        {:error, :muted}
+
+      true ->
+        post
+        |> Post.changeset(attrs)
+        |> Changeset.put_change(:edited_at, DateTime.utc_now(:second))
+        |> Repo.update()
     end
   end
 

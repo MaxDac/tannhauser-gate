@@ -94,6 +94,15 @@ defmodule TannhauserGate.ReportsSanctionsTest do
       assert {:ok, _} = report(%{ctx | story: story}, ctx.player, "chat", whisper.id)
     end
 
+    test "chat entries of a room the user cannot enter cannot be reported", ctx do
+      message = message_fixture(ctx.other, ctx.room, ctx.other_character, "secret talk")
+
+      ctx.room |> Ecto.Changeset.change(private: true) |> TannhauserGate.Repo.update!()
+
+      assert {:error, :target_not_found} = report(ctx, ctx.player, "chat", message.id)
+      assert {:ok, _} = report(ctx, ctx.master, "chat", message.id)
+    end
+
     test "forum posts: visibility of the section", ctx do
       open = section_fixture(ctx.story)
       masters_only = section_fixture(ctx.story, %{visibility: "masters"})
@@ -250,6 +259,39 @@ defmodule TannhauserGate.ReportsSanctionsTest do
 
       # Others are not affected.
       assert {:ok, _} = mail(ctx, ctx.other, ctx.other_character, ctx.character)
+    end
+
+    test "a mute blocks editing forum content and diary writes", ctx do
+      story = enable_modules(ctx.story, [:diary])
+      ctx = %{ctx | story: story, character: %{ctx.character | story: story}}
+      section = section_fixture(story)
+      topic = topic_fixture(ctx.player, section)
+      [post | _] = Forum.list_posts(topic)
+
+      {:ok, entry} =
+        TannhauserGate.Diary.create_entry(ctx.player, ctx.character, %{
+          "title" => "Day one",
+          "body" => "Rain."
+        })
+
+      {:ok, _} = sanction(ctx, ctx.player, "mute")
+
+      assert {:error, :muted} = Forum.update_topic(ctx.player, story, topic, %{"title" => "x"})
+      assert {:error, :muted} = Forum.update_post(ctx.player, story, post, %{"body" => "x"})
+
+      assert {:error, :muted} =
+               TannhauserGate.Diary.create_entry(ctx.player, ctx.character, %{
+                 "title" => "Day two",
+                 "body" => "More rain."
+               })
+
+      assert {:error, :muted} =
+               TannhauserGate.Diary.update_entry(ctx.player, ctx.character, entry, %{
+                 "title" => "Edited"
+               })
+
+      # Moderators can still edit.
+      assert {:ok, _} = Forum.update_post(ctx.master, story, post, %{"body" => "[removed]"})
     end
 
     test "the sanctioned user gets a letter from the masters", ctx do

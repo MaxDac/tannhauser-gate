@@ -19,6 +19,7 @@ defmodule TannhauserGate.Reports do
 
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Boards
+  alias TannhauserGate.Bookings
   alias TannhauserGate.Characters
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Chat
@@ -163,7 +164,8 @@ defmodule TannhauserGate.Reports do
 
     with %{} = message <- Chat.get_story_message(story.id, id),
          message = Repo.preload(message, [:character, :location, :recipient_character]),
-         true <- Chat.visible?(message, viewer) do
+         true <- Chat.visible?(message, viewer),
+         true <- viewer == :all or Bookings.can_access?(user, message.location) do
       {:ok,
        %{
          author_id: message.user_id,
