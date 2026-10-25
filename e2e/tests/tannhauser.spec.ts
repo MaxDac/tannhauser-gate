@@ -94,7 +94,10 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await expect(page.locator("#character-form").getByRole("button", { name: "Remove image" })).toBeVisible();
   await page.getByLabel("Description").fill("Trench coat, tired eyes.");
   await page.getByLabel("Background").fill("A former Warden of Precinct 9.");
-  // Wizard: identity, then one step per sheet category, then the review
+  // Wizard: identity, origins, then one step per sheet category, then the review
+  await page.locator("#wizard-next").click();
+  await expect(page.locator("#origins-step")).toBeVisible();
+  await page.locator("#origins-step label").first().click();
   for (const step of ["attribute", "skill", "power"]) {
     await page.locator("#wizard-next").click();
     await expect(page.locator(`#sheet-${step}`)).toBeVisible();

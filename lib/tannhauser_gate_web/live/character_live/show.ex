@@ -9,7 +9,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience, Sheet, Trackers}
+  alias TannhauserGate.{Characters, Experience, Origins, Sheet, Trackers}
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -38,6 +38,8 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:reviewer?, master?)
     |> assign(:owner?, not character.is_npc and character.user_id == user.id)
     |> assign(:sheet, if(full?, do: Characters.sheet(character), else: %{}))
+    |> assign(:origins, Origins.character_origins(character))
+    |> assign(:bonuses, if(full?, do: Origins.bonuses(character), else: %{}))
     |> assign(:can_edit?, Characters.can_edit?(user, character))
     |> assign(
       :states,
@@ -414,6 +416,42 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
 
           <p class="notepad-text whitespace-pre-line">{@character.background || "—"}</p>
 
+          <div :if={@origins != []} id="character-origins" class="mt-8">
+            <p class="notepad-label">Origins</p>
+            <div class="mt-2 space-y-4">
+              <div
+                :for={%{group: group, option: option} <- @origins}
+                id={"character-origin-#{group.id}"}
+                class="flex gap-4"
+              >
+                <img
+                  :if={option.image_path}
+                  src={option.image_path}
+                  alt=""
+                  class="size-14 shrink-0 rounded object-cover"
+                />
+                <div class="min-w-0 flex-1">
+                  <p class="notepad-text">
+                    <span class="opacity-70">{group.name}:</span>
+                    <strong id={"character-origin-option-#{option.id}"}>{option.name}</strong>
+                    <span
+                      :if={@full? and Origins.bonus_label(option.bonuses)}
+                      id={"character-origin-bonuses-#{option.id}"}
+                      class="ml-2 text-sm tabular-nums opacity-70"
+                    >
+                      ({Origins.bonus_label(option.bonuses)})
+                    </span>
+                  </p>
+                  <.markdown
+                    :if={option.description}
+                    content={option.description}
+                    class="notepad-text text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div :if={@character.off_game_info} id="character-off-game" class="mt-8">
             <p class="notepad-label">Off-game info</p>
             <p class="notepad-text whitespace-pre-line">{@character.off_game_info}</p>
@@ -436,7 +474,17 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                     cost={@costs[item.id]}
                     available={@xp.available}
                   />
-                  <span id={"trait-value-#{item.id}"} class="font-bold">{value}</span>
+                  <span
+                    :if={@bonuses[item.slug]}
+                    id={"trait-bonus-#{item.id}"}
+                    class="text-xs tabular-nums opacity-60"
+                    title="Base value and origin bonus"
+                  >
+                    {value} {Origins.signed(@bonuses[item.slug])}
+                  </span>
+                  <span id={"trait-value-#{item.id}"} class="font-bold">
+                    {value + (@bonuses[item.slug] || 0)}
+                  </span>
                 </span>
               </li>
             </ul>

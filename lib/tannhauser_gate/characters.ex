@@ -15,6 +15,7 @@ defmodule TannhauserGate.Characters do
   alias Ecto.Multi
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Characters.{Character, State}
+  alias TannhauserGate.Origins
   alias TannhauserGate.Repo
   alias TannhauserGate.Sheet
   alias TannhauserGate.Sheet.{Item, Trait}
@@ -195,11 +196,15 @@ defmodule TannhauserGate.Characters do
       changeset
       |> maybe_put_avatar(avatar_path)
       |> validate_traits(attrs)
+      |> Origins.validate_choices(attrs)
 
     Multi.new()
     |> Multi.insert(:character, changeset)
     |> Multi.run(:traits, fn repo, %{character: character} ->
       save_traits(repo, character, attrs)
+    end)
+    |> Multi.run(:origins, fn repo, %{character: character} ->
+      save_origins(repo, character, attrs, changeset)
     end)
     |> Repo.transaction()
     |> case do
@@ -230,7 +235,8 @@ defmodule TannhauserGate.Characters do
   Without `master?`, the owner of a player character can change its trait
   values only before approval (within the creation budgets); once approved,
   submitted traits are ignored and items are raised by spending XP
-  (`TannhauserGate.Experience.spend/3`).
+  (`TannhauserGate.Experience.spend/3`). The same rule applies to the origins
+  (`attrs["origins"]`, see `TannhauserGate.Origins`).
   """
   def update_character(%Character{} = character, attrs, avatar_path \\ nil, opts \\ []) do
     attrs = stringify_keys(attrs)
@@ -240,11 +246,15 @@ defmodule TannhauserGate.Characters do
       changeset
       |> maybe_put_avatar(avatar_path)
       |> validate_traits(attrs)
+      |> Origins.validate_choices(attrs)
 
     Multi.new()
     |> Multi.update(:character, changeset)
     |> Multi.run(:traits, fn repo, %{character: updated} ->
       save_traits(repo, updated, attrs)
+    end)
+    |> Multi.run(:origins, fn repo, %{character: updated} ->
+      save_origins(repo, updated, attrs, changeset)
     end)
     |> Repo.transaction()
     |> case do
@@ -257,11 +267,14 @@ defmodule TannhauserGate.Characters do
     changeset = Character.changeset(character, attrs, opts)
 
     cond do
-      opts[:master?] || character.is_npc || not is_map(attrs["traits"]) ->
+      opts[:master?] || character.is_npc ->
         {changeset, attrs}
 
       character.approval_status == "approved" ->
-        {changeset, Map.delete(attrs, "traits")}
+        {changeset, Map.drop(attrs, ["traits", "origins"])}
+
+      not is_map(attrs["traits"]) ->
+        {changeset, attrs}
 
       true ->
         apply_budgets(changeset, attrs, trait_values(character))
@@ -279,13 +292,20 @@ defmodule TannhauserGate.Characters do
 
   @doc """
   Map of `slug => value` for every sheet item of the character's GDR
-  (missing values default to the item minimum), used to evaluate formulas.
+  (missing values default to the item minimum), used to evaluate formulas,
+  tracker maximums and dice pools.
+
+  These are the *effective* values: the origin bonuses
+  (`TannhauserGate.Origins.bonuses/1`) are added when the origins module is
+  enabled, so they may exceed the item maximum. Creation budgets and XP costs
+  use the base values (`sheet/1`, `trait_values/1`) instead.
   """
   def values_by_slug(%Character{} = character) do
     character
     |> sheet()
     |> Enum.flat_map(fn {_kind, entries} -> Enum.map(entries, fn {i, v} -> {i.slug, v} end) end)
     |> Map.new()
+    |> Origins.apply_bonuses(Origins.bonuses(character))
   end
 
   # Fills missing values with the category defaults and checks the creation
@@ -337,17 +357,26 @@ defmodule TannhauserGate.Characters do
   def delete_character(%Character{} = character), do: Repo.delete(character)
 
   def change_character(%Character{} = character, attrs \\ %{}, opts \\ []),
-    do: character |> Character.changeset(attrs, opts) |> validate_traits(attrs)
+    do:
+      character
+      |> Character.changeset(attrs, opts)
+      |> validate_traits(attrs)
+      |> Origins.validate_choices(stringify_keys(attrs))
 
   ## Approval
 
   @doc """
   Sends a draft (or a rejected character, after the owner's edits) to the
-  masters for review. Returns `{:error, :invalid_status}` otherwise.
+  masters for review. Returns `{:error, :invalid_status}` otherwise, or
+  `{:error, :origins_missing}` when a required origin group has no choice.
   """
   def submit_for_approval(%Character{approval_status: status} = character)
       when status in ["draft", "rejected"] do
-    character |> Character.review_changeset("submitted", %{}) |> Repo.update()
+    if Origins.missing_required(character) == [] do
+      character |> Character.review_changeset("submitted", %{}) |> Repo.update()
+    else
+      {:error, :origins_missing}
+    end
   end
 
   def submit_for_approval(%Character{}), do: {:error, :invalid_status}
@@ -392,6 +421,10 @@ defmodule TannhauserGate.Characters do
   def approval_error_message(:notes_required), do: "Explain why the character is rejected."
   def approval_error_message(:unauthorized), do: "Only the GDR masters can review characters."
   def approval_error_message(:invalid_state), do: "That state does not exist in this GDR."
+
+  def approval_error_message(:origins_missing),
+    do: "Choose every required origin before submitting the character."
+
   def approval_error_message(%Ecto.Changeset{}), do: "The character could not be saved."
 
   @doc "A short label for an approval status."
@@ -638,6 +671,13 @@ defmodule TannhauserGate.Characters do
           )
 
         {:ok, count}
+    end
+  end
+
+  defp save_origins(repo, character, attrs, changeset) do
+    case Origins.save_choices(repo, character, attrs["origins"]) do
+      {:ok, count} -> {:ok, count}
+      {:error, message} -> {:error, Ecto.Changeset.add_error(changeset, :origins, message)}
     end
   end
 
