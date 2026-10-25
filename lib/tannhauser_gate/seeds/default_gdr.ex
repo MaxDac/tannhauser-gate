@@ -37,6 +37,7 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   alias TannhauserGate.Stories.Location
 
   @story_name "Tannhauser Gate"
+  @banner_path "/images/gdr/tannhauser-gate-banner.svg"
 
   @gm %{
     env: "TG_GM",
@@ -46,6 +47,7 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   }
 
   def story_name, do: @story_name
+  def banner_path, do: @banner_path
 
   @doc "The default credentials of the GM owning this GDR (env-overridable)."
   def gm_credentials, do: Helpers.credentials(@gm)
@@ -100,6 +102,8 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
       case Stories.get_story_by_name(@story_name) do
         nil ->
           {:ok, story} = Stories.create_story(attrs)
+          # The banner is set only once: a GM may later replace or remove it.
+          {:ok, story} = Stories.set_banner(story, @banner_path)
           story
 
         story ->

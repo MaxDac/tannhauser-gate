@@ -215,6 +215,7 @@ defmodule TannhauserGate.GameContextsTest do
       assert story.id == again.id
       assert story.name == "Tannhauser Gate"
       assert story.is_default
+      assert again.banner_path == TannhauserGate.Seeds.DefaultGdr.banner_path()
       # The seeded rooms plus the guild briefing room.
       assert length(again.locations) == length(TannhauserGate.Seeds.locations()) + 1
       assert length(again.locations) >= 8
@@ -322,6 +323,7 @@ defmodule TannhauserGate.GameContextsTest do
       refute again.is_default
       assert %{name: "Neon Republic", theme: "azure", currency_name: "scrip"} = again
       assert again.map_svg == NeonRepublic.map_svg()
+      assert again.banner_path == NeonRepublic.banner_path()
       assert "cyberpunk" in again.genres
       assert again.pitch =~ "Halcyon Bay"
 

@@ -83,7 +83,7 @@
   <circle cx="720" cy="292" r="3" fill="#fff1c4"/>
 
   <g fill="#e6d9c0" fill-opacity="0.85" font-family="Georgia, 'Times New Roman', serif">
-    <text x="40" y="360" font-size="44" letter-spacing="6">ARKHAM ADRIFT</text>
-    <text x="42" y="385" font-size="15" letter-spacing="3" fill-opacity="0.6">1923 · THE LAMP STILL BURNS</text>
+    <text x="220" y="360" font-size="44" letter-spacing="6">ARKHAM ADRIFT</text>
+    <text x="222" y="385" font-size="15" letter-spacing="3" fill-opacity="0.6">1923 · THE LAMP STILL BURNS</text>
   </g>
 </svg>

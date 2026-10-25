@@ -243,9 +243,13 @@ what is missing and never overwrite edits. They create three GDRs:
 - **Arkham Adrift** — cosmic horror with a light that does not go out, inspired by *Stygian: Reign of
   the Old Ones* (original lore): Arkham, 1923, torn from the world and adrift in a starless void.
   The Black Star cult worships the Old Ones, while the Lamplighters of St. Agnes keep the lamp burning
-  and search for the Narrow Gate home. It uses the `sepia` theme and a static banner
-  (`priv/static/images/gdr/`), with Dread (madness dice) and Grace (rerolls, restored by charity)
-  trackers on a d10 pool, and the same full placeholder content as Neon Republic.
+  and search for the Narrow Gate home. It uses the `sepia` theme, with Dread (madness dice) and Grace
+  (rerolls, restored by charity) trackers on a d10 pool, and the same full placeholder content as
+  Neon Republic.
+
+Each GDR gets an original directory banner (SVG, served from `priv/static/images/gdr/`), set only
+when the GDR is created so a GM can replace or remove it. A one-off migration gives the banner to
+existing Tannhauser Gate and Neon Republic GDRs that have none.
 
 They also create a platform admin and one GM owner per GDR:
 
