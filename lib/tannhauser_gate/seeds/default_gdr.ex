@@ -33,7 +33,7 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Tannhauser Gate"
@@ -1051,5 +1051,5 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   Original SVG artwork for the city of Neo-Meridian (1000x700). Rooms are
   overlaid at runtime from the locations' polygons.
   """
-  def map_svg, do: TannhauserGate.Seeds.MapArtwork.read!("tannhauser-gate")
+  def map_svg, do: MapArtwork.read!("tannhauser-gate")
 end

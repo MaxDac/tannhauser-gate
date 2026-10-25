@@ -29,7 +29,7 @@ defmodule TannhauserGateWeb.MapPins do
 
   @type label :: %{x: float(), y: float()} | nil
   @type pin :: %{
-          location: Location.t(),
+          location: %Location{},
           index: pos_integer(),
           left: float(),
           top: float(),
@@ -37,7 +37,7 @@ defmodule TannhauserGateWeb.MapPins do
         }
 
   @doc "Lays out the pins of `locations` on a `width` x `height` map."
-  @spec layout([Location.t()], pos_integer(), pos_integer()) :: [pin()]
+  @spec layout([%Location{}], pos_integer(), pos_integer()) :: [pin()]
   def layout(locations, width, height) do
     map_height = height * 100 / width
 

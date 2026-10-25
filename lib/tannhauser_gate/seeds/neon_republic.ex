@@ -33,7 +33,7 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Neon Republic"
@@ -1042,5 +1042,5 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   end
 
   @doc "Original SVG artwork for Halcyon Bay (1000x700)."
-  def map_svg, do: TannhauserGate.Seeds.MapArtwork.read!("neon-republic")
+  def map_svg, do: MapArtwork.read!("neon-republic")
 end

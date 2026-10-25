@@ -40,7 +40,7 @@ defmodule TannhauserGate.Seeds.ArkhamAdrift do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Arkham Adrift"
@@ -1214,5 +1214,5 @@ defmodule TannhauserGate.Seeds.ArkhamAdrift do
   end
 
   @doc "Original SVG artwork for Arkham adrift in the void (1000x700)."
-  def map_svg, do: TannhauserGate.Seeds.MapArtwork.read!("arkham-adrift")
+  def map_svg, do: MapArtwork.read!("arkham-adrift")
 end

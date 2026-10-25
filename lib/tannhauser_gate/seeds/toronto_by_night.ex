@@ -35,7 +35,7 @@ defmodule TannhauserGate.Seeds.TorontoByNight do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Toronto by Night"
@@ -1502,5 +1502,5 @@ defmodule TannhauserGate.Seeds.TorontoByNight do
   end
 
   @doc "Original SVG artwork of Toronto by night (1000x700)."
-  def map_svg, do: TannhauserGate.Seeds.MapArtwork.read!("toronto-by-night")
+  def map_svg, do: MapArtwork.read!("toronto-by-night")
 end
