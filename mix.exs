@@ -94,7 +94,7 @@ defmodule TannhauserGate.MixProject do
   # It is a ratchet: raise it whenever coverage goes up, never lower it.
   defp test_coverage do
     [
-      summary: [threshold: 87],
+      summary: [threshold: 95],
       ignore_modules: [
         TannhauserGate.DataCase,
         TannhauserGateWeb.ConnCase,
@@ -123,7 +123,12 @@ defmodule TannhauserGate.MixProject do
         "esbuild tannhauser_gate --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test --cover"]
+      precommit: [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "test --cover"
+      ]
     ]
   end
 end

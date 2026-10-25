@@ -70,7 +70,7 @@ defmodule TannhauserGate.Forum.Topic do
   def changeset(topic, attrs) do
     topic
     |> cast(attrs, [:title])
-    |> update_change(:title, &String.trim/1)
+    |> update_change(:title, &(&1 && String.trim(&1)))
     |> validate_required([:title])
     |> validate_length(:title, max: 200)
   end
@@ -98,7 +98,7 @@ defmodule TannhauserGate.Forum.Post do
   def changeset(post, attrs) do
     post
     |> cast(attrs, [:body])
-    |> update_change(:body, &String.trim/1)
+    |> update_change(:body, &(&1 && String.trim(&1)))
     |> validate_required([:body])
     |> validate_length(:body, max: 20_000)
   end
