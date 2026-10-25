@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Toronto by Night: a blood moon over the Toronto skyline and the CN Tower, mirrored in a black Lake Ontario">
+  <defs>
+    <linearGradient id="tbn-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#05040a"/>
+      <stop offset="55%" stop-color="#13111d"/>
+      <stop offset="100%" stop-color="#3a1420"/>
+    </linearGradient>
+    <linearGradient id="tbn-lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#140d18"/>
+      <stop offset="100%" stop-color="#05040a"/>
+    </linearGradient>
+    <radialGradient id="tbn-moon" cx="0.42" cy="0.38" r="0.65">
+      <stop offset="0%" stop-color="#f6c2b4"/>
+      <stop offset="55%" stop-color="#d9566a"/>
+      <stop offset="100%" stop-color="#8e2034"/>
+    </radialGradient>
+    <radialGradient id="tbn-halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ec5a6d" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#ec5a6d" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ec5a6d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tbn-beacon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ff8a8a" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ec5a6d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tbn-mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9fb4d4" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#9fb4d4" stop-opacity="0.16"/>
+    </linearGradient>
+    <symbol id="tbn-bat" viewBox="0 0 40 14">
+      <path d="M20 4 L18 1 L17 5 C 12 2, 6 2, 0 6 C 6 6, 9 9, 10 13 C 13 9, 16 9, 20 12 C 24 9, 27 9, 30 13 C 31 9, 34 6, 40 6 C 34 2, 28 2, 23 5 L22 1 Z"/>
+    </symbol>
+  </defs>
+
+  <rect width="1200" height="400" fill="url(#tbn-sky)"/>
+
+  <!-- A few cold stars over the city glow. -->
+  <g fill="#efe9f2">
+    <circle cx="240" cy="40" r="1.2" opacity="0.7"/>
+    <circle cx="380" cy="70" r="1" opacity="0.5"/>
+    <circle cx="470" cy="28" r="1.4" opacity="0.8"/>
+    <circle cx="560" cy="90" r="0.9" opacity="0.5"/>
+    <circle cx="730" cy="36" r="1.1" opacity="0.6"/>
+    <circle cx="990" cy="60" r="1.2" opacity="0.6"/>
+    <circle cx="310" cy="120" r="0.9" opacity="0.4"/>
+  </g>
+
+  <!-- The blood moon and the bats crossing it. -->
+  <circle cx="860" cy="105" r="150" fill="url(#tbn-halo)"/>
+  <circle cx="860" cy="105" r="52" fill="url(#tbn-moon)"/>
+  <g fill="#8e2034" fill-opacity="0.45">
+    <circle cx="842" cy="92" r="9"/>
+    <circle cx="878" cy="124" r="6"/>
+    <circle cx="872" cy="84" r="4"/>
+  </g>
+  <g fill="#05040a">
+    <use href="#tbn-bat" x="812" y="78" width="34" height="12"/>
+    <use href="#tbn-bat" x="890" y="140" width="24" height="9"/>
+    <use href="#tbn-bat" x="770" y="150" width="18" height="7"/>
+    <use href="#tbn-bat" x="940" y="52" width="16" height="6"/>
+  </g>
+
+  <!-- Distant, lower city beyond the crop area of the directory cards. -->
+  <g fill="#0e0c16">
+    <path d="M0 292 V262 H30 V250 H62 V270 H90 V244 H120 V266 H150 V256 H190 V292 Z"/>
+    <path d="M1010 292 V258 H1040 V246 H1072 V268 H1104 V252 H1140 V270 H1170 V260 H1200 V292 Z"/>
+  </g>
+
+  <!-- The skyline: Financial District towers left, the tower in the middle, the dome and condos right. -->
+  <g fill="#07060c">
+    <rect x="190" y="230" width="34" height="62"/>
+    <rect x="226" y="200" width="28" height="92"/>
+    <rect x="256" y="170" width="40" height="122"/>
+    <path d="M298 292 V150 L318 138 L338 150 V292 Z"/>
+    <rect x="340" y="184" width="30" height="108"/>
+    <rect x="372" y="122" width="44" height="170"/>
+    <rect x="418" y="160" width="32" height="132"/>
+    <rect x="452" y="140" width="38" height="152"/>
+    <path d="M492 292 V176 H516 V196 H530 V292 Z"/>
+    <rect x="532" y="210" width="40" height="82"/>
+    <rect x="574" y="234" width="46" height="58"/>
+    <path d="M660 292 V270 A60 26 0 0 1 780 270 V292 Z"/>
+    <rect x="786" y="200" width="30" height="92"/>
+    <rect x="818" y="226" width="40" height="66"/>
+    <rect x="860" y="186" width="26" height="106"/>
+    <rect x="888" y="240" width="44" height="52"/>
+    <rect x="934" y="214" width="30" height="78"/>
+    <rect x="966" y="250" width="44" height="42"/>
+  </g>
+
+  <!-- The CN Tower, its pod lit and its beacon pulsing red. -->
+  <g fill="#0b0a12" stroke="#9fb4d4" stroke-opacity="0.35" stroke-width="1">
+    <path d="M627 292 L653 292 L644 142 L636 142 Z"/>
+    <rect x="637" y="76" width="6" height="56"/>
+    <path d="M638 76 L642 76 L640 24 Z"/>
+    <ellipse cx="640" cy="138" rx="24" ry="9"/>
+    <ellipse cx="640" cy="128" rx="18" ry="6"/>
+    <ellipse cx="640" cy="96" rx="8" ry="4"/>
+  </g>
+  <path d="M618 137 H662" stroke="#e8c46a" stroke-opacity="0.85" stroke-width="2"/>
+  <circle cx="640" cy="26" r="18" fill="url(#tbn-beacon)"/>
+  <circle cx="640" cy="26" r="2.5" fill="#ff8a8a"/>
+
+  <!-- Lit windows: a city that never quite sleeps. -->
+  <g fill="#e8c46a" fill-opacity="0.75">
+    <rect x="200" y="244" width="4" height="5"/><rect x="236" y="214" width="4" height="5"/>
+    <rect x="266" y="190" width="4" height="5"/><rect x="282" y="230" width="4" height="5"/>
+    <rect x="312" y="170" width="4" height="5"/><rect x="384" y="140" width="4" height="5"/>
+    <rect x="400" y="200" width="4" height="5"/><rect x="430" y="180" width="4" height="5"/>
+    <rect x="464" y="160" width="4" height="5"/><rect x="476" y="240" width="4" height="5"/>
+    <rect x="544" y="226" width="4" height="5"/><rect x="796" y="220" width="4" height="5"/>
+    <rect x="870" y="204" width="4" height="5"/><rect x="944" y="232" width="4" height="5"/>
+  </g>
+  <g fill="#ec5a6d" fill-opacity="0.8">
+    <rect x="386" y="126" width="3" height="3"/><rect x="466" y="144" width="3" height="3"/>
+    <rect x="316" y="141" width="3" height="3"/><rect x="872" y="190" width="3" height="3"/>
+  </g>
+
+  <!-- Lake Ontario: black water, the reflections of the moon and the tower. -->
+  <rect y="292" width="1200" height="108" fill="url(#tbn-lake)"/>
+  <rect y="250" width="1200" height="50" fill="url(#tbn-mist)"/>
+  <path d="M0 292 H1200" stroke="#9fb4d4" stroke-opacity="0.25" stroke-width="1"/>
+  <g fill="#ec5a6d">
+    <rect x="826" y="302" width="68" height="2" opacity="0.5"/>
+    <rect x="836" y="312" width="48" height="2" opacity="0.4"/>
+    <rect x="844" y="324" width="32" height="2" opacity="0.3"/>
+    <rect x="852" y="338" width="18" height="2" opacity="0.2"/>
+  </g>
+  <g fill="#e8c46a">
+    <rect x="626" y="306" width="28" height="1.5" opacity="0.35"/>
+    <rect x="632" y="318" width="16" height="1.5" opacity="0.25"/>
+    <rect x="370" y="304" width="22" height="1.5" opacity="0.25"/>
+    <rect x="456" y="310" width="18" height="1.5" opacity="0.2"/>
+  </g>
+
+  <!-- The late ferry to the Islands. -->
+  <g fill="#07060c">
+    <path d="M940 330 H1000 L992 340 H948 Z"/>
+    <rect x="955" y="322" width="30" height="8"/>
+  </g>
+  <rect x="960" y="325" width="3" height="3" fill="#e8c46a" fill-opacity="0.8"/>
+
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#efe9f2">
+    <text x="220" y="362" font-size="44" letter-spacing="6" fill-opacity="0.92">TORONTO BY NIGHT</text>
+    <text x="222" y="386" font-size="15" letter-spacing="3" fill="#ec5a6d" fill-opacity="0.85">THE BLOOD RUNS COLD ON LAKE ONTARIO</text>
+  </g>
+</svg>
