@@ -238,6 +238,13 @@ defmodule TannhauserGate.GameContextsTest do
       assert TannhauserGate.Stories.module_enabled?(again, :chat_rp)
       assert TannhauserGate.Stories.module_enabled?(again, :auto_xp)
       assert %{chat_max_length: 2000, auto_xp_amount: 1, auto_xp_min_length: 300} = again
+
+      assert TannhauserGate.Stories.module_enabled?(again, :esiti)
+      assert TannhauserGate.Stories.module_enabled?(again, :quests)
+      assert [%{status: "resolved"}] = TannhauserGate.Esiti.list_queue(again, "all")
+
+      assert [%{visibility: "public", rewards_applied_at: %DateTime{}, participants: [_]}] =
+               TannhauserGate.Quests.list_quests(again, admin)
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do

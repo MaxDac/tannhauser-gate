@@ -113,6 +113,10 @@ defmodule TannhauserGateWeb.Router do
 
       live "/g/:story_id/guilds", GuildLive.Index, :index
       live "/g/:story_id/guilds/:id", GuildLive.Show, :show
+
+      live "/g/:story_id/esiti", EsitoLive.Index, :index
+      live "/g/:story_id/esiti/:id", EsitoLive.Show, :show
+      live "/g/:story_id/quests", QuestLive.Index, :index
     end
 
     live_session :gdr_admin,
@@ -151,6 +155,8 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/actions", MasterLive.Actions, :index
       live "/g/:story_id/master/items", MasterLive.Items, :index
       live "/g/:story_id/master/guilds", MasterLive.Guilds, :index
+      live "/g/:story_id/master/esiti", MasterLive.Esiti, :index
+      live "/g/:story_id/master/quests", MasterLive.Quests, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

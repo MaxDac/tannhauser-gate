@@ -40,6 +40,8 @@ defmodule TannhauserGate.Stories.Story do
     field :auto_xp_min_length, :integer
     field :auto_xp_daily_cap, :integer
     field :auto_xp_cooldown_minutes, :integer
+    field :esiti_max_open, :integer, default: 2
+    field :esiti_min_xp, :integer
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -75,7 +77,9 @@ defmodule TannhauserGate.Stories.Story do
     :auto_xp_amount,
     :auto_xp_min_length,
     :auto_xp_daily_cap,
-    :auto_xp_cooldown_minutes
+    :auto_xp_cooldown_minutes,
+    :esiti_max_open,
+    :esiti_min_xp
   ]
 
   @doc """
@@ -93,7 +97,7 @@ defmodule TannhauserGate.Stories.Story do
   """
   def gm_changeset(story, attrs) do
     story
-    |> cast(attrs, @gm_fields)
+    |> cast(blank_to_nil(attrs, :esiti_max_open), @gm_fields)
     |> cast_embed(:dice_config)
     |> validate_story()
   end
@@ -105,6 +109,19 @@ defmodule TannhauserGate.Stories.Story do
   def modules_changeset(story, modules) do
     story
     |> change(modules: TannhauserGate.Modules.sanitize(modules))
+  end
+
+  # A blank field would be cast to the field's default: blank means "no limit".
+  defp blank_to_nil(attrs, field) do
+    key = if Map.has_key?(attrs, field), do: field, else: to_string(field)
+
+    case Map.get(attrs, key) do
+      value when is_binary(value) ->
+        if String.trim(value) == "", do: Map.put(attrs, key, nil), else: attrs
+
+      _ ->
+        attrs
+    end
   end
 
   defp validate_story(changeset) do
@@ -138,6 +155,11 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_number(:auto_xp_cooldown_minutes,
       greater_than_or_equal_to: 0,
       less_than_or_equal_to: 1440
+    )
+    |> validate_number(:esiti_max_open, greater_than: 0, less_than_or_equal_to: 50)
+    |> validate_number(:esiti_min_xp,
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: 1_000_000
     )
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
