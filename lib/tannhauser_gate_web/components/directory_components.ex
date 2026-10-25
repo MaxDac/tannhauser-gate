@@ -4,6 +4,7 @@ defmodule TannhauserGateWeb.DirectoryComponents do
   banners, lifecycle and content rating badges, genre chips and scores.
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   import TannhauserGateWeb.CoreComponents, only: [icon: 1]
 
@@ -32,8 +33,10 @@ defmodule TannhauserGateWeb.DirectoryComponents do
           {@story.name |> String.first() |> String.upcase()}
         </span>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/10 to-transparent" />
-      {render_slot(@inner_block)}
+
+      <div class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/10 to-transparent" /> {render_slot(
+        @inner_block
+      )}
     </div>
     """
   end
@@ -50,8 +53,7 @@ defmodule TannhauserGateWeb.DirectoryComponents do
         lifecycle_class(@lifecycle)
       ]}
     >
-      <span class="size-1.5 rounded-full bg-current" />
-      {Directory.lifecycle_label(@lifecycle)}
+      <span class="size-1.5 rounded-full bg-current" /> {Directory.lifecycle_label(@lifecycle)}
     </span>
     """
   end
@@ -68,7 +70,9 @@ defmodule TannhauserGateWeb.DirectoryComponents do
     ~H"""
     <span
       id={@id}
-      title={"Content rating: #{Directory.content_rating_label(@rating)}"}
+      title={
+        dgettext("player", "Content rating: %{value}", value: Directory.content_rating_label(@rating))
+      }
       class={[
         "inline-flex min-w-9 items-center justify-center rounded-md border px-1.5 py-0.5 font-mono text-[0.7rem] font-bold backdrop-blur",
         rating_class(@rating)
@@ -88,7 +92,7 @@ defmodule TannhauserGateWeb.DirectoryComponents do
 
   def genre_chips(assigns) do
     ~H"""
-    <ul :if={@genres != []} class="flex flex-wrap gap-1.5" aria-label="Genres">
+    <ul :if={@genres != []} class="flex flex-wrap gap-1.5" aria-label={dgettext("player", "Genres")}>
       <li
         :for={genre <- @genres}
         class="rounded-full border border-secondary/30 bg-secondary/10 px-2 py-0.5 text-[0.7rem] text-secondary"
@@ -108,13 +112,16 @@ defmodule TannhauserGateWeb.DirectoryComponents do
     ~H"""
     <span
       class={["inline-flex items-center gap-1", @class]}
-      title={if @score, do: "Average review score", else: "No reviews yet"}
+      title={
+        if @score,
+          do: dgettext("player", "Average review score"),
+          else: dgettext("player", "No reviews yet")
+      }
     >
       <.icon
         name="hero-star-solid"
         class={["size-4", if(@score, do: "text-warning", else: "text-base-content/30")]}
-      />
-      <span class="font-mono font-bold">{format_score(@score)}</span>
+      /> <span class="font-mono font-bold">{format_score(@score)}</span>
       <span :if={@count} class="text-base-content/50">({@count})</span>
     </span>
     """

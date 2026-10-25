@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Origins do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Origins (races & classes), the `:origins` optional module.
 
@@ -103,7 +105,12 @@ defmodule TannhauserGate.Origins do
     if is_nil(group_id) or
          Repo.exists?(from g in Group, where: g.id == ^group_id and g.story_id == ^story_id),
        do: changeset,
-       else: Ecto.Changeset.add_error(changeset, :group_id, "is not an origin group of this GDR")
+       else:
+         Ecto.Changeset.add_error(
+           changeset,
+           :group_id,
+           dgettext_noop("errors", "is not an origin group of this GDR")
+         )
   end
 
   ## Character choices
@@ -172,23 +179,27 @@ defmodule TannhauserGate.Origins do
            %Group{} = group <- by_id[group_id] do
         normalize_choice(group, parse_id(raw_option), acc)
       else
-        _ -> {:halt, {:error, "Unknown origin group"}}
+        _ -> {:halt, {:error, dgettext("domain", "Unknown origin group")}}
       end
     end)
   end
 
-  def normalize_choices(_groups, _params), do: {:error, "Invalid origins"}
+  def normalize_choices(_groups, _params), do: {:error, dgettext("domain", "Invalid origins")}
 
   defp normalize_choice(group, :blank, acc), do: {:cont, {:ok, Map.put(acc, group.id, nil)}}
 
   defp normalize_choice(group, {:ok, option_id}, acc) do
     if Enum.any?(group.options, &(&1.id == option_id)),
       do: {:cont, {:ok, Map.put(acc, group.id, option_id)}},
-      else: {:halt, {:error, "#{group.name}: choose one of its options"}}
+      else:
+        {:halt,
+         {:error, dgettext("domain", "%{name}: choose one of its options", name: group.name)}}
   end
 
   defp normalize_choice(group, :error, _acc),
-    do: {:halt, {:error, "#{group.name}: choose one of its options"}}
+    do:
+      {:halt,
+       {:error, dgettext("domain", "%{name}: choose one of its options", name: group.name)}}
 
   @doc "The required groups without a choice in `choices` (`%{group_id => option_id}`)."
   def missing_required(groups, choices) do

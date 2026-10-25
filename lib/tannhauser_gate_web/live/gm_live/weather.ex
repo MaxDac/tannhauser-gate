@@ -19,7 +19,7 @@ defmodule TannhauserGateWeb.GmLive.Weather do
 
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> assign(:seasons, Weather.seasons(story))
      |> assign(:interval_form, interval_form(story))
      |> reload()
@@ -62,7 +62,7 @@ defmodule TannhauserGateWeb.GmLive.Weather do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Weather condition saved.")
+         |> put_flash(:info, dgettext("management", "Weather condition saved."))
          |> reload()
          |> edit_condition(%Condition{})}
 
@@ -90,7 +90,7 @@ defmodule TannhauserGateWeb.GmLive.Weather do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Weather condition deleted.")
+         |> put_flash(:info, dgettext("management", "Weather condition deleted."))
          |> reload()
          |> edit_condition(%Condition{})}
     end
@@ -106,7 +106,7 @@ defmodule TannhauserGateWeb.GmLive.Weather do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Weather interval saved.")
+         |> put_flash(:info, dgettext("management", "Weather interval saved."))
          |> assign(:current_story, updated)
          |> assign(:interval_form, interval_form(updated))}
 
@@ -154,20 +154,24 @@ defmodule TannhauserGateWeb.GmLive.Weather do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="weather" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="weather" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_24rem]">
         <section id="weather-conditions" class="space-y-3">
           <p class="text-sm text-base-content/60">
-            Seasons: <strong>{Enum.join(@seasons, ", ")}</strong>
+            {dgettext("management", "Seasons:")} <strong>{Enum.join(@seasons, ", ")}</strong>
             <span :if={@seasons == ["default"]}>
-              (enable the calendar module and give its months a season to weigh conditions by
-              season).
+              {dgettext(
+                "management",
+                "(enable the calendar module and give its months a season to weigh conditions by season)."
+              )}
             </span>
           </p>
+
           <p :if={@conditions == []} id="weather-empty" class="text-sm text-base-content/60">
-            No conditions yet: without a table the zones keep the weather the masters set.
+            {dgettext(
+              "management",
+              "No conditions yet: without a table the zones keep the weather the masters set."
+            )}
           </p>
 
           <article
@@ -180,35 +184,40 @@ defmodule TannhauserGateWeb.GmLive.Weather do
                 <span class="grid size-8 shrink-0 place-items-center rounded-md bg-info/10 text-info">
                   <.icon name={condition.icon} class="size-5" />
                 </span>
+
                 <div class="min-w-0">
                   <h3 class="truncate font-semibold text-primary">{condition.name}</h3>
+
                   <p :if={condition.description} class="truncate text-xs text-base-content/60">
                     {condition.description}
                   </p>
                 </div>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   id={"edit-weather-condition-#{condition.id}"}
                   phx-click="edit"
                   phx-value-id={condition.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-weather-condition-#{condition.id}"}
                   phx-click="delete"
                   phx-value-id={condition.id}
-                  data-confirm="Delete this condition?"
+                  data-confirm={dgettext("management", "Delete this condition?")}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
               </div>
             </div>
+
             <div class="mt-3 flex flex-wrap gap-2 text-xs">
               <span
                 :for={season <- @seasons}
@@ -228,8 +237,11 @@ defmodule TannhauserGateWeb.GmLive.Weather do
         <div class="space-y-6">
           <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @condition.id, do: "Edit condition", else: "New condition"}
+              {if @condition.id,
+                do: dgettext("management", "Edit condition"),
+                else: dgettext("management", "New condition")}
             </h2>
+
             <.form
               for={@form}
               id="weather-condition-form"
@@ -237,19 +249,28 @@ defmodule TannhauserGateWeb.GmLive.Weather do
               phx-submit="save"
               class="mt-4"
             >
-              <.input field={@form[:name]} type="text" label="Name" required />
+              <.input
+                field={@form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@form[:icon]}
                 type="select"
-                label="Icon"
+                label={dgettext("management", "Icon")}
                 options={Condition.icons()}
               />
-              <.input field={@form[:description]} type="text" label="Description (optional)" />
-
+              <.input
+                field={@form[:description]}
+                type="text"
+                label={dgettext("management", "Description (optional)")}
+              />
               <div class="mt-2 space-y-2">
                 <p class="text-xs font-bold uppercase tracking-wider text-base-content/60">
-                  Weight and temperature (°C) per season
+                  {dgettext("management", "Weight and temperature (°C) per season")}
                 </p>
+
                 <div
                   :for={{season, index} <- Enum.with_index(@seasons)}
                   class="grid grid-cols-3 gap-2"
@@ -261,26 +282,28 @@ defmodule TannhauserGateWeb.GmLive.Weather do
                     type="number"
                     min="0"
                     max="1000"
-                    label={"#{season} weight"}
+                    label={dgettext("management", "%{season} weight", season: season)}
                   />
                   <.input
                     id={"condition-min-#{index}"}
                     name={"condition[temp_min][#{season}]"}
                     value={season_value(@form, :temp_min, season)}
                     type="number"
-                    label="Min"
+                    label={dgettext("management", "Min")}
                   />
                   <.input
                     id={"condition-max-#{index}"}
                     name={"condition[temp_max][#{season}]"}
                     value={season_value(@form, :temp_max, season)}
                     type="number"
-                    label="Max"
+                    label={dgettext("management", "Max")}
                   />
                 </div>
+
                 <.error :for={msg <- Enum.map(@form[:weights].errors, &translate_error/1)}>
                   {msg}
                 </.error>
+
                 <.error :for={
                   msg <-
                     Enum.map(@form[:temp_min].errors ++ @form[:temp_max].errors, &translate_error/1)
@@ -290,23 +313,32 @@ defmodule TannhauserGateWeb.GmLive.Weather do
               </div>
 
               <div class="flex gap-2">
-                <.button id="save-weather-condition" phx-disable-with="Saving...">
-                  {if @condition.id, do: "Update condition", else: "Add condition"}
+                <.button
+                  id="save-weather-condition"
+                  phx-disable-with={dgettext("management", "Saving...")}
+                >
+                  {if @condition.id,
+                    do: dgettext("management", "Update condition"),
+                    else: dgettext("management", "Add condition")}
                 </.button>
+
                 <.button
                   :if={@condition.id}
                   type="button"
                   id="cancel-weather-condition"
                   phx-click="cancel"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
           </section>
 
           <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Schedule</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("management", "Schedule")}
+            </h2>
+
             <.form
               for={@interval_form}
               id="weather-interval-form"
@@ -318,12 +350,16 @@ defmodule TannhauserGateWeb.GmLive.Weather do
                 type="number"
                 min="1"
                 max="168"
-                label="Roll a new weather every (real hours)"
+                label={dgettext("management", "Roll a new weather every (real hours)")}
               />
               <p class="-mt-1 mb-3 text-xs text-base-content/60">
-                A weather set by a master is kept for one interval.
+                {dgettext("management", "A weather set by a master is kept for one interval.")}
               </p>
-              <.button id="save-weather-interval" phx-disable-with="Saving...">Save</.button>
+
+              <.button
+                id="save-weather-interval"
+                phx-disable-with={dgettext("management", "Saving...")}
+              >{dgettext("management", "Save")}</.button>
             </.form>
           </section>
         </div>

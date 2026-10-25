@@ -91,9 +91,14 @@ defmodule TannhauserGateWeb.Layouts do
           {render_slot(@inner_block)}
         </div>
       </div>
+
       <p class="mt-8 text-xs uppercase tracking-[0.3em] text-fog-500">
         Neo-Meridian · 2121
       </p>
+
+      <div class="mt-6 flex w-full max-w-md flex-col items-center gap-4">
+        <.language_selector return_to={@current_path} /> <.donation_link />
+      </div>
     </main>
     <.flash_group flash={@flash} />
     """
@@ -114,27 +119,33 @@ defmodule TannhauserGateWeb.Layouts do
       }
       class="drawer bg-base-100 text-base-content lg:drawer-open"
     >
-      <input id="drawer-toggle" type="checkbox" class="drawer-toggle" aria-label="Toggle navigation" />
-
+      <input
+        id="drawer-toggle"
+        type="checkbox"
+        class="drawer-toggle"
+        aria-label={dgettext("shared", "Toggle navigation")}
+      />
       <div class="drawer-content flex min-h-screen min-w-0 flex-col">
         <header class="navbar border-b border-secondary/20 bg-base-200/90 px-4 lg:hidden">
           <div class="flex-1">
             <.link navigate={home_path(@current_story)}><.brand size={32} /></.link>
           </div>
+
           <.link
             :if={return_to_chat?(assigns)}
             id="header-return-to-chat"
             navigate={room_path(@current_story, @last_location)}
             class="btn btn-square btn-ghost btn-sm mr-2 border-secondary/40 text-mint"
-            aria-label={"Return to chat: #{@last_location.name}"}
-            title={"Return to chat: #{@last_location.name}"}
+            aria-label={dgettext("shared", "Return to chat: %{name}", name: @last_location.name)}
+            title={dgettext("shared", "Return to chat: %{name}", name: @last_location.name)}
           >
             <.icon name="hero-chat-bubble-bottom-center-text" class="size-5" />
           </.link>
+
           <label
             for="drawer-toggle"
             class="btn btn-square btn-ghost btn-sm border-secondary/40 text-secondary"
-            aria-label="Open navigation"
+            aria-label={dgettext("shared", "Open navigation")}
           >
             <.icon name="hero-bars-3" class="size-5" />
           </label>
@@ -148,7 +159,11 @@ defmodule TannhauserGateWeb.Layouts do
       </div>
 
       <div class="drawer-side z-40">
-        <label for="drawer-toggle" aria-label="Close navigation" class="drawer-overlay"></label>
+        <label
+          for="drawer-toggle"
+          aria-label={dgettext("shared", "Close navigation")}
+          class="drawer-overlay"
+        ></label>
         <aside
           id="drawer"
           class="flex min-h-full w-64 flex-col gap-6 border-r border-secondary/20 bg-base-200/95 p-4"
@@ -156,6 +171,7 @@ defmodule TannhauserGateWeb.Layouts do
           <.link navigate={home_path(@current_story)}>
             <.brand size={36} />
           </.link>
+
           <p
             :if={@current_story}
             id="current-gdr-name"
@@ -163,6 +179,7 @@ defmodule TannhauserGateWeb.Layouts do
           >
             {@current_story.name}
           </p>
+
           <.active_character_form
             :if={@current_story && @active_character && length(@my_characters) > 1}
             characters={@my_characters}
@@ -185,29 +202,38 @@ defmodule TannhauserGateWeb.Layouts do
               class="size-4 transition-transform group-hover:-translate-x-0.5"
             />
             <span class="min-w-0 flex-1">
-              <span class="block uppercase tracking-[0.15em]">Return to chat</span>
+              <span class="block uppercase tracking-[0.15em]">{dgettext("shared", "Return to chat")}</span>
               <span class="block truncate font-normal text-fog-400">{@last_location.name}</span>
             </span>
           </.link>
 
-          <ul :if={is_nil(@current_story)} class="menu w-full gap-1 p-0" aria-label="Sections">
+          <ul
+            :if={is_nil(@current_story)}
+            class="menu w-full gap-1 p-0"
+            aria-label={dgettext("shared", "Sections")}
+          >
             <li>
               <.nav_link navigate={~p"/gdrs"} icon="hero-squares-2x2" current_path={@current_path}>
-                GDRs
+                {dgettext("shared", "GDRs")}
               </.nav_link>
             </li>
+
             <li :if={@current_user.gm}>
               <.nav_link
                 navigate={~p"/gdrs/request"}
                 icon="hero-sparkles"
                 current_path={@current_path}
               >
-                My GDR
+                {dgettext("shared", "My GDR")}
               </.nav_link>
             </li>
           </ul>
 
-          <ul :if={@current_story} class="menu w-full gap-1 p-0" aria-label="Sections">
+          <ul
+            :if={@current_story}
+            class="menu w-full gap-1 p-0"
+            aria-label={dgettext("shared", "Sections")}
+          >
             <li>
               <.nav_link
                 id="nav-home"
@@ -215,36 +241,46 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-home"
                 current_path={@current_path}
               >
-                Home
+                {dgettext("shared", "Home")}
                 <span
                   :if={@announcements_unread > 0}
                   id="nav-announcements-unread"
                   class="badge badge-sm badge-accent ml-auto animate-pulse"
-                  aria-label={"#{@announcements_unread} unread announcements"}
-                  title="Unread announcements"
+                  aria-label={
+                    dngettext(
+                      "shared",
+                      "%{count} unread announcement",
+                      "%{count} unread announcements",
+                      @announcements_unread
+                    )
+                  }
+                  title={dgettext("shared", "Unread announcements")}
                 >
                   {@announcements_unread}
                 </span>
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/g/#{@current_story}/characters"}
                 icon="hero-identification"
                 current_path={@current_path}
               >
-                Characters
+                {dgettext("shared", "Characters")}
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/g/#{@current_story}/map"}
                 icon="hero-map"
                 current_path={@current_path}
               >
-                Map
+                {dgettext("shared", "Map")}
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 id="nav-guide"
@@ -252,18 +288,20 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-book-open"
                 current_path={@current_path}
               >
-                Guide
+                {dgettext("shared", "Guide")}
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/g/#{@current_story}/forum"}
                 icon="hero-chat-bubble-left-right"
                 current_path={@current_path}
               >
-                Forum
+                {dgettext("shared", "Forum")}
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 id="nav-mail"
@@ -271,35 +309,38 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-envelope"
                 current_path={@current_path}
               >
-                Mail
+                {dgettext("shared", "Mail")}
                 <span
                   :if={@mail_unread > 0}
                   id="nav-mail-unread"
                   class="badge badge-sm badge-secondary ml-auto"
-                  aria-label={"#{@mail_unread} unread"}
+                  aria-label={dngettext("shared", "%{count} unread", "%{count} unread", @mail_unread)}
                 >
                   {@mail_unread}
                 </span>
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/g/#{@current_story}/bank"}
                 icon="hero-banknotes"
                 current_path={@current_path}
               >
-                Bank
+                {dgettext("shared", "Bank")}
               </.nav_link>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/g/#{@current_story}/jobs"}
                 icon="hero-briefcase"
                 current_path={@current_path}
               >
-                Jobs
+                {dgettext("shared", "Jobs")}
               </.nav_link>
             </li>
+
             <li :if={Stories.module_enabled?(@current_story, :items)}>
               <.nav_link
                 id="nav-market"
@@ -307,9 +348,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-building-storefront"
                 current_path={@current_path}
               >
-                Market
+                {dgettext("shared", "Market")}
               </.nav_link>
             </li>
+
             <li :if={Stories.module_enabled?(@current_story, :guilds)}>
               <.nav_link
                 id="nav-guilds"
@@ -317,9 +359,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-flag"
                 current_path={@current_path}
               >
-                Guilds
+                {dgettext("shared", "Guilds")}
               </.nav_link>
             </li>
+
             <li :if={Stories.module_enabled?(@current_story, :esiti)}>
               <.nav_link
                 id="nav-esiti"
@@ -327,9 +370,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-scale"
                 current_path={@current_path}
               >
-                Esiti
+                {dgettext("shared", "Esiti")}
               </.nav_link>
             </li>
+
             <li :if={Stories.module_enabled?(@current_story, :quests)}>
               <.nav_link
                 id="nav-quests"
@@ -337,9 +381,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-book-open"
                 current_path={@current_path}
               >
-                Quests
+                {dgettext("shared", "Quests")}
               </.nav_link>
             </li>
+
             <li :if={Stories.module_enabled?(@current_story, :boards)}>
               <.nav_link
                 id="nav-boards"
@@ -347,9 +392,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-clipboard-document-list"
                 current_path={@current_path}
               >
-                Notice boards
+                {dgettext("shared", "Notice boards")}
               </.nav_link>
             </li>
+
             <li :if={Stories.master_role?(@story_role)}>
               <.nav_link
                 id="nav-master-tools"
@@ -357,9 +403,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-megaphone"
                 current_path={@current_path}
               >
-                Master tools <.open_esiti_badge story={@current_story} />
+                {dgettext("shared", "Master tools")} <.open_esiti_badge story={@current_story} />
               </.nav_link>
             </li>
+
             <li :if={Stories.admin_role?(@story_role)}>
               <.nav_link
                 id="nav-gm-dashboard"
@@ -367,9 +414,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-adjustments-horizontal"
                 current_path={@current_path}
               >
-                GM dashboard
+                {dgettext("shared", "GM dashboard")}
               </.nav_link>
             </li>
+
             <li :if={@current_story.community_url}>
               <a
                 id="nav-community"
@@ -379,22 +427,25 @@ defmodule TannhauserGateWeb.Layouts do
                 class="flex items-center gap-3 rounded-md text-sm"
               >
                 <.icon name="hero-user-group" class="size-5" />
-                <span class="flex-1 truncate">{@current_story.community_label || "Community"}</span>
+                <span class="flex-1 truncate">{@current_story.community_label ||
+                  dgettext("shared", "Community")}</span>
                 <.icon name="hero-arrow-top-right-on-square-micro" class="size-3 opacity-60" />
               </a>
             </li>
+
             <li>
               <.nav_link
                 navigate={~p"/gdrs"}
                 icon="hero-arrow-uturn-left"
                 current_path={@current_path}
               >
-                All GDRs
+                {dgettext("shared", "All GDRs")}
               </.nav_link>
             </li>
+
             <li :if={Accounts.admin?(@current_user)}>
               <.nav_link navigate={~p"/admin"} icon="hero-shield-check" current_path={@current_path}>
-                Admin
+                {dgettext("shared", "Admin")}
               </.nav_link>
             </li>
           </ul>
@@ -403,12 +454,15 @@ defmodule TannhauserGateWeb.Layouts do
             :if={@current_story && @online}
             id="online-users"
             class="border-t border-secondary/20 pt-4"
-            aria-label="Online"
+            aria-label={dgettext("shared", "Online")}
           >
             <h2 class="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-[0.2em] text-fog-400">
-              <span class="size-2 rounded-full bg-mint shadow-[0_0_8px] shadow-mint/70"></span>
-              Online <span class="text-fog-500">({length(@online)})</span>
+              <span class="size-2 rounded-full bg-mint shadow-[0_0_8px] shadow-mint/70"></span> {dgettext(
+                "shared",
+                "Online"
+              )} <span class="text-fog-500">({length(@online)})</span>
             </h2>
+
             <.presence_status_form
               :if={TannhauserGateWeb.GdrPresence.user_status(@online, @current_user.id)}
               status={TannhauserGateWeb.GdrPresence.user_status(@online, @current_user.id)}
@@ -440,9 +494,9 @@ defmodule TannhauserGateWeb.Layouts do
                     }
                     status={entry[:status] || "available"}
                     class="hover:text-mint"
-                  />
-                  <span class="truncate font-normal text-fog-500">· {entry.username}</span>
+                  /> <span class="truncate font-normal text-fog-500">· {entry.username}</span>
                 </div>
+
                 <span
                   :if={!entry[:character_id]}
                   class="flex min-w-0 items-baseline gap-1 truncate font-semibold text-fog-200"
@@ -450,12 +504,12 @@ defmodule TannhauserGateWeb.Layouts do
                   <.presence_dot
                     id={"online-user-#{entry.user_id}-status"}
                     status={entry[:status] || "available"}
-                  />
-                  {entry.character_name || entry.username}
+                  /> {entry.character_name || entry.username}
                   <span :if={entry.character_name} class="font-normal text-fog-500">
                     · {entry.username}
                   </span>
                 </span>
+
                 <span
                   :if={entry[:guilds] not in [nil, []]}
                   id={"online-user-#{entry.user_id}-guilds"}
@@ -463,6 +517,7 @@ defmodule TannhauserGateWeb.Layouts do
                 >
                   <.icon name="hero-flag-micro" class="size-3" /> {Enum.join(entry.guilds, ", ")}
                 </span>
+
                 <span :if={entry.location_name} class="block truncate text-fog-500">
                   <.icon name="hero-map-pin-micro" class="size-3" /> {entry.location_name}
                 </span>
@@ -474,6 +529,7 @@ defmodule TannhauserGateWeb.Layouts do
             <li class="menu-title min-w-0 px-3 normal-case">
               <span class="block truncate" title={@current_user.username}>{@current_user.username}</span>
             </li>
+
             <li>
               <.nav_link
                 id="nav-settings"
@@ -481,9 +537,10 @@ defmodule TannhauserGateWeb.Layouts do
                 icon="hero-cog-6-tooth"
                 current_path={@current_path}
               >
-                Settings
+                {dgettext("shared", "Settings")}
               </.nav_link>
             </li>
+
             <li>
               <.link
                 id="nav-log-out"
@@ -491,14 +548,76 @@ defmodule TannhauserGateWeb.Layouts do
                 method="delete"
                 class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold uppercase tracking-wider text-fog-300 hover:bg-mint/10 hover:text-mint"
               >
-                <.icon name="hero-arrow-left-on-rectangle" class="size-5" /> Log out
+                <.icon name="hero-arrow-left-on-rectangle" class="size-5" /> {dgettext(
+                  "shared",
+                  "Log out"
+                )}
               </.link>
             </li>
           </ul>
+
+          <div class="flex flex-col gap-4 border-t border-secondary/20 pt-4">
+            <.language_selector return_to={@current_path} /> <.donation_link />
+          </div>
         </aside>
       </div>
     </div>
     <.flash_group flash={@flash} />
+    """
+  end
+
+  defp donation_link(assigns) do
+    ~H"""
+    <a
+      id="donation-link"
+      href="https://ko-fi.com/maxdac"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="group flex items-center justify-center gap-2 rounded-md border border-mint/30 px-3 py-2 text-sm font-semibold text-mint transition-colors hover:border-mint hover:bg-mint/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint"
+    >
+      <.icon name="hero-heart" class="size-4 transition-transform group-hover:scale-110" /> {dgettext(
+        "shared",
+        "Support on Ko-fi"
+      )} <.icon name="hero-arrow-top-right-on-square-micro" class="size-3 opacity-60" />
+      <span class="sr-only">{dgettext("shared", "(opens in a new tab)")}</span>
+    </a>
+    """
+  end
+
+  attr :return_to, :string, default: nil
+
+  defp language_selector(assigns) do
+    assigns =
+      assign(assigns,
+        form: to_form(%{"locale" => TannhauserGateWeb.Locale.current()}),
+        languages: TannhauserGateWeb.Locale.languages()
+      )
+
+    ~H"""
+    <.form
+      for={@form}
+      id="language-form"
+      action={~p"/locale"}
+      method="post"
+      class="w-full text-left"
+    >
+      <.input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
+      <.input
+        field={@form[:locale]}
+        id="language-select"
+        type="select"
+        label={dgettext("shared", "Language")}
+        options={@languages}
+      />
+      <.button
+        id="language-submit"
+        type="submit"
+        variant="ghost"
+        size="xs"
+      >
+        {dgettext("shared", "Change language")}
+      </.button>
+    </.form>
     """
   end
 
@@ -530,8 +649,8 @@ defmodule TannhauserGateWeb.Layouts do
           field={@form[:character_id]}
           id="active-character"
           type="select"
-          aria-label="Playing as"
-          title="Playing as"
+          aria-label={dgettext("shared", "Playing as")}
+          title={dgettext("shared", "Playing as")}
           options={@options}
           class="select select-xs w-full border-none bg-transparent text-xs font-semibold text-fog-200 focus:outline-none"
         />
@@ -568,7 +687,7 @@ defmodule TannhauserGateWeb.Layouts do
           field={@form[:status]}
           id="presence-status"
           type="select"
-          aria-label="Your status"
+          aria-label={dgettext("shared", "Your status")}
           options={@options}
           class="select select-xs w-full border-secondary/30 bg-ink/80 text-xs text-fog-200 transition-colors hover:border-mint/60 focus:border-mint"
         />
@@ -590,13 +709,11 @@ defmodule TannhauserGateWeb.Layouts do
   def flash_group(assigns) do
     ~H"""
     <div id={@id} aria-live="polite">
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:error} flash={@flash} />
-
+      <.flash kind={:info} flash={@flash} /> <.flash kind={:error} flash={@flash} />
       <.flash
         id="client-error"
         kind={:error}
-        title="We can't find the internet"
+        title={dgettext("shared", "We can't find the internet")}
         phx-disconnected={
           show(".phx-client-error #client-error")
           |> JS.remove_attribute("hidden", to: ".phx-client-error #client-error")
@@ -604,14 +721,14 @@ defmodule TannhauserGateWeb.Layouts do
         phx-connected={hide("#client-error") |> JS.set_attribute({"hidden", ""})}
         hidden
       >
-        Attempting to reconnect
+        {dgettext("shared", "Attempting to reconnect")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
 
       <.flash
         id="server-error"
         kind={:error}
-        title="Something went wrong!"
+        title={dgettext("shared", "Something went wrong!")}
         phx-disconnected={
           show(".phx-server-error #server-error")
           |> JS.remove_attribute("hidden", to: ".phx-server-error #server-error")
@@ -619,7 +736,7 @@ defmodule TannhauserGateWeb.Layouts do
         phx-connected={hide("#server-error") |> JS.set_attribute({"hidden", ""})}
         hidden
       >
-        Attempting to reconnect
+        {dgettext("shared", "Attempting to reconnect")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
     </div>
@@ -637,8 +754,8 @@ defmodule TannhauserGateWeb.Layouts do
       :if={@count > 0}
       id="nav-esiti-open"
       class="badge badge-sm badge-warning ml-auto"
-      aria-label={"#{@count} open esiti"}
-      title="Open esiti"
+      aria-label={dngettext("shared", "%{count} open esito", "%{count} open esiti", @count)}
+      title={dgettext("shared", "Open esiti")}
     >
       {@count}
     </span>

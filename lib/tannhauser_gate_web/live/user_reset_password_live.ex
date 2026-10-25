@@ -9,7 +9,7 @@ defmodule TannhauserGateWeb.UserResetPasswordLive do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user}>
       <div class="mx-auto max-w-sm">
-        <.header class="text-center">Reset Password</.header>
+        <.header class="text-center">{dgettext("player", "Reset Password")}</.header>
 
         <.form
           for={@form}
@@ -18,24 +18,32 @@ defmodule TannhauserGateWeb.UserResetPasswordLive do
           phx-change="validate"
         >
           <.error :if={@form.errors != []}>
-            Oops, something went wrong! Please check the errors below.
+            {dgettext("player", "Oops, something went wrong! Please check the errors below.")}
           </.error>
 
-          <.input field={@form[:password]} type="password" label="New password" required />
+          <.input
+            field={@form[:password]}
+            type="password"
+            label={dgettext("player", "New password")}
+            required
+          />
           <.input
             field={@form[:password_confirmation]}
             type="password"
-            label="Confirm new password"
+            label={dgettext("player", "Confirm new password")}
             required
           />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Resetting..." class="btn btn-primary console-action w-full">Reset Password</.button>
+            <.button
+              phx-disable-with={dgettext("player", "Resetting...")}
+              class="btn btn-primary console-action w-full"
+            >{dgettext("player", "Reset Password")}</.button>
           </div>
         </.form>
 
         <p class="text-center text-sm mt-4">
-          <.link href={~p"/users/register"}>Register</.link>
-          | <.link href={~p"/users/log_in"}>Log in</.link>
+          <.link href={~p"/users/register"}>{dgettext("player", "Register")}</.link>
+          | <.link href={~p"/users/log_in"}>{dgettext("player", "Log in")}</.link>
         </p>
       </div>
     </Layouts.app>
@@ -64,7 +72,7 @@ defmodule TannhauserGateWeb.UserResetPasswordLive do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Password reset successfully.")
+         |> put_flash(:info, dgettext("player", "Password reset successfully."))
          |> redirect(to: ~p"/users/log_in")}
 
       {:error, changeset} ->
@@ -82,7 +90,10 @@ defmodule TannhauserGateWeb.UserResetPasswordLive do
       assign(socket, user: user, token: token)
     else
       socket
-      |> put_flash(:error, "Reset password link is invalid or it has expired.")
+      |> put_flash(
+        :error,
+        dgettext("player", "Reset password link is invalid or it has expired.")
+      )
       |> redirect(to: ~p"/")
     end
   end

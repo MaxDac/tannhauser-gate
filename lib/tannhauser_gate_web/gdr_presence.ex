@@ -1,4 +1,6 @@
 defmodule TannhauserGateWeb.GdrPresence do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Tracks the users online in a GDR, with the character they play and the
   location they are in, and keeps the `:online` assign (shown in the
@@ -97,10 +99,13 @@ defmodule TannhauserGateWeb.GdrPresence do
          {:ok, character} <- Characters.set_active_character(user, character) do
       {:halt,
        socket
-       |> put_flash(:info, "You are now playing #{character.name}.")
+       |> put_flash(
+         :info,
+         dgettext("shared", "You are now playing %{name}.", name: character.name)
+       )
        |> push_navigate(to: socket.assigns[:current_path] || "/g/#{story.id}")}
     else
-      _ -> {:halt, put_flash(socket, :error, "That character is not yours.")}
+      _ -> {:halt, put_flash(socket, :error, dgettext("shared", "That character is not yours."))}
     end
   end
 

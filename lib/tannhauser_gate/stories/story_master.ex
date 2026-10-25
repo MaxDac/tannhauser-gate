@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Stories.StoryMaster do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A master (narrator) of a GDR. Masters run the game (chat, characters,
   moderation) but cannot change the GDR configuration, which belongs to its
@@ -45,7 +47,9 @@ defmodule TannhauserGate.Stories.StoryMaster do
     |> change()
     |> foreign_key_constraint(:story_id)
     |> foreign_key_constraint(:user_id)
-    |> unique_constraint([:story_id, :user_id], message: "is already a master of this GDR")
+    |> unique_constraint([:story_id, :user_id],
+      message: dgettext_noop("errors", "is already a master of this GDR")
+    )
   end
 
   @doc "Changes the permission flags."

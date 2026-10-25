@@ -18,7 +18,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
 
     {:ok,
      socket
-     |> assign(:page_title, "Announcements and boards")
+     |> assign(:page_title, dgettext("management", "Announcements and boards"))
      |> assign(:locations, Stories.list_locations(story))
      |> assign(:zones, Zones.list_zones(story))
      |> assign(:guilds, if(Guilds.enabled?(story), do: Guilds.list_guilds(story), else: []))
@@ -75,7 +75,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Announcement saved")
+         |> put_flash(:info, dgettext("management", "Announcement saved"))
          |> load()
          |> edit_announcement(%Announcement{})}
 
@@ -102,7 +102,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
          {:ok, _} <- Boards.delete_announcement(user(socket), story(socket), announcement) do
       {:noreply,
        socket
-       |> put_flash(:info, "Announcement deleted")
+       |> put_flash(:info, dgettext("management", "Announcement deleted"))
        |> load()
        |> edit_announcement(%Announcement{})}
     else
@@ -133,7 +133,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Board saved")
+         |> put_flash(:info, dgettext("management", "Board saved"))
          |> load()
          |> edit_board(%Board{})}
 
@@ -160,7 +160,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
          {:ok, _} <- Boards.delete_board(user(socket), story(socket), board) do
       {:noreply,
        socket
-       |> put_flash(:info, "Board taken down")
+       |> put_flash(:info, dgettext("management", "Board taken down"))
        |> load()
        |> edit_board(%Board{})}
     else
@@ -192,23 +192,29 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Announcements and boards
+        {dgettext("management", "Announcements and boards")}
         <:subtitle>
-          Announcements appear on the GDR home; notice boards hang in a room or across a zone.
+          {dgettext(
+            "management",
+            "Announcements appear on the GDR home; notice boards hang in a room or across a zone."
+          )}
         </:subtitle>
+
         <:actions>
           <.link
             navigate={~p"/g/#{@current_story}/master"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-arrow-left" class="size-4" /> Master tools
+            <.icon name="hero-arrow-left" class="size-4" /> {dgettext("management", "Master tools")}
           </.link>
         </:actions>
       </.header>
 
       <div class="mt-8 grid gap-10 xl:grid-cols-2">
         <section id="master-announcements">
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Announcements</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("management", "Announcements")}
+          </h2>
 
           <.form
             for={@announcement_form}
@@ -220,36 +226,47 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
             <.input
               field={@announcement_form[:title]}
               type="text"
-              label="Title"
+              label={dgettext("management", "Title")}
               maxlength="120"
               required
             />
             <.input
               field={@announcement_form[:body]}
               type="textarea"
-              label="Text (Markdown)"
+              label={dgettext("management", "Text (Markdown)")}
               rows="6"
               required
             />
             <div class="grid gap-x-4 sm:grid-cols-2">
-              <.input field={@announcement_form[:pinned]} type="checkbox" label="Pinned on top" />
+              <.input
+                field={@announcement_form[:pinned]}
+                type="checkbox"
+                label={dgettext("management", "Pinned on top")}
+              />
               <.input
                 field={@announcement_form[:expires_at]}
                 type="datetime-local"
-                label="Expires (optional, UTC)"
+                label={dgettext("management", "Expires (optional, UTC)")}
               />
             </div>
+
             <div class="flex gap-2">
-              <.button phx-disable-with="Saving..." class="btn btn-primary btn-sm console-action">
-                {if @announcement.id, do: "Update announcement", else: "Post announcement"}
+              <.button
+                phx-disable-with={dgettext("management", "Saving...")}
+                class="btn btn-primary btn-sm console-action"
+              >
+                {if @announcement.id,
+                  do: dgettext("management", "Update announcement"),
+                  else: dgettext("management", "Post announcement")}
               </.button>
+
               <.button
                 :if={@announcement.id}
                 type="button"
                 phx-click="new_announcement"
                 class="btn btn-ghost btn-sm console-action"
               >
-                Cancel
+                {dgettext("management", "Cancel")}
               </.button>
             </div>
           </.form>
@@ -259,8 +276,9 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
             id="master-announcements-empty"
             class="mt-4 text-sm text-base-content/60"
           >
-            No announcements yet.
+            {dgettext("management", "No announcements yet.")}
           </p>
+
           <ul class="mt-4 space-y-2">
             <li
               :for={announcement <- @announcements}
@@ -275,18 +293,22 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
             >
               <div class="min-w-0">
                 <p class="truncate font-semibold">
-                  <.icon :if={announcement.pinned} name="hero-star-solid" class="size-4 text-warning" />
-                  {announcement.title}
+                  <.icon :if={announcement.pinned} name="hero-star-solid" class="size-4 text-warning" /> {announcement.title}
                 </p>
+
                 <p class="text-xs text-base-content/60">
                   {Calendar.strftime(announcement.inserted_at, "%d/%m/%Y %H:%M")}
                   <span :if={announcement.expires_at}>
                     · {if Announcement.expired?(announcement, DateTime.utc_now()),
-                      do: "expired",
-                      else: "expires"} {Calendar.strftime(announcement.expires_at, "%d/%m/%Y %H:%M")}
+                      do: dgettext("management", "expired"),
+                      else: dgettext("management", "expires")} {Calendar.strftime(
+                      announcement.expires_at,
+                      "%d/%m/%Y %H:%M"
+                    )}
                   </span>
                 </p>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   id={"announcement-edit-#{announcement.id}"}
@@ -295,17 +317,18 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
                   phx-value-id={announcement.id}
                   class="btn btn-ghost btn-xs"
                 >
-                  Edit
+                  {dgettext("management", "Edit")}
                 </button>
+
                 <button
                   id={"announcement-delete-#{announcement.id}"}
                   type="button"
                   phx-click="delete_announcement"
                   phx-value-id={announcement.id}
-                  data-confirm="Delete this announcement?"
+                  data-confirm={dgettext("management", "Delete this announcement?")}
                   class="btn btn-ghost btn-xs text-error"
                 >
-                  Delete
+                  {dgettext("management", "Delete")}
                 </button>
               </div>
             </li>
@@ -313,7 +336,9 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
         </section>
 
         <section id="master-boards-section">
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Notice boards</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("management", "Notice boards")}
+          </h2>
 
           <.form
             for={@board_form}
@@ -322,58 +347,76 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
             phx-submit="save_board"
             class="mt-3 rounded-xl border border-secondary/30 bg-base-200/70 p-5"
           >
-            <.input field={@board_form[:name]} type="text" label="Name" maxlength="80" required />
+            <.input
+              field={@board_form[:name]}
+              type="text"
+              label={dgettext("management", "Name")}
+              maxlength="80"
+              required
+            />
             <.input
               field={@board_form[:description]}
               type="textarea"
-              label="Description (optional)"
+              label={dgettext("management", "Description (optional)")}
               rows="2"
             />
             <p class="mb-2 text-xs text-base-content/60">
-              Hang it in one room, or across a whole zone (shown in every room of the zone).
+              {dgettext(
+                "management",
+                "Hang it in one room, or across a whole zone (shown in every room of the zone)."
+              )}
             </p>
+
             <div class="grid gap-x-4 sm:grid-cols-2">
               <.input
                 field={@board_form[:location_id]}
                 type="select"
-                label="Room"
-                prompt="—"
+                label={dgettext("management", "Room")}
+                prompt={dgettext("management", "—")}
                 options={Enum.map(@locations, &{&1.name, &1.id})}
               />
               <.input
                 field={@board_form[:zone_id]}
                 type="select"
-                label="Zone"
-                prompt="—"
+                label={dgettext("management", "Zone")}
+                prompt={dgettext("management", "—")}
                 options={Enum.map(@zones, &{&1.name, &1.id})}
               />
             </div>
+
             <.input
               :if={@guilds?}
               field={@board_form[:guild_id]}
               type="select"
-              label="Restricted to guild (optional)"
-              prompt="Everyone"
+              label={dgettext("management", "Restricted to guild (optional)")}
+              prompt={dgettext("management", "Everyone")}
               options={Enum.map(@guilds, &{&1.name, &1.id})}
             />
             <div class="flex gap-2">
-              <.button phx-disable-with="Saving..." class="btn btn-primary btn-sm console-action">
-                {if @board.id, do: "Update board", else: "Put up board"}
+              <.button
+                phx-disable-with={dgettext("management", "Saving...")}
+                class="btn btn-primary btn-sm console-action"
+              >
+                {if @board.id,
+                  do: dgettext("management", "Update board"),
+                  else: dgettext("management", "Put up board")}
               </.button>
+
               <.button
                 :if={@board.id}
                 type="button"
                 phx-click="new_board"
                 class="btn btn-ghost btn-sm console-action"
               >
-                Cancel
+                {dgettext("management", "Cancel")}
               </.button>
             </div>
           </.form>
 
           <p :if={@boards == []} id="master-boards-empty" class="mt-4 text-sm text-base-content/60">
-            No notice boards yet.
+            {dgettext("management", "No notice boards yet.")}
           </p>
+
           <ul class="mt-4 space-y-2">
             <li
               :for={board <- @boards}
@@ -387,11 +430,15 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
                 >
                   {board.name}
                 </.link>
+
                 <p class="text-xs text-base-content/60">
                   {Boards.place_label(board)}
-                  <span :if={board.guild}>· {board.guild.name} only</span>
+                  <span :if={board.guild}>{dgettext("management", "· %{board_guild_name} only",
+                    board_guild_name: board.guild.name
+                  )}</span>
                 </p>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   id={"board-edit-#{board.id}"}
@@ -400,17 +447,18 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
                   phx-value-id={board.id}
                   class="btn btn-ghost btn-xs"
                 >
-                  Edit
+                  {dgettext("management", "Edit")}
                 </button>
+
                 <button
                   id={"board-delete-#{board.id}"}
                   type="button"
                   phx-click="delete_board"
                   phx-value-id={board.id}
-                  data-confirm="Take this board down with all its notices?"
+                  data-confirm={dgettext("management", "Take this board down with all its notices?")}
                   class="btn btn-ghost btn-xs text-error"
                 >
-                  Delete
+                  {dgettext("management", "Delete")}
                 </button>
               </div>
             </li>

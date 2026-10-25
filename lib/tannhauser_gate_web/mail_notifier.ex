@@ -1,4 +1,6 @@
 defmodule TannhauserGateWeb.MailNotifier do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Keeps the `:mail_unread` assign (the unread badge of the GDR nav) up to date
   and flashes a notification when a message reaches the user's mailbox.
@@ -49,7 +51,14 @@ defmodule TannhauserGateWeb.MailNotifier do
   defp maybe_notify(socket, :received, %Message{} = message, identity) do
     if Mailbox.in_inbox?(identity, message) and
          message.sender_user_id != socket.assigns.current_user.id do
-      put_flash(socket, :info, "New message from #{message.sender_name}: #{message.subject}")
+      put_flash(
+        socket,
+        :info,
+        dgettext("shared", "New message from %{sender}: %{subject}",
+          sender: message.sender_name,
+          subject: message.subject
+        )
+      )
     else
       socket
     end

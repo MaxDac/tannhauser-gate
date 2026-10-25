@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Items do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Items, inventory, equipment and market, the `:items` optional module.
 
@@ -169,7 +171,12 @@ defmodule TannhauserGate.Items do
     if is_nil(location_id) or
          Repo.exists?(from l in Location, where: l.id == ^location_id and l.story_id == ^story_id),
        do: changeset,
-       else: Ecto.Changeset.add_error(changeset, :location_id, "is not a room of this GDR")
+       else:
+         Ecto.Changeset.add_error(
+           changeset,
+           :location_id,
+           dgettext_noop("errors", "is not a room of this GDR")
+         )
   end
 
   @doc "A listing of a shop of the story, with its shop and item, or nil."
@@ -197,7 +204,12 @@ defmodule TannhauserGate.Items do
     if is_nil(item_id) or
          Repo.exists?(from i in Item, where: i.id == ^item_id and i.story_id == ^story_id),
        do: changeset,
-       else: Ecto.Changeset.add_error(changeset, :item_id, "is not an item of this GDR")
+       else:
+         Ecto.Changeset.add_error(
+           changeset,
+           :item_id,
+           dgettext_noop("errors", "is not an item of this GDR")
+         )
   end
 
   ## Inventory
@@ -481,32 +493,50 @@ defmodule TannhauserGate.Items do
   end
 
   @doc "A short label for a log action."
-  def action_label("grant"), do: "Granted"
-  def action_label("remove"), do: "Removed"
-  def action_label("give"), do: "Gave"
-  def action_label("buy"), do: "Bought"
-  def action_label("use"), do: "Used"
-  def action_label("equip"), do: "Equipped"
-  def action_label("unequip"), do: "Unequipped"
+  def action_label("grant"), do: dgettext("domain", "Granted")
+  def action_label("remove"), do: dgettext("domain", "Removed")
+  def action_label("give"), do: dgettext("domain", "Gave")
+  def action_label("buy"), do: dgettext("domain", "Bought")
+  def action_label("use"), do: dgettext("domain", "Used")
+  def action_label("equip"), do: dgettext("domain", "Equipped")
+  def action_label("unequip"), do: dgettext("domain", "Unequipped")
   def action_label(other), do: other
 
   @doc "A human readable message for the errors of this context."
-  def error_message(:module_disabled), do: "Items are not enabled in this GDR."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Items are not enabled in this GDR.")
 
   def error_message(:alt_blocked),
-    do: "This GDR does not allow giving items between characters of the same player."
+    do:
+      dgettext(
+        "domain",
+        "This GDR does not allow giving items between characters of the same player."
+      )
 
-  def error_message(:item_not_found), do: "That item does not exist in this GDR."
-  def error_message(:listing_not_found), do: "That item is not sold here."
-  def error_message(:recipient_not_found), do: "That character does not exist in this GDR."
-  def error_message(:same_character), do: "You can't give items to yourself."
-  def error_message(:invalid_quantity), do: "Enter a quantity between 1 and #{@max_quantity}."
-  def error_message(:not_enough_items), do: "Not enough of that item in the inventory."
-  def error_message(:not_owned), do: "That item is not in the inventory."
-  def error_message(:not_stackable), do: "That item can be held only once."
-  def error_message(:not_equippable), do: "That item can't be equipped."
-  def error_message(:not_usable), do: "That item can't be used."
-  def error_message(:out_of_stock), do: "Not enough stock left."
+  def error_message(:item_not_found),
+    do: dgettext("domain", "That item does not exist in this GDR.")
+
+  def error_message(:listing_not_found), do: dgettext("domain", "That item is not sold here.")
+
+  def error_message(:recipient_not_found),
+    do: dgettext("domain", "That character does not exist in this GDR.")
+
+  def error_message(:same_character), do: dgettext("domain", "You can't give items to yourself.")
+
+  def error_message(:invalid_quantity),
+    do:
+      dgettext("domain", "Enter a quantity between 1 and %{max_quantity}.",
+        max_quantity: @max_quantity
+      )
+
+  def error_message(:not_enough_items),
+    do: dgettext("domain", "Not enough of that item in the inventory.")
+
+  def error_message(:not_owned), do: dgettext("domain", "That item is not in the inventory.")
+  def error_message(:not_stackable), do: dgettext("domain", "That item can be held only once.")
+  def error_message(:not_equippable), do: dgettext("domain", "That item can't be equipped.")
+  def error_message(:not_usable), do: dgettext("domain", "That item can't be used.")
+  def error_message(:out_of_stock), do: dgettext("domain", "Not enough stock left.")
   def error_message(:insufficient_funds), do: Bank.error_message(:insufficient_funds)
   def error_message(reason), do: Trackers.error_message(reason)
 

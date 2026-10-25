@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Accounts.UserNotifier do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Delivers account emails (confirmation, password reset, email change).
   """
@@ -24,59 +26,86 @@ defmodule TannhauserGate.Accounts.UserNotifier do
   Deliver instructions to confirm account.
   """
   def deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirmation instructions", """
+    deliver(
+      user.email,
+      dgettext("domain", "Confirmation instructions"),
+      dgettext(
+        "domain",
+        """
 
-    ==============================
+        ==============================
 
-    Hi #{user.email},
+        Hi %{email},
 
-    You can confirm your account by visiting the URL below:
+        You can confirm your account by visiting the URL below:
 
-    #{url}
+        %{url}
 
-    If you didn't create an account with us, please ignore this.
+        If you didn't create an account with us, please ignore this.
 
-    ==============================
-    """)
+        ==============================
+        """,
+        email: user.email,
+        url: url
+      )
+    )
   end
 
   @doc """
   Deliver instructions to reset a user password.
   """
   def deliver_reset_password_instructions(user, url) do
-    deliver(user.email, "Reset password instructions", """
+    deliver(
+      user.email,
+      dgettext("domain", "Reset password instructions"),
+      dgettext(
+        "domain",
+        """
 
-    ==============================
+        ==============================
 
-    Hi #{user.email},
+        Hi %{email},
 
-    You can reset your password by visiting the URL below:
+        You can reset your password by visiting the URL below:
 
-    #{url}
+        %{url}
 
-    If you didn't request this change, please ignore this.
+        If you didn't request this change, please ignore this.
 
-    ==============================
-    """)
+        ==============================
+        """,
+        email: user.email,
+        url: url
+      )
+    )
   end
 
   @doc """
   Deliver instructions to update a user email.
   """
   def deliver_update_email_instructions(user, url) do
-    deliver(user.email, "Update email instructions", """
+    deliver(
+      user.email,
+      dgettext("domain", "Update email instructions"),
+      dgettext(
+        "domain",
+        """
 
-    ==============================
+        ==============================
 
-    Hi #{user.email},
+        Hi %{email},
 
-    You can change your email by visiting the URL below:
+        You can change your email by visiting the URL below:
 
-    #{url}
+        %{url}
 
-    If you didn't request this change, please ignore this.
+        If you didn't request this change, please ignore this.
 
-    ==============================
-    """)
+        ==============================
+        """,
+        email: user.email,
+        url: url
+      )
+    )
   end
 end

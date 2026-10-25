@@ -26,13 +26,13 @@ defmodule TannhauserGateWeb.MailLive do
 
   defp apply_action(socket, :inbox, _params) do
     socket
-    |> assign(:page_title, "Inbox")
+    |> assign(:page_title, dgettext("player", "Inbox"))
     |> load_messages()
   end
 
   defp apply_action(socket, :sent, _params) do
     socket
-    |> assign(:page_title, "Sent messages")
+    |> assign(:page_title, dgettext("player", "Sent messages"))
     |> load_messages()
   end
 
@@ -54,7 +54,7 @@ defmodule TannhauserGateWeb.MailLive do
       end
 
     socket
-    |> assign(:page_title, "New message")
+    |> assign(:page_title, dgettext("player", "New message"))
     |> assign(:reply_to_id, attrs["reply_to_id"])
     |> assign(:form, to_form(Mailbox.change_message(attrs)))
   end
@@ -65,7 +65,7 @@ defmodule TannhauserGateWeb.MailLive do
     case Mailbox.get_message(user, story, id) do
       nil ->
         socket
-        |> put_flash(:error, "Message not found")
+        |> put_flash(:error, dgettext("player", "Message not found"))
         |> push_navigate(to: ~p"/g/#{story}/mail")
 
       message ->
@@ -116,7 +116,7 @@ defmodule TannhauserGateWeb.MailLive do
       {:ok, _message} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Message sent")
+         |> put_flash(:info, dgettext("player", "Message sent"))
          |> push_navigate(to: ~p"/g/#{story}/mail/sent")}
 
       {:error, :muted} ->
@@ -132,14 +132,17 @@ defmodule TannhauserGateWeb.MailLive do
 
     case Map.get(params, "ids", []) do
       [] ->
-        {:noreply, put_flash(socket, :error, "Select the messages to delete")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "Select the messages to delete"))}
 
       ids ->
         count = Mailbox.delete_messages(user, story, ids, side)
 
         {:noreply,
          socket
-         |> put_flash(:info, "#{count} #{if count == 1, do: "message", else: "messages"} deleted")
+         |> put_flash(
+           :info,
+           dngettext("player", "%{count} message deleted", "%{count} messages deleted", count)
+         )
          |> load_messages()}
     end
   end
@@ -153,7 +156,7 @@ defmodule TannhauserGateWeb.MailLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Message deleted")
+     |> put_flash(:info, dgettext("player", "Message deleted"))
      |> push_navigate(to: path)}
   end
 
@@ -181,30 +184,34 @@ defmodule TannhauserGateWeb.MailLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Mail
-        <:subtitle>Letters between the characters of {@current_story.name}.</:subtitle>
+        {dgettext("player", "Mail")}
+        <:subtitle>
+          {dgettext("player", "Letters between the characters of")} {@current_story.name}.
+        </:subtitle>
+
         <:actions>
           <.button id="compose-mail" variant="primary" navigate={~p"/g/#{@current_story}/mail/new"}>
-            <.icon name="hero-pencil-square" class="size-4" /> Compose
+            <.icon name="hero-pencil-square" class="size-4" /> {dgettext("player", "Compose")}
           </.button>
         </:actions>
       </.header>
 
-      <nav class="mt-6 flex gap-2" aria-label="Mailbox">
+      <nav class="mt-6 flex gap-2" aria-label={dgettext("player", "Mailbox")}>
         <.mail_tab
           id="mail-tab-inbox"
           navigate={~p"/g/#{@current_story}/mail"}
           active={@live_action == :inbox}
         >
-          <.icon name="hero-inbox" class="size-4" /> Inbox
+          <.icon name="hero-inbox" class="size-4" /> {dgettext("player", "Inbox")}
           <span :if={@mail_unread > 0} class="badge badge-xs badge-secondary">{@mail_unread}</span>
         </.mail_tab>
+
         <.mail_tab
           id="mail-tab-sent"
           navigate={~p"/g/#{@current_story}/mail/sent"}
           active={@live_action == :sent}
         >
-          <.icon name="hero-paper-airplane" class="size-4" /> Sent
+          <.icon name="hero-paper-airplane" class="size-4" /> {dgettext("player", "Sent")}
         </.mail_tab>
       </nav>
 
@@ -212,16 +219,17 @@ defmodule TannhauserGateWeb.MailLive do
         <form id="mail-list-form" phx-submit="delete_selected">
           <div class="mb-3 flex items-center justify-between">
             <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
-              {@messages_count} {if @messages_count == 1, do: "message", else: "messages"}
+              {dngettext("player", "%{count} message", "%{count} messages", @messages_count)}
             </p>
+
             <button
               :if={@messages_count > 0}
               id="delete-selected"
               type="submit"
               class="btn btn-error btn-outline btn-xs console-action"
-              data-confirm="Delete the selected messages?"
+              data-confirm={dgettext("player", "Delete the selected messages?")}
             >
-              <.icon name="hero-trash" class="size-3" /> Delete selected
+              <.icon name="hero-trash" class="size-3" /> {dgettext("player", "Delete selected")}
             </button>
           </div>
 
@@ -231,8 +239,11 @@ defmodule TannhauserGateWeb.MailLive do
             class="divide-y divide-secondary/15 overflow-hidden rounded-xl border border-secondary/20 bg-base-200/80"
           >
             <li id="mail-empty" class="hidden p-6 text-center text-sm text-base-content/60 only:block">
-              {if @live_action == :inbox, do: "Your inbox is empty.", else: "No messages sent yet."}
+              {if @live_action == :inbox,
+                do: dgettext("player", "Your inbox is empty."),
+                else: dgettext("player", "No messages sent yet.")}
             </li>
+
             <li
               :for={{dom_id, message} <- @streams.messages}
               id={dom_id}
@@ -246,7 +257,7 @@ defmodule TannhauserGateWeb.MailLive do
                 name="ids[]"
                 value={message.id}
                 id={"select-message-#{message.id}"}
-                aria-label={"Select #{message.subject}"}
+                aria-label={dgettext("player", "Select %{subject}", subject: message.subject)}
                 class="checkbox checkbox-sm checkbox-secondary"
               />
               <.link
@@ -257,21 +268,23 @@ defmodule TannhauserGateWeb.MailLive do
                 <span
                   :if={@live_action == :inbox && is_nil(message.read_at)}
                   class="size-2 shrink-0 rounded-full bg-secondary shadow-[0_0_8px] shadow-secondary/70"
-                  title="Unread"
+                  title={dgettext("player", "Unread")}
                 ></span>
                 <span class="w-40 shrink-0 truncate text-sm text-base-content/70">
                   <%= if @live_action == :inbox do %>
                     {message.sender_name} → {Mailbox.recipient_name(message)}
                   <% else %>
-                    To {Mailbox.recipient_name(message)}
+                    {dgettext("player", "To")} {Mailbox.recipient_name(message)}
                   <% end %>
                 </span>
+
                 <span class={[
                   "min-w-0 flex-1 truncate group-hover:text-primary",
                   @live_action == :inbox && is_nil(message.read_at) && "font-bold"
                 ]}>
                   {message.subject}
                 </span>
+
                 <time
                   class="shrink-0 text-xs text-base-content/50"
                   datetime={DateTime.to_iso8601(message.inserted_at)}
@@ -287,14 +300,21 @@ defmodule TannhauserGateWeb.MailLive do
       <section :if={@live_action == :show} id="mail-show" class="mt-6">
         <article class="rounded-xl border border-secondary/20 bg-base-200/80 p-6">
           <h2 id="mail-subject" class="text-xl font-bold text-primary">{@message.subject}</h2>
+
           <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-sm text-base-content/70">
-            <dt class="font-semibold">From</dt>
+            <dt class="font-semibold">{dgettext("player", "From")}</dt>
+
             <dd id="mail-from">{@message.sender_name}</dd>
-            <dt class="font-semibold">To</dt>
+
+            <dt class="font-semibold">{dgettext("player", "To")}</dt>
+
             <dd id="mail-to">{Mailbox.recipient_name(@message)}</dd>
-            <dt class="font-semibold">Date</dt>
+
+            <dt class="font-semibold">{dgettext("player", "Date")}</dt>
+
             <dd>{Calendar.strftime(@message.inserted_at, "%d/%m/%Y %H:%M")}</dd>
           </dl>
+
           <div id="mail-body" class="mt-6 whitespace-pre-line leading-relaxed">{@message.body}</div>
         </article>
 
@@ -305,8 +325,9 @@ defmodule TannhauserGateWeb.MailLive do
             variant="primary"
             navigate={~p"/g/#{@current_story}/mail/new?reply=#{@message.id}"}
           >
-            <.icon name="hero-arrow-uturn-left" class="size-4" /> Reply
+            <.icon name="hero-arrow-uturn-left" class="size-4" /> {dgettext("player", "Reply")}
           </.button>
+
           <.report_link
             :if={@reportable?}
             id="report-mail"
@@ -314,17 +335,17 @@ defmodule TannhauserGateWeb.MailLive do
             type="mail"
             target_id={@message.id}
             return_to={~p"/g/#{@current_story}/mail/#{@message.id}"}
-            label="Report"
+            label={dgettext("player", "Report")}
             class="btn btn-ghost console-action"
           />
           <button
             id="delete-message"
             type="button"
             phx-click="delete_message"
-            data-confirm="Delete this message?"
+            data-confirm={dgettext("player", "Delete this message?")}
             class="btn btn-error btn-outline console-action"
           >
-            <.icon name="hero-trash" class="size-4" /> Delete
+            <.icon name="hero-trash" class="size-4" /> {dgettext("player", "Delete")}
           </button>
         </div>
       </section>
@@ -335,7 +356,7 @@ defmodule TannhauserGateWeb.MailLive do
           id="mail-no-sender"
           class="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm"
         >
-          You need an approved character that can play to send messages.
+          {dgettext("player", "You need an approved character that can play to send messages.")}
         </p>
 
         <.form
@@ -353,19 +374,28 @@ defmodule TannhauserGateWeb.MailLive do
             value={@reply_to_id}
           />
           <div class="grid gap-x-4 sm:grid-cols-2">
-            <.input field={@form[:sender]} type="select" label="From" options={@sender_options} />
+            <.input
+              field={@form[:sender]}
+              type="select"
+              label={dgettext("player", "From")}
+              options={@sender_options}
+            />
             <.input
               field={@form[:recipient]}
               type="select"
-              label="To"
-              prompt="Choose a recipient"
+              label={dgettext("player", "To")}
+              prompt={dgettext("player", "Choose a recipient")}
               options={@recipient_options}
             />
           </div>
-          <.input field={@form[:subject]} type="text" label="Subject" />
-          <.input field={@form[:body]} type="textarea" label="Message" rows="8" />
-          <.button variant="primary" id="send-mail" phx-disable-with="Sending...">
-            <.icon name="hero-paper-airplane" class="size-4" /> Send
+          <.input field={@form[:subject]} type="text" label={dgettext("player", "Subject")} />
+          <.input field={@form[:body]} type="textarea" label={dgettext("player", "Message")} rows="8" />
+          <.button
+            variant="primary"
+            id="send-mail"
+            phx-disable-with={dgettext("player", "Sending...")}
+          >
+            <.icon name="hero-paper-airplane" class="size-4" /> {dgettext("player", "Send")}
           </.button>
         </.form>
       </section>

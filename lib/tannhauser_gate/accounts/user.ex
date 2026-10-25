@@ -1,4 +1,5 @@
 defmodule TannhauserGate.Accounts.User do
+  use Gettext, backend: TannhauserGateWeb.Gettext
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -31,7 +32,7 @@ defmodule TannhauserGate.Accounts.User do
   """
   def handle(%__MODULE__{username: username}) when is_binary(username), do: username
 
-  def handle(_), do: "unknown"
+  def handle(_), do: dgettext("domain", "unknown")
 
   @doc """
   A user changeset for registration.
@@ -71,7 +72,10 @@ defmodule TannhauserGate.Accounts.User do
     if get_field(changeset, :terms_accepted) == true do
       put_change(changeset, :accepted_terms_at, DateTime.utc_now(:second))
     else
-      add_error(changeset, :terms_accepted, "must be accepted to register",
+      add_error(
+        changeset,
+        :terms_accepted,
+        dgettext_noop("errors", "must be accepted to register"),
         validation: :acceptance
       )
     end
@@ -83,7 +87,8 @@ defmodule TannhauserGate.Accounts.User do
     |> update_change(:username, &String.trim/1)
     |> validate_length(:username, min: 3, max: 30)
     |> validate_format(:username, ~r/^[A-Za-z0-9_.-]+$/,
-      message: "can only contain letters, numbers, underscores, dots and dashes"
+      message:
+        dgettext_noop("errors", "can only contain letters, numbers, underscores, dots and dashes")
     )
     |> maybe_validate_unique_username(opts)
   end
@@ -101,7 +106,9 @@ defmodule TannhauserGate.Accounts.User do
   defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])
-    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/,
+      message: dgettext_noop("errors", "must have the @ sign and no spaces")
+    )
     |> validate_length(:email, max: 160)
     |> maybe_validate_unique_email(opts)
   end
@@ -153,7 +160,7 @@ defmodule TannhauserGate.Accounts.User do
     |> validate_email(opts)
     |> case do
       %{changes: %{email: _}} = changeset -> changeset
-      %{} = changeset -> add_error(changeset, :email, "did not change")
+      %{} = changeset -> add_error(changeset, :email, dgettext_noop("errors", "did not change"))
     end
   end
 
@@ -172,7 +179,9 @@ defmodule TannhauserGate.Accounts.User do
   def password_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:password])
-    |> validate_confirmation(:password, message: "does not match password")
+    |> validate_confirmation(:password,
+      message: dgettext_noop("errors", "does not match password")
+    )
     |> validate_password(opts)
     |> put_change(:must_change_password, false)
   end
@@ -218,7 +227,7 @@ defmodule TannhauserGate.Accounts.User do
     if valid_password?(changeset.data, password) do
       changeset
     else
-      add_error(changeset, :current_password, "is not valid")
+      add_error(changeset, :current_password, dgettext_noop("errors", "is not valid"))
     end
   end
 end

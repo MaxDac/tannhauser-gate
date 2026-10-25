@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Dice.Config do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The dice system of a GDR, chosen by its GDR admin (embedded in the story).
 
@@ -90,7 +92,12 @@ defmodule TannhauserGate.Dice.Config do
     threshold = get_field(changeset, :success_threshold)
 
     if is_integer(die_size) and is_integer(threshold) and threshold > die_size,
-      do: add_error(changeset, :success_threshold, "cannot be higher than the die size"),
+      do:
+        add_error(
+          changeset,
+          :success_threshold,
+          dgettext_noop("errors", "cannot be higher than the die size")
+        ),
       else: changeset
   end
 

@@ -19,6 +19,25 @@ character sheet, map, forum, bank and jobs. Players pick a GDR after login, crea
 character in it, and play in real-time chat rooms placed on its map. *Tannhauser Gate* is also
 the name of the default GDR, an original setting inspired by the mood of *Blade Runner*.
 
+## Support
+
+Support development with a donation on [Ko-fi](https://ko-fi.com/maxdac).
+The same link is available on authentication pages and in the signed-in navigation.
+
+## Languages
+
+The application interface supports English (default), Italian, Spanish, and European
+Portuguese. Use the **Language** selector on authentication pages or in the navigation
+drawer, then select **Change language**. The choice is stored in the browser session,
+survives login and logout, and applies to connected LiveViews as well as regular pages.
+It does not translate player-written content, GDR names, or existing fictional settings.
+
+Translations use `TannhauserGateWeb.Gettext` and catalogs in `priv/gettext`, with `it`,
+`es`, and `pt_PT` locales. Wrap interface strings in the appropriate Gettext domain,
+use named bindings and plural messages, then run `mix gettext.extract --merge --no-fuzzy`
+and fill in all three catalogs. Run `mix test test/tannhauser_gate_web/translation_catalog_test.exs`
+to check for missing translations, fuzzy entries, and mismatched bindings.
+
 ## Features
 
 - **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master). Registering requires ticking "I accept the terms and disclaimer" (linked to the static `/terms` page); the acceptance time is stored in `users.accepted_terms_at` (nil for accounts created before the checkbox existed).

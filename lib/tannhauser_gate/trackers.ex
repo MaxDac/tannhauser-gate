@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Trackers do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Trackers are per-GDR resources configured by the GDR admin (health,
   willpower, hunger...) and tracked on every character.
@@ -135,11 +137,16 @@ defmodule TannhauserGate.Trackers do
   end
 
   @doc "A human readable message for the tracker errors."
-  def error_message(:not_found), do: "That tracker does not exist."
-  def error_message(:invalid_damage_type), do: "That damage type does not exist."
-  def error_message(:damage_tracker), do: "This tracker tracks damage by type."
-  def error_message(:simple_tracker), do: "This tracker has no damage types."
-  def error_message(_), do: "The tracker could not be updated."
+  def error_message(:not_found), do: dgettext("domain", "That tracker does not exist.")
+
+  def error_message(:invalid_damage_type),
+    do: dgettext("domain", "That damage type does not exist.")
+
+  def error_message(:damage_tracker),
+    do: dgettext("domain", "This tracker tracks damage by type.")
+
+  def error_message(:simple_tracker), do: dgettext("domain", "This tracker has no damage types.")
+  def error_message(_), do: dgettext("domain", "The tracker could not be updated.")
 
   defp change(%Character{} = character, tracker_ref, fun) do
     case resolve(character, tracker_ref) do
@@ -232,8 +239,11 @@ defmodule TannhauserGate.Trackers do
   defp build_state(%Tracker{} = tracker, row, values) do
     {max, error} =
       case max_value(tracker, values) do
-        {:ok, max} -> {max, nil}
-        {:error, message} -> {0, "Invalid maximum: #{message}"}
+        {:ok, max} ->
+          {max, nil}
+
+        {:error, message} ->
+          {0, dgettext("domain", "Invalid maximum: %{message}", message: message)}
       end
 
     stored = (row && row.damage) || %{}

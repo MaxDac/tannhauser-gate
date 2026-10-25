@@ -7,7 +7,11 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "GDR requests", requests: GdrRequests.list_requests())}
+    {:ok,
+     assign(socket,
+       page_title: dgettext("management", "GDR requests"),
+       requests: GdrRequests.list_requests()
+     )}
   end
 
   @impl true
@@ -16,16 +20,23 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
 
     case GdrRequests.approve_request(request, socket.assigns.current_user) do
       {:ok, _story} ->
-        {:noreply, refresh(socket, "Request approved. The GDR is now a draft.")}
+        {:noreply,
+         refresh(socket, dgettext("management", "Request approved. The GDR is now a draft."))}
 
       {:error, :not_gm} ->
-        {:noreply, refresh_error(socket, "The requester is no longer a game master.")}
+        {:noreply,
+         refresh_error(
+           socket,
+           dgettext("management", "The requester is no longer a game master.")
+         )}
 
       {:error, :not_pending} ->
-        {:noreply, refresh_error(socket, "That request was already reviewed.")}
+        {:noreply,
+         refresh_error(socket, dgettext("management", "That request was already reviewed."))}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Could not approve the request.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("management", "Could not approve the request."))}
     end
   end
 
@@ -33,8 +44,12 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
     request = GdrRequests.get_request!(id)
 
     case GdrRequests.reject_request(request, socket.assigns.current_user) do
-      {:ok, _} -> {:noreply, refresh(socket, "Request rejected.")}
-      {:error, _} -> {:noreply, put_flash(socket, :error, "Could not reject the request.")}
+      {:ok, _} ->
+        {:noreply, refresh(socket, dgettext("management", "Request rejected."))}
+
+      {:error, _} ->
+        {:noreply,
+         put_flash(socket, :error, dgettext("management", "Could not reject the request."))}
     end
   end
 
@@ -50,24 +65,31 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
     |> assign(:requests, GdrRequests.list_requests())
   end
 
+  defp request_status("pending"), do: dgettext("management", "pending")
+  defp request_status("approved"), do: dgettext("management", "approved")
+  defp request_status("rejected"), do: dgettext("management", "rejected")
+  defp request_status(status), do: status
+
   @impl true
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
       <.admin_nav current_path={@current_path} />
       <.header>
-        GDR requests
-        <:subtitle>Game masters ask permission to run their own GDR.</:subtitle>
+        {dgettext("management", "GDR requests")}
+        <:subtitle>
+          {dgettext("management", "Game masters ask permission to run their own GDR.")}
+        </:subtitle>
       </.header>
 
       <.table id="admin-requests" rows={@requests}>
-        <:col :let={r} label="GM">{r.user.username}</:col>
+        <:col :let={r} label={dgettext("management", "GM")}>{r.user.username}</:col>
 
-        <:col :let={r} label="Name">{r.name}</:col>
+        <:col :let={r} label={dgettext("management", "Name")}>{r.name}</:col>
 
-        <:col :let={r} label="Pitch">{r.pitch}</:col>
+        <:col :let={r} label={dgettext("management", "Pitch")}>{r.pitch}</:col>
 
-        <:col :let={r} label="Status">{r.status}</:col>
+        <:col :let={r} label={dgettext("management", "Status")}>{request_status(r.status)}</:col>
 
         <:action :let={r}>
           <.link
@@ -76,7 +98,7 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
             phx-click="approve"
             phx-value-id={r.id}
           >
-            Approve
+            {dgettext("management", "Approve")}
           </.link>
         </:action>
 
@@ -87,7 +109,7 @@ defmodule TannhauserGateWeb.Admin.RequestsLive do
             phx-click="reject"
             phx-value-id={r.id}
           >
-            Reject
+            {dgettext("management", "Reject")}
           </.link>
         </:action>
       </.table>

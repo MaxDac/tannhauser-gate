@@ -49,6 +49,7 @@ jobs:
         with:
           mix-env: test
       - run: mix format --check-formatted
+      - run: mix gettext.extract --check-up-to-date
 
   credo:
     name: credo

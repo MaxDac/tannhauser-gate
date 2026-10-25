@@ -1,6 +1,7 @@
 defmodule TannhauserGateWeb.ZoneComponents do
   @moduledoc "Room panels for the zone of a location and the periodic actions."
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   import TannhauserGateWeb.CoreComponents, only: [icon: 1]
   import TannhauserGateWeb.GuideComponents, only: [markdown: 1]
@@ -24,12 +25,14 @@ defmodule TannhauserGateWeb.ZoneComponents do
           {property.name} {value}
         </span>
       </h2>
+
       <p :if={@zone.description} class="mt-1 text-sm text-fog-400">{@zone.description}</p>
 
       <details :if={@events != []} id="zone-events-panel" class="mt-3" open>
         <summary class="cursor-pointer select-none text-sm font-semibold text-mint hover:text-phosphor">
-          <.icon name="hero-newspaper" class="size-4" /> Zone events
+          <.icon name="hero-newspaper" class="size-4" /> {dgettext("player", "Zone events")}
         </summary>
+
         <ul class="mt-2 space-y-2">
           <li
             :for={event <- @events}
@@ -60,7 +63,7 @@ defmodule TannhauserGateWeb.ZoneComponents do
     ~H"""
     <section id="room-actions" class="mt-4 rounded-xl border border-mint/20 bg-ink/60 p-4">
       <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-fog-300">
-        <.icon name="hero-bolt" class="size-4 text-mint" /> Actions
+        <.icon name="hero-bolt" class="size-4 text-mint" /> {dgettext("player", "Actions")}
       </h2>
 
       <div
@@ -74,9 +77,10 @@ defmodule TannhauserGateWeb.ZoneComponents do
           )
         ]}
       >
-        <strong>{@result.character.name} · {@result.action.name}:</strong>
-        {if @result.success, do: "success", else: "failure"} vs {@result.difficulty}
-        <span class="text-fog-300">— {@result.summary}</span>
+        <strong>{@result.character.name} · {@result.action.name}:</strong> {if @result.success,
+          do: dgettext("player", "success"),
+          else: dgettext("player", "failure")} {dgettext("player", "vs")} {@result.difficulty}
+        <span class="text-fog-300">— {TannhauserGate.Dice.summary(@result.result)}</span>
         <span :if={@result.effect} class="text-fog-300">· {@result.effect}</span>
       </div>
 
@@ -89,8 +93,10 @@ defmodule TannhauserGateWeb.ZoneComponents do
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p class="font-semibold text-phosphor">{action.name}</p>
+
               <p :if={action.description} class="text-xs text-fog-400">{action.description}</p>
             </div>
+
             <form
               id={"perform-action-#{action.id}"}
               phx-submit="perform_action"
@@ -106,6 +112,7 @@ defmodule TannhauserGateWeb.ZoneComponents do
                   {character.name}
                 </option>
               </select>
+
               <input
                 :if={length(@characters) == 1}
                 type="hidden"
@@ -114,13 +121,14 @@ defmodule TannhauserGateWeb.ZoneComponents do
               />
               <button
                 id={"perform-action-#{action.id}-button"}
-                phx-disable-with="..."
+                phx-disable-with={dgettext("player", "...")}
                 class="btn btn-primary btn-sm console-action"
               >
-                Perform
+                {dgettext("player", "Perform")}
               </button>
             </form>
           </div>
+
           <p class="mt-1 text-xs text-fog-500">
             <span
               :for={character <- @characters}
@@ -137,11 +145,14 @@ defmodule TannhauserGateWeb.ZoneComponents do
   end
 
   @doc "A human readable remaining cooldown."
-  def format_cooldown(0), do: "ready"
+  def format_cooldown(0), do: dgettext("player", "ready")
 
   def format_cooldown(seconds) do
     hours = div(seconds, 3600)
     minutes = div(rem(seconds, 3600), 60)
-    if hours > 0, do: "ready in #{hours}h #{minutes}m", else: "ready in #{max(minutes, 1)}m"
+
+    if hours > 0,
+      do: dgettext("player", "ready in %{hours}h %{minutes}m", hours: hours, minutes: minutes),
+      else: dgettext("player", "ready in %{value}m", value: max(minutes, 1))
   end
 end

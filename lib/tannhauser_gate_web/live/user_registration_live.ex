@@ -9,13 +9,13 @@ defmodule TannhauserGateWeb.UserRegistrationLive do
     <Layouts.app flash={@flash} current_user={@current_user}>
       <div class="mx-auto max-w-sm">
         <.header class="text-center">
-          Register for an account
+          {dgettext("player", "Register for an account")}
           <:subtitle>
-            Already registered?
+            {dgettext("player", "Already registered?")}
             <.link navigate={~p"/users/log_in"} class="font-semibold text-mint hover:underline">
-              Log in
+              {dgettext("player", "Log in")}
             </.link>
-            to your account now.
+            {dgettext("player", "to your account now.")}
           </:subtitle>
         </.header>
 
@@ -29,25 +29,30 @@ defmodule TannhauserGateWeb.UserRegistrationLive do
           method="post"
         >
           <.error :if={@check_errors}>
-            Oops, something went wrong! Please check the errors below.
+            {dgettext("player", "Oops, something went wrong! Please check the errors below.")}
           </.error>
 
           <.input
             field={@form[:username]}
             type="text"
-            label="Username"
+            label={dgettext("player", "Username")}
             autocomplete="username"
             required
           />
-          <.input field={@form[:email]} type="email" label="Email" required />
-          <.input field={@form[:password]} type="password" label="Password" required />
+          <.input field={@form[:email]} type="email" label={dgettext("player", "Email")} required />
+          <.input
+            field={@form[:password]}
+            type="password"
+            label={dgettext("player", "Password")}
+            required
+          />
           <.input
             field={@form[:terms_accepted]}
             type="checkbox"
-            label="I accept the terms and disclaimer"
+            label={dgettext("player", "I accept the terms and disclaimer")}
           />
           <p id="terms-link-hint" class="-mt-1 mb-2 text-xs text-fog-400">
-            Read the
+            {dgettext("player", "Read the")}
             <.link
               id="terms-link"
               href={~p"/terms"}
@@ -55,16 +60,16 @@ defmodule TannhauserGateWeb.UserRegistrationLive do
               rel="noopener noreferrer"
               class="font-semibold text-mint hover:underline"
             >
-              terms and disclaimer
+              {dgettext("player", "terms and disclaimer")}
             </.link>
-            before registering.
+            {dgettext("player", "before registering.")}
           </p>
 
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
             <.button
-              phx-disable-with="Creating account..."
+              phx-disable-with={dgettext("player", "Creating account...")}
               class="btn btn-primary console-action w-full"
-            >Create an account</.button>
+            >{dgettext("player", "Create an account")}</.button>
           </div>
         </.form>
       </div>

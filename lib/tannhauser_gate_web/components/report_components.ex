@@ -5,6 +5,7 @@ defmodule TannhauserGateWeb.ReportComponents do
   queues.
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   use Phoenix.VerifiedRoutes,
     endpoint: TannhauserGateWeb.Endpoint,
@@ -37,11 +38,10 @@ defmodule TannhauserGateWeb.ReportComponents do
         "inline-flex items-center gap-1 text-xs text-base-content/40 transition-colors hover:text-warning",
         @class
       ]}
-      title="Report to the masters"
-      aria-label="Report to the masters"
+      title={dgettext("player", "Report to the masters")}
+      aria-label={dgettext("player", "Report to the masters")}
     >
-      <.icon name="hero-flag" class="size-3" />
-      <span :if={@label}>{@label}</span>
+      <.icon name="hero-flag" class="size-3" /> <span :if={@label}>{@label}</span>
     </.link>
     """
   end
@@ -85,8 +85,13 @@ defmodule TannhauserGateWeb.ReportComponents do
         end
       ]}
     >
-      {@kind}
+      {sanction_kind_label(@kind)}
     </span>
     """
   end
+
+  defp sanction_kind_label("ban"), do: dgettext("player", "ban")
+  defp sanction_kind_label("mute"), do: dgettext("player", "mute")
+  defp sanction_kind_label("warning"), do: dgettext("player", "warning")
+  defp sanction_kind_label(kind), do: kind
 end

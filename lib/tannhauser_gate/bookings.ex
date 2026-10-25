@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Bookings do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Private locations. A GDR admin flags a location as private; a player with a
   playable character books it for a time slot (bookings never overlap) and
@@ -192,22 +194,40 @@ defmodule TannhauserGate.Bookings do
     do: Booking.changeset(%Booking{}, attrs, DateTime.utc_now())
 
   @doc "A human readable message for the booking errors."
-  def error_message(:not_private), do: "Only private locations can be booked."
-  def error_message(:overlap), do: "That slot overlaps another booking."
-  def error_message(:cannot_play), do: "That character cannot play yet."
-  def error_message(:invalid_invitee), do: "You can only invite characters of this GDR."
-  def error_message(:unauthorized), do: "You cannot manage that booking."
-  def error_message(:character_not_found), do: "Choose one of your characters."
+  def error_message(:not_private), do: dgettext("domain", "Only private locations can be booked.")
+  def error_message(:overlap), do: dgettext("domain", "That slot overlaps another booking.")
+  def error_message(:cannot_play), do: dgettext("domain", "That character cannot play yet.")
+
+  def error_message(:invalid_invitee),
+    do: dgettext("domain", "You can only invite characters of this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "You cannot manage that booking.")
+
+  def error_message(:character_not_found),
+    do: dgettext("domain", "Choose one of your characters.")
 
   def error_message(%Ecto.Changeset{} = changeset) do
     changeset
-    |> Ecto.Changeset.traverse_errors(fn {message, _} -> message end)
+    |> Ecto.Changeset.traverse_errors(fn {message, options} ->
+      if count = options[:count] do
+        Gettext.dngettext(TannhauserGateWeb.Gettext, "errors", message, message, count, options)
+      else
+        Gettext.dgettext(TannhauserGateWeb.Gettext, "errors", message, options)
+      end
+    end)
     |> Enum.map_join(", ", fn {field, messages} ->
-      "#{Phoenix.Naming.humanize(field)} #{Enum.join(messages, ", ")}"
+      label =
+        case field do
+          :starts_at -> dgettext("domain", "Starts at")
+          :ends_at -> dgettext("domain", "Ends at")
+          _ -> Phoenix.Naming.humanize(field)
+        end
+
+      "#{label} #{Enum.join(messages, ", ")}"
     end)
   end
 
-  def error_message(_), do: "The location could not be booked."
+  def error_message(_), do: dgettext("domain", "The location could not be booked.")
 
   defp master?(user, %Location{} = location), do: Stories.master?(user, story_of(location))
 

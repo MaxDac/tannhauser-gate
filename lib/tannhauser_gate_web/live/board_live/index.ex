@@ -18,7 +18,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Notice boards")
+     |> assign(:page_title, dgettext("player", "Notice boards"))
      |> assign(:characters, Boards.posting_characters(user, story))
      |> assign(:posting_to, nil)
      |> assign(:highlight, nil)
@@ -78,7 +78,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
          {:ok, _notice} <- Boards.post_notice(user, story, board, params) do
       {:noreply,
        socket
-       |> put_flash(:info, "Notice pinned")
+       |> put_flash(:info, dgettext("player", "Notice pinned"))
        |> assign(:posting_to, nil)
        |> load()}
     else
@@ -98,7 +98,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
 
     with %Notice{} = notice <- Boards.get_notice(story, id),
          {:ok, _} <- Boards.delete_notice(user, story, notice) do
-      {:noreply, socket |> put_flash(:info, "Notice removed") |> load()}
+      {:noreply, socket |> put_flash(:info, dgettext("player", "Notice removed")) |> load()}
     else
       nil -> {:noreply, put_flash(socket, :error, Boards.error_message(:not_found))}
       {:error, reason} -> {:noreply, put_flash(socket, :error, Boards.error_message(reason))}
@@ -134,23 +134,24 @@ defmodule TannhauserGateWeb.BoardLive.Index do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Notice boards
+        {dgettext("player", "Notice boards")}
         <:subtitle>
-          In-character notices pinned around {@current_story.name}.
+          {dgettext("player", "In-character notices pinned around")} {@current_story.name}.
         </:subtitle>
+
         <:actions :if={MapSet.member?(@permissions, :can_manage_world)}>
           <.link
             id="boards-manage"
             navigate={~p"/g/#{@current_story}/master/boards"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-wrench-screwdriver" class="size-4" /> Manage
+            <.icon name="hero-wrench-screwdriver" class="size-4" /> {dgettext("player", "Manage")}
           </.link>
         </:actions>
       </.header>
 
       <p :if={@boards == []} id="boards-empty" class="mt-8 text-center text-base-content/60">
-        No notice boards have been put up yet.
+        {dgettext("player", "No notice boards have been put up yet.")}
       </p>
 
       <div id="boards" class="mt-6 grid gap-6 lg:grid-cols-2">
@@ -170,6 +171,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
               <h2 class="font-display text-lg font-bold uppercase tracking-[0.15em] text-primary">
                 {board.name}
               </h2>
+
               <p class="text-xs uppercase tracking-wider text-secondary">
                 <.icon name="hero-map-pin-micro" class="size-3" /> {Boards.place_label(board)}
                 <span
@@ -177,10 +179,11 @@ defmodule TannhauserGateWeb.BoardLive.Index do
                   id={"board-#{board.id}-guild"}
                   class="ml-2 rounded border border-warning/50 px-1.5 text-warning"
                 >
-                  {board.guild.name} only
+                  {board.guild.name} {dgettext("player", "only")}
                 </span>
               </p>
             </div>
+
             <.button
               :if={@characters != [] and @posting_to != board.id}
               id={"board-#{board.id}-post"}
@@ -188,9 +191,10 @@ defmodule TannhauserGateWeb.BoardLive.Index do
               phx-value-board={board.id}
               class="btn btn-primary btn-sm console-action"
             >
-              <.icon name="hero-paper-clip" class="size-4" /> Pin a notice
+              <.icon name="hero-paper-clip" class="size-4" /> {dgettext("player", "Pin a notice")}
             </.button>
           </header>
+
           <p :if={board.description} class="mt-2 text-sm text-base-content/70">
             {board.description}
           </p>
@@ -206,14 +210,19 @@ defmodule TannhauserGateWeb.BoardLive.Index do
             <.input
               field={@form[:character_id]}
               type="select"
-              label="Signed by"
+              label={dgettext("player", "Signed by")}
               options={Enum.map(@characters, &{&1.name, &1.id})}
             />
-            <.input field={@form[:title]} type="text" label="Title (optional)" maxlength="80" />
+            <.input
+              field={@form[:title]}
+              type="text"
+              label={dgettext("player", "Title (optional)")}
+              maxlength="80"
+            />
             <.input
               field={@form[:body]}
               type="textarea"
-              label="Notice (Markdown)"
+              label={dgettext("player", "Notice (Markdown)")}
               rows="4"
               maxlength="1000"
               required
@@ -221,18 +230,22 @@ defmodule TannhauserGateWeb.BoardLive.Index do
             <.input
               field={@form[:expires_at]}
               type="datetime-local"
-              label="Take it down on (optional, UTC)"
+              label={dgettext("player", "Take it down on (optional, UTC)")}
             />
             <div class="flex gap-2">
-              <.button phx-disable-with="Pinning..." class="btn btn-primary btn-sm console-action">
-                Pin it
+              <.button
+                phx-disable-with={dgettext("player", "Pinning...")}
+                class="btn btn-primary btn-sm console-action"
+              >
+                {dgettext("player", "Pin it")}
               </.button>
+
               <.button
                 type="button"
                 phx-click="cancel_notice"
                 class="btn btn-ghost btn-sm console-action"
               >
-                Cancel
+                {dgettext("player", "Cancel")}
               </.button>
             </div>
           </.form>
@@ -243,8 +256,9 @@ defmodule TannhauserGateWeb.BoardLive.Index do
               id={"board-#{board.id}-empty"}
               class="text-sm text-base-content/50 sm:col-span-2"
             >
-              Nothing pinned here.
+              {dgettext("player", "Nothing pinned here.")}
             </li>
+
             <li
               :for={{notice, index} <- Enum.with_index(Map.get(@notices, board.id, []))}
               id={"notice-#{notice.id}"}
@@ -272,9 +286,9 @@ defmodule TannhauserGateWeb.BoardLive.Index do
                 type="button"
                 phx-click="delete_notice"
                 phx-value-id={notice.id}
-                data-confirm="Take this notice down?"
+                data-confirm={dgettext("player", "Take this notice down?")}
                 class="absolute right-2 top-2 rounded-full p-1 text-error opacity-50 transition hover:bg-error/10 group-hover:opacity-100"
-                aria-label="Take the notice down"
+                aria-label={dgettext("player", "Take the notice down")}
               >
                 <.icon name="hero-trash-micro" class="size-4" />
               </button>
@@ -298,7 +312,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
       <p class="mt-2 text-right text-xs italic opacity-70">
         — {@notice.character.name}
         <span :if={@notice.expires_at}>
-          · until {Calendar.strftime(@notice.expires_at, "%d/%m %H:%M")}
+          {dgettext("player", "· until")} {Calendar.strftime(@notice.expires_at, "%d/%m %H:%M")}
         </span>
       </p>
     </article>

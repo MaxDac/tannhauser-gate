@@ -3,6 +3,7 @@ defmodule TannhauserGateWeb.UserAuth do
   Session and remember-me cookie authentication plugs and LiveView on_mount`n  hooks, including the admin guard.
   """
   use TannhauserGateWeb, :verified_routes
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   import Plug.Conn
   import Phoenix.Controller
@@ -20,7 +21,8 @@ defmodule TannhauserGateWeb.UserAuth do
   @remember_me_cookie "_tannhauser_gate_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
-  @must_change_password_message "Please choose a new password before continuing."
+  defp must_change_password_message,
+    do: dgettext("shared", "Please choose a new password before continuing.")
 
   @doc """
   Logs the user in.
@@ -69,11 +71,13 @@ defmodule TannhauserGateWeb.UserAuth do
   #     end
   #
   defp renew_session(conn) do
+    locale = get_session(conn, :locale)
     delete_csrf_token()
 
     conn
     |> configure_session(renew: true)
     |> clear_session()
+    |> put_session(:locale, TannhauserGateWeb.Locale.normalize(locale))
   end
 
   @doc """
@@ -165,7 +169,10 @@ defmodule TannhauserGateWeb.UserAuth do
     else
       {:halt,
        socket
-       |> Phoenix.LiveView.put_flash(:error, "Email features are currently disabled.")
+       |> Phoenix.LiveView.put_flash(
+         :error,
+         dgettext("shared", "Email features are currently disabled.")
+       )
        |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")}
     end
   end
@@ -178,7 +185,10 @@ defmodule TannhauserGateWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          dgettext("shared", "You must log in to access this page.")
+        )
         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
 
       {:halt, socket}
@@ -192,7 +202,10 @@ defmodule TannhauserGateWeb.UserAuth do
       is_nil(socket.assigns.current_user) ->
         {:halt,
          socket
-         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+         |> Phoenix.LiveView.put_flash(
+           :error,
+           dgettext("shared", "You must log in to access this page.")
+         )
          |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")}
 
       Accounts.admin?(socket.assigns.current_user) ->
@@ -201,7 +214,7 @@ defmodule TannhauserGateWeb.UserAuth do
       true ->
         {:halt,
          socket
-         |> Phoenix.LiveView.put_flash(:error, "Admins only.")
+         |> Phoenix.LiveView.put_flash(:error, dgettext("shared", "Admins only."))
          |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
     end
   end
@@ -229,14 +242,21 @@ defmodule TannhauserGateWeb.UserAuth do
          socket
          |> Phoenix.LiveView.put_flash(
            :error,
-           "You are banned from #{story.name} #{Sanctions.until(ban)}. Reason: #{ban.reason}"
+           dgettext("shared", "You are banned from %{story} %{until}. Reason: %{reason}",
+             story: story.name,
+             until: Sanctions.until(ban),
+             reason: ban.reason
+           )
          )
          |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
 
       _ ->
         {:halt,
          socket
-         |> Phoenix.LiveView.put_flash(:error, "That GDR does not exist or is not open.")
+         |> Phoenix.LiveView.put_flash(
+           :error,
+           dgettext("shared", "That GDR does not exist or is not open.")
+         )
          |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
     end
   end
@@ -246,7 +266,7 @@ defmodule TannhauserGateWeb.UserAuth do
     if socket.assigns.gdr_admin? do
       {:cont, socket}
     else
-      deny_story_access(socket, "Only the GDR admin can do that.")
+      deny_story_access(socket, dgettext("shared", "Only the GDR admin can do that."))
     end
   end
 
@@ -256,7 +276,7 @@ defmodule TannhauserGateWeb.UserAuth do
     if Stories.module_enabled?(socket.assigns.current_story, key) do
       {:cont, socket}
     else
-      deny_story_access(socket, "That feature is not enabled in this GDR.")
+      deny_story_access(socket, dgettext("shared", "That feature is not enabled in this GDR."))
     end
   end
 
@@ -265,7 +285,7 @@ defmodule TannhauserGateWeb.UserAuth do
     if socket.assigns.master? do
       {:cont, socket}
     else
-      deny_story_access(socket, "Only the GDR masters can do that.")
+      deny_story_access(socket, dgettext("shared", "Only the GDR masters can do that."))
     end
   end
 
@@ -275,7 +295,10 @@ defmodule TannhauserGateWeb.UserAuth do
     if Enum.any?(List.wrap(permissions), &MapSet.member?(socket.assigns.permissions, &1)) do
       {:cont, socket}
     else
-      deny_story_access(socket, "You don't have the permission to use that tool.")
+      deny_story_access(
+        socket,
+        dgettext("shared", "You don't have the permission to use that tool.")
+      )
     end
   end
 
@@ -338,7 +361,7 @@ defmodule TannhauserGateWeb.UserAuth do
          socket.view != TannhauserGateWeb.UserSettingsLive do
       {:halt,
        socket
-       |> Phoenix.LiveView.put_flash(:error, @must_change_password_message)
+       |> Phoenix.LiveView.put_flash(:error, must_change_password_message())
        |> Phoenix.LiveView.redirect(to: ~p"/users/settings")}
     else
       {:cont, socket}
@@ -392,7 +415,7 @@ defmodule TannhauserGateWeb.UserAuth do
     cond do
       is_nil(user) ->
         conn
-        |> put_flash(:error, "You must log in to access this page.")
+        |> put_flash(:error, dgettext("shared", "You must log in to access this page."))
         |> maybe_store_return_to()
         |> redirect(to: ~p"/users/log_in")
         |> halt()
@@ -400,7 +423,7 @@ defmodule TannhauserGateWeb.UserAuth do
       Accounts.must_change_password?(user) and
           not String.starts_with?(conn.request_path, "/users/settings") ->
         conn
-        |> put_flash(:error, @must_change_password_message)
+        |> put_flash(:error, must_change_password_message())
         |> redirect(to: ~p"/users/settings")
         |> halt()
 
@@ -417,7 +440,7 @@ defmodule TannhauserGateWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "Admins only.")
+      |> put_flash(:error, dgettext("shared", "Admins only."))
       |> redirect(to: ~p"/gdrs")
       |> halt()
     end

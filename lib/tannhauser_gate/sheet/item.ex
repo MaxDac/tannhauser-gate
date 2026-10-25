@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Sheet.Item do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   An attribute, skill or power defined by a game master for their GDR.
   Characters hold a numeric value between `min_value` and `max_value` for each.
@@ -63,12 +65,16 @@ defmodule TannhauserGate.Sheet.Item do
     |> put_default_slug()
     |> validate_required([:kind, :name, :slug, :min_value, :max_value])
     |> validate_format(:slug, @slug_format,
-      message: "must start with a letter and use only lowercase letters, digits and _"
+      message:
+        dgettext_noop(
+          "errors",
+          "must start with a letter and use only lowercase letters, digits and _"
+        )
     )
-    |> validate_exclusion(:slug, @reserved_slugs, message: "is reserved")
+    |> validate_exclusion(:slug, @reserved_slugs, message: dgettext_noop("errors", "is reserved"))
     |> unique_constraint([:story_id, :slug],
       name: :sheet_items_story_id_slug_index,
-      message: "is already used by another item"
+      message: dgettext_noop("errors", "is already used by another item")
     )
     |> validate_inclusion(:kind, @kinds)
     |> validate_length(:name, max: 80)
@@ -78,7 +84,7 @@ defmodule TannhauserGate.Sheet.Item do
     |> validate_min_max()
     |> unique_constraint([:story_id, :kind, :name],
       name: :sheet_items_story_id_kind_name_index,
-      message: "already exists"
+      message: dgettext_noop("errors", "already exists")
     )
   end
 
@@ -98,7 +104,11 @@ defmodule TannhauserGate.Sheet.Item do
     max = get_field(changeset, :max_value)
 
     if is_integer(min) and is_integer(max) and max < min do
-      add_error(changeset, :max_value, "must be greater than or equal to the minimum")
+      add_error(
+        changeset,
+        :max_value,
+        dgettext_noop("errors", "must be greater than or equal to the minimum")
+      )
     else
       changeset
     end

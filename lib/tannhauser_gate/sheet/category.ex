@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Sheet.Category do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Per-GDR configuration of a sheet category (attributes, skills or powers):
   the character creation budget and the XP cost formula used to raise items.
@@ -69,7 +71,9 @@ defmodule TannhauserGate.Sheet.Category do
     case get_field(changeset, :creation_mode) do
       "points" ->
         changeset
-        |> validate_required([:creation_points], message: "is required for a points pool")
+        |> validate_required([:creation_points],
+          message: dgettext_noop("errors", "is required for a points pool")
+        )
         |> validate_number(:creation_points,
           greater_than_or_equal_to: 0,
           less_than_or_equal_to: 1_000
@@ -78,7 +82,7 @@ defmodule TannhauserGate.Sheet.Category do
       "distribution" ->
         changeset
         |> validate_required([:creation_distribution],
-          message: "is required for a distribution"
+          message: dgettext_noop("errors", "is required for a distribution")
         )
         |> normalize_distribution()
 
@@ -98,7 +102,11 @@ defmodule TannhauserGate.Sheet.Category do
             put_change(changeset, :creation_distribution, Enum.join(values, ","))
 
           :error ->
-            add_error(changeset, :creation_distribution, "must be a list of numbers like 4,3,3,2")
+            add_error(
+              changeset,
+              :creation_distribution,
+              dgettext_noop("errors", "must be a list of numbers like 4,3,3,2")
+            )
         end
     end
   end

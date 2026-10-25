@@ -39,7 +39,7 @@ defmodule TannhauserGateWeb.RoomLive do
     if location.story_id != story.id do
       {:ok,
        socket
-       |> put_flash(:error, "That room does not exist in this GDR.")
+       |> put_flash(:error, dgettext("player", "That room does not exist in this GDR."))
        |> push_navigate(to: ~p"/g/#{story}/map")}
     else
       {:ok, load(socket, location)}
@@ -208,7 +208,9 @@ defmodule TannhauserGateWeb.RoomLive do
   defp room_guild(user, story, location) do
     with true <- Guilds.enabled?(story),
          %{} = guild <- Guilds.get_guild(story, location.guild_id) do
-      if Guilds.visible?(user, story, guild), do: guild.name, else: "Guild members"
+      if Guilds.visible?(user, story, guild),
+        do: guild.name,
+        else: dgettext("player", "Guild members")
     else
       _ -> nil
     end
@@ -356,7 +358,8 @@ defmodule TannhauserGateWeb.RoomLive do
         {:noreply, put_flash(socket, :error, PeriodicActions.error_message(reason))}
 
       _ ->
-        {:noreply, put_flash(socket, :error, "You cannot perform this action here.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "You cannot perform this action here."))}
     end
   end
 
@@ -400,7 +403,13 @@ defmodule TannhauserGateWeb.RoomLive do
          {:ok, _} <- Chat.delete_message(socket.assigns.current_user, message) do
       {:noreply, socket}
     else
-      _ -> {:noreply, put_flash(socket, :error, "Only the GDR moderators can delete messages.")}
+      _ ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("player", "Only the GDR moderators can delete messages.")
+         )}
     end
   end
 
@@ -418,7 +427,7 @@ defmodule TannhauserGateWeb.RoomLive do
       {:ok, _booking} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Location booked.")
+         |> put_flash(:info, dgettext("player", "Location booked."))
          |> assign(:booking_form, booking_form())}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -439,7 +448,7 @@ defmodule TannhauserGateWeb.RoomLive do
 
     with %{} = booking <- Bookings.get_booking(location, id),
          {:ok, _} <- Bookings.cancel_booking(user, booking) do
-      {:noreply, put_flash(socket, :info, "Booking cancelled.")}
+      {:noreply, put_flash(socket, :info, dgettext("player", "Booking cancelled."))}
     else
       nil -> {:noreply, socket}
       {:error, reason} -> {:noreply, put_flash(socket, :error, Bookings.error_message(reason))}
@@ -505,13 +514,27 @@ defmodule TannhauserGateWeb.RoomLive do
 
   defp room_calendar(_story), do: nil
 
-  defp speaker_label(%{is_npc: true, name: name}), do: "#{name} (NPC)"
+  defp speaker_label(%{is_npc: true, name: name}),
+    do: dgettext("player", "%{name} (NPC)", name: name)
+
   defp speaker_label(%{name: name}), do: name
 
   defp kind_options(master?, rp?) do
-    base = [{"In character", "speech"}, {"OFF (out of character)", "ooc"}]
-    base = if rp?, do: base ++ [{"Whisper", "whisper"}], else: base
-    if master?, do: base ++ [{"Narration", "narration"}, {"Room status", "status"}], else: base
+    base = [
+      {dgettext("player", "In character"), "speech"},
+      {dgettext("player", "OFF (out of character)"), "ooc"}
+    ]
+
+    base = if rp?, do: base ++ [{dgettext("player", "Whisper"), "whisper"}], else: base
+
+    if master?,
+      do:
+        base ++
+          [
+            {dgettext("player", "Narration"), "narration"},
+            {dgettext("player", "Room status"), "status"}
+          ],
+      else: base
   end
 
   defp body_length(params),
@@ -534,7 +557,7 @@ defmodule TannhauserGateWeb.RoomLive do
   defp can_cancel?(booking, user, master?), do: master? or booking.user_id == user.id
 
   defp format_slot(%{starts_at: starts_at, ends_at: ends_at}) do
-    "#{Calendar.strftime(starts_at, "%d %b %H:%M")} – #{Calendar.strftime(ends_at, "%H:%M")} UTC"
+    "#{format_local_date(starts_at, "%d %b %H:%M")} – #{Calendar.strftime(ends_at, "%H:%M")} UTC"
   end
 
   @impl true
@@ -558,7 +581,7 @@ defmodule TannhauserGateWeb.RoomLive do
           navigate={~p"/g/#{@current_story}/map"}
           class="text-sm font-semibold text-mint hover:text-phosphor"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Back to the map
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext("player", "Back to the map")}
         </.link>
       </div>
 
@@ -569,8 +592,9 @@ defmodule TannhauserGateWeb.RoomLive do
           id="private-badge"
           class="ml-2 inline-flex items-center gap-1 rounded bg-error/15 px-2 py-0.5 align-middle text-xs font-bold uppercase tracking-widest text-error"
         >
-          <.icon name="hero-lock-closed" class="size-3" /> Private
+          <.icon name="hero-lock-closed" class="size-3" /> {dgettext("player", "Private")}
         </span>
+
         <span
           :if={@room_guild}
           id="guild-badge"
@@ -589,11 +613,11 @@ defmodule TannhauserGateWeb.RoomLive do
               id="room-game-clock"
               calendar={room_calendar(@current_story)}
               class="rounded border border-secondary/30 bg-secondary/5 px-2 py-0.5 font-semibold text-secondary"
-            />
-            <.weather_badge id="room-weather" weather={@zone_weather} />
+            /> <.weather_badge id="room-weather" weather={@zone_weather} />
           </span>
           {@location.description}
         </:subtitle>
+
         <:actions :if={@shops != []}>
           <div id="room-shops" class="flex flex-wrap justify-end gap-2">
             <.link
@@ -623,7 +647,7 @@ defmodule TannhauserGateWeb.RoomLive do
           phx-click="clear_status"
           class="console-link-action text-xs text-fog-400 hover:text-error"
         >
-          Clear
+          {dgettext("player", "Clear")}
         </button>
       </div>
 
@@ -636,8 +660,7 @@ defmodule TannhauserGateWeb.RoomLive do
         characters={@characters}
         current_user={@current_user}
         master?={@master?}
-      />
-      <.zone_panel :if={@zone} zone={@zone} values={@zone_values} events={@zone_events} />
+      /> <.zone_panel :if={@zone} zone={@zone} values={@zone_values} events={@zone_events} />
       <.boards_panel
         :if={@room_boards != []}
         boards={@room_boards}
@@ -652,16 +675,22 @@ defmodule TannhauserGateWeb.RoomLive do
         <.icon name="hero-lock-closed" class="size-8 text-error" />
         <%= if @guild_locked? do %>
           <p id="guild-locked" class="mt-3 font-semibold text-fog-100">
-            This location is reserved to the members of a guild.
+            {dgettext("player", "This location is reserved to the members of a guild.")}
           </p>
-          <p class="mt-1 text-sm text-fog-400">
-            Only the players of its active members and the masters can be here.
-          </p>
-        <% else %>
-          <p class="mt-3 font-semibold text-fog-100">This private location is not booked for you.</p>
 
           <p class="mt-1 text-sm text-fog-400">
-            Only whoever booked it, the invited characters and the masters can be here during a booking.
+            {dgettext("player", "Only the players of its active members and the masters can be here.")}
+          </p>
+        <% else %>
+          <p class="mt-3 font-semibold text-fog-100">
+            {dgettext("player", "This private location is not booked for you.")}
+          </p>
+
+          <p class="mt-1 text-sm text-fog-400">
+            {dgettext(
+              "player",
+              "Only whoever booked it, the invited characters and the masters can be here during a booking."
+            )}
           </p>
         <% end %>
       </section>
@@ -675,10 +704,13 @@ defmodule TannhauserGateWeb.RoomLive do
             id="load-older"
             type="button"
             phx-click="load_older"
-            phx-disable-with="Loading..."
+            phx-disable-with={dgettext("player", "Loading...")}
             class="console-link-action text-xs font-semibold text-mint hover:text-phosphor"
           >
-            <.icon name="hero-chevron-double-up" class="size-3" /> Load older messages
+            <.icon name="hero-chevron-double-up" class="size-3" /> {dgettext(
+              "player",
+              "Load older messages"
+            )}
           </button>
         </div>
 
@@ -689,7 +721,7 @@ defmodule TannhauserGateWeb.RoomLive do
           class="flex-1 space-y-4 overflow-y-auto p-4"
         >
           <li class="hidden only:block py-10 text-center text-sm text-fog-500" id="messages-empty">
-            The room is quiet. Only the rain is talking.
+            {dgettext("player", "The room is quiet. Only the rain is talking.")}
           </li>
 
           <li
@@ -737,7 +769,6 @@ defmodule TannhauserGateWeb.RoomLive do
                     if(message.kind == "ooc", do: "text-fog-300", else: "text-phosphor")
                   ]}
                 />
-
                 <span
                   :if={!message.character}
                   class={[
@@ -753,10 +784,11 @@ defmodule TannhauserGateWeb.RoomLive do
                   id={"message-#{message.id}-recipient"}
                   class="inline-flex items-center gap-1 text-xs text-secondary"
                 >
-                  <.icon name="hero-arrow-long-right-micro" class="size-3" />
-                  {(message.recipient_character && message.recipient_character.name) ||
-                    "a vanished character"}
+                  <.icon name="hero-arrow-long-right-micro" class="size-3" /> {(message.recipient_character &&
+                                                                                  message.recipient_character.name) ||
+                    dgettext("player", "a vanished character")}
                 </span>
+
                 <time class="text-xs text-fog-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
                   {format_time(message.inserted_at)}
                 </time>
@@ -767,10 +799,17 @@ defmodule TannhauserGateWeb.RoomLive do
                   id={"reroll-#{message.id}"}
                   phx-click="reroll"
                   phx-value-id={message.id}
-                  data-confirm={"Spend #{@dice_config.reroll_cost} to reroll up to #{@dice_config.reroll_max_dice} failed dice?"}
+                  data-confirm={
+                    dgettext(
+                      "player",
+                      "Spend %{reroll_cost} to reroll up to %{reroll_max_dice} failed dice?",
+                      reroll_cost: @dice_config.reroll_cost,
+                      reroll_max_dice: @dice_config.reroll_max_dice
+                    )
+                  }
                   class="console-link-action text-xs font-semibold text-warning hover:underline"
                 >
-                  <.icon name="hero-arrow-path" class="size-3" /> Reroll
+                  <.icon name="hero-arrow-path" class="size-3" /> {dgettext("player", "Reroll")}
                 </button>
 
                 <.report_link
@@ -784,16 +823,15 @@ defmodule TannhauserGateWeb.RoomLive do
                   target_id={message.id}
                   return_to={~p"/g/#{@current_story}/rooms/#{@location}"}
                 />
-
                 <button
                   :if={MapSet.member?(@permissions, :can_moderate)}
                   type="button"
                   id={"delete-message-#{message.id}"}
                   phx-click="delete_message"
                   phx-value-id={message.id}
-                  data-confirm="Delete this message?"
+                  data-confirm={dgettext("player", "Delete this message?")}
                   class="console-link-action text-xs text-error/70 hover:text-error"
-                  aria-label="Delete message"
+                  aria-label={dgettext("player", "Delete message")}
                 >
                   <.icon name="hero-trash" class="size-3" />
                 </button>
@@ -826,10 +864,10 @@ defmodule TannhauserGateWeb.RoomLive do
 
         <div class="chat-composer border-t border-base-content/10 bg-base-200/35 p-4 sm:px-5">
           <p :if={@speakers == [] and !@master?} class="text-sm text-fog-400">
-            You need a character in this GDR to speak. <.link
+            {dgettext("player", "You need a character in this GDR to speak.")} <.link
               navigate={~p"/g/#{@current_story}/characters/new"}
               class="font-semibold text-mint hover:underline"
-            >Create one</.link>.
+            >{dgettext("player", "Create one")}</.link>.
           </p>
 
           <p
@@ -837,11 +875,13 @@ defmodule TannhauserGateWeb.RoomLive do
             id="cannot-play-notice"
             class="mb-3 text-sm text-fog-400"
           >
-            {@own_character.name} cannot speak in character yet (OFF messages are allowed):
-            a master must approve it and its state must allow playing. <.link
+            {@own_character.name} {dgettext(
+              "player",
+              "cannot speak in character yet (OFF messages are allowed): a master must approve it and its state must allow playing."
+            )} <.link
               navigate={~p"/g/#{@current_story}/characters/#{@own_character}"}
               class="font-semibold text-mint hover:underline"
-            >Open the sheet</.link>.
+            >{dgettext("player", "Open the sheet")}</.link>.
           </p>
 
           <.form
@@ -856,7 +896,7 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@form[:character_id]}
                 type="select"
-                label="Speak as"
+                label={dgettext("player", "Speak as")}
                 options={Enum.map(@speakers, &{speaker_label(&1), &1.id})}
               />
             </div>
@@ -865,10 +905,13 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@form[:kind]}
                 type="select"
-                label="Type"
+                label={dgettext("player", "Type")}
                 options={
                   if @speakers == [],
-                    do: [{"Narration", "narration"}, {"Room status", "status"}],
+                    do: [
+                      {dgettext("player", "Narration"), "narration"},
+                      {dgettext("player", "Room status"), "status"}
+                    ],
                     else: kind_options(@master?, @rp?)
                 }
               />
@@ -878,8 +921,8 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@form[:recipient_character_id]}
                 type="select"
-                label="Whisper to"
-                prompt="Choose a character"
+                label={dgettext("player", "Whisper to")}
+                prompt={dgettext("player", "Choose a character")}
                 options={@recipient_options}
               />
             </div>
@@ -888,9 +931,9 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@form[:tag]}
                 type="text"
-                label="Action tag"
+                label={dgettext("player", "Action tag")}
                 maxlength={Message.tag_max()}
-                placeholder="at the bar"
+                placeholder={dgettext("player", "at the bar")}
               />
             </div>
 
@@ -898,9 +941,9 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@form[:body]}
                 type="textarea"
-                label="Message"
+                label={dgettext("player", "Message")}
                 rows="3"
-                placeholder="Let the scene unfold..."
+                placeholder={dgettext("player", "Let the scene unfold...")}
                 phx-debounce="250"
                 required
               />
@@ -915,23 +958,25 @@ defmodule TannhauserGateWeb.RoomLive do
                   )
                 ]}
               >
-                <span :if={(elem(@chat_limits, 0) || 0) > 0} class="mr-2">min {elem(@chat_limits, 0)}</span>
-                {counter_text(@body_length, @chat_limits)}
+                <span :if={(elem(@chat_limits, 0) || 0) > 0} class="mr-2">{dgettext("player", "min")} {elem(
+                  @chat_limits,
+                  0
+                )}</span> {counter_text(@body_length, @chat_limits)}
               </p>
             </div>
 
             <.button
               id="chat-send"
-              phx-disable-with="Sending..."
+              phx-disable-with={dgettext("player", "Sending...")}
               class="btn btn-primary console-action col-span-full justify-self-end"
             >
-              Send <.icon name="hero-arrow-right-micro" class="size-4" />
+              {dgettext("player", "Send")} <.icon name="hero-arrow-right-micro" class="size-4" />
             </.button>
           </.form>
 
           <details :if={@characters != []} id="dice-panel" class="group mt-3">
             <summary class="cursor-pointer select-none text-sm font-semibold text-mint hover:text-phosphor">
-              <.icon name="hero-cube-transparent" class="size-4" /> Roll dice
+              <.icon name="hero-cube-transparent" class="size-4" /> {dgettext("player", "Roll dice")}
               <span class="ml-1 text-xs font-normal text-fog-500">
                 ({system_name(@dice_config)})
               </span>
@@ -946,7 +991,7 @@ defmodule TannhauserGateWeb.RoomLive do
               <.input
                 field={@dice_form[:character_id]}
                 type="select"
-                label="Roll as"
+                label={dgettext("player", "Roll as")}
                 options={Enum.map(@characters, &{speaker_label(&1), &1.id})}
               />
               <.input
@@ -955,7 +1000,9 @@ defmodule TannhauserGateWeb.RoomLive do
                 type="select"
                 multiple
                 label={
-                  if @dice_config.system == "pool", do: "Pool (sheet items)", else: "Add sheet items"
+                  if @dice_config.system == "pool",
+                    do: dgettext("player", "Pool (sheet items)"),
+                    else: dgettext("player", "Add sheet items")
                 }
                 options={Enum.map(@sheet_items, &{&1.name, &1.slug})}
               />
@@ -963,30 +1010,39 @@ defmodule TannhauserGateWeb.RoomLive do
                 :if={@dice_config.system == "expression"}
                 field={@dice_form[:expression]}
                 type="text"
-                label="Expression"
+                label={dgettext("player", "Expression")}
                 placeholder={@dice_config.default_expression}
               />
               <.input
                 field={@dice_form[:modifier]}
                 type="number"
-                label={if @dice_config.system == "pool", do: "Extra dice", else: "Modifier"}
+                label={
+                  if @dice_config.system == "pool",
+                    do: dgettext("player", "Extra dice"),
+                    else: dgettext("player", "Modifier")
+                }
               />
               <.input
                 field={@dice_form[:difficulty]}
                 type="number"
-                label="Difficulty"
+                label={dgettext("player", "Difficulty")}
                 placeholder={
                   @dice_config.default_difficulty && to_string(@dice_config.default_difficulty)
                 }
               />
-              <.input field={@dice_form[:label]} type="text" label="Label" placeholder="Optional" />
+              <.input
+                field={@dice_form[:label]}
+                type="text"
+                label={dgettext("player", "Label")}
+                placeholder={dgettext("player", "Optional")}
+              />
               <div class="flex items-end">
                 <.button
                   id="roll-dice"
-                  phx-disable-with="Rolling..."
+                  phx-disable-with={dgettext("player", "Rolling...")}
                   class="btn btn-primary console-action mb-2 w-full"
                 >
-                  Roll
+                  {dgettext("player", "Roll")}
                 </.button>
               </div>
             </.form>
@@ -1001,7 +1057,6 @@ defmodule TannhauserGateWeb.RoomLive do
         cooldowns={@cooldowns}
         result={@action_result}
       />
-
       <script :type={Phoenix.LiveView.ColocatedHook} name=".ScrollBottom">
         // Keeps the chat scrolled to the newest message unless the reader scrolled up,
         // and keeps the reading position when older messages are loaded on top.
@@ -1038,12 +1093,19 @@ defmodule TannhauserGateWeb.RoomLive do
   end
 
   defp system_name(%{system: "pool"} = config),
-    do: "pool of d#{config.die_size}, success on #{config.success_threshold}+"
+    do:
+      dgettext("player", "pool of d%{die_size}, success on %{success_threshold}+",
+        die_size: config.die_size,
+        success_threshold: config.success_threshold
+      )
 
-  defp system_name(%{system: "d20"}), do: "d20 + modifier"
+  defp system_name(%{system: "d20"}), do: dgettext("player", "d20 + modifier")
 
   defp system_name(%{system: "expression"} = config),
-    do: "dice expression, e.g. #{config.default_expression}"
+    do:
+      dgettext("player", "dice expression, e.g. %{default_expression}",
+        default_expression: config.default_expression
+      )
 
   attr :bookings, :list, required: true
   attr :active_booking, :any, default: nil
@@ -1057,18 +1119,18 @@ defmodule TannhauserGateWeb.RoomLive do
     ~H"""
     <section id="bookings" class="mt-4 rounded-xl border border-mint/20 bg-ink/60 p-4">
       <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-fog-300">
-        <.icon name="hero-calendar-days" class="size-4 text-mint" /> Bookings
+        <.icon name="hero-calendar-days" class="size-4 text-mint" /> {dgettext("player", "Bookings")}
         <span
           :if={@active_booking}
           id="active-booking"
           class="ml-auto rounded bg-mint/15 px-2 py-0.5 text-[0.65rem] text-mint"
         >
-          Booked now by {@active_booking.character.name}
+          {dgettext("player", "Booked now by")} {@active_booking.character.name}
         </span>
       </h2>
 
       <ul class="mt-3 space-y-2 text-sm">
-        <li :if={@bookings == []} class="text-fog-500">No bookings yet.</li>
+        <li :if={@bookings == []} class="text-fog-500">{dgettext("player", "No bookings yet.")}</li>
 
         <li
           :for={booking <- @bookings}
@@ -1078,7 +1140,7 @@ defmodule TannhauserGateWeb.RoomLive do
           <span class="font-mono text-xs text-fog-300">{format_slot(booking)}</span>
           <span class="font-semibold text-phosphor">{booking.character.name}</span>
           <span :if={booking.invited_characters != []} class="text-xs text-fog-400">
-            with {Enum.map_join(booking.invited_characters, ", ", & &1.name)}
+            {dgettext("player", "with")} {Enum.map_join(booking.invited_characters, ", ", & &1.name)}
           </span>
 
           <button
@@ -1087,17 +1149,17 @@ defmodule TannhauserGateWeb.RoomLive do
             type="button"
             phx-click="cancel_booking"
             phx-value-id={booking.id}
-            data-confirm="Cancel this booking?"
+            data-confirm={dgettext("player", "Cancel this booking?")}
             class="console-link-action ml-auto text-xs text-error/80 hover:text-error"
           >
-            Cancel
+            {dgettext("player", "Cancel")}
           </button>
         </li>
       </ul>
 
       <details :if={@characters != []} id="booking-panel" class="mt-3">
         <summary class="cursor-pointer select-none text-sm font-semibold text-mint hover:text-phosphor">
-          <.icon name="hero-plus" class="size-4" /> Book this location
+          <.icon name="hero-plus" class="size-4" /> {dgettext("player", "Book this location")}
         </summary>
 
         <.form
@@ -1110,25 +1172,35 @@ defmodule TannhauserGateWeb.RoomLive do
           <.input
             field={@booking_form[:character_id]}
             type="select"
-            label="Book as"
+            label={dgettext("player", "Book as")}
             options={Enum.map(@characters, &{&1.name, &1.id})}
           />
-          <.input field={@booking_form[:starts_at]} type="datetime-local" label="From (UTC)" required />
-          <.input field={@booking_form[:ends_at]} type="datetime-local" label="To (UTC)" required />
+          <.input
+            field={@booking_form[:starts_at]}
+            type="datetime-local"
+            label={dgettext("player", "From (UTC)")}
+            required
+          />
+          <.input
+            field={@booking_form[:ends_at]}
+            type="datetime-local"
+            label={dgettext("player", "To (UTC)")}
+            required
+          />
           <.input
             field={@booking_form[:invitee_ids]}
             type="select"
             multiple
-            label="Invite"
+            label={dgettext("player", "Invite")}
             options={@invite_options}
           />
           <div class="sm:col-span-2 lg:col-span-4">
             <.button
               id="book-location"
-              phx-disable-with="Booking..."
+              phx-disable-with={dgettext("player", "Booking...")}
               class="btn btn-primary console-action"
             >
-              Book
+              {dgettext("player", "Book")}
             </.button>
           </div>
         </.form>
@@ -1148,33 +1220,43 @@ defmodule TannhauserGateWeb.RoomLive do
       class="group/boards mt-6 rounded-xl border border-secondary/25 bg-base-200/60 shadow-lg transition open:border-secondary/50"
     >
       <summary class="flex cursor-pointer select-none items-center gap-2 px-5 py-3 text-sm font-bold uppercase tracking-[0.2em] text-secondary transition hover:text-primary">
-        <.icon name="hero-clipboard-document-list" class="size-4" /> Notice boards
+        <.icon name="hero-clipboard-document-list" class="size-4" /> {dgettext(
+          "player",
+          "Notice boards"
+        )}
         <span class="rounded-full bg-secondary/15 px-2 text-xs tabular-nums">
           {@notices |> Map.values() |> Enum.map(&length/1) |> Enum.sum()}
         </span>
+
         <.icon
           name="hero-chevron-down-micro"
           class="ml-auto size-4 transition group-open/boards:rotate-180"
         />
       </summary>
+
       <div class="grid gap-4 px-5 pb-5 md:grid-cols-2">
         <section :for={board <- @boards} id={"room-board-#{board.id}"}>
           <header class="flex items-baseline justify-between gap-2">
             <h3 class="font-semibold text-primary">{board.name}</h3>
+
             <.link
               navigate={~p"/g/#{@story}/boards?board=#{board.id}"}
               class="text-xs text-secondary hover:text-primary"
             >
-              Pin a notice <.icon name="hero-arrow-right-micro" class="size-3" />
+              {dgettext("player", "Pin a notice")}
+              <.icon name="hero-arrow-right-micro" class="size-3" />
             </.link>
           </header>
+
           <p class="text-xs text-base-content/50">{Boards.place_label(board)}</p>
+
           <p
             :if={Map.get(@notices, board.id, []) == []}
             class="mt-2 text-sm text-base-content/50"
           >
-            Nothing pinned here.
+            {dgettext("player", "Nothing pinned here.")}
           </p>
+
           <ul class="mt-2 space-y-2">
             <li
               :for={notice <- Map.get(@notices, board.id, [])}

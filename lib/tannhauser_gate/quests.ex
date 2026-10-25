@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Quests do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The quest registry, the `:quests` optional module.
 
@@ -141,7 +143,7 @@ defmodule TannhauserGate.Quests do
     Ecto.Changeset.validate_change(changeset, :location_id, fn :location_id, id ->
       if Repo.exists?(from l in Location, where: l.id == ^id and l.story_id == ^story_id),
         do: [],
-        else: [location_id: "is not a room of this GDR"]
+        else: [location_id: dgettext_noop("errors", "is not a room of this GDR")]
     end)
   end
 
@@ -209,7 +211,12 @@ defmodule TannhauserGate.Quests do
     qty = Ecto.Changeset.get_field(changeset, :item_quantity)
 
     if item_id && qty < 1,
-      do: Ecto.Changeset.add_error(changeset, :item_quantity, "must be at least 1 for the item"),
+      do:
+        Ecto.Changeset.add_error(
+          changeset,
+          :item_quantity,
+          dgettext_noop("errors", "must be at least 1 for the item")
+        ),
       else: changeset
   end
 
@@ -294,8 +301,8 @@ defmodule TannhauserGate.Quests do
 
   ## Labels
 
-  def visibility_label("public"), do: "Public"
-  def visibility_label("masters"), do: "Masters only"
+  def visibility_label("public"), do: dgettext("domain", "Public")
+  def visibility_label("masters"), do: dgettext("domain", "Masters only")
   def visibility_label(other), do: other
 
   @doc "Query params for the master chat log covering the quest's range, or nil."
@@ -310,17 +317,31 @@ defmodule TannhauserGate.Quests do
     |> Enum.reject(fn {_, value} -> is_nil(value) end)
   end
 
-  def error_message(:module_disabled), do: "Quests are not enabled in this GDR."
-  def error_message(:unauthorized), do: "Only the masters can do that."
-  def error_message(:quest_not_found), do: "That quest does not exist in this GDR."
-  def error_message(:character_not_found), do: "That character does not exist in this GDR."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Quests are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "Only the masters can do that.")
+
+  def error_message(:quest_not_found),
+    do: dgettext("domain", "That quest does not exist in this GDR.")
+
+  def error_message(:character_not_found),
+    do: dgettext("domain", "That character does not exist in this GDR.")
+
   def error_message(:item_not_found), do: Items.error_message(:item_not_found)
-  def error_message(:not_found), do: "That participant does not exist."
-  def error_message(:already_rewarded), do: "The rewards of this quest were already handed out."
-  def error_message(:invalid_reward), do: "One of the rewards could not be applied."
-  def error_message(:invalid_amount), do: "XP rewards must be between 1 and 1000."
+  def error_message(:not_found), do: dgettext("domain", "That participant does not exist.")
+
+  def error_message(:already_rewarded),
+    do: dgettext("domain", "The rewards of this quest were already handed out.")
+
+  def error_message(:invalid_reward),
+    do: dgettext("domain", "One of the rewards could not be applied.")
+
+  def error_message(:invalid_amount),
+    do: dgettext("domain", "XP rewards must be between 1 and 1000.")
+
   def error_message(reason) when is_atom(reason), do: Items.error_message(reason)
-  def error_message(_), do: "Something went wrong."
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   ## Helpers
 

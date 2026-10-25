@@ -39,6 +39,7 @@ defmodule TannhauserGateWeb do
   def controller do
     quote do
       use Phoenix.Controller, formats: [:html, :json]
+      use Gettext, backend: TannhauserGateWeb.Gettext
 
       import Plug.Conn
 
@@ -77,6 +78,8 @@ defmodule TannhauserGateWeb do
 
   defp html_helpers do
     quote do
+      use Gettext, backend: TannhauserGateWeb.Gettext
+
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components

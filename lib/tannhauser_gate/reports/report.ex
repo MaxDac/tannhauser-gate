@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Reports.Report do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A report filed by a member of a GDR about a piece of content (a chat entry,
   a forum post, a letter, a notice) or a character. The reported text is
@@ -48,7 +50,7 @@ defmodule TannhauserGate.Reports.Report do
     |> validate_length(:reason, max: 2_000)
     |> unique_constraint([:reporter_id, :target_type, :target_id],
       name: :reports_one_open_per_target_index,
-      message: "you already reported this and the masters are on it"
+      message: dgettext_noop("errors", "you already reported this and the masters are on it")
     )
   end
 

@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Directory do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The portal: the platform-level directory of GDRs, with their listing
   metadata (genres, lifecycle, content rating, pitch and banner, stored on
@@ -24,47 +26,52 @@ defmodule TannhauserGate.Directory do
   alias TannhauserGate.Stories.{Story, StoryMaster}
 
   @genres [
-    {"cyberpunk", "Cyberpunk"},
-    {"fantasy", "Fantasy"},
-    {"dark_fantasy", "Dark fantasy"},
-    {"sci_fi", "Sci-fi"},
-    {"horror", "Horror"},
-    {"historical", "Historical"},
-    {"modern", "Modern"},
-    {"urban_fantasy", "Urban fantasy"},
-    {"anime_manga", "Anime / manga"},
-    {"post_apocalyptic", "Post-apocalyptic"},
-    {"steampunk", "Steampunk"},
-    {"superheroes", "Superheroes"},
-    {"mystery_noir", "Mystery / noir"},
-    {"other", "Other"}
+    {"cyberpunk", dgettext_noop("domain", "Cyberpunk")},
+    {"fantasy", dgettext_noop("domain", "Fantasy")},
+    {"dark_fantasy", dgettext_noop("domain", "Dark fantasy")},
+    {"sci_fi", dgettext_noop("domain", "Sci-fi")},
+    {"horror", dgettext_noop("domain", "Horror")},
+    {"historical", dgettext_noop("domain", "Historical")},
+    {"modern", dgettext_noop("domain", "Modern")},
+    {"urban_fantasy", dgettext_noop("domain", "Urban fantasy")},
+    {"anime_manga", dgettext_noop("domain", "Anime / manga")},
+    {"post_apocalyptic", dgettext_noop("domain", "Post-apocalyptic")},
+    {"steampunk", dgettext_noop("domain", "Steampunk")},
+    {"superheroes", dgettext_noop("domain", "Superheroes")},
+    {"mystery_noir", dgettext_noop("domain", "Mystery / noir")},
+    {"other", dgettext_noop("domain", "Other")}
   ]
 
   @lifecycles [
-    {"alpha", "Alpha test"},
-    {"beta", "Beta test"},
-    {"open", "Open"},
-    {"closed", "Closed"}
+    {"alpha", dgettext_noop("domain", "Alpha test")},
+    {"beta", dgettext_noop("domain", "Beta test")},
+    {"open", dgettext_noop("domain", "Open")},
+    {"closed", dgettext_noop("domain", "Closed")}
   ]
 
-  @content_ratings [{"all", "All ages"}, {"12", "12+"}, {"16", "16+"}, {"18", "18+"}]
+  @content_ratings [
+    {"all", dgettext_noop("domain", "All ages")},
+    {"12", dgettext_noop("domain", "12+")},
+    {"16", dgettext_noop("domain", "16+")},
+    {"18", dgettext_noop("domain", "18+")}
+  ]
 
   @criteria [
-    {:graphics, "Graphics", "Grafica"},
-    {:setting, "Setting", "Ambientazione"},
-    {:play_level, "In-game play level", "Livello di gioco interno"},
-    {:technical, "Code & server", "Codice e server"},
-    {:features, "Features", "Funzionalità"},
-    {:documentation, "Documentation", "Documentazione"},
-    {:management, "Management", "Gestione"}
+    {:graphics, dgettext_noop("domain", "Graphics"), "Grafica"},
+    {:setting, dgettext_noop("domain", "Setting"), "Ambientazione"},
+    {:play_level, dgettext_noop("domain", "In-game play level"), "Livello di gioco interno"},
+    {:technical, dgettext_noop("domain", "Code & server"), "Codice e server"},
+    {:features, dgettext_noop("domain", "Features"), "Funzionalità"},
+    {:documentation, dgettext_noop("domain", "Documentation"), "Documentazione"},
+    {:management, dgettext_noop("domain", "Management"), "Gestione"}
   ]
 
   @sorts [
-    {"top", "Top rated"},
-    {"votes", "Most voted this month"},
-    {"active", "Most active"},
-    {"newest", "Newest"},
-    {"name", "Name"}
+    {"top", dgettext_noop("domain", "Top rated")},
+    {"votes", dgettext_noop("domain", "Most voted this month")},
+    {"active", dgettext_noop("domain", "Most active")},
+    {"newest", dgettext_noop("domain", "Newest")},
+    {"name", dgettext_noop("domain", "Name")}
   ]
 
   @ranking_size 25
@@ -72,29 +79,41 @@ defmodule TannhauserGate.Directory do
   ## Listing metadata
 
   @doc "The genres a GDR can be listed under, as `{value, label}`."
-  def genres, do: @genres
+  def genres, do: translate_options(@genres)
   def genre_values, do: Enum.map(@genres, &elem(&1, 0))
   def genre_label(value), do: label(@genres, value)
 
   @doc "The lifecycle statuses (independent from draft/published), as `{value, label}`."
-  def lifecycles, do: @lifecycles
+  def lifecycles, do: translate_options(@lifecycles)
   def lifecycle_values, do: Enum.map(@lifecycles, &elem(&1, 0))
   def lifecycle_label(value), do: label(@lifecycles, value)
 
   @doc "The PEGI-like content ratings, as `{value, label}`."
-  def content_ratings, do: @content_ratings
+  def content_ratings, do: translate_options(@content_ratings)
   def content_rating_values, do: Enum.map(@content_ratings, &elem(&1, 0))
   def content_rating_label(value), do: label(@content_ratings, value)
 
-  @doc "The review rubric, as `{field, english label, italian label}`."
-  def criteria, do: @criteria
+  @doc "The review rubric, as `{field, localized label, legacy Italian label}`."
+  def criteria do
+    for {field, label, italian} <- @criteria do
+      translated = Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label)
+
+      {field, translated,
+       if(Gettext.get_locale(TannhauserGateWeb.Gettext) == "en", do: italian, else: translated)}
+    end
+  end
 
   @doc "The directory sort orders, as `{value, label}`."
-  def sorts, do: @sorts
+  def sorts, do: translate_options(@sorts)
+
+  defp translate_options(options) do
+    for {value, label} <- options,
+        do: {value, Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label)}
+  end
 
   defp label(list, value) do
     case List.keyfind(list, value, 0) do
-      {_, label} -> label
+      {_, label} -> Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label)
       nil -> value
     end
   end
@@ -337,12 +356,17 @@ defmodule TannhauserGate.Directory do
 
   def review_eligibility(_, _, _), do: {:error, :no_character}
 
-  def eligibility_message(:not_published), do: "Draft GDRs cannot be reviewed."
-  def eligibility_message(:staff), do: "Staff cannot review their own GDR."
+  def eligibility_message(:not_published),
+    do: dgettext("domain", "Draft GDRs cannot be reviewed.")
+
+  def eligibility_message(:staff), do: dgettext("domain", "Staff cannot review their own GDR.")
 
   def eligibility_message(:no_character) do
-    "You can review this GDR once you have an approved character there that is at least " <>
-      "#{review_min_days()} days old."
+    dgettext(
+      "domain",
+      "You can review this GDR once you have an approved character there that is at least %{days} days old.",
+      days: review_min_days()
+    )
   end
 
   @doc "Whether the user runs the story: its owner or one of its masters."

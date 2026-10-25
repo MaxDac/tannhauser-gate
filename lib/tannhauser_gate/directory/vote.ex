@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Directory.Vote do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A user's vote for a GDR: one per user, GDR and calendar month (UTC),
   `month` being the first day of the month.
@@ -22,6 +24,8 @@ defmodule TannhauserGate.Directory.Vote do
   def changeset(vote) do
     vote
     |> change()
-    |> unique_constraint([:story_id, :user_id, :month], message: "already voted this month")
+    |> unique_constraint([:story_id, :user_id, :month],
+      message: dgettext_noop("errors", "already voted this month")
+    )
   end
 end

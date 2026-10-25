@@ -95,7 +95,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
         do: Guilds.request_join(user, guild, character),
         else: {:error, :character_not_found}
 
-    reply(socket, result, "Request sent to the guild.")
+    reply(socket, result, dgettext("player", "Request sent to the guild."))
   end
 
   def handle_event("own", %{"op" => op}, socket) do
@@ -104,12 +104,23 @@ defmodule TannhauserGateWeb.GuildLive.Show do
 
     {result, message} =
       case {op, membership} do
-        {_, nil} -> {{:error, :membership_not_found}, nil}
-        {"cancel", m} -> {Guilds.cancel_request(user, guild, m), "Request withdrawn."}
-        {"accept", m} -> {Guilds.accept_invitation(user, guild, m), "Welcome to the guild."}
-        {"decline", m} -> {Guilds.decline_invitation(user, guild, m), "Invitation declined."}
-        {"leave", m} -> {Guilds.leave(user, guild, m), "You left the guild."}
-        _ -> {{:error, :invalid_status}, nil}
+        {_, nil} ->
+          {{:error, :membership_not_found}, nil}
+
+        {"cancel", m} ->
+          {Guilds.cancel_request(user, guild, m), dgettext("player", "Request withdrawn.")}
+
+        {"accept", m} ->
+          {Guilds.accept_invitation(user, guild, m), dgettext("player", "Welcome to the guild.")}
+
+        {"decline", m} ->
+          {Guilds.decline_invitation(user, guild, m), dgettext("player", "Invitation declined.")}
+
+        {"leave", m} ->
+          {Guilds.leave(user, guild, m), dgettext("player", "You left the guild.")}
+
+        _ ->
+          {{:error, :invalid_status}, nil}
       end
 
     reply(socket, result, message)
@@ -121,19 +132,24 @@ defmodule TannhauserGateWeb.GuildLive.Show do
     %{current_user: user, current_story: story, guild: guild} = socket.assigns
 
     result = with_membership(socket, id, &Guilds.approve_request(user, story, guild, &1))
-    reply(socket, result, "Request approved.")
+    reply(socket, result, dgettext("player", "Request approved."))
   end
 
   def handle_event("reject", %{"id" => id}, socket) do
     %{current_user: user, current_story: story, guild: guild} = socket.assigns
 
     result = with_membership(socket, id, &Guilds.reject_request(user, story, guild, &1))
-    reply(socket, result, "Removed.")
+    reply(socket, result, dgettext("player", "Removed."))
   end
 
   def handle_event("invite", %{"invite" => %{"character_id" => character_id}}, socket) do
     %{current_user: user, current_story: story, guild: guild} = socket.assigns
-    reply(socket, Guilds.invite(user, story, guild, character_id), "Invitation sent.")
+
+    reply(
+      socket,
+      Guilds.invite(user, story, guild, character_id),
+      dgettext("player", "Invitation sent.")
+    )
   end
 
   def handle_event("enrol", %{"enrol" => params}, socket) do
@@ -142,7 +158,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
     reply(
       socket,
       Guilds.enrol(user, story, guild, params["character_id"], params["rank_id"]),
-      "Character enrolled."
+      dgettext("player", "Character enrolled.")
     )
   end
 
@@ -150,14 +166,14 @@ defmodule TannhauserGateWeb.GuildLive.Show do
     %{current_user: user, current_story: story, guild: guild} = socket.assigns
 
     result = with_membership(socket, id, &Guilds.set_rank(user, story, guild, &1, rank_id))
-    reply(socket, result, "Rank updated.")
+    reply(socket, result, dgettext("player", "Rank updated."))
   end
 
   def handle_event("expel", %{"id" => id}, socket) do
     %{current_user: user, current_story: story, guild: guild} = socket.assigns
 
     result = with_membership(socket, id, &Guilds.expel(user, story, guild, &1))
-    reply(socket, result, "Member expelled.")
+    reply(socket, result, dgettext("player", "Member expelled."))
   end
 
   # Whether the viewer can change the rank of (and expel) the member.
@@ -197,7 +213,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
           navigate={~p"/g/#{@current_story}/guilds"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Guilds
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext("player", "Guilds")}
         </.link>
       </div>
 
@@ -208,16 +224,21 @@ defmodule TannhauserGateWeb.GuildLive.Show do
         <.guild_emblem guild={@guild} id="guild-emblem" class="size-24 text-4xl" />
         <div class="min-w-0 flex-1">
           <h1 class="text-2xl font-bold text-primary">{@guild.name}</h1>
+
           <div class="mt-2 flex flex-wrap gap-1 text-xs">
             <span :if={@guild.secret} class="badge badge-soft badge-sm badge-error">
-              <.icon name="hero-eye-slash-micro" class="size-3" /> secret
+              <.icon name="hero-eye-slash-micro" class="size-3" /> {dgettext("player", "secret")}
             </span>
+
             <span class={[
               "badge badge-soft badge-sm",
               if(@guild.open_join, do: "badge-success", else: "badge-warning")
             ]}>
-              {if @guild.open_join, do: "open to requests", else: "invitation only"}
+              {if @guild.open_join,
+                do: dgettext("player", "open to requests"),
+                else: dgettext("player", "invitation only")}
             </span>
+
             <span
               :if={@membership}
               id="my-membership"
@@ -227,6 +248,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
               <span :if={@membership.rank}>· {@membership.rank.name}</span>
             </span>
           </div>
+
           <.markdown
             :if={@guild.description}
             id="guild-description"
@@ -240,11 +262,12 @@ defmodule TannhauserGateWeb.GuildLive.Show do
             :if={is_nil(@membership) and @guild.open_join and @can_play?}
             id="request-join"
             phx-click="request"
-            phx-disable-with="Sending..."
+            phx-disable-with={dgettext("player", "Sending...")}
             class="btn btn-primary btn-sm transition hover:-translate-y-0.5"
           >
-            <.icon name="hero-hand-raised" class="size-4" /> Ask to join
+            <.icon name="hero-hand-raised" class="size-4" /> {dgettext("player", "Ask to join")}
           </button>
+
           <%= if @membership do %>
             <%= case @membership.status do %>
               <% "requested" -> %>
@@ -254,7 +277,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                   phx-value-op="cancel"
                   class="btn btn-ghost btn-sm"
                 >
-                  Withdraw request
+                  {dgettext("player", "Withdraw request")}
                 </button>
               <% "invited" -> %>
                 <button
@@ -263,25 +286,29 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                   phx-value-op="accept"
                   class="btn btn-primary btn-sm"
                 >
-                  Accept invitation
+                  {dgettext("player", "Accept invitation")}
                 </button>
+
                 <button
                   id="decline-invitation"
                   phx-click="own"
                   phx-value-op="decline"
                   class="btn btn-ghost btn-sm"
                 >
-                  Decline
+                  {dgettext("player", "Decline")}
                 </button>
               <% _ -> %>
                 <button
                   id="leave-guild"
                   phx-click="own"
                   phx-value-op="leave"
-                  data-confirm="Leave this guild?"
+                  data-confirm={dgettext("player", "Leave this guild?")}
                   class="btn btn-ghost btn-sm text-error"
                 >
-                  <.icon name="hero-arrow-right-start-on-rectangle" class="size-4" /> Leave
+                  <.icon name="hero-arrow-right-start-on-rectangle" class="size-4" /> {dgettext(
+                    "player",
+                    "Leave"
+                  )}
                 </button>
             <% end %>
           <% end %>
@@ -293,8 +320,14 @@ defmodule TannhauserGateWeb.GuildLive.Show do
           id="guild-ranks"
           class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5"
         >
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Ranks</h2>
-          <p :if={@guild.ranks == []} class="mt-2 text-sm text-base-content/60">No ranks yet.</p>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("player", "Ranks")}
+          </h2>
+
+          <p :if={@guild.ranks == []} class="mt-2 text-sm text-base-content/60">
+            {dgettext("player", "No ranks yet.")}
+          </p>
+
           <ol class="mt-3 space-y-1.5 text-sm">
             <li
               :for={rank <- @guild.ranks}
@@ -302,9 +335,9 @@ defmodule TannhauserGateWeb.GuildLive.Show do
               class="flex items-center justify-between gap-2"
             >
               <span class="flex items-center gap-1.5">
-                <.icon :if={rank.leader} name="hero-star-micro" class="size-3 text-primary" />
-                {rank.name}
+                <.icon :if={rank.leader} name="hero-star-micro" class="size-3 text-primary" /> {rank.name}
               </span>
+
               <span class="text-xs tabular-nums text-base-content/60">
                 {rank.salary} {@current_story.currency_name}
               </span>
@@ -317,22 +350,29 @@ defmodule TannhauserGateWeb.GuildLive.Show do
             id="guild-members"
             class="rounded-xl border border-secondary/20 bg-base-200/80 p-5"
           >
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Members</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("player", "Members")}
+            </h2>
+
             <p
               :if={!@members_visible?}
               id="members-hidden"
               class="mt-2 flex items-center gap-2 text-sm text-base-content/60"
             >
-              <.icon name="hero-eye-slash" class="size-4" />
-              The members of this guild are known only to its members.
+              <.icon name="hero-eye-slash" class="size-4" /> {dgettext(
+                "player",
+                "The members of this guild are known only to its members."
+              )}
             </p>
+
             <p
               :if={@members_visible? and @members == []}
               id="members-empty"
               class="mt-2 text-sm text-base-content/60"
             >
-              No members yet.
+              {dgettext("player", "No members yet.")}
             </p>
+
             <ul class="mt-3 divide-y divide-secondary/10 text-sm">
               <li
                 :for={member <- @members}
@@ -345,14 +385,15 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                 >
                   {member.character.name}
                 </.link>
+
                 <span class="text-xs text-base-content/60">
                   <.icon
                     :if={member.rank && member.rank.leader}
                     name="hero-star-micro"
                     class="size-3 text-primary"
-                  />
-                  {(member.rank && member.rank.name) || "No rank"}
+                  /> {(member.rank && member.rank.name) || dgettext("player", "No rank")}
                 </span>
+
                 <span :if={@manager? and can_manage?(assigns, member)} class="ml-auto flex gap-2">
                   <form
                     id={"rank-form-#{member.id}"}
@@ -363,9 +404,12 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                     <select
                       name="rank_id"
                       class="select select-xs"
-                      aria-label={"Rank of #{member.character.name}"}
+                      aria-label={dgettext("player", "Rank of %{name}", name: member.character.name)}
                     >
-                      <option value="" disabled selected={is_nil(member.rank_id)}>Rank</option>
+                      <option value="" disabled selected={is_nil(member.rank_id)}>
+                        {dgettext("player", "Rank")}
+                      </option>
+
                       <option
                         :for={{name, id} <- rank_options(assigns)}
                         value={id}
@@ -375,13 +419,14 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                       </option>
                     </select>
                   </form>
+
                   <button
                     id={"expel-#{member.id}"}
                     phx-click="expel"
                     phx-value-id={member.id}
-                    data-confirm={"Expel #{member.character.name}?"}
+                    data-confirm={dgettext("player", "Expel %{name}?", name: member.character.name)}
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                    title="Expel"
+                    title={dgettext("player", "Expel")}
                   >
                     <.icon name="hero-user-minus" class="size-4" />
                   </button>
@@ -395,12 +440,15 @@ defmodule TannhauserGateWeb.GuildLive.Show do
             id="guild-management"
             class="rounded-xl border border-primary/30 bg-base-200/80 p-5"
           >
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-primary">Recruitment</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-primary">
+              {dgettext("player", "Recruitment")}
+            </h2>
 
             <ul id="guild-pending" class="mt-3 divide-y divide-secondary/10 text-sm">
               <li :if={@pending == []} class="py-2 text-base-content/60">
-                No pending requests or invitations.
+                {dgettext("player", "No pending requests or invitations.")}
               </li>
+
               <li
                 :for={pending <- @pending}
                 id={"pending-#{pending.id}"}
@@ -410,6 +458,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                 <span class="badge badge-soft badge-sm">
                   {Guilds.status_label(pending.status)}
                 </span>
+
                 <span class="ml-auto flex gap-2">
                   <button
                     :if={pending.status == "requested"}
@@ -418,15 +467,18 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                     phx-value-id={pending.id}
                     class="btn btn-xs btn-primary"
                   >
-                    Approve
+                    {dgettext("player", "Approve")}
                   </button>
+
                   <button
                     id={"reject-#{pending.id}"}
                     phx-click="reject"
                     phx-value-id={pending.id}
                     class="btn btn-xs btn-ghost"
                   >
-                    {if pending.status == "requested", do: "Reject", else: "Withdraw"}
+                    {if pending.status == "requested",
+                      do: dgettext("player", "Reject"),
+                      else: dgettext("player", "Withdraw")}
                   </button>
                 </span>
               </li>
@@ -442,13 +494,18 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                 <.input
                   field={@invite_form[:character_id]}
                   type="select"
-                  label="Invite a character"
-                  prompt="Choose a character"
+                  label={dgettext("player", "Invite a character")}
+                  prompt={dgettext("player", "Choose a character")}
                   options={Enum.map(@candidates, &{&1.name, &1.id})}
                 />
               </div>
-              <.button id="send-invite" class="mb-2" phx-disable-with="Sending...">
-                <.icon name="hero-paper-airplane" class="size-4" /> Invite
+
+              <.button
+                id="send-invite"
+                class="mb-2"
+                phx-disable-with={dgettext("player", "Sending...")}
+              >
+                <.icon name="hero-paper-airplane" class="size-4" /> {dgettext("player", "Invite")}
               </.button>
             </.form>
 
@@ -463,32 +520,40 @@ defmodule TannhauserGateWeb.GuildLive.Show do
                 <.input
                   field={@enrol_form[:character_id]}
                   type="select"
-                  label="Enrol directly (masters)"
-                  prompt="Choose a character"
+                  label={dgettext("player", "Enrol directly (masters)")}
+                  prompt={dgettext("player", "Choose a character")}
                   options={Enum.map(@enrol_candidates, &{&1.name, &1.id})}
                 />
               </div>
+
               <div class="w-36">
                 <.input
                   field={@enrol_form[:rank_id]}
                   type="select"
-                  label="Rank"
-                  prompt="Default"
+                  label={dgettext("player", "Rank")}
+                  prompt={dgettext("player", "Default")}
                   options={Enum.map(@guild.ranks, &{&1.name, &1.id})}
                 />
               </div>
-              <.button id="enrol-character" class="mb-2" phx-disable-with="Saving...">
-                Enrol
+
+              <.button
+                id="enrol-character"
+                class="mb-2"
+                phx-disable-with={dgettext("player", "Saving...")}
+              >
+                {dgettext("player", "Enrol")}
               </.button>
             </.form>
 
             <h3 class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Guild log
+              {dgettext("player", "Guild log")}
             </h3>
+
             <ul id="guild-logs" phx-update="stream" class="mt-2 space-y-1 text-xs">
               <li id="guild-logs-empty" class="hidden text-base-content/60 only:block">
-                Nothing recorded yet.
+                {dgettext("player", "Nothing recorded yet.")}
               </li>
+
               <li
                 :for={{dom_id, log} <- @streams.logs}
                 id={dom_id}

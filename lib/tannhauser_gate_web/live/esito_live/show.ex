@@ -25,7 +25,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
 
       {:ok,
        socket
-       |> assign(:page_title, "#{esito.title} · Esiti")
+       |> assign(:page_title, dgettext("player", "%{title} · Esiti", title: esito.title))
        |> assign(:owner?, Esiti.owner?(user, esito))
        |> assign(:manager?, MapSet.member?(socket.assigns.permissions, :can_manage_esiti_quests))
        |> assign_master_options()
@@ -87,15 +87,17 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
   end
 
   def handle_event("withdraw", _, socket) do
-    run(socket, &Esiti.withdraw/3, "Request withdrawn.")
+    run(socket, &Esiti.withdraw/3, dgettext("player", "Request withdrawn."))
   end
 
-  def handle_event("claim", _, socket), do: run(socket, &Esiti.claim/3, "You took this request.")
+  def handle_event("claim", _, socket),
+    do: run(socket, &Esiti.claim/3, dgettext("player", "You took this request."))
 
   def handle_event("release", _, socket),
-    do: run(socket, &Esiti.release/3, "Request back in the queue.")
+    do: run(socket, &Esiti.release/3, dgettext("player", "Request back in the queue."))
 
-  def handle_event("dismiss", _, socket), do: run(socket, &Esiti.dismiss/3, "Request dismissed.")
+  def handle_event("dismiss", _, socket),
+    do: run(socket, &Esiti.dismiss/3, dgettext("player", "Request dismissed."))
 
   def handle_event("validate_resolution", %{"resolution" => params}, socket) do
     {:noreply, assign(socket, :resolve_form, to_form(params, as: :resolution))}
@@ -108,7 +110,10 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
       {:ok, esito} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Esito resolved: the outcome was sent to the player.")
+         |> put_flash(
+           :info,
+           dgettext("player", "Esito resolved: the outcome was sent to the player.")
+         )
          |> assign_esito(esito)}
 
       {:error, reason} ->
@@ -169,14 +174,15 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
           navigate={~p"/g/#{@current_story}/esiti"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Your esiti
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext("player", "Your esiti")}
         </.link>
+
         <.link
           :if={@manager?}
           navigate={~p"/g/#{@current_story}/master/esiti"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master queue
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext("player", "Master queue")}
         </.link>
       </div>
 
@@ -191,51 +197,57 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
             >
               {@esito.character.name}
             </.link>
+
             <span :if={place(@esito)}>
               <.icon name="hero-map-pin-micro" class="size-3" /> {place(@esito)}
             </span>
-            <span>· filed {when_label(@esito.inserted_at)}</span>
+            <span>{dgettext("player", "· filed")} {when_label(@esito.inserted_at)}</span>
             <span :if={@esito.game_date_label} id="esito-game-date">
               · <.icon name="hero-calendar-days-micro" class="size-3" /> {@esito.game_date_label}
             </span>
-            <span :if={@esito.claimed_by}>· handled by {@esito.claimed_by.username}</span>
+
+            <span :if={@esito.claimed_by}>{dgettext("player", "· handled by")} {@esito.claimed_by.username}</span>
           </span>
         </:subtitle>
+
         <:actions>
           <div class="flex flex-wrap gap-2">
             <button
               :if={@owner? && TannhauserGate.Esiti.Esito.active?(@esito)}
               id="withdraw-esito"
               phx-click="withdraw"
-              data-confirm="Withdraw this request?"
+              data-confirm={dgettext("player", "Withdraw this request?")}
               class="btn btn-sm btn-ghost text-error"
             >
-              <.icon name="hero-x-circle" class="size-4" /> Withdraw
+              <.icon name="hero-x-circle" class="size-4" /> {dgettext("player", "Withdraw")}
             </button>
+
             <button
               :if={@manager? && @esito.status == "open"}
               id="claim-esito"
               phx-click="claim"
               class="btn btn-sm btn-secondary"
             >
-              <.icon name="hero-hand-raised" class="size-4" /> Claim
+              <.icon name="hero-hand-raised" class="size-4" /> {dgettext("player", "Claim")}
             </button>
+
             <button
               :if={@manager? && @esito.status == "claimed"}
               id="release-esito"
               phx-click="release"
               class="btn btn-sm btn-ghost"
             >
-              <.icon name="hero-arrow-uturn-left" class="size-4" /> Release
+              <.icon name="hero-arrow-uturn-left" class="size-4" /> {dgettext("player", "Release")}
             </button>
+
             <button
               :if={@manager? && TannhauserGate.Esiti.Esito.active?(@esito)}
               id="dismiss-esito"
               phx-click="dismiss"
-              data-confirm="Dismiss this request without an outcome?"
+              data-confirm={dgettext("player", "Dismiss this request without an outcome?")}
               class="btn btn-sm btn-ghost text-error"
             >
-              <.icon name="hero-no-symbol" class="size-4" /> Dismiss
+              <.icon name="hero-no-symbol" class="size-4" /> {dgettext("player", "Dismiss")}
             </button>
           </div>
         </:actions>
@@ -249,7 +261,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
           >
             <.markdown id="esito-body" content={@esito.body} class="prose-sm" />
             <p :if={@esito.related_characters != []} class="mt-3 text-xs text-base-content/60">
-              Also involved:
+              {dgettext("player", "Also involved:")}
               <span id="esito-related">
                 {Enum.map_join(@esito.related_characters, ", ", & &1.name)}
               </span>
@@ -262,17 +274,18 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
             class="rounded-xl border border-success/40 bg-success/5 p-5"
           >
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-success">
-              <.icon name="hero-check-badge" class="size-4" /> Outcome
+              <.icon name="hero-check-badge" class="size-4" /> {dgettext("player", "Outcome")}
             </h2>
+
             <p class="mt-1 text-xs text-base-content/60">
-              By {(@esito.resolved_by && @esito.resolved_by.username) || "the masters"} · {when_label(
-                @esito.resolved_at
-              )}
+              {dgettext("player", "By")} {(@esito.resolved_by && @esito.resolved_by.username) ||
+                dgettext("player", "the masters")} · {when_label(@esito.resolved_at)}
             </p>
             <.markdown id="esito-outcome-body" content={@esito.outcome} class="prose-sm mt-3" />
             <div :if={@esito.dice_result} class="mt-3">
               <.dice_result id="esito-dice" result={@esito.dice_result} />
             </div>
+
             <ul
               :if={Esiti.effect_lines(@esito.effects) != []}
               id="esito-effects"
@@ -289,15 +302,19 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
             id="esito-closed"
             class="rounded-xl border border-base-content/10 p-4 text-sm text-base-content/60"
           >
-            This request was closed on {when_label(@esito.closed_at)}.
+            {dgettext("player", "This request was closed on")} {when_label(@esito.closed_at)}.
           </p>
 
           <section id="esito-thread">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Thread</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("player", "Thread")}
+            </h2>
+
             <ol id="esito-messages" phx-update="stream" class="mt-3 space-y-3">
               <li id="esito-messages-empty" class="hidden text-sm text-base-content/60 only:block">
-                No messages yet.
+                {dgettext("player", "No messages yet.")}
               </li>
+
               <li
                 :for={{dom_id, message} <- @streams.messages}
                 id={dom_id}
@@ -318,6 +335,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                   </span>
                   <span class="text-base-content/50">{when_label(message.inserted_at)}</span>
                 </p>
+
                 <.markdown
                   id={"#{dom_id}-body"}
                   content={message.body}
@@ -336,7 +354,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
               <.input
                 field={@message_form[:body]}
                 type="textarea"
-                label="Reply (Markdown)"
+                label={dgettext("player", "Reply (Markdown)")}
                 rows="3"
                 required
               />
@@ -345,19 +363,24 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                   <.input
                     field={@message_form[:as]}
                     type="select"
-                    label="Sign as"
+                    label={dgettext("player", "Sign as")}
                     options={[
-                      {"The masters", "masters"},
-                      {"#{@current_user.username} (master)", "self"}
+                      {dgettext("player", "The masters"), "masters"},
+                      {dgettext("player", "%{username} (master)", username: @current_user.username),
+                       "self"}
                     ]}
                   />
                 </div>
+
                 <.button
                   id="post-esito-message"
-                  phx-disable-with="Sending..."
+                  phx-disable-with={dgettext("player", "Sending...")}
                   class="btn btn-primary mb-2"
                 >
-                  <.icon name="hero-chat-bubble-left-right" class="size-4" /> Send
+                  <.icon name="hero-chat-bubble-left-right" class="size-4" /> {dgettext(
+                    "player",
+                    "Send"
+                  )}
                 </.button>
               </div>
             </.form>
@@ -369,11 +392,17 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
           id="esito-resolve"
           class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5"
         >
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Resolve</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("player", "Resolve")}
+          </h2>
+
           <p class="mt-1 text-xs text-base-content/60">
-            Everything below is applied at once: if an effect fails (e.g. not enough money to
-            take) nothing changes.
+            {dgettext(
+              "player",
+              "Everything below is applied at once: if an effect fails (e.g. not enough money to take) nothing changes."
+            )}
           </p>
+
           <.form
             for={@resolve_form}
             id="esito-resolve-form"
@@ -384,16 +413,20 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
             <.input
               field={@resolve_form[:outcome]}
               type="textarea"
-              label="Outcome (Markdown)"
+              label={dgettext("player", "Outcome (Markdown)")}
               rows="6"
               required
             />
-
             <fieldset class="mt-2 rounded-lg border border-secondary/20 p-3">
               <legend class="px-1 text-xs font-semibold uppercase tracking-wider text-secondary">
-                Dice
+                {dgettext("player", "Dice")}
               </legend>
-              <.input field={@resolve_form[:roll]} type="checkbox" label="Roll for the requester" />
+
+              <.input
+                field={@resolve_form[:roll]}
+                type="checkbox"
+                label={dgettext("player", "Roll for the requester")}
+              />
               <div
                 :if={@resolve_form[:roll].value in ["true", true]}
                 class="grid gap-2 sm:grid-cols-2"
@@ -406,7 +439,9 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                   type="select"
                   multiple
                   label={
-                    if @dice_config.system == "pool", do: "Pool (sheet items)", else: "Sheet items"
+                    if @dice_config.system == "pool",
+                      do: dgettext("player", "Pool (sheet items)"),
+                      else: dgettext("player", "Sheet items")
                   }
                   options={Enum.map(@sheet_items, &{&1.name, &1.slug})}
                 />
@@ -416,7 +451,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                   name="resolution[dice][expression]"
                   value={get_in(@resolve_form.params, ["dice", "expression"])}
                   type="text"
-                  label="Expression"
+                  label={dgettext("player", "Expression")}
                   placeholder={@dice_config.default_expression}
                 />
                 <.input
@@ -424,68 +459,84 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                   name="resolution[dice][modifier]"
                   value={get_in(@resolve_form.params, ["dice", "modifier"])}
                   type="number"
-                  label={if @dice_config.system == "pool", do: "Extra dice", else: "Modifier"}
+                  label={
+                    if @dice_config.system == "pool",
+                      do: dgettext("player", "Extra dice"),
+                      else: dgettext("player", "Modifier")
+                  }
                 />
                 <.input
                   field={@resolve_form[:dice_difficulty]}
                   name="resolution[dice][difficulty]"
                   value={get_in(@resolve_form.params, ["dice", "difficulty"])}
                   type="number"
-                  label="Difficulty"
+                  label={dgettext("player", "Difficulty")}
                 />
                 <.input
                   field={@resolve_form[:dice_label]}
                   name="resolution[dice][label]"
                   value={get_in(@resolve_form.params, ["dice", "label"])}
                   type="text"
-                  label="Label"
-                  placeholder="Optional"
+                  label={dgettext("player", "Label")}
+                  placeholder={dgettext("player", "Optional")}
                 />
               </div>
             </fieldset>
 
             <fieldset class="mt-3 rounded-lg border border-secondary/20 p-3">
               <legend class="px-1 text-xs font-semibold uppercase tracking-wider text-secondary">
-                Rewards &amp; effects
+                {dgettext("player", "Rewards & effects")}
               </legend>
+
               <div class="grid gap-2 sm:grid-cols-2">
                 <.input field={@resolve_form[:xp]} type="number" label="XP" min="-1000" max="1000" />
                 <.input
                   field={@resolve_form[:money]}
                   type="number"
-                  label={"Money (#{@current_story.currency_name})"}
+                  label={
+                    dgettext("player", "Money (%{currency_name})",
+                      currency_name: @current_story.currency_name
+                    )
+                  }
                 />
               </div>
+
               <div :if={@items != []} class="grid grid-cols-[1fr_6rem] gap-2">
                 <.input
                   field={@resolve_form[:item_id]}
                   type="select"
-                  label="Item"
+                  label={dgettext("player", "Item")}
                   prompt="—"
                   options={Enum.map(@items, &{&1.name, &1.id})}
                 />
                 <.input
                   field={@resolve_form[:item_quantity]}
                   type="number"
-                  label="Qty"
+                  label={dgettext("player", "Qty")}
                   min="1"
                 />
               </div>
+
               <div :if={@trackers != []} class="grid grid-cols-[1fr_6rem] gap-2">
                 <.input
                   field={@resolve_form[:tracker]}
                   type="select"
-                  label="Tracker"
+                  label={dgettext("player", "Tracker")}
                   prompt="—"
                   options={Enum.map(@trackers, &{&1.name, &1.slug})}
                 />
-                <.input field={@resolve_form[:tracker_delta]} type="number" label="Change" />
+                <.input
+                  field={@resolve_form[:tracker_delta]}
+                  type="number"
+                  label={dgettext("player", "Change")}
+                />
               </div>
+
               <.input
                 :if={@tracker && @tracker.damage_types != []}
                 field={@resolve_form[:tracker_damage_type]}
                 type="select"
-                label="Damage type"
+                label={dgettext("player", "Damage type")}
                 prompt="—"
                 options={@tracker.damage_types}
               />
@@ -493,17 +544,17 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
                 :if={@esito.related_characters != []}
                 field={@resolve_form[:also_related]}
                 type="checkbox"
-                label="Also apply to the related characters"
+                label={dgettext("player", "Also apply to the related characters")}
               />
             </fieldset>
 
             <.button
               id="resolve-esito"
-              phx-disable-with="Resolving..."
-              data-confirm="Resolve this esito and apply its effects?"
+              phx-disable-with={dgettext("player", "Resolving...")}
+              data-confirm={dgettext("player", "Resolve this esito and apply its effects?")}
               class="btn btn-primary mt-4 w-full"
             >
-              <.icon name="hero-check-badge" class="size-4" /> Resolve
+              <.icon name="hero-check-badge" class="size-4" /> {dgettext("player", "Resolve")}
             </.button>
           </.form>
         </section>

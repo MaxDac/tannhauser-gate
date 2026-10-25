@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.MarketLive do
 
     {:ok,
      socket
-     |> assign(:page_title, "Market · #{story.name}")
+     |> assign(:page_title, dgettext("player", "Market · %{name}", name: story.name))
      |> assign(:shops, Items.list_shops(story))
      |> assign(:shop, nil)
      |> load_buyer()}
@@ -40,7 +40,7 @@ defmodule TannhauserGateWeb.MarketLive do
       nil ->
         {:noreply,
          socket
-         |> put_flash(:error, "That shop does not exist in this GDR.")
+         |> put_flash(:error, dgettext("player", "That shop does not exist in this GDR."))
          |> push_patch(to: ~p"/g/#{story}/market")}
 
       shop ->
@@ -64,11 +64,20 @@ defmodule TannhauserGateWeb.MarketLive do
       {:ok, %{item: item, quantity: qty, total: total}} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Bought #{qty}× #{item.name} for #{total} #{story.currency_name}.")
+         |> put_flash(
+           :info,
+           dgettext("player", "Bought %{qty}× %{name} for %{total} %{currency_name}.",
+             qty: qty,
+             name: item.name,
+             total: total,
+             currency_name: story.currency_name
+           )
+         )
          |> refresh()}
 
       {:error, :no_buyer} ->
-        {:noreply, put_flash(socket, :error, "You need an approved character to buy.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "You need an approved character to buy."))}
 
       {:error, reason} ->
         {:noreply, socket |> put_flash(:error, Items.error_message(reason)) |> refresh()}
@@ -102,8 +111,7 @@ defmodule TannhauserGateWeb.MarketLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        <span :if={!@shop}>Market</span>
-        <span :if={@shop}>{@shop.name}</span>
+        <span :if={!@shop}>{dgettext("player", "Market")}</span> <span :if={@shop}>{@shop.name}</span>
         <:subtitle>
           <%= if @shop do %>
             <span :if={@shop.location}>
@@ -117,9 +125,10 @@ defmodule TannhauserGateWeb.MarketLive do
               </.link>
             </span>
           <% else %>
-            Shops, stalls and fences of {@current_story.name}.
+            {dgettext("player", "Shops, stalls and fences of")} {@current_story.name}.
           <% end %>
         </:subtitle>
+
         <:actions>
           <div
             :if={@character}
@@ -127,6 +136,7 @@ defmodule TannhauserGateWeb.MarketLive do
             class="rounded-lg border border-secondary/20 bg-base-200/80 px-4 py-2 text-right"
           >
             <p class="text-xs uppercase tracking-[0.2em] text-secondary">{@character.name}</p>
+
             <p class="font-bold text-primary tabular-nums">
               {@character.balance} {@current_story.currency_name}
             </p>
@@ -139,8 +149,10 @@ defmodule TannhauserGateWeb.MarketLive do
         id="market-no-buyer"
         class="mt-4 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm"
       >
-        <.icon name="hero-information-circle" class="size-4 text-warning" />
-        You can browse, but only an approved character that can play may buy.
+        <.icon name="hero-information-circle" class="size-4 text-warning" /> {dgettext(
+          "player",
+          "You can browse, but only an approved character that can play may buy."
+        )}
       </p>
 
       <%= if @shop do %>
@@ -150,7 +162,7 @@ defmodule TannhauserGateWeb.MarketLive do
             patch={~p"/g/#{@current_story}/market"}
             class="text-sm font-semibold text-secondary transition-colors hover:text-primary"
           >
-            <.icon name="hero-arrow-left-micro" class="size-4" /> All shops
+            <.icon name="hero-arrow-left-micro" class="size-4" /> {dgettext("player", "All shops")}
           </.link>
         </div>
 
@@ -159,9 +171,8 @@ defmodule TannhauserGateWeb.MarketLive do
           content={@shop.description}
           class="mt-4 max-w-3xl text-sm text-base-content/80"
         />
-
         <p :if={@shop.listings == []} id="shop-empty" class="mt-6 text-sm text-base-content/60">
-          The shelves are empty.
+          {dgettext("player", "The shelves are empty.")}
         </p>
 
         <ul id="shop-listings" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -179,10 +190,11 @@ defmodule TannhauserGateWeb.MarketLive do
               />
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-primary">{listing.item.name}</p>
+
                 <p class="text-xs text-base-content/60">
-                  {listing.item.category}
-                  <span :if={listing.item.slot}>· {listing.item.slot}</span>
+                  {listing.item.category} <span :if={listing.item.slot}>· {listing.item.slot}</span>
                 </p>
+
                 <p
                   :if={TannhauserGate.Origins.bonus_label(listing.item.modifiers)}
                   class="text-xs tabular-nums text-secondary"
@@ -190,15 +202,20 @@ defmodule TannhauserGateWeb.MarketLive do
                   {TannhauserGate.Origins.bonus_label(listing.item.modifiers)}
                 </p>
               </div>
+
               <div class="shrink-0 text-right">
                 <p class="font-bold tabular-nums text-primary">
                   {Listing.unit_price(listing)}
                 </p>
+
                 <p id={"shop-stock-#{listing.id}"} class="text-xs text-base-content/60">
-                  {if listing.stock, do: "#{listing.stock} left", else: "In stock"}
+                  {if listing.stock,
+                    do: dgettext("player", "%{stock} left", stock: listing.stock),
+                    else: dgettext("player", "In stock")}
                 </p>
               </div>
             </div>
+
             <.markdown
               :if={listing.item.description}
               content={listing.item.description}
@@ -218,21 +235,22 @@ defmodule TannhauserGateWeb.MarketLive do
                 value="1"
                 min="1"
                 max={listing.stock}
-                aria-label="Quantity"
+                aria-label={dgettext("player", "Quantity")}
                 class="input input-sm w-20"
               />
               <button class="btn btn-sm btn-primary transition hover:scale-105">
-                <.icon name="hero-shopping-cart-micro" class="size-4" /> Buy
+                <.icon name="hero-shopping-cart-micro" class="size-4" /> {dgettext("player", "Buy")}
               </button>
             </.form>
+
             <p :if={listing.stock == 0} class="mt-3 text-right text-xs font-bold text-error">
-              Sold out
+              {dgettext("player", "Sold out")}
             </p>
           </li>
         </ul>
       <% else %>
         <p :if={@shops == []} id="market-empty" class="mt-6 text-sm text-base-content/60">
-          No shops are open yet.
+          {dgettext("player", "No shops are open yet.")}
         </p>
 
         <ul id="market-shops" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -244,9 +262,14 @@ defmodule TannhauserGateWeb.MarketLive do
               <span class="flex items-center gap-2 font-bold uppercase tracking-wider text-primary">
                 <.icon name="hero-building-storefront" class="size-5" /> {shop.name}
               </span>
+
               <span class="text-xs text-base-content/60">
-                <.icon name="hero-map-pin-micro" class="size-3" />
-                {if shop.location, do: shop.location.name, else: "Market"} · {length(shop.listings)} items
+                <.icon name="hero-map-pin-micro" class="size-3" /> {if shop.location,
+                  do: shop.location.name,
+                  else: dgettext("player", "Market")} · {length(shop.listings)} {dgettext(
+                  "player",
+                  "items"
+                )}
               </span>
             </.link>
           </li>

@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Reports")
+     |> assign(:page_title, dgettext("management", "Reports"))
      |> assign(:resolution_form, to_form(%{}, as: :resolution))}
   end
 
@@ -65,13 +65,23 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
            Reports.get_report(story, params["report_id"]) || {:error, :not_found},
          {:ok, report} <- Reports.resolve(user, story, report, params) do
       message =
-        "Report #{Reports.status_label(report.status) |> String.downcase()}" <>
-          if(report.content_deleted, do: ": the content was deleted.", else: ".")
+        dgettext("management", "Report %{value}",
+          value: Reports.status_label(report.status) |> String.downcase()
+        ) <>
+          if(report.content_deleted,
+            do: dgettext("management", ": the content was deleted."),
+            else: "."
+          )
 
       {:noreply, socket |> put_flash(:info, message) |> load_reports()}
     else
       {:error, %Ecto.Changeset{}} ->
-        {:noreply, put_flash(socket, :error, "Pick whether to resolve or dismiss the report.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "Pick whether to resolve or dismiss the report.")
+         )}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Reports.error_message(reason))}
@@ -95,30 +105,35 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Reports
+        {dgettext("management", "Reports")}
         <span
           :if={@open_count > 0}
           id="reports-open-count"
           class="badge badge-warning badge-sm ml-2 align-middle"
         >
-          {@open_count} open
+          {dgettext("management", "%{open_count} open", open_count: @open_count)}
         </span>
+
         <:subtitle>
-          Content flagged by the members. Resolve or dismiss each report; snapshots keep the
-          reported text even if it was deleted.
+          {dgettext(
+            "management",
+            "Content flagged by the members. Resolve or dismiss each report; snapshots keep the reported text even if it was deleted."
+          )}
         </:subtitle>
+
         <:actions>
           <.link
             navigate={~p"/g/#{@current_story}/master/sanctions"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-no-symbol" class="size-4" /> Sanctions
+            <.icon name="hero-no-symbol" class="size-4" /> {dgettext("management", "Sanctions")}
           </.link>
+
           <.link
             navigate={~p"/g/#{@current_story}/master"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-arrow-left" class="size-4" /> Master tools
+            <.icon name="hero-arrow-left" class="size-4" /> {dgettext("management", "Master tools")}
           </.link>
         </:actions>
       </.header>
@@ -132,33 +147,33 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
         <.input
           field={@filter_form[:status]}
           type="select"
-          label="Status"
+          label={dgettext("management", "Status")}
           options={[
-            {"Open", "open"},
-            {"Resolved", "resolved"},
-            {"Dismissed", "dismissed"},
-            {"All", "all"}
+            {dgettext("management", "Open"), "open"},
+            {dgettext("management", "Resolved"), "resolved"},
+            {dgettext("management", "Dismissed"), "dismissed"},
+            {dgettext("management", "All"), "all"}
           ]}
         />
         <.input
           field={@filter_form[:target_type]}
           type="select"
-          label="Content"
-          prompt="Any content"
+          label={dgettext("management", "Content")}
+          prompt={dgettext("management", "Any content")}
           options={Enum.map(Report.target_types(), &{Reports.target_type_label(&1), &1})}
         />
         <.input
           field={@filter_form[:category]}
           type="select"
-          label="Category"
-          prompt="Any category"
+          label={dgettext("management", "Category")}
+          prompt={dgettext("management", "Any category")}
           options={Reports.category_options()}
         />
       </.form>
 
       <p :if={@reports_count == 0} id="reports-empty" class="mt-10 text-center text-base-content/60">
         <.icon name="hero-check-badge" class="size-8 text-success/70" />
-        <br /> No reports here.
+        <br /> {dgettext("management", "No reports here.")}
       </p>
 
       <div id="reports" phx-update="stream" class="mt-6 space-y-4">
@@ -189,9 +204,10 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
           </header>
 
           <p class="mt-2 text-xs text-base-content/60">
-            Reported by <strong>{TannhauserGate.Accounts.User.handle(report.reporter)}</strong>
+            {dgettext("management", "Reported by")}
+            <strong>{TannhauserGate.Accounts.User.handle(report.reporter)}</strong>
             <span :if={report.target_user}>
-              · author
+              {dgettext("management", "· author")}
               <.link
                 navigate={
                   ~p"/g/#{@current_story}/master/sanctions?#{[user_id: report.target_user_id]}"
@@ -212,11 +228,17 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
           </p>
 
           <div :if={report.status != "open"} class="mt-3 text-xs text-base-content/60">
-            {Reports.status_label(report.status)} by {TannhauserGate.Accounts.User.handle(
-              report.handled_by
+            {dgettext("management", "%{reports_status_label_report_status} by %{value}",
+              reports_status_label_report_status: Reports.status_label(report.status),
+              value: TannhauserGate.Accounts.User.handle(report.handled_by)
             )}
-            <span :if={report.handled_at}>on {Calendar.strftime(report.handled_at, "%d %b %Y")}</span>
-            <span :if={report.content_deleted} class="text-error">· content deleted</span>
+            <span :if={report.handled_at}>{dgettext("management", "on %{value}",
+              value: Calendar.strftime(report.handled_at, "%d %b %Y")
+            )}</span>
+            <span :if={report.content_deleted} class="text-error">{dgettext(
+              "management",
+              "· content deleted"
+            )}</span>
             <p :if={report.resolution_notes} class="mt-1 whitespace-pre-line">
               {report.resolution_notes}
             </p>
@@ -236,14 +258,14 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
                 field={@resolution_form[:resolution_notes]}
                 type="textarea"
                 rows="2"
-                label="Resolution notes"
+                label={dgettext("management", "Resolution notes")}
               />
               <.input
                 :if={Reports.deletable?(report)}
                 id={"resolution-delete-#{report.id}"}
                 field={@resolution_form[:delete_content]}
                 type="checkbox"
-                label="Delete the reported content"
+                label={dgettext("management", "Delete the reported content")}
               />
               <div class="flex gap-2">
                 <.button
@@ -252,15 +274,16 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
                   value="resolved"
                   class="btn btn-success btn-sm console-action"
                 >
-                  <.icon name="hero-check" class="size-4" /> Resolve
+                  <.icon name="hero-check" class="size-4" /> {dgettext("management", "Resolve")}
                 </.button>
+
                 <.button
                   id={"dismiss-report-#{report.id}"}
                   name="resolution[status]"
                   value="dismissed"
                   class="btn btn-ghost btn-sm console-action"
                 >
-                  Dismiss
+                  {dgettext("management", "Dismiss")}
                 </.button>
               </div>
             </.form>
@@ -273,7 +296,10 @@ defmodule TannhauserGateWeb.MasterLive.Reports do
               }
               class="btn btn-error btn-outline btn-sm console-action"
             >
-              <.icon name="hero-no-symbol" class="size-4" /> Sanction author
+              <.icon name="hero-no-symbol" class="size-4" /> {dgettext(
+                "management",
+                "Sanction author"
+              )}
             </.link>
           </div>
         </article>

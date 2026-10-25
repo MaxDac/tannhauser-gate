@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Accounts do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The Accounts context.
   """
@@ -265,7 +267,7 @@ defmodule TannhauserGate.Accounts do
       Ecto.Changeset.add_error(
         changeset,
         :password,
-        "must be different from the current password"
+        dgettext_noop("errors", "must be different from the current password")
       )
     else
       changeset

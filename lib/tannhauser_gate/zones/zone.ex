@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Zones.Zone do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A zone groups locations of a GDR and carries a value for each of the
   GDR's zone properties (`values`, property slug => integer).
@@ -36,7 +38,7 @@ defmodule TannhauserGate.Zones.Zone do
     |> unique_constraint([:story_id, :name],
       error_key: :name,
       name: :zones_story_id_name_index,
-      message: "is already used by another zone"
+      message: dgettext_noop("errors", "is already used by another zone")
     )
   end
 
@@ -59,7 +61,12 @@ defmodule TannhauserGate.Zones.Zone do
   defp put_values(parsed, changeset) do
     if Enum.all?(parsed, fn {_, v} -> is_integer(v) and v in -1_000..1_000 end),
       do: put_change(changeset, :values, parsed),
-      else: add_error(changeset, :values, "must be whole numbers between -1000 and 1000")
+      else:
+        add_error(
+          changeset,
+          :values,
+          dgettext_noop("errors", "must be whole numbers between -1000 and 1000")
+        )
   end
 
   defp parse(value) when is_integer(value), do: value

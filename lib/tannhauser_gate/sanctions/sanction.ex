@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Sanctions.Sanction do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A sanction issued by the masters of a GDR to a user: a `warning` (recorded
   and notified only), a `mute` (no posting) or a `ban` (no access). A nil
@@ -47,7 +49,7 @@ defmodule TannhauserGate.Sanctions.Sanction do
 
     validate_change(changeset, :ends_at, fn :ends_at, ends_at ->
       if starts_at && DateTime.compare(ends_at, starts_at) != :gt,
-        do: [ends_at: "must be after the start"],
+        do: [ends_at: dgettext_noop("errors", "must be after the start")],
         else: []
     end)
   end

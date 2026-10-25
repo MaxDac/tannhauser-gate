@@ -1,6 +1,7 @@
 defmodule TannhauserGateWeb.GuildComponents do
   @moduledoc "Components for the guilds module."
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   @doc "A guild emblem, or its initial on a tinted tile when it has none."
   attr :guild, :map, required: true
@@ -13,7 +14,7 @@ defmodule TannhauserGateWeb.GuildComponents do
       :if={@guild.emblem_path}
       id={@id}
       src={@guild.emblem_path}
-      alt={"Emblem of #{@guild.name}"}
+      alt={dgettext("player", "Emblem of %{name}", name: @guild.name)}
       class={["shrink-0 rounded-lg object-cover ring-1 ring-primary/30", @class]}
     />
     <span

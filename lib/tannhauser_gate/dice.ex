@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Dice do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Server-side dice roller, configured per GDR by `TannhauserGate.Dice.Config`.
 
@@ -53,7 +55,7 @@ defmodule TannhauserGate.Dice do
 
     with {:ok, items} <- item_values(character, story, request.items),
          {:ok, result} <- do_roll(config.system, config, request, items, rng, character) do
-      {:ok, Map.put(result, "summary", summary(result))}
+      {:ok, Map.put(result, "summary", stored_summary(result))}
     end
   end
 
@@ -83,7 +85,7 @@ defmodule TannhauserGate.Dice do
           "reroll_tracker" => tracker
         })
 
-      {:ok, Map.put(evaluated, "summary", summary(evaluated))}
+      {:ok, Map.put(evaluated, "summary", stored_summary(evaluated))}
     end
   end
 
@@ -100,24 +102,27 @@ defmodule TannhauserGate.Dice do
   def rerollable?(%Config{} = config, result), do: check_rerollable(config, result) == :ok
 
   @doc "A human readable message for the dice errors."
-  def error_message(:unknown_item), do: "That sheet item does not exist."
-  def error_message(:no_reroll), do: "This GDR has no rerolls."
-  def error_message(:not_a_pool), do: "Only pool rolls can be rerolled."
-  def error_message(:already_rerolled), do: "This roll was already rerolled."
-  def error_message(:nothing_to_reroll), do: "There are no failed dice to reroll."
-  def error_message(:invalid_dice), do: "Those dice cannot be rerolled."
-  def error_message(:not_enough), do: "You do not have enough left to reroll."
-  def error_message(:unauthorized), do: "You cannot reroll this roll."
+  def error_message(:unknown_item), do: dgettext("domain", "That sheet item does not exist.")
+  def error_message(:no_reroll), do: dgettext("domain", "This GDR has no rerolls.")
+  def error_message(:not_a_pool), do: dgettext("domain", "Only pool rolls can be rerolled.")
+  def error_message(:already_rerolled), do: dgettext("domain", "This roll was already rerolled.")
+
+  def error_message(:nothing_to_reroll),
+    do: dgettext("domain", "There are no failed dice to reroll.")
+
+  def error_message(:invalid_dice), do: dgettext("domain", "Those dice cannot be rerolled.")
+  def error_message(:not_enough), do: dgettext("domain", "You do not have enough left to reroll.")
+  def error_message(:unauthorized), do: dgettext("domain", "You cannot reroll this roll.")
   def error_message(message) when is_binary(message), do: message
   def error_message(reason), do: Trackers.error_message(reason)
 
   @doc "Human readable label of an outcome."
-  def outcome_label("critical"), do: "Critical"
-  def outcome_label("messy_critical"), do: "Messy critical"
-  def outcome_label("success"), do: "Success"
-  def outcome_label("failure"), do: "Failure"
-  def outcome_label("bestial_failure"), do: "Bestial failure"
-  def outcome_label("critical_failure"), do: "Critical failure"
+  def outcome_label("critical"), do: dgettext("domain", "Critical")
+  def outcome_label("messy_critical"), do: dgettext("domain", "Messy critical")
+  def outcome_label("success"), do: dgettext("domain", "Success")
+  def outcome_label("failure"), do: dgettext("domain", "Failure")
+  def outcome_label("bestial_failure"), do: dgettext("domain", "Bestial failure")
+  def outcome_label("critical_failure"), do: dgettext("domain", "Critical failure")
   def outcome_label(_), do: nil
 
   ## Expressions
@@ -134,14 +139,14 @@ defmodule TannhauserGate.Dice do
     rebuilt = Enum.map_join(terms, fn [whole | _] -> whole end)
 
     cond do
-      compact == "" -> {:error, "is empty"}
-      rebuilt != compact -> {:error, "must look like 2d6+1"}
-      length(terms) > @max_terms -> {:error, "has too many terms"}
+      compact == "" -> {:error, dgettext("domain", "is empty")}
+      rebuilt != compact -> {:error, dgettext("domain", "must look like 2d6+1")}
+      length(terms) > @max_terms -> {:error, dgettext("domain", "has too many terms")}
       true -> terms |> Enum.map(&parse_term/1) |> collect_terms()
     end
   end
 
-  def parse_expression(_), do: {:error, "is empty"}
+  def parse_expression(_), do: {:error, dgettext("domain", "is empty")}
 
   defp parse_term([_whole, sign, term]) do
     sign = if sign == "-", do: -1, else: 1
@@ -154,15 +159,15 @@ defmodule TannhauserGate.Dice do
   end
 
   defp dice_term(_sign, count, _sides) when count < 1 or count > @max_dice,
-    do: {:error, "can roll 1 to #{@max_dice} dice"}
+    do: {:error, dgettext("domain", "can roll 1 to %{max_dice} dice", max_dice: @max_dice)}
 
   defp dice_term(_sign, _count, sides) when sides < 2 or sides > @max_sides,
-    do: {:error, "dice need 2 to #{@max_sides} sides"}
+    do: {:error, dgettext("domain", "dice need 2 to %{max_sides} sides", max_sides: @max_sides)}
 
   defp dice_term(sign, count, sides), do: {:ok, {:dice, sign, count, sides}}
 
   defp constant_term(_sign, value) when value > @max_value,
-    do: {:error, "numbers cannot exceed #{@max_value}"}
+    do: {:error, dgettext("domain", "numbers cannot exceed %{max_value}", max_value: @max_value)}
 
   defp constant_term(sign, value), do: {:ok, {:constant, sign * value}}
 
@@ -173,7 +178,7 @@ defmodule TannhauserGate.Dice do
 
         if Enum.any?(terms, &match?({:dice, _, _, _}, &1)),
           do: {:ok, terms},
-          else: {:error, "must roll at least one die"}
+          else: {:error, dgettext("domain", "must roll at least one die")}
 
       error ->
         error
@@ -251,7 +256,7 @@ defmodule TannhauserGate.Dice do
   end
 
   defp do_roll(_system, _config, _request, _items, _rng, _character),
-    do: {:error, "Unknown dice system."}
+    do: {:error, dgettext("domain", "Unknown dice system.")}
 
   defp evaluate_pool(config, dice, difficulty) do
     max = config.die_size
@@ -406,17 +411,30 @@ defmodule TannhauserGate.Dice do
 
   ## Summary
 
-  @doc "One line summary of a result, e.g. `Pool 5: 3 successes - Success`."
+  @doc "One-line summary of a structured result in the current locale."
   def summary(%{"system" => "pool"} = result) do
     successes = result["successes"]
-    noun = if successes == 1, do: "success", else: "successes"
-    against = if result["difficulty"], do: " vs #{result["difficulty"]}", else: ""
+    count = dngettext("domain", "%{count} success", "%{count} successes", successes)
 
-    "Pool #{result["pool"]}: #{successes} #{noun}#{against} - #{outcome_label(result["outcome"])}"
+    against =
+      if result["difficulty"],
+        do: dgettext("domain", " vs %{difficulty}", difficulty: result["difficulty"]),
+        else: ""
+
+    dgettext("domain", "Pool %{pool}: %{successes}%{against} - %{outcome}",
+      pool: result["pool"],
+      successes: count,
+      against: against,
+      outcome: outcome_label(result["outcome"])
+    )
   end
 
   def summary(%{"system" => "d20"} = result) do
-    against = if result["difficulty"], do: " vs #{result["difficulty"]}", else: ""
+    against =
+      if result["difficulty"],
+        do: dgettext("domain", " vs %{difficulty}", difficulty: result["difficulty"]),
+        else: ""
+
     outcome = outcome_label(result["outcome"])
 
     "d20 (#{result["natural"]}) = #{result["total"]}#{against}" <>
@@ -424,7 +442,11 @@ defmodule TannhauserGate.Dice do
   end
 
   def summary(%{"system" => "expression"} = result) do
-    against = if result["difficulty"], do: " vs #{result["difficulty"]}", else: ""
+    against =
+      if result["difficulty"],
+        do: dgettext("domain", " vs %{difficulty}", difficulty: result["difficulty"]),
+        else: ""
+
     outcome = outcome_label(result["outcome"])
 
     "#{result["expression"]} = #{result["total"]}#{against}" <>
@@ -432,6 +454,11 @@ defmodule TannhauserGate.Dice do
   end
 
   def summary(_), do: ""
+
+  # Persist source-language summaries; each viewer localizes the structured result.
+  defp stored_summary(result) do
+    Gettext.with_locale(TannhauserGateWeb.Gettext, "en", fn -> summary(result) end)
+  end
 
   ## Request
 

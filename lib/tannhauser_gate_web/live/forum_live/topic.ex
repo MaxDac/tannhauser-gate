@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
     else
       {:ok,
        socket
-       |> put_flash(:error, "That topic does not exist in this GDR.")
+       |> put_flash(:error, dgettext("player", "That topic does not exist in this GDR."))
        |> push_navigate(to: ~p"/g/#{story}/forum")}
     end
   end
@@ -75,7 +75,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
          )}
 
       {:error, :locked} ->
-        {:noreply, put_flash(socket, :error, "This topic is locked.")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "This topic is locked."))}
 
       {:error, :muted} ->
         {:noreply,
@@ -86,7 +86,8 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
          )}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "You cannot write in this section.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "You cannot write in this section."))}
     end
   end
 
@@ -100,7 +101,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
        |> assign(:edit_form, to_form(%{"body" => post.body}, as: "edit"))
        |> stream_insert(:posts, post)}
     else
-      _ -> {:noreply, put_flash(socket, :error, "You cannot edit that post.")}
+      _ -> {:noreply, put_flash(socket, :error, dgettext("player", "You cannot edit that post."))}
     end
   end
 
@@ -119,7 +120,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
        socket
        |> assign(:editing_post_id, nil)
        |> assign(:edit_form, nil)
-       |> put_flash(:info, "Post updated")
+       |> put_flash(:info, dgettext("player", "Post updated"))
        |> stream_insert(:posts, updated)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -131,7 +132,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         {:noreply, put_flash(socket, :error, TannhauserGate.Sanctions.muted_message(user, story))}
 
       _ ->
-        {:noreply, put_flash(socket, :error, "You cannot edit that post.")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "You cannot edit that post."))}
     end
   end
 
@@ -142,7 +143,8 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
          {:ok, _} <- Forum.delete_post(user, story, post) do
       {:noreply, stream_delete(socket, :posts, post)}
     else
-      _ -> {:noreply, put_flash(socket, :error, "You cannot delete that post.")}
+      _ ->
+        {:noreply, put_flash(socket, :error, dgettext("player", "You cannot delete that post."))}
     end
   end
 
@@ -156,7 +158,8 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
          assign(socket, :topic, %{topic | locked: updated.locked, pinned: updated.pinned})}
 
       _ ->
-        {:noreply, put_flash(socket, :error, "Only the GDR masters can do that.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "Only the GDR masters can do that."))}
     end
   end
 
@@ -191,7 +194,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         {:noreply, put_flash(socket, :error, TannhauserGate.Sanctions.muted_message(user, story))}
 
       _ ->
-        {:noreply, put_flash(socket, :error, "You cannot edit this topic.")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "You cannot edit this topic."))}
     end
   end
 
@@ -202,11 +205,11 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Topic deleted")
+         |> put_flash(:info, dgettext("player", "Topic deleted"))
          |> push_navigate(to: ~p"/g/#{story}/forum/sections/#{topic.section_id}")}
 
       _ ->
-        {:noreply, put_flash(socket, :error, "You cannot delete this topic.")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "You cannot delete this topic."))}
     end
   end
 
@@ -259,13 +262,16 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       <.header>
         <span class="flex flex-wrap items-center gap-2">
           <.icon :if={@topic.pinned} name="hero-bookmark-solid" class="size-5 text-secondary" />
-          <.icon :if={@topic.locked} name="hero-lock-closed-solid" class="size-5 text-warning" />
-          {@topic.title}
+          <.icon :if={@topic.locked} name="hero-lock-closed-solid" class="size-5 text-warning" /> {@topic.title}
           <Index.section_badges section={@topic.section} />
         </span>
+
         <:subtitle>
-          Started by {Forum.author_name(@topic)} · {format_time(@topic.inserted_at)}
+          {dgettext("player", "Started by")} {Forum.author_name(@topic)} · {format_time(
+            @topic.inserted_at
+          )}
         </:subtitle>
+
         <:actions>
           <div class="flex flex-wrap gap-2">
             <button
@@ -277,9 +283,10 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               class="btn btn-ghost btn-xs console-action"
             >
               <.icon name="hero-bookmark" class="size-3" /> {if @topic.pinned,
-                do: "Unpin",
-                else: "Pin"}
+                do: dgettext("player", "Unpin"),
+                else: dgettext("player", "Pin")}
             </button>
+
             <button
               :if={@moderator?}
               id="toggle-lock"
@@ -288,9 +295,11 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               phx-value-flag="locked"
               class="btn btn-ghost btn-xs console-action"
             >
-              <.icon name="hero-lock-closed" class="size-3" />
-              {if @topic.locked, do: "Unlock", else: "Lock"}
+              <.icon name="hero-lock-closed" class="size-3" /> {if @topic.locked,
+                do: dgettext("player", "Unlock"),
+                else: dgettext("player", "Lock")}
             </button>
+
             <button
               :if={can_edit?(@topic, @current_user, @moderator?)}
               id="edit-topic"
@@ -298,17 +307,18 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               phx-click="edit_topic"
               class="btn btn-ghost btn-xs console-action"
             >
-              <.icon name="hero-pencil" class="size-3" /> Rename
+              <.icon name="hero-pencil" class="size-3" /> {dgettext("player", "Rename")}
             </button>
+
             <button
               :if={can_edit?(@topic, @current_user, @moderator?)}
               id="delete-topic"
               type="button"
               phx-click="delete_topic"
-              data-confirm="Delete this topic and all its posts?"
+              data-confirm={dgettext("player", "Delete this topic and all its posts?")}
               class="btn btn-ghost btn-xs text-error console-action"
             >
-              <.icon name="hero-trash" class="size-3" /> Delete topic
+              <.icon name="hero-trash" class="size-3" /> {dgettext("player", "Delete topic")}
             </button>
           </div>
         </:actions>
@@ -322,10 +332,18 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         class="mt-4 flex max-w-2xl items-end gap-2"
       >
         <div class="flex-1">
-          <.input field={@title_form[:title]} type="text" label="Title" required />
+          <.input
+            field={@title_form[:title]}
+            type="text"
+            label={dgettext("player", "Title")}
+            required
+          />
         </div>
-        <.button variant="primary" class="mb-2">Save</.button>
-        <button type="button" phx-click="cancel_topic" class="btn btn-ghost mb-2">Cancel</button>
+        <.button variant="primary" class="mb-2">{dgettext("player", "Save")}</.button>
+        <button type="button" phx-click="cancel_topic" class="btn btn-ghost mb-2">{dgettext(
+          "player",
+          "Cancel"
+        )}</button>
       </.form>
 
       <ol id="forum-posts" phx-update="stream" class="mt-8 space-y-4">
@@ -338,8 +356,9 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
             <span>
               <span class="font-bold text-secondary">{Forum.author_name(post)}</span>
               · {format_time(post.inserted_at)}
-              <span :if={post.edited_at} class="italic">· edited</span>
+              <span :if={post.edited_at} class="italic">{dgettext("player", "· edited")}</span>
             </span>
+
             <.report_link
               :if={@reports? and post.user_id != @current_user.id}
               id={"report-post-#{post.id}"}
@@ -357,26 +376,37 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
                 phx-value-id={post.id}
                 class="console-link-action hover:text-primary hover:underline"
               >
-                Edit
+                {dgettext("player", "Edit")}
               </button>
+
               <button
                 id={"delete-post-#{post.id}"}
                 type="button"
                 phx-click="delete_post"
                 phx-value-id={post.id}
-                data-confirm="Delete this post?"
+                data-confirm={dgettext("player", "Delete this post?")}
                 class="console-link-action text-error hover:underline"
               >
-                Delete
+                {dgettext("player", "Delete")}
               </button>
             </span>
           </div>
+
           <%= if @editing_post_id == post.id do %>
             <.form for={@edit_form} id={"edit-post-form-#{post.id}"} phx-submit="save_post">
-              <.input field={@edit_form[:body]} type="textarea" label="Edit post" rows="4" required />
+              <.input
+                field={@edit_form[:body]}
+                type="textarea"
+                label={dgettext("player", "Edit post")}
+                rows="4"
+                required
+              />
               <div class="mt-2 flex gap-2">
-                <.button variant="primary">Save</.button>
-                <button type="button" phx-click="cancel_edit" class="btn btn-ghost">Cancel</button>
+                <.button variant="primary">{dgettext("player", "Save")}</.button>
+                <button type="button" phx-click="cancel_edit" class="btn btn-ghost">{dgettext(
+                  "player",
+                  "Cancel"
+                )}</button>
               </div>
             </.form>
           <% else %>
@@ -386,21 +416,32 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       </ol>
 
       <div class="mt-8 max-w-3xl rounded-xl border border-secondary/20 bg-base-200/80 p-6">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Reply</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("player", "Reply")}
+        </h2>
+
         <p
           :if={!can_reply?(@topic, @master?)}
           id="topic-locked"
           class="mt-3 text-sm text-base-content/70"
         >
-          <.icon name="hero-lock-closed" class="size-4" /> This topic is locked.
+          <.icon name="hero-lock-closed" class="size-4" /> {dgettext(
+            "player",
+            "This topic is locked."
+          )}
         </p>
+
         <p
           :if={can_reply?(@topic, @master?) and @topic.section.on_game and @characters == []}
           id="forum-no-character"
           class="mt-3 text-sm text-base-content/70"
         >
-          This section is on game: you need a character that can play to write here.
+          {dgettext(
+            "player",
+            "This section is on game: you need a character that can play to write here."
+          )}
         </p>
+
         <.form
           :if={can_reply?(@topic, @master?) and (!@topic.section.on_game or @characters != [])}
           for={@form}
@@ -411,12 +452,21 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
             :if={@topic.section.on_game}
             field={@form[:character_id]}
             type="select"
-            label="Write as"
+            label={dgettext("player", "Write as")}
             options={@characters}
           />
-          <.input field={@form[:body]} type="textarea" label="Your post" rows="4" required />
+          <.input
+            field={@form[:body]}
+            type="textarea"
+            label={dgettext("player", "Your post")}
+            rows="4"
+            required
+          />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Posting...">Post reply</.button>
+            <.button phx-disable-with={dgettext("player", "Posting...")}>{dgettext(
+              "player",
+              "Post reply"
+            )}</.button>
           </div>
         </.form>
       </div>

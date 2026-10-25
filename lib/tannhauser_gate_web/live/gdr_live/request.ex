@@ -10,7 +10,7 @@ defmodule TannhauserGateWeb.GdrLive.Request do
 
     {:ok,
      socket
-     |> assign(:page_title, "My GDR")
+     |> assign(:page_title, dgettext("player", "My GDR"))
      |> assign(:story, Stories.get_owned_story(user))
      |> assign(:latest, GdrRequests.latest_request(user))
      |> assign(:form, to_form(GdrRequests.change_request(%GdrRequest{})))}
@@ -29,7 +29,7 @@ defmodule TannhauserGateWeb.GdrLive.Request do
       {:ok, request} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Request sent. An admin will review it.")
+         |> put_flash(:info, dgettext("player", "Request sent. An admin will review it."))
          |> assign(:latest, request)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -40,9 +40,9 @@ defmodule TannhauserGateWeb.GdrLive.Request do
     end
   end
 
-  defp message(:not_gm), do: "Only game masters can request a GDR."
-  defp message(:already_has_gdr), do: "You already run a GDR."
-  defp message(:pending), do: "You already have a pending request."
+  defp message(:not_gm), do: dgettext("player", "Only game masters can request a GDR.")
+  defp message(:already_has_gdr), do: dgettext("player", "You already run a GDR.")
+  defp message(:pending), do: dgettext("player", "You already have a pending request.")
 
   @impl true
   def render(assigns) do
@@ -57,8 +57,10 @@ defmodule TannhauserGateWeb.GdrLive.Request do
       story_role={@story_role}
     >
       <.header>
-        My GDR
-        <:subtitle>Game masters run one GDR each, approved by an admin.</:subtitle>
+        {dgettext("player", "My GDR")}
+        <:subtitle>
+          {dgettext("player", "Game masters run one GDR each, approved by an admin.")}
+        </:subtitle>
       </.header>
 
       <div class="mt-6 max-w-2xl">
@@ -69,10 +71,12 @@ defmodule TannhauserGateWeb.GdrLive.Request do
         >
           <p class="text-lg font-bold text-primary">{@story.name}</p>
 
-          <p class="mt-1 text-sm text-base-content/70">Status: {@story.status}</p>
+          <p class="mt-1 text-sm text-base-content/70">
+            {dgettext("player", "Status:")} {story_status_label(@story.status)}
+          </p>
 
           <.button id="open-dashboard" navigate={~p"/g/#{@story}/gm"} class="mt-4">
-            Open GM dashboard
+            {dgettext("player", "Open GM dashboard")}
           </.button>
         </div>
 
@@ -81,7 +85,7 @@ defmodule TannhauserGateWeb.GdrLive.Request do
           id="not-gm"
           class="rounded-lg border border-dashed border-secondary/30 p-6 text-base-content/70"
         >
-          You are not a game master. Ask an admin to grant you the GM role.
+          {dgettext("player", "You are not a game master. Ask an admin to grant you the GM role.")}
         </p>
 
         <div
@@ -89,7 +93,9 @@ defmodule TannhauserGateWeb.GdrLive.Request do
           id="request-pending"
           class="rounded-lg border border-secondary/30 p-6"
         >
-          Your request for "{@latest.name}" is waiting for an admin.
+          {dgettext("player", "Your request for \"%{name}\" is waiting for an admin.",
+            name: @latest.name
+          )}
         </div>
 
         <p
@@ -97,7 +103,9 @@ defmodule TannhauserGateWeb.GdrLive.Request do
           id="request-rejected"
           class="mb-4 text-error"
         >
-          Your last request ("{@latest.name}") was rejected. You can send a new one.
+          {dgettext("player", "Your last request (\"%{name}\") was rejected. You can send a new one.",
+            name: @latest.name
+          )}
         </p>
 
         <div
@@ -105,13 +113,25 @@ defmodule TannhauserGateWeb.GdrLive.Request do
           class="rounded-xl border border-secondary/20 bg-base-200/80 p-6"
         >
           <.form for={@form} id="gdr-request-form" phx-change="validate" phx-submit="save">
-            <.input field={@form[:name]} type="text" label="GDR name" required />
-            <.input field={@form[:pitch]} type="textarea" label="Pitch" rows="6" />
-            <.button phx-disable-with="Sending...">Request my GDR</.button>
+            <.input field={@form[:name]} type="text" label={dgettext("player", "GDR name")} required />
+            <.input
+              field={@form[:pitch]}
+              type="textarea"
+              label={dgettext("player", "Pitch")}
+              rows="6"
+            />
+            <.button phx-disable-with={dgettext("player", "Sending...")}>{dgettext(
+              "player",
+              "Request my GDR"
+            )}</.button>
           </.form>
         </div>
       </div>
     </Layouts.app>
     """
   end
+
+  defp story_status_label("draft"), do: dgettext("player", "draft")
+  defp story_status_label("published"), do: dgettext("player", "published")
+  defp story_status_label(status), do: status
 end

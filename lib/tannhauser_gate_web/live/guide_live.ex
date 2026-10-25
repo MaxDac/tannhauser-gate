@@ -7,7 +7,9 @@ defmodule TannhauserGateWeb.GuideLive do
   @impl true
   def mount(_params, _session, socket) do
     story = socket.assigns.current_story
-    {:ok, assign(socket, sections: Guide.list_sections(story), page_title: "Guide")}
+
+    {:ok,
+     assign(socket, sections: Guide.list_sections(story), page_title: dgettext("player", "Guide"))}
   end
 
   @impl true
@@ -44,11 +46,16 @@ defmodule TannhauserGateWeb.GuideLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Guide
-        <:subtitle>The world of {@current_story.name}: its background, rules and customs.</:subtitle>
+        {dgettext("player", "Guide")}
+        <:subtitle>
+          {dgettext("player", "The world of %{name}: its background, rules and customs.",
+            name: @current_story.name
+          )}
+        </:subtitle>
+
         <:actions :if={TannhauserGate.Stories.admin_role?(@story_role)}>
           <.button id="guide-edit-link" navigate={~p"/g/#{@current_story}/gm/guide"}>
-            <.icon name="hero-pencil-square" class="size-4" /> Edit the guide
+            <.icon name="hero-pencil-square" class="size-4" /> {dgettext("player", "Edit the guide")}
           </.button>
         </:actions>
       </.header>
@@ -58,7 +65,7 @@ defmodule TannhauserGateWeb.GuideLive do
         id="guide-empty"
         class="mt-8 rounded-md border border-secondary/20 p-6 text-center text-base-content/60"
       >
-        The guide of this GDR is still being written.
+        {dgettext("player", "The guide of this GDR is still being written.")}
       </p>
 
       <div :if={@page} class="mt-8 grid gap-8 lg:grid-cols-[16rem_1fr]">

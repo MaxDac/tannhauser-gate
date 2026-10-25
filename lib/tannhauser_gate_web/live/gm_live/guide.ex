@@ -11,7 +11,7 @@ defmodule TannhauserGateWeb.GmLive.Guide do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> reload()
      |> edit_section(%Section{})
      |> assign(page: nil, page_form: nil, preview: "")}
@@ -44,7 +44,10 @@ defmodule TannhauserGateWeb.GmLive.Guide do
     case result do
       {:ok, _} ->
         {:noreply,
-         socket |> put_flash(:info, "Section saved.") |> reload() |> edit_section(%Section{})}
+         socket
+         |> put_flash(:info, dgettext("management", "Section saved."))
+         |> reload()
+         |> edit_section(%Section{})}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :section_form, to_form(changeset))}
@@ -62,7 +65,7 @@ defmodule TannhauserGateWeb.GmLive.Guide do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Section deleted.")
+     |> put_flash(:info, dgettext("management", "Section deleted."))
      |> reload()
      |> edit_section(%Section{})
      |> assign(page: nil, page_form: nil)}
@@ -99,7 +102,11 @@ defmodule TannhauserGateWeb.GmLive.Guide do
 
     case result do
       {:ok, page} ->
-        {:noreply, socket |> put_flash(:info, "Page saved.") |> reload() |> edit_page(page)}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Page saved."))
+         |> reload()
+         |> edit_page(page)}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :page_form, to_form(changeset))}
@@ -110,7 +117,10 @@ defmodule TannhauserGateWeb.GmLive.Guide do
     {:ok, _} = story(socket) |> Guide.get_page!(id) |> Guide.delete_page()
 
     {:noreply,
-     socket |> put_flash(:info, "Page deleted.") |> reload() |> assign(page: nil, page_form: nil)}
+     socket
+     |> put_flash(:info, dgettext("management", "Page deleted."))
+     |> reload()
+     |> assign(page: nil, page_form: nil)}
   end
 
   defp pages(socket, section_id) do
@@ -136,34 +146,48 @@ defmodule TannhauserGateWeb.GmLive.Guide do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="guide" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="guide" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[22rem_1fr]">
         <section id="guide-sections" class="space-y-4">
           <div class="rounded-xl border border-secondary/20 bg-base-200/80 p-4">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @section.id, do: "Edit section", else: "New section"}
+              {if @section.id,
+                do: dgettext("management", "Edit section"),
+                else: dgettext("management", "New section")}
             </h2>
+
             <.form for={@section_form} id="section-form" phx-submit="save_section" class="mt-2">
-              <.input field={@section_form[:title]} type="text" label="Title" required />
-              <.input field={@section_form[:position]} type="number" label="Position" min="0" />
+              <.input
+                field={@section_form[:title]}
+                type="text"
+                label={dgettext("management", "Title")}
+                required
+              />
+              <.input
+                field={@section_form[:position]}
+                type="number"
+                label={dgettext("management", "Position")}
+                min="0"
+              />
               <div class="flex gap-2">
-                <.button id="save-section" phx-disable-with="Saving...">Save section</.button>
+                <.button id="save-section" phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+                  "management",
+                  "Save section"
+                )}</.button>
                 <.button
                   :if={@section.id}
                   type="button"
                   id="cancel-section"
                   phx-click="cancel_section"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
           </div>
 
           <p :if={@sections == []} id="guide-sections-empty" class="text-sm text-base-content/60">
-            The guide is empty: add a section, then its pages.
+            {dgettext("management", "The guide is empty: add a section, then its pages.")}
           </p>
 
           <div
@@ -173,28 +197,31 @@ defmodule TannhauserGateWeb.GmLive.Guide do
           >
             <div class="flex items-center justify-between gap-2">
               <h3 class="font-semibold text-primary">{section.title}</h3>
+
               <div class="flex gap-1">
                 <button
                   id={"edit-section-#{section.id}"}
                   phx-click="edit_section"
                   phx-value-id={section.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-secondary"
-                  title="Edit section"
+                  title={dgettext("management", "Edit section")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-section-#{section.id}"}
                   phx-click="delete_section"
                   phx-value-id={section.id}
-                  data-confirm="Delete this section and all its pages?"
+                  data-confirm={dgettext("management", "Delete this section and all its pages?")}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-error"
-                  title="Delete section"
+                  title={dgettext("management", "Delete section")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
               </div>
             </div>
+
             <ul class="mt-2 space-y-1">
               <li
                 :for={page <- section.pages}
@@ -212,25 +239,27 @@ defmodule TannhauserGateWeb.GmLive.Guide do
                 >
                   {page.title}
                 </button>
+
                 <button
                   id={"delete-page-#{page.id}"}
                   phx-click="delete_page"
                   phx-value-id={page.id}
-                  data-confirm="Delete this page?"
+                  data-confirm={dgettext("management", "Delete this page?")}
                   class="text-base-content/50 transition-colors hover:text-error"
-                  title="Delete page"
+                  title={dgettext("management", "Delete page")}
                 >
                   <.icon name="hero-x-mark" class="size-4" />
                 </button>
               </li>
             </ul>
+
             <button
               id={"new-page-#{section.id}"}
               phx-click="new_page"
               phx-value-section-id={section.id}
               class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-secondary transition-colors hover:text-primary"
             >
-              <.icon name="hero-plus" class="size-3" /> Add page
+              <.icon name="hero-plus" class="size-3" /> {dgettext("management", "Add page")}
             </button>
           </div>
         </section>
@@ -241,7 +270,10 @@ defmodule TannhauserGateWeb.GmLive.Guide do
             id="guide-editor-empty"
             class="rounded-xl border border-dashed border-secondary/30 p-8 text-center text-sm text-base-content/60"
           >
-            Pick a page to edit, or add one to a section. Pages are written in Markdown.
+            {dgettext(
+              "management",
+              "Pick a page to edit, or add one to a section. Pages are written in Markdown."
+            )}
           </div>
 
           <div :if={@page_form} class="grid gap-6 2xl:grid-cols-2">
@@ -255,26 +287,45 @@ defmodule TannhauserGateWeb.GmLive.Guide do
                 <.input
                   field={@page_form[:section_id]}
                   type="select"
-                  label="Section"
+                  label={dgettext("management", "Section")}
                   options={Enum.map(@sections, &{&1.title, &1.id})}
                 />
-                <.input field={@page_form[:title]} type="text" label="Title" required />
-                <.input field={@page_form[:position]} type="number" label="Position" min="0" />
+                <.input
+                  field={@page_form[:title]}
+                  type="text"
+                  label={dgettext("management", "Title")}
+                  required
+                />
+                <.input
+                  field={@page_form[:position]}
+                  type="number"
+                  label={dgettext("management", "Position")}
+                  min="0"
+                />
                 <.input
                   field={@page_form[:body]}
                   type="textarea"
-                  label="Content (Markdown)"
+                  label={dgettext("management", "Content (Markdown)")}
                   rows="18"
                   phx-debounce="300"
                 />
                 <div class="flex gap-2">
-                  <.button id="save-page" phx-disable-with="Saving...">Save page</.button>
-                  <.button type="button" id="cancel-page" phx-click="cancel_page">Close</.button>
+                  <.button id="save-page" phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+                    "management",
+                    "Save page"
+                  )}</.button>
+                  <.button type="button" id="cancel-page" phx-click="cancel_page">{dgettext(
+                    "management",
+                    "Close"
+                  )}</.button>
                 </div>
               </.form>
             </div>
+
             <div class="rounded-xl border border-secondary/20 bg-base-200/50 p-4">
-              <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">Preview</h2>
+              <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+                {dgettext("management", "Preview")}
+              </h2>
               <.markdown id="page-preview" content={@preview} class="mt-3" />
             </div>
           </div>

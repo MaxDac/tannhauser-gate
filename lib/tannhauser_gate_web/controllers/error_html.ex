@@ -19,6 +19,10 @@ defmodule TannhauserGateWeb.ErrorHTML do
   # the template name. For example, "404.html" becomes
   # "Not Found".
   def render(template, _assigns) do
-    Phoenix.Controller.status_message_from_template(template)
+    case Phoenix.Controller.status_message_from_template(template) do
+      "Not Found" -> dgettext("shared", "Not Found")
+      "Internal Server Error" -> dgettext("shared", "Internal Server Error")
+      message -> message
+    end
   end
 end

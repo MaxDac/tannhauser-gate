@@ -11,7 +11,7 @@ defmodule TannhauserGateWeb.PageController do
 
   def terms(conn, _params) do
     conn
-    |> assign(:page_title, "Terms and disclaimer")
+    |> assign(:page_title, dgettext("shared", "Terms and disclaimer"))
     |> render(:terms)
   end
 end

@@ -1,0 +1,403 @@
+msgid ""
+msgstr ""
+"Language: pt_PT\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, elixir-format
+msgid "Make it your world"
+msgstr "Cria o teu mundo"
+
+#, elixir-format
+msgid "Eight identities, one design system. Every preset is available to every GDR."
+msgstr "Oito identidades, um sistema de design. Todos os temas estão disponíveis para cada jogo."
+
+#, elixir-format
+msgid "Preset"
+msgstr "Tema predefinido"
+
+#, elixir-format
+msgid "Corners"
+msgstr "Cantos"
+
+#, elixir-format
+msgid "Density"
+msgstr "Densidade"
+
+#, elixir-format
+msgid "Effects"
+msgstr "Efeitos"
+
+#, elixir-format
+msgid "Use preset default"
+msgstr "Usar a predefinição do tema"
+
+#, elixir-format
+msgid "Custom colours"
+msgstr "Cores personalizadas"
+
+#, elixir-format
+msgid "Optional hex overrides"
+msgstr "Valores hexadecimais opcionais"
+
+#, elixir-format
+msgid "Leave a field empty to inherit the preset. Button text adjusts to the chosen colour."
+msgstr "Deixa um campo vazio para usar a predefinição do tema. O texto dos botões adapta-se à cor escolhida."
+
+#, elixir-format
+msgid "Changes below are a preview until you save."
+msgstr "As alterações abaixo são uma pré-visualização até guardares."
+
+#, elixir-format
+msgid "Reset to preset"
+msgstr "Repor a predefinição"
+
+#, elixir-format
+msgid "Saving..."
+msgstr "A guardar..."
+
+#, elixir-format
+msgid "Save theme"
+msgstr "Guardar tema"
+
+#, elixir-format
+msgid "Unsaved appearance preview"
+msgstr "Pré-visualização do aspeto por guardar"
+
+#, elixir-format
+msgid "Live preview"
+msgstr "Pré-visualização em tempo real"
+
+#, elixir-format
+msgid "Not saved"
+msgstr "Por guardar"
+
+#, elixir-format
+msgid "Primary action"
+msgstr "Ação principal"
+
+#, elixir-format
+msgid "Secondary"
+msgstr "Secundária"
+
+#, elixir-format
+msgid "Quiet action"
+msgstr "Ação discreta"
+
+#, elixir-format
+msgid "Destructive"
+msgstr "Destrutiva"
+
+#, elixir-format
+msgid "Unavailable"
+msgstr "Indisponível"
+
+#, elixir-format
+msgid "Character name"
+msgstr "Nome da personagem"
+
+#, elixir-format
+msgid "Message type"
+msgstr "Tipo de mensagem"
+
+#, elixir-format
+msgid "In character"
+msgstr "Dentro da personagem"
+
+#, elixir-format
+msgid "Whisper"
+msgstr "Sussurro"
+
+#, elixir-format
+msgid "Show action tags"
+msgstr "Mostrar etiquetas de ação"
+
+#, elixir-format
+msgid "Validation example"
+msgstr "Exemplo de validação"
+
+#, elixir-format
+msgid "Choose a valid value"
+msgstr "Escolhe um valor válido"
+
+#, elixir-format
+msgid "Message"
+msgstr "Mensagem"
+
+#, elixir-format
+msgid "Let the scene unfold..."
+msgstr "Deixa a cena desenrolar-se..."
+
+#, elixir-format
+msgid "Send message"
+msgstr "Enviar mensagem"
+
+#, elixir-format
+msgid "Actions"
+msgstr "Ações"
+
+#, elixir-format
+msgid "You are now playing %{name}."
+msgstr "Estás agora a jogar com %{name}."
+
+#, elixir-format
+msgid "That character is not yours."
+msgstr "Essa personagem não é tua."
+
+#, elixir-format
+msgid "New message from %{sender}: %{subject}"
+msgstr "Nova mensagem de %{sender}: %{subject}"
+
+#, elixir-format
+msgid "Not Found"
+msgstr "Página não encontrada"
+
+#, elixir-format
+msgid "Internal Server Error"
+msgstr "Erro interno do servidor"
+
+#, elixir-format
+msgid "Support on Ko-fi"
+msgstr "Apoiar no Ko-fi"
+
+#, elixir-format
+msgid "(opens in a new tab)"
+msgstr "(abre num novo separador)"
+
+#, elixir-format
+msgid "Language"
+msgstr "Idioma"
+
+#, elixir-format
+msgid "Change language"
+msgstr "Alterar idioma"
+
+#, elixir-format
+msgid "close"
+msgstr "fechar"
+
+#, elixir-format
+msgid "Toggle navigation"
+msgstr "Mostrar ou ocultar a navegação"
+
+#, elixir-format
+msgid "Return to chat: %{name}"
+msgstr "Voltar à conversa: %{name}"
+
+#, elixir-format
+msgid "Open navigation"
+msgstr "Abrir navegação"
+
+#, elixir-format
+msgid "Close navigation"
+msgstr "Fechar navegação"
+
+#, elixir-format
+msgid "Return to chat"
+msgstr "Voltar à conversa"
+
+#, elixir-format
+msgid "Sections"
+msgstr "Secções"
+
+#, elixir-format
+msgid "GDRs"
+msgstr "Jogos de interpretação"
+
+#, elixir-format
+msgid "My GDR"
+msgstr "O meu jogo"
+
+#, elixir-format
+msgid "Home"
+msgstr "Início"
+
+#, elixir-format
+msgid "Unread announcements"
+msgstr "Anúncios por ler"
+
+#, elixir-format
+msgid "Characters"
+msgstr "Personagens"
+
+#, elixir-format
+msgid "Map"
+msgstr "Mapa"
+
+#, elixir-format
+msgid "Guide"
+msgstr "Guia"
+
+#, elixir-format
+msgid "Forum"
+msgstr "Fórum"
+
+#, elixir-format
+msgid "Mail"
+msgstr "Correio"
+
+#, elixir-format
+msgid "Bank"
+msgstr "Banco"
+
+#, elixir-format
+msgid "Jobs"
+msgstr "Empregos"
+
+#, elixir-format
+msgid "Market"
+msgstr "Mercado"
+
+#, elixir-format
+msgid "Guilds"
+msgstr "Guildas"
+
+#, elixir-format
+msgid "Esiti"
+msgstr "Pedidos de ação"
+
+#, elixir-format
+msgid "Quests"
+msgstr "Missões"
+
+#, elixir-format
+msgid "Notice boards"
+msgstr "Quadros de avisos"
+
+#, elixir-format
+msgid "Master tools"
+msgstr "Ferramentas de narração"
+
+#, elixir-format
+msgid "GM dashboard"
+msgstr "Painel do mestre de jogo"
+
+#, elixir-format
+msgid "Community"
+msgstr "Comunidade"
+
+#, elixir-format
+msgid "All GDRs"
+msgstr "Todos os jogos"
+
+#, elixir-format
+msgid "Admin"
+msgstr "Administração"
+
+#, elixir-format
+msgid "Online"
+msgstr "Online"
+
+#, elixir-format
+msgid "Settings"
+msgstr "Definições"
+
+#, elixir-format
+msgid "Log out"
+msgstr "Terminar sessão"
+
+#, elixir-format
+msgid "Playing as"
+msgstr "A jogar como"
+
+#, elixir-format
+msgid "Your status"
+msgstr "O teu estado"
+
+#, elixir-format
+msgid "We can't find the internet"
+msgstr "Não foi possível ligar à Internet"
+
+#, elixir-format
+msgid "Something went wrong!"
+msgstr "Algo correu mal!"
+
+#, elixir-format
+msgid "Attempting to reconnect"
+msgstr "A tentar restabelecer a ligação"
+
+#, elixir-format
+msgid "Open esiti"
+msgstr "Pedidos abertos"
+
+#, elixir-format
+msgid "Please choose a new password before continuing."
+msgstr "Escolhe uma nova palavra-passe antes de continuar."
+
+#, elixir-format
+msgid "Email features are currently disabled."
+msgstr "As funcionalidades de correio eletrónico estão desativadas."
+
+#, elixir-format
+msgid "You must log in to access this page."
+msgstr "Tens de iniciar sessão para aceder a esta página."
+
+#, elixir-format
+msgid "Admins only."
+msgstr "Apenas para administradores."
+
+#, elixir-format
+msgid "You are banned from %{story} %{until}. Reason: %{reason}"
+msgstr "Foste banido de %{story} %{until}. Motivo: %{reason}"
+
+#, elixir-format
+msgid "That GDR does not exist or is not open."
+msgstr "Esse jogo não existe ou não está aberto."
+
+#, elixir-format
+msgid "Only the GDR admin can do that."
+msgstr "Só o administrador do jogo pode fazer isso."
+
+#, elixir-format
+msgid "That feature is not enabled in this GDR."
+msgstr "Essa funcionalidade não está ativada neste jogo."
+
+#, elixir-format
+msgid "Only the GDR masters can do that."
+msgstr "Só os narradores do jogo podem fazer isso."
+
+#, elixir-format
+msgid "You don't have the permission to use that tool."
+msgstr "Não tens permissão para utilizar essa ferramenta."
+
+#, elixir-format
+msgid "Account created successfully!"
+msgstr "Conta criada com sucesso!"
+
+#, elixir-format
+msgid "Password updated successfully!"
+msgstr "Palavra-passe atualizada com sucesso!"
+
+#, elixir-format
+msgid "Welcome back!"
+msgstr "Bem-vindo de volta!"
+
+#, elixir-format
+msgid "Invalid username or password"
+msgstr "Nome de utilizador ou palavra-passe inválidos"
+
+#, elixir-format
+msgid "Logged out successfully."
+msgstr "Sessão terminada com sucesso."
+
+#, elixir-format
+msgid "Terms and disclaimer"
+msgstr "Termos e exoneração de responsabilidade"
+
+#, elixir-format
+msgid "%{count} unread announcement"
+msgid_plural "%{count} unread announcements"
+msgstr[0] "%{count} anúncio por ler"
+msgstr[1] "%{count} anúncios por ler"
+
+#, elixir-format
+msgid "%{count} unread"
+msgid_plural "%{count} unread"
+msgstr[0] "%{count} por ler"
+msgstr[1] "%{count} por ler"
+
+#, elixir-format
+msgid "%{count} open esito"
+msgid_plural "%{count} open esiti"
+msgstr[0] "%{count} pedido aberto"
+msgstr[1] "%{count} pedidos abertos"

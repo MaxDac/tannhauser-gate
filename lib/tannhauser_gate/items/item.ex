@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Items.Item do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   An item of a GDR's catalog: a name, a Markdown description, an optional
   image, a category, a base price and a few mechanics:
@@ -89,7 +91,11 @@ defmodule TannhauserGate.Items.Item do
       tracker_id ->
         case Enum.find(trackers, &(&1.id == tracker_id)) do
           nil ->
-            add_error(changeset, :tracker_id, "is not a tracker of this GDR")
+            add_error(
+              changeset,
+              :tracker_id,
+              dgettext_noop("errors", "is not a tracker of this GDR")
+            )
 
           tracker ->
             changeset
@@ -110,10 +116,12 @@ defmodule TannhauserGate.Items.Item do
   defp validate_damage_type(changeset, %{damage_types: types}) do
     changeset
     |> validate_required([:effect_damage_type],
-      message: "choose the damage type (#{Enum.join(types, ", ")})"
+      message:
+        {dgettext_noop("errors", "choose the damage type (%{types})"),
+         types: Enum.join(types, ", ")}
     )
     |> validate_inclusion(:effect_damage_type, types,
-      message: "is not a damage type of the tracker"
+      message: dgettext_noop("errors", "is not a damage type of the tracker")
     )
   end
 
@@ -129,7 +137,7 @@ defmodule TannhauserGate.Items.Item do
         put_change(changeset, :modifiers, modifiers)
 
       {:ok, _} ->
-        add_error(changeset, :modifiers, "is invalid")
+        add_error(changeset, :modifiers, dgettext_noop("errors", "is invalid"))
     end
   end
 
@@ -151,18 +159,30 @@ defmodule TannhauserGate.Items.Item do
          add_error(
            cs,
            :modifiers,
-           "#{slug} must be between -#{@max_modifier} and #{@max_modifier}"
+           dgettext_noop("errors", "%{slug} must be between -%{max} and %{max}"),
+           slug: slug,
+           max: @max_modifier
          )}
 
       :error ->
-        {acc, add_error(cs, :modifiers, "#{slug} must be a whole number")}
+        {acc,
+         add_error(cs, :modifiers, dgettext_noop("errors", "%{slug} must be a whole number"),
+           slug: slug
+         )}
     end
   end
 
   defp put_modifier(acc, cs, slug, int, slugs) do
     if slug in slugs,
       do: {Map.put(acc, slug, int), cs},
-      else: {acc, add_error(cs, :modifiers, "references unknown sheet item #{slug}")}
+      else:
+        {acc,
+         add_error(
+           cs,
+           :modifiers,
+           dgettext_noop("errors", "references unknown sheet item %{slug}"),
+           slug: slug
+         )}
   end
 
   defp fetch(attrs, key) do

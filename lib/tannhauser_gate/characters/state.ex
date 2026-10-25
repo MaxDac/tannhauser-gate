@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Characters.State do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A character state defined by the GDR admin (e.g. "Active", "Dead",
   "Torpor"). Characters in a state without `can_play` cannot play.
@@ -27,7 +29,7 @@ defmodule TannhauserGate.Characters.State do
     |> validate_length(:name, max: 60)
     |> unique_constraint(:name,
       name: :character_states_story_id_name_index,
-      message: "already exists in this GDR"
+      message: dgettext_noop("errors", "already exists in this GDR")
     )
   end
 end

@@ -15,7 +15,7 @@ defmodule TannhauserGateWeb.GmLive.Zones do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> reload()
      |> edit_property(%Property{})
      |> edit_zone(%Zone{story_id: socket.assigns.current_story.id})}
@@ -53,7 +53,10 @@ defmodule TannhauserGateWeb.GmLive.Zones do
     case result do
       {:ok, _} ->
         {:noreply,
-         socket |> put_flash(:info, "Property saved.") |> reload() |> edit_property(%Property{})}
+         socket
+         |> put_flash(:info, dgettext("management", "Property saved."))
+         |> reload()
+         |> edit_property(%Property{})}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :property_form, to_form(changeset))}
@@ -70,7 +73,10 @@ defmodule TannhauserGateWeb.GmLive.Zones do
     {:ok, _} = story(socket) |> Zones.get_property!(id) |> Zones.delete_property()
 
     {:noreply,
-     socket |> put_flash(:info, "Property deleted.") |> reload() |> edit_property(%Property{})}
+     socket
+     |> put_flash(:info, dgettext("management", "Property deleted."))
+     |> reload()
+     |> edit_property(%Property{})}
   end
 
   def handle_event("save_zone", %{"zone" => params}, socket) do
@@ -86,7 +92,7 @@ defmodule TannhauserGateWeb.GmLive.Zones do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Zone saved.")
+         |> put_flash(:info, dgettext("management", "Zone saved."))
          |> reload()
          |> edit_zone(%Zone{story_id: story(socket).id})}
 
@@ -107,7 +113,7 @@ defmodule TannhauserGateWeb.GmLive.Zones do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Zone deleted.")
+     |> put_flash(:info, dgettext("management", "Zone deleted."))
      |> reload()
      |> edit_zone(%Zone{story_id: story(socket).id})}
   end
@@ -128,38 +134,66 @@ defmodule TannhauserGateWeb.GmLive.Zones do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="zones" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="zones" />
       <div class="mt-6 grid gap-6 xl:grid-cols-2">
         <section id="zone-properties" class="space-y-4">
           <div class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              Zone properties
+              {dgettext("management", "Zone properties")}
             </h2>
+
             <p class="mt-1 text-sm text-base-content/70">
-              Numeric values every zone carries (e.g. danger, resonance). Periodic actions can
-              use them as difficulty. Hidden properties are only shown to masters.
+              {dgettext(
+                "management",
+                "Numeric values every zone carries (e.g. danger, resonance). Periodic actions can use them as difficulty. Hidden properties are only shown to masters."
+              )}
             </p>
+
             <.form for={@property_form} id="property-form" phx-submit="save_property" class="mt-3">
               <div class="grid gap-3 sm:grid-cols-2">
-                <.input field={@property_form[:name]} type="text" label="Name" required />
-                <.input field={@property_form[:slug]} type="text" label="Key (optional)" />
-                <.input field={@property_form[:default_value]} type="number" label="Default value" />
-                <.input field={@property_form[:position]} type="number" label="Position" min="0" />
+                <.input
+                  field={@property_form[:name]}
+                  type="text"
+                  label={dgettext("management", "Name")}
+                  required
+                />
+                <.input
+                  field={@property_form[:slug]}
+                  type="text"
+                  label={dgettext("management", "Key (optional)")}
+                />
+                <.input
+                  field={@property_form[:default_value]}
+                  type="number"
+                  label={dgettext("management", "Default value")}
+                />
+                <.input
+                  field={@property_form[:position]}
+                  type="number"
+                  label={dgettext("management", "Position")}
+                  min="0"
+                />
               </div>
-              <.input field={@property_form[:public]} type="checkbox" label="Visible to players" />
+
+              <.input
+                field={@property_form[:public]}
+                type="checkbox"
+                label={dgettext("management", "Visible to players")}
+              />
               <div class="flex gap-2">
                 <.button id="save-property">
-                  {if @property.id, do: "Update property", else: "Add property"}
+                  {if @property.id,
+                    do: dgettext("management", "Update property"),
+                    else: dgettext("management", "Add property")}
                 </.button>
+
                 <.button
                   :if={@property.id}
                   type="button"
                   id="cancel-property"
                   phx-click="cancel_property"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
@@ -174,26 +208,35 @@ defmodule TannhauserGateWeb.GmLive.Zones do
               <div>
                 <span class="font-semibold text-primary">{property.name}</span>
                 <code class="ml-2 text-xs text-base-content/60">{property.slug}</code>
-                <span class="ml-2 text-xs text-base-content/60">default {property.default_value}</span>
-                <span :if={!property.public} class="ml-2 text-xs text-warning">hidden</span>
+                <span class="ml-2 text-xs text-base-content/60">{dgettext(
+                  "management",
+                  "default %{property_default_value}",
+                  property_default_value: property.default_value
+                )}</span>
+                <span :if={!property.public} class="ml-2 text-xs text-warning">{dgettext(
+                  "management",
+                  "hidden"
+                )}</span>
               </div>
+
               <div class="flex gap-1">
                 <button
                   id={"edit-property-#{property.id}"}
                   phx-click="edit_property"
                   phx-value-id={property.id}
                   class="rounded p-1 text-base-content/60 hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-property-#{property.id}"}
                   phx-click="delete_property"
                   phx-value-id={property.id}
-                  data-confirm="Delete this property?"
+                  data-confirm={dgettext("management", "Delete this property?")}
                   class="rounded p-1 text-base-content/60 hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
@@ -205,17 +248,34 @@ defmodule TannhauserGateWeb.GmLive.Zones do
         <section id="zones" class="space-y-4">
           <div class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @zone.id, do: "Edit zone", else: "New zone"}
+              {if @zone.id,
+                do: dgettext("management", "Edit zone"),
+                else: dgettext("management", "New zone")}
             </h2>
+
             <p class="mt-1 text-sm text-base-content/70">
-              Zones group locations; assign each location to a zone from the <.link
+              {dgettext(
+                "management",
+                "Zones group locations; assign each location to a zone from the"
+              )} <.link
                 navigate={~p"/g/#{@current_story}/gm/map"}
                 class="link link-primary"
-              >map tab</.link>.
+              >{dgettext("management", "map tab")}</.link>.
             </p>
+
             <.form for={@zone_form} id="zone-form" phx-submit="save_zone" class="mt-3">
-              <.input field={@zone_form[:name]} type="text" label="Name" required />
-              <.input field={@zone_form[:description]} type="textarea" label="Description" rows="3" />
+              <.input
+                field={@zone_form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
+              <.input
+                field={@zone_form[:description]}
+                type="textarea"
+                label={dgettext("management", "Description")}
+                rows="3"
+              />
               <div :if={@properties != []} class="grid gap-3 sm:grid-cols-3">
                 <.input
                   :for={property <- @properties}
@@ -226,23 +286,27 @@ defmodule TannhauserGateWeb.GmLive.Zones do
                   value={Map.get(@zone_values, property.slug, property.default_value)}
                 />
               </div>
+
               <p
                 :for={{msg, _} <- Keyword.get_values(@zone_form.errors, :values)}
                 class="text-sm text-error"
               >
                 {msg}
               </p>
+
               <div class="flex gap-2">
-                <.button id="save-zone">{if @zone.id, do: "Update zone", else: "Add zone"}</.button>
+                <.button id="save-zone">{if @zone.id,
+                  do: dgettext("management", "Update zone"),
+                  else: dgettext("management", "Add zone")}</.button>
                 <.button :if={@zone.id} type="button" id="cancel-zone" phx-click="cancel_zone">
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
           </div>
 
           <p :if={@zones == []} id="zones-empty" class="text-sm text-base-content/60">
-            No zones yet.
+            {dgettext("management", "No zones yet.")}
           </p>
 
           <div
@@ -252,29 +316,35 @@ defmodule TannhauserGateWeb.GmLive.Zones do
           >
             <div class="flex items-center justify-between">
               <h3 class="font-semibold text-primary">{zone.name}</h3>
+
               <div class="flex gap-1">
                 <button
                   id={"edit-zone-#{zone.id}"}
                   phx-click="edit_zone"
                   phx-value-id={zone.id}
                   class="rounded p-1 text-base-content/60 hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-zone-#{zone.id}"}
                   phx-click="delete_zone"
                   phx-value-id={zone.id}
-                  data-confirm="Delete this zone? Its locations will have no zone."
+                  data-confirm={
+                    dgettext("management", "Delete this zone? Its locations will have no zone.")
+                  }
                   class="rounded p-1 text-base-content/60 hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
               </div>
             </div>
+
             <p :if={zone.description} class="mt-1 text-sm text-base-content/70">{zone.description}</p>
+
             <div class="mt-2 flex flex-wrap gap-2">
               <span
                 :for={property <- @properties}
@@ -284,9 +354,14 @@ defmodule TannhauserGateWeb.GmLive.Zones do
                 <strong>{Map.get(zone.values, property.slug, property.default_value)}</strong>
               </span>
             </div>
+
             <p class="mt-2 text-xs text-base-content/60">
-              Locations: <span :if={zone.locations == []}>none</span>
-              {Enum.map_join(zone.locations, ", ", & &1.name)}
+              {dgettext("management", "Locations:")}
+              <span :if={zone.locations == []}>{dgettext("management", "none")}</span> {Enum.map_join(
+                zone.locations,
+                ", ",
+                & &1.name
+              )}
             </p>
           </div>
         </section>

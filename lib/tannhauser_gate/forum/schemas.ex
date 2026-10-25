@@ -1,4 +1,5 @@
 defmodule TannhauserGate.Forum.Section do
+  use Gettext, backend: TannhauserGateWeb.Gettext
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -39,7 +40,9 @@ defmodule TannhauserGate.Forum.Section do
   # Guild sections need a guild; the other visibilities drop it.
   defp validate_guild(changeset) do
     if get_field(changeset, :visibility) == "guild" do
-      validate_required(changeset, [:guild_id], message: "choose the guild")
+      validate_required(changeset, [:guild_id],
+        message: dgettext_noop("errors", "choose the guild")
+      )
     else
       put_change(changeset, :guild_id, nil)
     end

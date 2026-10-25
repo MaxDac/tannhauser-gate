@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Forum do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The GDR forum: sections -> topics -> posts (posts ordered by creation time).
 
@@ -129,10 +131,10 @@ defmodule TannhauserGate.Forum do
   defp approved_member?(_, _), do: false
 
   @doc "A short label for a section visibility."
-  def visibility_label("all"), do: "All members"
-  def visibility_label("approved"), do: "Approved characters"
-  def visibility_label("masters"), do: "Masters only"
-  def visibility_label("guild"), do: "Guild members"
+  def visibility_label("all"), do: dgettext("domain", "All members")
+  def visibility_label("approved"), do: dgettext("domain", "Approved characters")
+  def visibility_label("masters"), do: dgettext("domain", "Masters only")
+  def visibility_label("guild"), do: dgettext("domain", "Guild members")
   def visibility_label(other), do: other
 
   def get_section!(id), do: Repo.get!(Section, id)
@@ -158,7 +160,7 @@ defmodule TannhauserGate.Forum do
     Changeset.validate_change(changeset, :guild_id, fn :guild_id, guild_id ->
       if Repo.exists?(from g in Guild, where: g.id == ^guild_id and g.story_id == ^story_id),
         do: [],
-        else: [guild_id: "is not a guild of this GDR"]
+        else: [guild_id: dgettext_noop("errors", "is not a guild of this GDR")]
     end)
   end
 
@@ -456,7 +458,7 @@ defmodule TannhauserGate.Forum do
          true <- Characters.can_act_as?(user, character) do
       {character.id, nil}
     else
-      _ -> {nil, "choose a character that can play"}
+      _ -> {nil, dgettext_noop("errors", "choose a character that can play")}
     end
   end
 

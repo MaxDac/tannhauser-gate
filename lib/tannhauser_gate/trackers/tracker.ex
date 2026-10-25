@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Trackers.Tracker do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A per-GDR resource tracked on every character (e.g. Health, Willpower,
   Hunger). Its maximum is a formula over the sheet item keys (or a fixed
@@ -44,14 +46,18 @@ defmodule TannhauserGate.Trackers.Tracker do
     |> validate_length(:name, max: 60)
     |> validate_length(:max_formula, max: 200)
     |> validate_format(:slug, ~r/^[a-z][a-z0-9_]{0,39}$/,
-      message: "must start with a letter and use only lowercase letters, digits and _"
+      message:
+        dgettext_noop(
+          "errors",
+          "must start with a letter and use only lowercase letters, digits and _"
+        )
     )
     |> validate_number(:position, greater_than_or_equal_to: 0, less_than_or_equal_to: 1_000)
     |> validate_damage_types()
     |> Formula.validate_formula(:max_formula, slugs)
     |> unique_constraint([:story_id, :slug],
       name: :trackers_story_id_slug_index,
-      message: "is already used by another tracker"
+      message: dgettext_noop("errors", "is already used by another tracker")
     )
   end
 
@@ -78,10 +84,17 @@ defmodule TannhauserGate.Trackers.Tracker do
   defp validate_damage_types(changeset) do
     validate_change(changeset, :damage_types, fn :damage_types, types ->
       cond do
-        length(types) > 5 -> [damage_types: "can be at most 5"]
-        Enum.any?(types, &(String.length(&1) > 30)) -> [damage_types: "names must be short"]
-        length(Enum.uniq(types)) != length(types) -> [damage_types: "must be distinct"]
-        true -> []
+        length(types) > 5 ->
+          [damage_types: dgettext_noop("errors", "can be at most 5")]
+
+        Enum.any?(types, &(String.length(&1) > 30)) ->
+          [damage_types: dgettext_noop("errors", "names must be short")]
+
+        length(Enum.uniq(types)) != length(types) ->
+          [damage_types: dgettext_noop("errors", "must be distinct")]
+
+        true ->
+          []
       end
     end)
   end

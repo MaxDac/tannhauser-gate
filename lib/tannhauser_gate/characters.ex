@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Characters do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Characters of a story (GDR). Player characters belong to a user, who can have
   up to `story.max_characters_per_user` of them per GDR (1 by default); NPCs
@@ -338,10 +340,13 @@ defmodule TannhauserGate.Characters do
     end
   end
 
-  defp limit_message(1), do: "you already have a character in this GDR"
+  defp limit_message(1), do: dgettext("domain", "you already have a character in this GDR")
 
   defp limit_message(max),
-    do: "you already have the maximum number of characters in this GDR (#{max})"
+    do:
+      dgettext("domain", "you already have the maximum number of characters in this GDR (%{max})",
+        max: max
+      )
 
   @doc """
   Creates an NPC of `story`. Only its masters (and GDR/platform admins) can
@@ -602,24 +607,29 @@ defmodule TannhauserGate.Characters do
   end
 
   @doc "A human readable message for the approval errors."
-  def approval_error_message(:invalid_status), do: "The character is already in that status."
-  def approval_error_message(:notes_required), do: "Explain why the character is rejected."
+  def approval_error_message(:invalid_status),
+    do: dgettext("domain", "The character is already in that status.")
+
+  def approval_error_message(:notes_required),
+    do: dgettext("domain", "Explain why the character is rejected.")
 
   def approval_error_message(:unauthorized),
-    do: "Only the GDR masters allowed to approve characters can review them."
+    do: dgettext("domain", "Only the GDR masters allowed to approve characters can review them.")
 
-  def approval_error_message(:invalid_state), do: "That state does not exist in this GDR."
+  def approval_error_message(:invalid_state),
+    do: dgettext("domain", "That state does not exist in this GDR.")
 
   def approval_error_message(:origins_missing),
-    do: "Choose every required origin before submitting the character."
+    do: dgettext("domain", "Choose every required origin before submitting the character.")
 
-  def approval_error_message(%Ecto.Changeset{}), do: "The character could not be saved."
+  def approval_error_message(%Ecto.Changeset{}),
+    do: dgettext("domain", "The character could not be saved.")
 
   @doc "A short label for an approval status."
-  def approval_label("draft"), do: "Draft"
-  def approval_label("submitted"), do: "Awaiting approval"
-  def approval_label("approved"), do: "Approved"
-  def approval_label("rejected"), do: "Rejected"
+  def approval_label("draft"), do: dgettext("domain", "Draft")
+  def approval_label("submitted"), do: dgettext("domain", "Awaiting approval")
+  def approval_label("approved"), do: dgettext("domain", "Approved")
+  def approval_label("rejected"), do: dgettext("domain", "Rejected")
   def approval_label(other), do: other
 
   ## Permissions
@@ -808,11 +818,19 @@ defmodule TannhauserGate.Characters do
         Ecto.Changeset.add_error(
           changeset,
           :traits,
-          "#{item.name} must be between #{item.min_value} and #{item.max_value}"
+          dgettext_noop("errors", "%{name} must be between %{min} and %{max}"),
+          name: item.name,
+          min: item.min_value,
+          max: item.max_value
         )
 
       _ ->
-        Ecto.Changeset.add_error(changeset, :traits, "#{item.name} must be a whole number")
+        Ecto.Changeset.add_error(
+          changeset,
+          :traits,
+          dgettext_noop("errors", "%{name} must be a whole number"),
+          name: item.name
+        )
     end
   end
 

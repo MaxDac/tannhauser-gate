@@ -1,0 +1,351 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:750
+#, elixir-autogen, elixir-format
+msgid "%{count} open esito"
+msgid_plural "%{count} open esiti"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:310
+#, elixir-autogen, elixir-format
+msgid "%{count} unread"
+msgid_plural "%{count} unread"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:243
+#, elixir-autogen, elixir-format
+msgid "%{count} unread announcement"
+msgid_plural "%{count} unread announcements"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:575
+#, elixir-autogen, elixir-format
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/user_session_controller.ex:8
+#, elixir-autogen, elixir-format
+msgid "Account created successfully!"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:441
+#, elixir-autogen, elixir-format
+msgid "Admin"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:217
+#: lib/tannhauser_gate_web/user_auth.ex:443
+#, elixir-autogen, elixir-format
+msgid "Admins only."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:435
+#, elixir-autogen, elixir-format
+msgid "All GDRs"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:717
+#: lib/tannhauser_gate_web/components/layouts.ex:732
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:323
+#, elixir-autogen, elixir-format
+msgid "Bank"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:611
+#, elixir-autogen, elixir-format
+msgid "Change language"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:263
+#, elixir-autogen, elixir-format
+msgid "Characters"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:157
+#, elixir-autogen, elixir-format
+msgid "Close navigation"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:424
+#, elixir-autogen, elixir-format
+msgid "Community"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:174
+#, elixir-autogen, elixir-format
+msgid "Email features are currently disabled."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:366
+#, elixir-autogen, elixir-format
+msgid "Esiti"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:294
+#, elixir-autogen, elixir-format
+msgid "Forum"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:210
+#, elixir-autogen, elixir-format
+msgid "GDRs"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:410
+#, elixir-autogen, elixir-format
+msgid "GM dashboard"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:284
+#, elixir-autogen, elixir-format
+msgid "Guide"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:355
+#, elixir-autogen, elixir-format
+msgid "Guilds"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:237
+#, elixir-autogen, elixir-format
+msgid "Home"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/error_html.ex:24
+#, elixir-autogen, elixir-format
+msgid "Internal Server Error"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/user_session_controller.ex:33
+#, elixir-autogen, elixir-format
+msgid "Invalid username or password"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:333
+#, elixir-autogen, elixir-format
+msgid "Jobs"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:602
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:544
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/user_session_controller.ex:41
+#, elixir-autogen, elixir-format
+msgid "Logged out successfully."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:305
+#, elixir-autogen, elixir-format
+msgid "Mail"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:273
+#, elixir-autogen, elixir-format
+msgid "Map"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:344
+#, elixir-autogen, elixir-format
+msgid "Market"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:399
+#, elixir-autogen, elixir-format
+msgid "Master tools"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:220
+#, elixir-autogen, elixir-format
+msgid "My GDR"
+msgstr ""
+
+#: lib/tannhauser_gate_web/mail_notifier.ex:57
+#, elixir-autogen, elixir-format
+msgid "New message from %{sender}: %{subject}"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/error_html.ex:23
+#, elixir-autogen, elixir-format
+msgid "Not Found"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:388
+#, elixir-autogen, elixir-format
+msgid "Notice boards"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:450
+#: lib/tannhauser_gate_web/components/layouts.ex:453
+#, elixir-autogen, elixir-format
+msgid "Online"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:269
+#, elixir-autogen, elixir-format
+msgid "Only the GDR admin can do that."
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:288
+#, elixir-autogen, elixir-format
+msgid "Only the GDR masters can do that."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:751
+#, elixir-autogen, elixir-format
+msgid "Open esiti"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:141
+#, elixir-autogen, elixir-format
+msgid "Open navigation"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/user_session_controller.ex:14
+#, elixir-autogen, elixir-format
+msgid "Password updated successfully!"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:645
+#: lib/tannhauser_gate_web/components/layouts.ex:646
+#, elixir-autogen, elixir-format
+msgid "Playing as"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:25
+#, elixir-autogen, elixir-format
+msgid "Please choose a new password before continuing."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:377
+#, elixir-autogen, elixir-format
+msgid "Quests"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:198
+#, elixir-autogen, elixir-format
+msgid "Return to chat"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:132
+#: lib/tannhauser_gate_web/components/layouts.ex:133
+#, elixir-autogen, elixir-format
+msgid "Return to chat: %{name}"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:206
+#: lib/tannhauser_gate_web/components/layouts.ex:228
+#, elixir-autogen, elixir-format
+msgid "Sections"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:533
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:724
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:571
+#, elixir-autogen, elixir-format
+msgid "Support on Ko-fi"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/page_controller.ex:14
+#, elixir-autogen, elixir-format
+msgid "Terms and disclaimer"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:258
+#, elixir-autogen, elixir-format
+msgid "That GDR does not exist or is not open."
+msgstr ""
+
+#: lib/tannhauser_gate_web/gdr_presence.ex:108
+#, elixir-autogen, elixir-format
+msgid "That character is not yours."
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:279
+#, elixir-autogen, elixir-format
+msgid "That feature is not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:119
+#, elixir-autogen, elixir-format
+msgid "Toggle navigation"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:250
+#, elixir-autogen, elixir-format
+msgid "Unread announcements"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:709
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr ""
+
+#: lib/tannhauser_gate_web/controllers/user_session_controller.ex:18
+#, elixir-autogen, elixir-format
+msgid "Welcome back!"
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:245
+#, elixir-autogen, elixir-format
+msgid "You are banned from %{story} %{until}. Reason: %{reason}"
+msgstr ""
+
+#: lib/tannhauser_gate_web/gdr_presence.ex:104
+#, elixir-autogen, elixir-format
+msgid "You are now playing %{name}."
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:300
+#, elixir-autogen, elixir-format
+msgid "You don't have the permission to use that tool."
+msgstr ""
+
+#: lib/tannhauser_gate_web/user_auth.ex:190
+#: lib/tannhauser_gate_web/user_auth.ex:207
+#: lib/tannhauser_gate_web/user_auth.ex:418
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/layouts.ex:683
+#, elixir-autogen, elixir-format
+msgid "Your status"
+msgstr ""
+
+#: lib/tannhauser_gate_web/components/core_components.ex:85
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr ""

@@ -16,7 +16,7 @@ defmodule TannhauserGateWeb.MasterLive do
 
     {:ok,
      socket
-     |> assign(:page_title, "Master tools")
+     |> assign(:page_title, dgettext("management", "Master tools"))
      |> assign(:esiti?, esiti?)
      |> assign(:reports?, Reports.enabled?(story))
      |> assign(:reports_open, Reports.open_count(story))
@@ -61,8 +61,14 @@ defmodule TannhauserGateWeb.MasterLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Master tools
-        <:subtitle>Narrate {@current_story.name}: run its scenes, characters and forum.</:subtitle>
+        {dgettext("management", "Master tools")}
+        <:subtitle>
+          {dgettext(
+            "management",
+            "Narrate %{current_story_name}: run its scenes, characters and forum.",
+            current_story_name: @current_story.name
+          )}
+        </:subtitle>
 
         <:actions>
           <.button
@@ -70,7 +76,10 @@ defmodule TannhauserGateWeb.MasterLive do
             id="master-gm-dashboard-link"
             navigate={~p"/g/#{@current_story}/gm"}
           >
-            <.icon name="hero-adjustments-horizontal" class="size-4" /> GM dashboard
+            <.icon name="hero-adjustments-horizontal" class="size-4" /> {dgettext(
+              "management",
+              "GM dashboard"
+            )}
           </.button>
         </:actions>
       </.header>
@@ -81,11 +90,11 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-characters"
           navigate={~p"/g/#{@current_story}/master/characters"}
           icon="hero-identification"
-          title="Character dashboard"
+          title={dgettext("management", "Character dashboard")}
         >
-          Approve new characters, set their state and edit any sheet.
+          {dgettext("management", "Approve new characters, set their state and edit any sheet.")}
           <span id="master-approval-count" class="badge badge-sm badge-info badge-soft ml-1">
-            {@queue_count} awaiting approval
+            {dgettext("management", "%{queue_count} awaiting approval", queue_count: @queue_count)}
           </span>
         </.entry_point>
 
@@ -93,9 +102,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-npcs"
           navigate={~p"/g/#{@current_story}/master/npcs/new"}
           icon="hero-user-plus"
-          title="New NPC"
+          title={dgettext("management", "New NPC")}
         >
-          Create a non-player character to speak as in the chat rooms.
+          {dgettext("management", "Create a non-player character to speak as in the chat rooms.")}
         </.entry_point>
 
         <.entry_point
@@ -103,9 +112,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-moderation"
           navigate={~p"/g/#{@current_story}/master/moderation"}
           icon="hero-shield-check"
-          title="Moderation"
+          title={dgettext("management", "Moderation")}
         >
-          Review and delete the latest chat messages and forum posts.
+          {dgettext("management", "Review and delete the latest chat messages and forum posts.")}
         </.entry_point>
 
         <.entry_point
@@ -113,9 +122,12 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-chat-log"
           navigate={~p"/g/#{@current_story}/master/chat-log"}
           icon="hero-document-magnifying-glass"
-          title="Chat log"
+          title={dgettext("management", "Chat log")}
         >
-          Read the history of every room, archived messages included, by room and date.
+          {dgettext(
+            "management",
+            "Read the history of every room, archived messages included, by room and date."
+          )}
         </.entry_point>
 
         <.entry_point
@@ -123,9 +135,12 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-zones"
           navigate={~p"/g/#{@current_story}/master/zones"}
           icon="hero-globe-europe-africa"
-          title="Zone events"
+          title={dgettext("management", "Zone events")}
         >
-          Post what happens in the zones; players see it in the zone's rooms.
+          {dgettext(
+            "management",
+            "Post what happens in the zones; players see it in the zone's rooms."
+          )}
         </.entry_point>
 
         <.entry_point
@@ -133,9 +148,12 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-actions"
           navigate={~p"/g/#{@current_story}/master/actions"}
           icon="hero-bolt"
-          title="Periodic actions"
+          title={dgettext("management", "Periodic actions")}
         >
-          Set per-character difficulties, reset cooldowns and read the action log.
+          {dgettext(
+            "management",
+            "Set per-character difficulties, reset cooldowns and read the action log."
+          )}
         </.entry_point>
 
         <.entry_point
@@ -146,9 +164,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-items"
           navigate={~p"/g/#{@current_story}/master/items"}
           icon="hero-shopping-bag"
-          title="Items"
+          title={dgettext("management", "Items")}
         >
-          Grant and remove items and read the item log.
+          {dgettext("management", "Grant and remove items and read the item log.")}
         </.entry_point>
 
         <.entry_point
@@ -156,9 +174,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-guilds"
           navigate={~p"/g/#{@current_story}/master/guilds"}
           icon="hero-flag"
-          title="Guilds"
+          title={dgettext("management", "Guilds")}
         >
-          Create guilds and factions, their ranks and salaries.
+          {dgettext("management", "Create guilds and factions, their ranks and salaries.")}
         </.entry_point>
 
         <.entry_point
@@ -166,9 +184,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-esiti"
           navigate={~p"/g/#{@current_story}/master/esiti"}
           icon="hero-scale"
-          title="Esiti"
+          title={dgettext("management", "Esiti")}
         >
-          Claim and resolve the players' action requests.
+          {dgettext("management", "Claim and resolve the players' action requests.")}
           <span
             id="master-esiti-count"
             class={[
@@ -176,7 +194,10 @@ defmodule TannhauserGateWeb.MasterLive do
               if(@esiti_open > 0, do: "badge-warning", else: "badge-info")
             ]}
           >
-            {@esiti_open} open · {@esiti_claimed} in progress
+            {dgettext("management", "%{esiti_open} open · %{esiti_claimed} in progress",
+              esiti_open: @esiti_open,
+              esiti_claimed: @esiti_claimed
+            )}
           </span>
         </.entry_point>
 
@@ -188,9 +209,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-quests"
           navigate={~p"/g/#{@current_story}/master/quests"}
           icon="hero-book-open"
-          title="Quests"
+          title={dgettext("management", "Quests")}
         >
-          Record the quests you ran, their participants and rewards.
+          {dgettext("management", "Record the quests you ran, their participants and rewards.")}
         </.entry_point>
 
         <.entry_point
@@ -200,9 +221,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-boards"
           navigate={~p"/g/#{@current_story}/master/boards"}
           icon="hero-megaphone"
-          title="Announcements and boards"
+          title={dgettext("management", "Announcements and boards")}
         >
-          Post GDR announcements and put up in-game notice boards.
+          {dgettext("management", "Post GDR announcements and put up in-game notice boards.")}
         </.entry_point>
 
         <.entry_point
@@ -213,9 +234,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-calendar"
           navigate={~p"/g/#{@current_story}/master/calendar"}
           icon="hero-calendar-days"
-          title="Game calendar"
+          title={dgettext("management", "Game calendar")}
         >
-          See the in-game date and move the clock to a new date and time.
+          {dgettext("management", "See the in-game date and move the clock to a new date and time.")}
         </.entry_point>
 
         <.entry_point
@@ -226,9 +247,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-weather"
           navigate={~p"/g/#{@current_story}/master/weather"}
           icon="hero-cloud"
-          title="Weather"
+          title={dgettext("management", "Weather")}
         >
-          Set the weather of each zone or roll it from the weather table.
+          {dgettext("management", "Set the weather of each zone or roll it from the weather table.")}
         </.entry_point>
 
         <.entry_point
@@ -236,9 +257,9 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-reports"
           navigate={~p"/g/#{@current_story}/master/reports"}
           icon="hero-flag"
-          title="Reports"
+          title={dgettext("management", "Reports")}
         >
-          Handle the content flagged by the members.
+          {dgettext("management", "Handle the content flagged by the members.")}
           <span
             id="master-reports-count"
             class={[
@@ -246,7 +267,7 @@ defmodule TannhauserGateWeb.MasterLive do
               if(@reports_open > 0, do: "badge-warning", else: "badge-info")
             ]}
           >
-            {@reports_open} open
+            {dgettext("management", "%{reports_open} open", reports_open: @reports_open)}
           </span>
         </.entry_point>
 
@@ -255,43 +276,45 @@ defmodule TannhauserGateWeb.MasterLive do
           id="master-sanctions"
           navigate={~p"/g/#{@current_story}/master/sanctions"}
           icon="hero-no-symbol"
-          title="Sanctions"
+          title={dgettext("management", "Sanctions")}
         >
-          Warn, mute or ban members, and read the sanctions log.
+          {dgettext("management", "Warn, mute or ban members, and read the sanctions log.")}
         </.entry_point>
 
         <.entry_point
           id="master-map"
           navigate={~p"/g/#{@current_story}/map"}
           icon="hero-map"
-          title="Map and rooms"
+          title={dgettext("management", "Map and rooms")}
         >
-          Enter the chat rooms to narrate scenes.
+          {dgettext("management", "Enter the chat rooms to narrate scenes.")}
         </.entry_point>
 
         <.entry_point
           id="master-forum"
           navigate={~p"/g/#{@current_story}/forum"}
           icon="hero-chat-bubble-left-right"
-          title="Forum"
+          title={dgettext("management", "Forum")}
         >
-          Read every topic and delete posts that break the rules.
+          {dgettext("management", "Read every topic and delete posts that break the rules.")}
         </.entry_point>
       </div>
 
       <section id="master-team" class="mt-10 max-w-3xl">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">The team</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "The team")}
+        </h2>
 
         <p class="mt-2 text-sm text-base-content/70">
-          GDR admin:
+          {dgettext("management", "GDR admin:")}
           <span id="master-team-admin" class="font-semibold text-primary">
-            {(@owner && @owner.username) || "Platform"}
+            {(@owner && @owner.username) || dgettext("management", "Platform")}
           </span>
         </p>
 
         <ul id="master-team-masters" phx-update="stream" class="mt-2 flex flex-wrap gap-2">
           <li id="master-team-empty" class="hidden text-sm text-base-content/60 only:block">
-            No other masters yet.
+            {dgettext("management", "No other masters yet.")}
           </li>
 
           <li

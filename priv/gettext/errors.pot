@@ -1,0 +1,529 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TannhauserGate\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: lib/tannhauser_gate/characters.ex:831
+#, elixir-autogen
+msgid "%{name} must be a whole number"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:821
+#, elixir-autogen
+msgid "%{name} must be between %{min} and %{max}"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:169
+#: lib/tannhauser_gate/origins/option.ex:90
+#, elixir-autogen
+msgid "%{slug} must be a whole number"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:162
+#: lib/tannhauser_gate/origins/option.ex:83
+#, elixir-autogen
+msgid "%{slug} must be between -%{max} and %{max}"
+msgstr ""
+
+#: lib/tannhauser_gate/bookings/booking.ex:59
+#, elixir-autogen
+msgid "a booking can last at most %{max_hours} hours"
+msgstr ""
+
+#: lib/tannhauser_gate/bank/job.ex:29
+#: lib/tannhauser_gate/sheet/item.ex:87
+#, elixir-autogen
+msgid "already exists"
+msgstr ""
+
+#: lib/tannhauser_gate/characters/state.ex:32
+#, elixir-autogen
+msgid "already exists in this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:212
+#, elixir-autogen
+msgid "already runs a GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/quests/participant.ex:37
+#, elixir-autogen
+msgid "already takes part in this quest"
+msgstr ""
+
+#: lib/tannhauser_gate/directory/vote.ex:28
+#, elixir-autogen
+msgid "already voted this month"
+msgstr ""
+
+msgid "are still associated with this entry"
+msgstr ""
+
+#: lib/tannhauser_gate/calendar/config.ex:186
+#, elixir-autogen
+msgid "at most 14 names of up to 30 characters"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:114
+#, elixir-autogen
+msgid "can be at most 10"
+msgstr ""
+
+#: lib/tannhauser_gate/bookings/booking.ex:67
+#, elixir-autogen
+msgid "can be at most 30 days from now"
+msgstr ""
+
+#: lib/tannhauser_gate/trackers/tracker.ex:88
+#, elixir-autogen
+msgid "can be at most 5"
+msgstr ""
+
+#: lib/tannhauser_gate/calendar/config.ex:120
+#, elixir-autogen
+msgid "can have at most %{max_months} months"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:91
+#, elixir-autogen
+msgid "can only contain letters, numbers, underscores, dots and dashes"
+msgstr ""
+
+#: lib/tannhauser_gate/calendar/config.ex:103
+#: lib/tannhauser_gate/calendar/config.ex:112
+#: lib/tannhauser_gate/periodic_actions/action.ex:111
+#, elixir-autogen
+msgid "can't be blank"
+msgstr ""
+
+#: lib/tannhauser_gate/dice/config.ex:99
+#, elixir-autogen
+msgid "cannot be higher than the die size"
+msgstr ""
+
+#: lib/tannhauser_gate/forum.ex:461
+#, elixir-autogen
+msgid "choose a character that can play"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:120
+#, elixir-autogen
+msgid "choose the damage type (%{types})"
+msgstr ""
+
+#: lib/tannhauser_gate/forum/schemas.ex:44
+#, elixir-autogen
+msgid "choose the guild"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:163
+#, elixir-autogen
+msgid "did not change"
+msgstr ""
+
+msgid "does not exist"
+msgstr ""
+
+msgid "does not match confirmation"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:183
+#, elixir-autogen
+msgid "does not match password"
+msgstr ""
+
+#: lib/tannhauser_gate/calendar/config.ex:128
+#, elixir-autogen
+msgid "each line must be \"Name | days (1-100) | season\" (names up to 30 characters)"
+msgstr ""
+
+msgid "has already been taken"
+msgstr ""
+
+msgid "has an invalid entry"
+msgstr ""
+
+msgid "has invalid format"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story_master.ex:51
+#, elixir-autogen
+msgid "is already a master of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:80
+#, elixir-autogen
+msgid "is already in the table"
+msgstr ""
+
+#: lib/tannhauser_gate/items/listing.ex:32
+#, elixir-autogen
+msgid "is already sold by this shop"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:90
+#, elixir-autogen
+msgid "is already used by another action"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/item.ex:77
+#, elixir-autogen
+msgid "is already used by another item"
+msgstr ""
+
+#: lib/tannhauser_gate/zones/property.ex:50
+#, elixir-autogen
+msgid "is already used by another property"
+msgstr ""
+
+#: lib/tannhauser_gate/trackers/tracker.ex:60
+#, elixir-autogen
+msgid "is already used by another tracker"
+msgstr ""
+
+#: lib/tannhauser_gate/zones/zone.ex:41
+#, elixir-autogen
+msgid "is already used by another zone"
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:380
+#, elixir-autogen
+msgid "is another of your characters: this GDR does not allow letters between them"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:140
+#: lib/tannhauser_gate/origins/option.ex:61
+#, elixir-autogen
+msgid "is invalid"
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:327
+#, elixir-autogen
+msgid "is not a character you can play"
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:350
+#, elixir-autogen
+msgid "is not a character you can write to"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:124
+#, elixir-autogen
+msgid "is not a damage type of the tracker"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:312
+#: lib/tannhauser_gate/forum.ex:163
+#, elixir-autogen
+msgid "is not a guild of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:411
+#, elixir-autogen
+msgid "is not a guild of this story"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:300
+#: lib/tannhauser_gate/items.ex:178
+#: lib/tannhauser_gate/quests.ex:146
+#, elixir-autogen
+msgid "is not a room of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/guide.ex:81
+#, elixir-autogen
+msgid "is not a section of this guide"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:153
+#, elixir-autogen
+msgid "is not a tracker"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:97
+#, elixir-autogen
+msgid "is not a tracker of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:306
+#, elixir-autogen
+msgid "is not a zone of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:397
+#, elixir-autogen
+msgid "is not a zone of this story"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:136
+#, elixir-autogen
+msgid "is not a zone property"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:211
+#, elixir-autogen
+msgid "is not an item of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/origins.ex:112
+#, elixir-autogen
+msgid "is not an origin group of this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:230
+#, elixir-autogen
+msgid "is not valid"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/category.ex:85
+#, elixir-autogen
+msgid "is required for a distribution"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/category.ex:75
+#, elixir-autogen
+msgid "is required for a points pool"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:164
+#, elixir-autogen
+msgid "is required for this tracker"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:133
+#, elixir-autogen
+msgid "is required when the difficulty comes from the zone"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/item.ex:74
+#, elixir-autogen
+msgid "is reserved"
+msgstr ""
+
+msgid "is still associated with this entry"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/location.ex:47
+#, elixir-autogen
+msgid "must be a hex color like #4ae08a"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/location.ex:44
+#, elixir-autogen
+msgid "must be a list of at least 3 x,y points separated by spaces"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/category.ex:108
+#, elixir-autogen
+msgid "must be a list of numbers like 4,3,3,2"
+msgstr ""
+
+msgid "must be accepted"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:78
+#, elixir-autogen
+msgid "must be accepted to register"
+msgstr ""
+
+#: lib/tannhauser_gate/bookings/booking.ex:50
+#: lib/tannhauser_gate/quests/quest.ex:68
+#: lib/tannhauser_gate/sanctions/sanction.ex:52
+#, elixir-autogen
+msgid "must be after the start"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:251
+#, elixir-autogen
+msgid "must be an http(s) URL"
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:218
+#, elixir-autogen
+msgid "must be at least 1 for the item"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:236
+#, elixir-autogen
+msgid "must be at least the minimum length"
+msgstr ""
+
+#: lib/tannhauser_gate/calendar/config.ex:85
+#: lib/tannhauser_gate/calendar/config.ex:90
+#, elixir-autogen
+msgid "must be between 1 and %{max}"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts.ex:270
+#, elixir-autogen
+msgid "must be different from the current password"
+msgstr ""
+
+#: lib/tannhauser_gate/trackers/tracker.ex:94
+#, elixir-autogen
+msgid "must be distinct"
+msgstr ""
+
+msgid "must be equal to %{number}"
+msgstr ""
+
+msgid "must be greater than %{number}"
+msgstr ""
+
+msgid "must be greater than or equal to %{number}"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/item.ex:110
+#, elixir-autogen
+msgid "must be greater than or equal to the minimum"
+msgstr ""
+
+#: lib/tannhauser_gate/boards/notice.ex:34
+#: lib/tannhauser_gate/bookings/booking.ex:53
+#, elixir-autogen
+msgid "must be in the future"
+msgstr ""
+
+msgid "must be less than %{number}"
+msgstr ""
+
+msgid "must be less than or equal to %{number}"
+msgstr ""
+
+msgid "must be not equal to %{number}"
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions/action.ex:122
+#, elixir-autogen
+msgid "must be sheet item keys (%{unknown} unknown)"
+msgstr ""
+
+#: lib/tannhauser_gate/zones/zone.ex:68
+#, elixir-autogen
+msgid "must be whole numbers between -1000 and 1000"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:110
+#, elixir-autogen
+msgid "must have the @ sign and no spaces"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:262
+#, elixir-autogen
+msgid "must not contain scripts, event handlers or foreignObject"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:247
+#, elixir-autogen
+msgid "must not contain spaces"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet/item.ex:69
+#: lib/tannhauser_gate/trackers/tracker.ex:50
+#: lib/tannhauser_gate/zones/property.ex:37
+#, elixir-autogen
+msgid "must start with a letter and use only lowercase letters, digits and _"
+msgstr ""
+
+#: lib/tannhauser_gate/trackers/tracker.ex:91
+#, elixir-autogen
+msgid "names must be short"
+msgstr ""
+
+#: lib/tannhauser_gate/boards/board.ex:37
+#: lib/tannhauser_gate/boards/board.ex:44
+#, elixir-autogen
+msgid "pick a room or a zone"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/story.ex:221
+#, elixir-autogen
+msgid "pick at most 3 genres"
+msgstr ""
+
+#: lib/tannhauser_gate/boards/board.ex:56
+#, elixir-autogen
+msgid "pick either a room or a zone, not both"
+msgstr ""
+
+#: lib/tannhauser_gate/items/item.ex:183
+#: lib/tannhauser_gate/origins/option.ex:101
+#, elixir-autogen
+msgid "references unknown sheet item %{slug}"
+msgstr ""
+
+msgid "should be %{count} byte(s)"
+msgid_plural "should be %{count} byte(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should be %{count} character(s)"
+msgid_plural "should be %{count} character(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should be at least %{count} byte(s)"
+msgid_plural "should be at least %{count} byte(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should be at least %{count} character(s)"
+msgid_plural "should be at least %{count} character(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should be at most %{count} byte(s)"
+msgid_plural "should be at most %{count} byte(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should be at most %{count} character(s)"
+msgid_plural "should be at most %{count} character(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should have %{count} item(s)"
+msgid_plural "should have %{count} item(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should have at least %{count} item(s)"
+msgid_plural "should have at least %{count} item(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "should have at most %{count} item(s)"
+msgid_plural "should have at most %{count} item(s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/tannhauser_gate/weather/condition.ex:70
+#: lib/tannhauser_gate/weather/condition.ex:75
+#, elixir-autogen
+msgid "temperatures must be between -100 and 100"
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:363
+#, elixir-autogen
+msgid "the masters cannot write to themselves"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:65
+#, elixir-autogen
+msgid "weights must be whole numbers between 0 and 1000"
+msgstr ""
+
+#: lib/tannhauser_gate/reports/report.ex:53
+#, elixir-autogen
+msgid "you already reported this and the masters are on it"
+msgstr ""
+
+#: lib/tannhauser_gate/directory/review.ex:55
+#, elixir-autogen
+msgid "you already reviewed this GDR"
+msgstr ""
+
+msgid "has an invalid %{setting} choice"
+msgstr ""

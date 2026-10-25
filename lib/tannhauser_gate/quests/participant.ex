@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Quests.Participant do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A character taking part in a quest, with its rewards: XP, money and
   optionally an item (items module) with a quantity, plus a note.
@@ -32,7 +34,7 @@ defmodule TannhauserGate.Quests.Participant do
     |> validate_length(:note, max: 200)
     |> unique_constraint(:character_id,
       name: :quest_participants_quest_id_character_id_index,
-      message: "already takes part in this quest"
+      message: dgettext_noop("errors", "already takes part in this quest")
     )
   end
 

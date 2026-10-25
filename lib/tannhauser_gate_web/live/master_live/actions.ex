@@ -16,7 +16,7 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
 
     {:ok,
      socket
-     |> assign(:page_title, "Periodic actions")
+     |> assign(:page_title, dgettext("management", "Periodic actions"))
      |> assign(:actions, PeriodicActions.list_actions(story))
      |> assign(
        :characters,
@@ -68,10 +68,22 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
     case PeriodicActions.set_difficulty(socket.assigns.action, character, value) do
       {:ok, _} ->
         {:noreply,
-         socket |> put_flash(:info, "Difficulty of #{character.name} saved.") |> load_action()}
+         socket
+         |> put_flash(
+           :info,
+           dgettext("management", "Difficulty of %{character_name} saved.",
+             character_name: character.name
+           )
+         )
+         |> load_action()}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "The difficulty must be between 0 and 100.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "The difficulty must be between 0 and 100.")
+         )}
     end
   end
 
@@ -80,7 +92,14 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
     {:ok, _} = PeriodicActions.reset_cooldown(socket.assigns.action, character)
 
     {:noreply,
-     socket |> put_flash(:info, "Cooldown of #{character.name} reset.") |> load_action()}
+     socket
+     |> put_flash(
+       :info,
+       dgettext("management", "Cooldown of %{character_name} reset.",
+         character_name: character.name
+       )
+     )
+     |> load_action()}
   end
 
   defp find_character(socket, id) do
@@ -90,12 +109,23 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
       raise Ecto.NoResultsError, queryable: Characters
   end
 
-  defp format_cooldown(0), do: "ready"
+  defp action_summary(log) do
+    if Gettext.get_locale(TannhauserGateWeb.Gettext) == "en" do
+      log.summary
+    else
+      TannhauserGate.Dice.summary(log.result)
+    end
+  end
+
+  defp format_cooldown(0), do: dgettext("management", "ready")
 
   defp format_cooldown(seconds) do
     hours = div(seconds, 3600)
     minutes = div(rem(seconds, 3600), 60)
-    if hours > 0, do: "#{hours}h #{minutes}m", else: "#{max(minutes, 1)}m"
+
+    if hours > 0,
+      do: dgettext("management", "%{hours}h %{minutes}m", hours: hours, minutes: minutes),
+      else: "#{max(minutes, 1)}m"
   end
 
   @impl true
@@ -119,13 +149,18 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Periodic actions
-        <:subtitle>Difficulties, cooldowns and the log of the actions performed.</:subtitle>
+        {dgettext("management", "Periodic actions")}
+        <:subtitle>
+          {dgettext("management", "Difficulties, cooldowns and the log of the actions performed.")}
+        </:subtitle>
       </.header>
 
       <p
@@ -133,7 +168,10 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
         id="master-actions-empty"
         class="mt-6 rounded-md border border-secondary/20 p-4 text-sm text-base-content/60"
       >
-        This GDR has no periodic actions: the GDR admin defines them in GM config.
+        {dgettext(
+          "management",
+          "This GDR has no periodic actions: the GDR admin defines them in GM config."
+        )}
       </p>
 
       <div :if={@action} class="mt-6 space-y-6">
@@ -156,29 +194,49 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
 
         <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-            Characters
+            {dgettext("management", "Characters")}
           </h2>
+
           <p class="mt-1 text-xs text-base-content/60">
             <%= if @action.difficulty_source == "character" do %>
-              The difficulty of {@action.name} is set per character (empty: default {@action.default_difficulty}).
+              {dgettext(
+                "management",
+                "The difficulty of %{action_name} is set per character (empty: default %{action_default_difficulty}).",
+                action_name: @action.name,
+                action_default_difficulty: @action.default_difficulty
+              )}
             <% else %>
-              The difficulty of {@action.name} comes from the zone property {@action.zone_property}.
+              {dgettext(
+                "management",
+                "The difficulty of %{action_name} comes from the zone property %{action_zone_property}.",
+                action_name: @action.name,
+                action_zone_property: @action.zone_property
+              )}
             <% end %>
-            Cooldown: {@action.cooldown_hours} h.
+            {dgettext("management", "Cooldown: %{action_cooldown_hours} h.",
+              action_cooldown_hours: @action.cooldown_hours
+            )}
           </p>
 
           <table id="master-action-characters" class="mt-3 w-full text-sm">
             <thead>
               <tr class="text-left text-xs uppercase tracking-wider text-base-content/60">
-                <th class="py-1">Character</th>
-                <th :if={@action.difficulty_source == "character"} class="py-1">Difficulty</th>
-                <th class="py-1">Cooldown</th>
+                <th class="py-1">{dgettext("management", "Character")}</th>
+
+                <th :if={@action.difficulty_source == "character"} class="py-1">
+                  {dgettext("management", "Difficulty")}
+                </th>
+
+                <th class="py-1">{dgettext("management", "Cooldown")}</th>
+
                 <th></th>
               </tr>
             </thead>
+
             <tbody class="divide-y divide-secondary/10">
               <tr :for={character <- @characters} id={"master-action-character-#{character.id}"}>
                 <td class="py-1.5">{character.name}</td>
+
                 <td :if={@action.difficulty_source == "character"} class="py-1.5">
                   <form
                     id={"difficulty-form-#{character.id}"}
@@ -196,13 +254,15 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
                       class="input input-sm console-field w-20"
                     />
                     <button class="text-xs font-semibold text-secondary hover:text-primary">
-                      Set
+                      {dgettext("management", "Set")}
                     </button>
                   </form>
                 </td>
+
                 <td class="py-1.5" id={"cooldown-#{character.id}"}>
                   {format_cooldown(Map.get(@cooldowns, character.id, 0))}
                 </td>
+
                 <td class="py-1.5 text-right">
                   <button
                     :if={Map.get(@cooldowns, character.id, 0) > 0}
@@ -211,7 +271,7 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
                     phx-value-character-id={character.id}
                     class="text-xs font-semibold text-secondary hover:text-primary"
                   >
-                    Reset cooldown
+                    {dgettext("management", "Reset cooldown")}
                   </button>
                 </td>
               </tr>
@@ -221,10 +281,14 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
       </div>
 
       <section :if={@actions != []} class="mt-6">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Log</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Log")}
+        </h2>
+
         <p :if={@logs == []} id="master-action-log-empty" class="mt-2 text-sm text-base-content/60">
-          No action performed yet.
+          {dgettext("management", "No action performed yet.")}
         </p>
+
         <ul id="master-action-log" class="mt-2 space-y-2">
           <li
             :for={log <- @logs}
@@ -233,20 +297,28 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
           >
             <div class="flex flex-wrap items-baseline justify-between gap-2">
               <span>
-                <strong class="text-primary">{log.character.name}</strong> · {log.action.name}
-                <span :if={log.location}>· {log.location.name}</span>
+                <strong class="text-primary">{log.character.name}</strong>
+                · {log.action.name} <span :if={log.location}>· {log.location.name}</span>
               </span>
+
               <span class="text-xs text-base-content/60">
-                {Calendar.strftime(log.inserted_at, "%Y-%m-%d %H:%M")} UTC
-                <span :if={!log.counts_for_cooldown}>· cooldown reset</span>
+                {dgettext("management", "%{value} UTC",
+                  value: Calendar.strftime(log.inserted_at, "%Y-%m-%d %H:%M")
+                )}
+                <span :if={!log.counts_for_cooldown}>{dgettext("management", "· cooldown reset")}</span>
               </span>
             </div>
+
             <p class="text-xs">
               <span class={if(log.success, do: "text-success", else: "text-error")}>
-                {if log.success, do: "Success", else: "Failure"}
+                {if log.success,
+                  do: dgettext("management", "Success"),
+                  else: dgettext("management", "Failure")}
               </span>
-              vs {log.difficulty} — {log.summary}
-              <span :if={log.effect}>· {log.effect}</span>
+              {dgettext("management", "vs %{log_difficulty} — %{log_summary}",
+                log_difficulty: log.difficulty,
+                log_summary: action_summary(log)
+              )} <span :if={log.effect}>· {log.effect}</span>
             </p>
           </li>
         </ul>

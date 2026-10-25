@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Chat do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Real time, per-location chat. Players speak through one of their characters
   (in character, or OFF game), masters narrate and set the room status, and
@@ -416,22 +418,39 @@ defmodule TannhauserGate.Chat do
 
   @doc "A human readable message for the chat errors."
   def error_message(:cannot_play),
-    do: "That character cannot play yet: it must be approved and in a playable state."
+    do:
+      dgettext(
+        "domain",
+        "That character cannot play yet: it must be approved and in a playable state."
+      )
 
-  def error_message(:private), do: "This private location is not booked for you right now."
-  def error_message(:invalid_kind), do: "That kind of message does not exist."
+  def error_message(:private),
+    do: dgettext("domain", "This private location is not booked for you right now.")
+
+  def error_message(:invalid_kind), do: dgettext("domain", "That kind of message does not exist.")
 
   def error_message(:alt_blocked),
-    do: "This GDR does not allow whispers between characters of the same player."
+    do:
+      dgettext(
+        "domain",
+        "This GDR does not allow whispers between characters of the same player."
+      )
 
-  def error_message(:no_recipient), do: "Choose an approved character of this GDR to whisper to."
-  def error_message(:whisper_self), do: "You cannot whisper to yourself."
-  def error_message(:not_master), do: "Only the GDR masters can do that."
-  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
-  def error_message(%Ecto.Changeset{}), do: "The message could not be posted."
+  def error_message(:no_recipient),
+    do: dgettext("domain", "Choose an approved character of this GDR to whisper to.")
+
+  def error_message(:whisper_self), do: dgettext("domain", "You cannot whisper to yourself.")
+  def error_message(:not_master), do: dgettext("domain", "Only the GDR masters can do that.")
+
+  def error_message(:muted),
+    do: dgettext("domain", "You are muted in this GDR: you cannot post right now.")
+
+  def error_message(%Ecto.Changeset{}), do: dgettext("domain", "The message could not be posted.")
   def error_message(reason) when reason in @dice_errors, do: Dice.error_message(reason)
   def error_message(reason) when is_binary(reason), do: reason
-  def error_message(_), do: "You can only speak as one of your characters in this story."
+
+  def error_message(_),
+    do: dgettext("domain", "You can only speak as one of your characters in this story.")
 
   @doc """
   Deletes a chat entry of the story on behalf of a moderator

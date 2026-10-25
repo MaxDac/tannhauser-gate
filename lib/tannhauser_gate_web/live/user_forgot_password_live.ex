@@ -10,21 +10,33 @@ defmodule TannhauserGateWeb.UserForgotPasswordLive do
     <Layouts.app flash={@flash} current_user={@current_user}>
       <div class="mx-auto max-w-sm">
         <.header class="text-center">
-          Forgot your password?
-          <:subtitle>We'll send a password reset link to your inbox</:subtitle>
+          {dgettext("player", "Forgot your password?")}
+          <:subtitle>
+            {dgettext("player", "We'll send a password reset link to your inbox")}
+          </:subtitle>
         </.header>
 
         <.form for={@form} id="reset_password_form" phx-submit="send_email">
-          <.input field={@form[:email]} type="email" label="Email" placeholder="Email" required />
+          <.input
+            field={@form[:email]}
+            type="email"
+            label={dgettext("player", "Email")}
+            placeholder={dgettext("player", "Email")}
+            required
+          />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Sending..." class="btn btn-primary console-action w-full">
-              Send password reset instructions
+            <.button
+              phx-disable-with={dgettext("player", "Sending...")}
+              class="btn btn-primary console-action w-full"
+            >
+              {dgettext("player", "Send password reset instructions")}
             </.button>
           </div>
         </.form>
+
         <p class="text-center text-sm mt-4">
-          <.link href={~p"/users/register"}>Register</.link>
-          | <.link href={~p"/users/log_in"}>Log in</.link>
+          <.link href={~p"/users/register"}>{dgettext("player", "Register")}</.link>
+          | <.link href={~p"/users/log_in"}>{dgettext("player", "Log in")}</.link>
         </p>
       </div>
     </Layouts.app>
@@ -44,7 +56,10 @@ defmodule TannhauserGateWeb.UserForgotPasswordLive do
     end
 
     info =
-      "If your email is in our system, you will receive instructions to reset your password shortly."
+      dgettext(
+        "player",
+        "If your email is in our system, you will receive instructions to reset your password shortly."
+      )
 
     {:noreply,
      socket

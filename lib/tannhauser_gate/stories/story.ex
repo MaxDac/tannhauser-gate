@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Stories.Story do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A story is a GDR (role playing game): its theme, map and settings. Its world,
   rules and customs live in its guide (`TannhauserGate.Guide`). It is
@@ -212,7 +214,7 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_length(:community_label, max: 60)
     |> validate_change(:community_url, &validate_http_url/2)
     |> unique_constraint(:name)
-    |> unique_constraint(:owner_id, message: "already runs a GDR")
+    |> unique_constraint(:owner_id, message: dgettext_noop("errors", "already runs a GDR"))
   end
 
   defp validate_listing(changeset) do
@@ -221,7 +223,7 @@ defmodule TannhauserGate.Stories.Story do
       genres |> Enum.reject(&(&1 in [nil, ""])) |> Enum.uniq()
     end)
     |> validate_subset(:genres, Directory.genre_values())
-    |> validate_length(:genres, max: 3, message: "pick at most 3 genres")
+    |> validate_length(:genres, max: 3, message: dgettext_noop("errors", "pick at most 3 genres"))
     |> validate_inclusion(:lifecycle, Directory.lifecycle_values())
     |> validate_inclusion(:content_rating, Directory.content_rating_values())
     |> validate_length(:pitch, max: 160)
@@ -232,7 +234,12 @@ defmodule TannhauserGate.Stories.Story do
     max = get_field(changeset, :chat_max_length)
 
     if is_integer(min) and is_integer(max) and min > max,
-      do: add_error(changeset, :chat_max_length, "must be at least the minimum length"),
+      do:
+        add_error(
+          changeset,
+          :chat_max_length,
+          dgettext_noop("errors", "must be at least the minimum length")
+        ),
       else: changeset
   end
 
@@ -241,10 +248,12 @@ defmodule TannhauserGate.Stories.Story do
     case URI.parse(url) do
       %URI{scheme: scheme, host: host}
       when scheme in ["http", "https"] and host not in [nil, ""] ->
-        if String.match?(url, ~r/\s/), do: [{field, "must not contain spaces"}], else: []
+        if String.match?(url, ~r/\s/),
+          do: [{field, dgettext_noop("errors", "must not contain spaces")}],
+          else: []
 
       _ ->
-        [{field, "must be an http(s) URL"}]
+        [{field, dgettext_noop("errors", "must be an http(s) URL")}]
     end
   end
 
@@ -253,7 +262,10 @@ defmodule TannhauserGate.Stories.Story do
   defp validate_map_svg(changeset) do
     validate_change(changeset, :map_svg, fn :map_svg, svg ->
       if svg =~ ~r/<\s*script|<\s*foreignObject|<\s*iframe|[\s\/"']on[a-z]+\s*=|javascript:/i do
-        [map_svg: "must not contain scripts, event handlers or foreignObject"]
+        [
+          map_svg:
+            dgettext_noop("errors", "must not contain scripts, event handlers or foreignObject")
+        ]
       else
         []
       end

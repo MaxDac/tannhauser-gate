@@ -9,18 +9,21 @@ defmodule TannhauserGateWeb.UserConfirmationLive do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user}>
       <div class="mx-auto max-w-sm">
-        <.header class="text-center">Confirm Account</.header>
+        <.header class="text-center">{dgettext("player", "Confirm Account")}</.header>
 
         <.form for={@form} id="confirmation_form" phx-submit="confirm_account">
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Confirming..." class="btn btn-primary console-action w-full">Confirm my account</.button>
+            <.button
+              phx-disable-with={dgettext("player", "Confirming...")}
+              class="btn btn-primary console-action w-full"
+            >{dgettext("player", "Confirm my account")}</.button>
           </div>
         </.form>
 
         <p class="text-center mt-4">
-          <.link href={~p"/users/register"}>Register</.link>
-          | <.link href={~p"/users/log_in"}>Log in</.link>
+          <.link href={~p"/users/register"}>{dgettext("player", "Register")}</.link>
+          | <.link href={~p"/users/log_in"}>{dgettext("player", "Log in")}</.link>
         </p>
       </div>
     </Layouts.app>
@@ -39,7 +42,7 @@ defmodule TannhauserGateWeb.UserConfirmationLive do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "User confirmed successfully.")
+         |> put_flash(:info, dgettext("player", "User confirmed successfully."))
          |> redirect(to: ~p"/")}
 
       :error ->
@@ -54,7 +57,10 @@ defmodule TannhauserGateWeb.UserConfirmationLive do
           %{} ->
             {:noreply,
              socket
-             |> put_flash(:error, "User confirmation link is invalid or it has expired.")
+             |> put_flash(
+               :error,
+               dgettext("player", "User confirmation link is invalid or it has expired.")
+             )
              |> redirect(to: ~p"/")}
         end
     end

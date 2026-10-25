@@ -3,6 +3,7 @@ defmodule TannhauserGateWeb.CharacterComponents do
   Small components shared wherever a character is shown.
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   use Phoenix.VerifiedRoutes,
     endpoint: TannhauserGateWeb.Endpoint,
@@ -50,7 +51,7 @@ defmodule TannhauserGateWeb.CharacterComponents do
         tabindex="0"
         role="button"
         aria-haspopup="menu"
-        aria-label={"Quick links for #{@character.name}"}
+        aria-label={dgettext("player", "Quick links for %{name}", name: @character.name)}
         class={["cursor-pointer hover:underline", @class]}
       >
         <%= if @inner_block != [] do %>
@@ -59,6 +60,7 @@ defmodule TannhauserGateWeb.CharacterComponents do
           {@character.name}
         <% end %>
       </div>
+
       <ul
         tabindex="0"
         role="menu"
@@ -69,24 +71,30 @@ defmodule TannhauserGateWeb.CharacterComponents do
             <.presence_dot status={@status} /> {presence_label(@status)}
           </span>
         </li>
+
         <li role="none">
           <.link
             id={"#{@id}-sheet"}
             role="menuitem"
             navigate={~p"/g/#{@story}/characters/#{@character.id}"}
           >
-            <.icon name="hero-identification-micro" class="size-4" /> View sheet
+            <.icon name="hero-identification-micro" class="size-4" /> {dgettext(
+              "player",
+              "View sheet"
+            )}
           </.link>
         </li>
+
         <li role="none">
           <.link
             id={"#{@id}-message"}
             role="menuitem"
             navigate={~p"/g/#{@story}/mail/new?#{[to: @character.id]}"}
           >
-            <.icon name="hero-envelope-micro" class="size-4" /> Send message
+            <.icon name="hero-envelope-micro" class="size-4" /> {dgettext("player", "Send message")}
           </.link>
         </li>
+
         <li :if={@location} role="none">
           <.link
             id={"#{@id}-location"}
@@ -94,7 +102,7 @@ defmodule TannhauserGateWeb.CharacterComponents do
             navigate={~p"/g/#{@story}/rooms/#{@location.id}"}
           >
             <.icon name="hero-map-pin-micro" class="size-4" />
-            <span class="truncate">Go to {@location.name}</span>
+            <span class="truncate">{dgettext("player", "Go to")} {@location.name}</span>
           </.link>
         </li>
       </ul>
@@ -122,11 +130,11 @@ defmodule TannhauserGateWeb.CharacterComponents do
   end
 
   @doc "Human readable label of a presence status."
-  def presence_label("available"), do: "Available"
-  def presence_label("busy"), do: "Busy"
-  def presence_label("away"), do: "Away"
-  def presence_label("looking_for_play"), do: "Looking for play"
-  def presence_label(_), do: "Available"
+  def presence_label("available"), do: dgettext("player", "Available")
+  def presence_label("busy"), do: dgettext("player", "Busy")
+  def presence_label("away"), do: dgettext("player", "Away")
+  def presence_label("looking_for_play"), do: dgettext("player", "Looking for play")
+  def presence_label(_), do: dgettext("player", "Available")
 
   defp presence_color("busy"), do: "bg-error shadow-[0_0_6px] shadow-error/70"
   defp presence_color("away"), do: "bg-warning/80"

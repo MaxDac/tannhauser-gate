@@ -1,4 +1,6 @@
 defmodule TannhauserGate.PeriodicActions.Action do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A periodic (hunt-like) action configured by the GDR admin: a dice pool of
   sheet items rolled against a difficulty taken from a zone property
@@ -85,7 +87,7 @@ defmodule TannhauserGate.PeriodicActions.Action do
     |> unique_constraint([:story_id, :name],
       error_key: :name,
       name: :periodic_actions_story_id_name_index,
-      message: "is already used by another action"
+      message: dgettext_noop("errors", "is already used by another action")
     )
   end
 
@@ -106,10 +108,10 @@ defmodule TannhauserGate.PeriodicActions.Action do
     validate_change(changeset, :items, fn :items, items ->
       cond do
         items == [] ->
-          [items: "can't be blank"]
+          [items: dgettext_noop("errors", "can't be blank")]
 
         length(items) > 10 ->
-          [items: "can be at most 10"]
+          [items: dgettext_noop("errors", "can be at most 10")]
 
         Enum.all?(items, &(&1 in slugs)) ->
           []
@@ -117,7 +119,8 @@ defmodule TannhauserGate.PeriodicActions.Action do
         true ->
           [
             items:
-              "must be sheet item keys (#{Enum.reject(items, &(&1 in slugs)) |> Enum.join(", ")} unknown)"
+              {dgettext_noop("errors", "must be sheet item keys (%{unknown} unknown)"),
+               unknown: Enum.reject(items, &(&1 in slugs)) |> Enum.join(", ")}
           ]
       end
     end)
@@ -127,9 +130,11 @@ defmodule TannhauserGate.PeriodicActions.Action do
     if get_field(changeset, :difficulty_source) == "zone" do
       changeset
       |> validate_required([:zone_property],
-        message: "is required when the difficulty comes from the zone"
+        message: dgettext_noop("errors", "is required when the difficulty comes from the zone")
       )
-      |> validate_inclusion(:zone_property, properties, message: "is not a zone property")
+      |> validate_inclusion(:zone_property, properties,
+        message: dgettext_noop("errors", "is not a zone property")
+      )
     else
       put_change(changeset, :zone_property, nil)
     end
@@ -145,7 +150,7 @@ defmodule TannhauserGate.PeriodicActions.Action do
 
       slug ->
         case Enum.find(trackers, &(&1.slug == slug)) do
-          nil -> add_error(changeset, tracker_field, "is not a tracker")
+          nil -> add_error(changeset, tracker_field, dgettext_noop("errors", "is not a tracker"))
           tracker -> validate_damage_type(changeset, type_field, tracker.damage_types)
         end
     end
@@ -155,7 +160,9 @@ defmodule TannhauserGate.PeriodicActions.Action do
 
   defp validate_damage_type(changeset, field, types) do
     changeset
-    |> validate_required([field], message: "is required for this tracker")
+    |> validate_required([field],
+      message: dgettext_noop("errors", "is required for this tracker")
+    )
     |> validate_inclusion(field, types)
   end
 end

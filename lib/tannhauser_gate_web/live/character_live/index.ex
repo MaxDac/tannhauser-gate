@@ -12,7 +12,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Characters · #{story.name}")
+     |> assign(:page_title, dgettext("player", "Characters · %{name}", name: story.name))
      |> assign(:mine, socket.assigns.active_character)
      |> assign(:can_create?, Characters.can_create_character?(user, story))
      |> assign(:empty?, characters == [])
@@ -36,8 +36,10 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Characters
-        <:subtitle>Everyone who walks through {@current_story.name}.</:subtitle>
+        {dgettext("player", "Characters")}
+        <:subtitle>
+          {dgettext("player", "Everyone who walks through")} {@current_story.name}.
+        </:subtitle>
 
         <:actions>
           <.button
@@ -45,8 +47,9 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
             id="new-character"
             navigate={~p"/g/#{@current_story}/characters/new"}
           >
-            <.icon name="hero-plus" class="size-4" />
-            {if @mine, do: "Create another character", else: "Create your character"}
+            <.icon name="hero-plus" class="size-4" /> {if @mine,
+              do: dgettext("player", "Create another character"),
+              else: dgettext("player", "Create your character")}
           </.button>
 
           <.button
@@ -54,7 +57,9 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
             id="my-character"
             navigate={~p"/g/#{@current_story}/characters/#{@mine}"}
           >
-            {if length(@my_characters) > 1, do: "Playing as #{@mine.name}", else: "Your character"}
+            {if length(@my_characters) > 1,
+              do: dgettext("player", "Playing as %{name}", name: @mine.name),
+              else: dgettext("player", "Your character")}
           </.button>
         </:actions>
       </.header>
@@ -63,7 +68,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
         :if={@empty?}
         class="mt-10 rounded-lg border border-dashed border-secondary/30 p-8 text-center text-base-content/60"
       >
-        Nobody has arrived yet. Create your character to be the first.
+        {dgettext("player", "Nobody has arrived yet. Create your character to be the first.")}
       </p>
 
       <div id="characters" phx-update="stream" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -74,11 +79,12 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
         >
           <.link
             navigate={~p"/g/#{@current_story}/characters/#{character}"}
-            aria-label={"#{character.name}'s sheet"}
+            aria-label={dgettext("player", "%{name}'s sheet", name: character.name)}
             class="shrink-0 transition-transform hover:scale-105"
           >
             <.avatar character={character} class="h-16 w-16 text-2xl" />
           </.link>
+
           <div class="min-w-0">
             <div class="flex items-center gap-2 text-lg font-bold text-base-content">
               <.character_quick_links
@@ -88,7 +94,10 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
                 location={GdrPresence.character_location(@online, character.id, @master?)}
                 class="truncate hover:text-primary"
               />
-              <span :if={character.is_npc} class="badge badge-xs badge-secondary">NPC</span>
+              <span :if={character.is_npc} class="badge badge-xs badge-secondary">{dgettext(
+                "player",
+                "NPC"
+              )}</span>
               <span
                 :if={!character.is_npc and character.approval_status != "approved"}
                 class="badge badge-xs badge-warning badge-soft"
@@ -98,8 +107,8 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
             </div>
 
             <p class="truncate text-xs uppercase tracking-wider text-secondary">
-              {(character.job && character.job.name) || "No job"} · {if character.is_npc,
-                do: "NPC",
+              {(character.job && character.job.name) || dgettext("player", "No job")} · {if character.is_npc,
+                do: dgettext("player", "NPC"),
                 else: character.user.username}
             </p>
 

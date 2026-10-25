@@ -19,7 +19,7 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
 
     {:ok,
      socket
-     |> assign(:page_title, "Weather")
+     |> assign(:page_title, dgettext("management", "Weather"))
      |> assign(:zones, Zones.list_zones(story))
      |> assign(:conditions, Weather.list_conditions(story))
      |> assign(:season, Calendars.current_season(story))
@@ -71,38 +71,65 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
            params
          ) do
       {:ok, _weather} ->
-        {:noreply, socket |> put_flash(:info, "Weather set.") |> reload() |> reset_form()}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Weather set."))
+         |> reload()
+         |> reset_form()}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
          assign(socket, :form, to_form(Map.put(changeset, :action, :insert), as: :weather))}
 
       {:error, :zone_not_found} ->
-        {:noreply, put_flash(socket, :error, "Choose a zone.")}
+        {:noreply, put_flash(socket, :error, dgettext("management", "Choose a zone."))}
     end
   end
 
   def handle_event("roll", %{"zone" => zone_id}, socket) do
     case Weather.roll_zone(story(socket), zone_id) do
       {:ok, weather} ->
-        {:noreply, socket |> put_flash(:info, "Rolled: #{weather.condition}.") |> reload()}
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           dgettext("management", "Rolled: %{weather_condition}.",
+             weather_condition: weather.condition
+           )
+         )
+         |> reload()}
 
       {:error, :empty_table} ->
         {:noreply,
-         put_flash(socket, :error, "The weather table has no condition for this season.")}
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "The weather table has no condition for this season.")
+         )}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "That zone does not exist in this GDR.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "That zone does not exist in this GDR.")
+         )}
     end
   end
 
   def handle_event("clear", %{"zone" => zone_id}, socket) do
     case Weather.clear_zone_weather(story(socket), zone_id) do
       :ok ->
-        {:noreply, socket |> put_flash(:info, "Weather cleared.") |> reload()}
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Weather cleared.")) |> reload()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "That zone does not exist in this GDR.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "That zone does not exist in this GDR.")
+         )}
     end
   end
 
@@ -124,8 +151,18 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
   defp maybe_preset(params, _target, _conditions), do: params
 
   defp source_label(%ZoneWeather{} = weather) do
-    who = if weather.set_by == "master", do: "Set by a master", else: "Rolled"
-    "#{who} · #{when_label(weather.set_at)} · until #{when_label(weather.expires_at)}"
+    who =
+      if weather.set_by == "master",
+        do: dgettext("management", "Set by a master"),
+        else: dgettext("management", "Rolled")
+
+    dgettext(
+      "management",
+      "%{who} · %{when_label_weather_set_at} · until %{when_label_weather_expires_at}",
+      who: who,
+      when_label_weather_set_at: when_label(weather.set_at),
+      when_label_weather_expires_at: when_label(weather.expires_at)
+    )
   end
 
   defp when_label(%DateTime{} = at), do: Calendar.strftime(at, "%d/%m %H:%M UTC")
@@ -151,15 +188,24 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Weather
+        {dgettext("management", "Weather")}
         <:subtitle>
-          The sky over the zones of {@current_story.name}. Season: <strong>{@season}</strong>
-          · new weather every {@current_story.weather_interval_hours}h.
+          {dgettext("management", "The sky over the zones of %{current_story_name}. Season:",
+            current_story_name: @current_story.name
+          )}
+          <strong>{@season}</strong> {dgettext(
+            "management",
+            "· new weather every %{current_story_weather_interval_hours}h.",
+            current_story_weather_interval_hours: @current_story.weather_interval_hours
+          )}
         </:subtitle>
       </.header>
 
@@ -168,7 +214,7 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
         id="master-weather-empty"
         class="mt-6 rounded-md border border-secondary/20 p-4 text-sm text-base-content/60"
       >
-        This GDR has no zones yet: the GDR admin defines them in GM config.
+        {dgettext("management", "This GDR has no zones yet: the GDR admin defines them in GM config.")}
       </p>
 
       <div :if={@zones != []} class="mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]">
@@ -181,13 +227,15 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="min-w-0">
                 <h3 class="font-semibold text-primary">{zone.name}</h3>
+
                 <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-base-content/60">
                   <.weather_badge id={"zone-weather-#{zone.id}"} weather={@weathers[zone.id]} />
-                  <span :if={!@weathers[zone.id]}>No weather yet.</span>
+                  <span :if={!@weathers[zone.id]}>{dgettext("management", "No weather yet.")}</span>
                   <span :if={@weathers[zone.id]} id={"zone-weather-source-#{zone.id}"}>
                     {source_label(@weathers[zone.id])}
                   </span>
                 </div>
+
                 <p
                   :if={@weathers[zone.id] && @weathers[zone.id].description}
                   class="mt-1 text-xs italic text-base-content/60"
@@ -195,6 +243,7 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
                   {@weathers[zone.id].description}
                 </p>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   :if={@conditions != []}
@@ -202,18 +251,19 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
                   phx-click="roll"
                   phx-value-zone={zone.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-primary"
-                  title="Roll from the table"
+                  title={dgettext("management", "Roll from the table")}
                 >
                   <.icon name="hero-arrow-path" class="size-4" />
                 </button>
+
                 <button
                   :if={@weathers[zone.id]}
                   id={"clear-weather-#{zone.id}"}
                   phx-click="clear"
                   phx-value-zone={zone.id}
-                  data-confirm="Clear the weather of this zone?"
+                  data-confirm={dgettext("management", "Clear the weather of this zone?")}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-error"
-                  title="Clear"
+                  title={dgettext("management", "Clear")}
                 >
                   <.icon name="hero-x-mark" class="size-4" />
                 </button>
@@ -223,7 +273,10 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
         </section>
 
         <section class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5">
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Set the weather</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("management", "Set the weather")}
+          </h2>
+
           <.form
             for={@form}
             id="zone-weather-form"
@@ -235,8 +288,8 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
               name="weather[zone_id]"
               id="zone-weather-zone"
               type="select"
-              label="Zone"
-              prompt="Choose a zone"
+              label={dgettext("management", "Zone")}
+              prompt={dgettext("management", "Choose a zone")}
               options={Enum.map(@zones, &{&1.name, &1.id})}
               value={@zone_id}
             />
@@ -245,18 +298,40 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
               name="weather[preset]"
               id="zone-weather-preset"
               type="select"
-              label="From the table (optional)"
-              prompt="Custom"
+              label={dgettext("management", "From the table (optional)")}
+              prompt={dgettext("management", "Custom")}
               options={Enum.map(@conditions, &{&1.name, &1.id})}
               value={@preset}
             />
-            <.input field={@form[:condition]} type="text" label="Condition" required />
+            <.input
+              field={@form[:condition]}
+              type="text"
+              label={dgettext("management", "Condition")}
+              required
+            />
             <div class="grid grid-cols-2 gap-3">
-              <.input field={@form[:icon]} type="select" label="Icon" options={Condition.icons()} />
-              <.input field={@form[:temperature]} type="number" label="Temperature °C" />
+              <.input
+                field={@form[:icon]}
+                type="select"
+                label={dgettext("management", "Icon")}
+                options={Condition.icons()}
+              />
+              <.input
+                field={@form[:temperature]}
+                type="number"
+                label={dgettext("management", "Temperature °C")}
+              />
             </div>
-            <.input field={@form[:description]} type="text" label="Description (optional)" />
-            <.button id="set-zone-weather" phx-disable-with="Saving...">Set weather</.button>
+
+            <.input
+              field={@form[:description]}
+              type="text"
+              label={dgettext("management", "Description (optional)")}
+            />
+            <.button id="set-zone-weather" phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Set weather"
+            )}</.button>
           </.form>
         </section>
       </div>
