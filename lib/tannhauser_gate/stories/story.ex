@@ -33,6 +33,7 @@ defmodule TannhauserGate.Stories.Story do
     field :community_url, :string
     field :community_label, :string
     field :modules, :map, default: %{}
+    field :max_guilds_per_character, :integer, default: 1
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -61,7 +62,8 @@ defmodule TannhauserGate.Stories.Story do
     :pay_interval_hours,
     :archive_after_days,
     :community_url,
-    :community_label
+    :community_label,
+    :max_guilds_per_character
   ]
 
   @doc """
@@ -95,13 +97,23 @@ defmodule TannhauserGate.Stories.Story do
 
   defp validate_story(changeset) do
     changeset
-    |> validate_required([:name, :map_width, :map_height, :currency_name])
+    |> validate_required([
+      :name,
+      :map_width,
+      :map_height,
+      :currency_name,
+      :max_guilds_per_character
+    ])
     |> validate_length(:name, max: 120)
     |> validate_length(:currency_name, max: 30)
     |> validate_number(:map_width, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:map_height, greater_than: 0, less_than_or_equal_to: 10_000)
     |> validate_number(:pay_interval_hours, greater_than: 0, less_than_or_equal_to: 720)
     |> validate_number(:archive_after_days, greater_than: 0, less_than_or_equal_to: 3650)
+    |> validate_number(:max_guilds_per_character,
+      greater_than: 0,
+      less_than_or_equal_to: 20
+    )
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)

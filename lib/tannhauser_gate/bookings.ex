@@ -13,6 +13,7 @@ defmodule TannhauserGate.Bookings do
   alias TannhauserGate.Bookings.{Booking, Invite}
   alias TannhauserGate.Characters
   alias TannhauserGate.Characters.Character
+  alias TannhauserGate.Guilds
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Location
@@ -69,17 +70,41 @@ defmodule TannhauserGate.Bookings do
   Whether a user can view and post in a location at `at`: always for non
   private locations and for the masters, otherwise only the booker and the
   owners (or, for NPCs, nobody but masters) of the invited characters of the
-  running booking.
+  running booking. A location restricted to a guild (guilds module) is
+  further limited to the masters and the owners of the guild's active
+  members.
   """
   def can_access?(user, location, at \\ DateTime.utc_now())
 
-  def can_access?(_user, %Location{private: false}, _at), do: true
-
-  def can_access?(%User{} = user, %Location{} = location, at) do
-    master?(user, location) or participant?(user, active_booking(location, at))
+  def can_access?(user, %Location{} = location, at) do
+    guild_access?(user, location) and booking_access?(user, location, at)
   end
 
   def can_access?(_user, _location, _at), do: false
+
+  defp booking_access?(_user, %Location{private: false}, _at), do: true
+
+  defp booking_access?(%User{} = user, %Location{} = location, at) do
+    master?(user, location) or participant?(user, active_booking(location, at))
+  end
+
+  defp booking_access?(_user, _location, _at), do: false
+
+  @doc """
+  Whether the location is restricted to a guild the user is not part of:
+  false for unrestricted locations, when the guilds module is off and for the
+  masters.
+  """
+  def guild_locked?(user, %Location{} = location), do: not guild_access?(user, location)
+
+  defp guild_access?(_user, %Location{guild_id: nil}), do: true
+
+  defp guild_access?(user, %Location{guild_id: guild_id} = location) do
+    story = story_of(location)
+
+    not Guilds.enabled?(story) or Stories.master?(user, story) or
+      Guilds.active_member_user?(user, guild_id)
+  end
 
   @doc "Whether the user booked or was invited (with a character they own) to a booking."
   def participant?(%User{id: user_id}, %Booking{} = booking) do
@@ -184,10 +209,10 @@ defmodule TannhauserGate.Bookings do
 
   def error_message(_), do: "The location could not be booked."
 
-  defp master?(user, %Location{story: %Stories.Story{} = story}), do: Stories.master?(user, story)
+  defp master?(user, %Location{} = location), do: Stories.master?(user, story_of(location))
 
-  defp master?(user, %Location{story_id: story_id}),
-    do: Stories.master?(user, Stories.get_story(story_id))
+  defp story_of(%Location{story: %Stories.Story{} = story}), do: story
+  defp story_of(%Location{story_id: story_id}), do: Stories.get_story(story_id)
 
   defp fetch_invitees(_location, _character, ids) when ids in [nil, "", []], do: {:ok, []}
 

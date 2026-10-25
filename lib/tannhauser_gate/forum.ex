@@ -9,7 +9,9 @@ defmodule TannhauserGate.Forum do
       character must be able to play); off-game sections are written as the
       user;
     * `visibility` - `"all"` members, only users with an `"approved"`
-      character, or only the `"masters"`.
+      character, only the `"masters"`, or only the members of a `"guild"`
+      (guilds module: the owners of its active member characters and the
+      masters; masters only while the module is disabled).
 
   Authors edit and delete their own topics and posts; masters moderate the
   whole forum (edit, delete, lock and pin). Read markers are tracked per user
@@ -24,6 +26,8 @@ defmodule TannhauserGate.Forum do
   alias TannhauserGate.Characters
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Forum.{Post, Read, Section, Topic}
+  alias TannhauserGate.Guilds
+  alias TannhauserGate.Guilds.Guild
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
@@ -95,16 +99,22 @@ defmodule TannhauserGate.Forum do
   @doc """
   Whether the user can see (and so read and write in) the section: everyone
   for `"all"`, masters and users with an approved character for
-  `"approved"`, only masters for `"masters"`.
+  `"approved"`, only masters for `"masters"`, masters and the owners of the
+  guild's active members for `"guild"` (only masters when the guilds module
+  is off).
   """
-  def can_view_section?(user, %Story{} = story, %Section{visibility: visibility}) do
+  def can_view_section?(user, %Story{} = story, %Section{visibility: visibility} = section) do
     case visibility do
       "all" -> true
       "approved" -> Stories.master?(user, story) or approved_member?(user, story)
       "masters" -> Stories.master?(user, story)
+      "guild" -> Stories.master?(user, story) or guild_member?(user, story, section)
       _ -> false
     end
   end
+
+  defp guild_member?(user, story, %Section{guild_id: guild_id}),
+    do: Guilds.enabled?(story) and Guilds.active_member_user?(user, guild_id)
 
   defp approved_member?(%User{id: user_id}, %Story{id: story_id}) do
     Repo.exists?(
@@ -121,6 +131,7 @@ defmodule TannhauserGate.Forum do
   def visibility_label("all"), do: "All members"
   def visibility_label("approved"), do: "Approved characters"
   def visibility_label("masters"), do: "Masters only"
+  def visibility_label("guild"), do: "Guild members"
   def visibility_label(other), do: other
 
   def get_section!(id), do: Repo.get!(Section, id)
@@ -128,13 +139,26 @@ defmodule TannhauserGate.Forum do
   def create_section(%{id: story_id}, attrs) do
     %Section{story_id: story_id}
     |> Section.changeset(attrs)
+    |> validate_story_guild()
     |> Repo.insert()
   end
 
   def update_section(%Section{} = section, attrs) do
     section
     |> Section.changeset(attrs)
+    |> validate_story_guild()
     |> Repo.update()
+  end
+
+  # A guild section may only belong to a guild of its own story.
+  defp validate_story_guild(changeset) do
+    story_id = Changeset.get_field(changeset, :story_id)
+
+    Changeset.validate_change(changeset, :guild_id, fn :guild_id, guild_id ->
+      if Repo.exists?(from g in Guild, where: g.id == ^guild_id and g.story_id == ^story_id),
+        do: [],
+        else: [guild_id: "is not a guild of this GDR"]
+    end)
   end
 
   def delete_section(%Section{} = section), do: Repo.delete(section)

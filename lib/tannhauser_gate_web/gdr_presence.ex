@@ -11,7 +11,7 @@ defmodule TannhauserGateWeb.GdrPresence do
   import Phoenix.Component, only: [assign: 3]
   import Phoenix.LiveView, only: [attach_hook: 4, connected?: 1]
 
-  alias TannhauserGate.{Characters, Stories}
+  alias TannhauserGate.{Characters, Guilds, Stories}
   alias TannhauserGateWeb.Presence
 
   def topic(story_id), do: "presence:story:#{story_id}"
@@ -31,6 +31,7 @@ defmodule TannhauserGateWeb.GdrPresence do
           username: user.username,
           character_id: character && character.id,
           character_name: character && character.name,
+          guilds: if(character, do: Guilds.public_guild_names(character), else: []),
           location_id: nil,
           location_name: nil,
           location_private: false,

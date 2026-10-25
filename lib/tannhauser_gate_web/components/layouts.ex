@@ -264,6 +264,16 @@ defmodule TannhauserGateWeb.Layouts do
                 Market
               </.nav_link>
             </li>
+            <li :if={Stories.module_enabled?(@current_story, :guilds)}>
+              <.nav_link
+                id="nav-guilds"
+                navigate={~p"/g/#{@current_story}/guilds"}
+                icon="hero-flag"
+                current_path={@current_path}
+              >
+                Guilds
+              </.nav_link>
+            </li>
             <li :if={Stories.master_role?(@story_role)}>
               <.nav_link
                 id="nav-master-tools"
@@ -356,6 +366,13 @@ defmodule TannhauserGateWeb.Layouts do
                   <span :if={entry.character_name} class="font-normal text-fog-500">
                     · {entry.username}
                   </span>
+                </span>
+                <span
+                  :if={entry[:guilds] not in [nil, []]}
+                  id={"online-user-#{entry.user_id}-guilds"}
+                  class="block truncate text-fog-500"
+                >
+                  <.icon name="hero-flag-micro" class="size-3" /> {Enum.join(entry.guilds, ", ")}
                 </span>
                 <span :if={entry.location_name} class="block truncate text-fog-500">
                   <.icon name="hero-map-pin-micro" class="size-3" /> {entry.location_name}
