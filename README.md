@@ -146,7 +146,7 @@ UI components use daisyUI classes (`btn`, `input`, `select`, `drawer`, `alert`, 
 
 `tannhauser` is the theme of the default GDR. The platform pages (GDR selection, account,
 admin) use a neutral `platform` theme. GMs choose a preset for their GDR (`tannhauser`,
-`ember`, `azure` or `crimson`) and can override its main colours with hex values. The
+`ember`, `azure`, `crimson` or `sepia`) and can override its main colours with hex values. The
 design tokens follow the active daisyUI theme, so the custom components restyle with it.
 
 Shared form controls add scoped `console-field`, `console-check`, and `console-action` styles:
@@ -232,7 +232,7 @@ and login accepts the username or the email. See the "Enable email" GitHub issue
 ### Seeded GDRs and accounts
 
 The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) are safe to re-run: they only create
-what is missing and never overwrite edits. They create two GDRs:
+what is missing and never overwrite edits. They create three GDRs:
 
 - **Tannhauser Gate** — the default GDR (Neo-Meridian, 2121), with every module, trackers (Health,
   Stress), a d10 dice pool and the "Work the streets" periodic action.
@@ -240,6 +240,12 @@ what is missing and never overwrite edits. They create two GDRs:
   Lattice, rogue constructs, combines and orbital clans. It ships with full placeholder content (map
   and rooms, zones, guide, forum, sheet, jobs, origins, items and shop, guilds, NPC, esito, quest,
   calendar, weather, trackers, a d6 dice pool and periodic actions).
+- **Arkham Adrift** — cosmic horror with a light that does not go out, inspired by *Stygian: Reign of
+  the Old Ones* (original lore): Arkham, 1923, torn from the world and adrift in a starless void.
+  The Black Star cult worships the Old Ones, while the Lamplighters of St. Agnes keep the lamp burning
+  and search for the Narrow Gate home. It uses the `sepia` theme and a static banner
+  (`priv/static/images/gdr/`), with Dread (madness dice) and Grace (rerolls, restored by charity)
+  trackers on a d10 pool, and the same full placeholder content as Neon Republic.
 
 They also create a platform admin and one GM owner per GDR:
 
@@ -248,6 +254,7 @@ They also create a platform admin and one GM owner per GDR:
 | Platform admin | `admin` | `admin@tannhauser.gate` | `change-me-tannhauser-2121` | `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` |
 | Tannhauser Gate GM | `tannhauser_gm` | `gm@tannhauser.gate` | `change-me-tannhauser-gm-2121` | `TG_GM_USERNAME`, `TG_GM_EMAIL`, `TG_GM_PASSWORD` |
 | Neon Republic GM | `neon_gm` | `gm@neon.republic` | `change-me-neon-republic-2093` | `NR_GM_USERNAME`, `NR_GM_EMAIL`, `NR_GM_PASSWORD` |
+| Arkham Adrift GM | `arkham_gm` | `gm@arkham.adrift` | `change-me-arkham-adrift-1923` | `AA_GM_USERNAME`, `AA_GM_EMAIL`, `AA_GM_PASSWORD` |
 
 Every seeded account must **change its password at the first login**: until then, every page
 redirects to **Settings**. Re-running the seeds never resets a changed password. Admins can promote

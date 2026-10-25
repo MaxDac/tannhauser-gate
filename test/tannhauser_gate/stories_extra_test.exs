@@ -111,6 +111,7 @@ defmodule TannhauserGate.StoriesExtraTest do
   describe "Themes" do
     test "exposes the default themes and rejects bad values" do
       assert Themes.default() in Themes.presets()
+      assert "sepia" in Themes.presets()
       assert Themes.platform() == "platform"
       refute Themes.hex?(nil)
       refute Themes.hex?(123)

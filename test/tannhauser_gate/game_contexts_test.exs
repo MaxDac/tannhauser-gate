@@ -5,7 +5,7 @@ defmodule TannhauserGate.GameContextsTest do
   import TannhauserGate.GameFixtures
 
   alias TannhauserGate.{Accounts, Characters, Chat, Forum, Stories}
-  alias TannhauserGate.Seeds.NeonRepublic
+  alias TannhauserGate.Seeds.{ArkhamAdrift, NeonRepublic}
   alias TannhauserGate.Stories.Location
 
   describe "accounts roles" do
@@ -270,17 +270,25 @@ defmodule TannhauserGate.GameContextsTest do
     end
 
     test "run/0 seeds GM owners and flags every seeded account to change its password" do
-      %{admin: admin, story: story, gm: gm, neon_republic: %{story: neon, gm: neon_gm}} =
-        TannhauserGate.Seeds.run()
+      %{
+        admin: admin,
+        story: story,
+        gm: gm,
+        neon_republic: %{story: neon, gm: neon_gm},
+        arkham_adrift: %{story: arkham, gm: arkham_gm}
+      } = TannhauserGate.Seeds.run()
 
-      assert Enum.all?([admin, gm, neon_gm], & &1.must_change_password)
-      assert Enum.all?([admin, gm, neon_gm], & &1.confirmed_at)
-      assert Accounts.gm?(gm) and Accounts.gm?(neon_gm)
+      gms = [gm, neon_gm, arkham_gm]
+      assert Enum.all?([admin | gms], & &1.must_change_password)
+      assert Enum.all?([admin | gms], & &1.confirmed_at)
+      assert Enum.all?(gms, &Accounts.gm?/1)
       refute Accounts.admin?(gm)
       assert story.owner_id == gm.id
       assert neon.owner_id == neon_gm.id
+      assert arkham.owner_id == arkham_gm.id
       assert Stories.role(gm, story) == :gdr_admin
       assert Stories.role(neon_gm, neon) == :gdr_admin
+      assert Stories.role(arkham_gm, arkham) == :gdr_admin
 
       # A later run keeps a changed password and does not flag the account again.
       {:ok, _} = Accounts.set_must_change_password(gm, false)
@@ -364,6 +372,78 @@ defmodule TannhauserGate.GameContextsTest do
                TannhauserGate.Boards.list_announcements(again)
 
       assert %{year: 2093} = TannhauserGate.Calendars.now(again)
+      assert length(TannhauserGate.Weather.list_conditions(again)) == 5
+    end
+
+    test "run/0 seeds the Arkham Adrift GDR, idempotently" do
+      %{arkham_adrift: %{story: arkham}} = TannhauserGate.Seeds.run()
+      %{arkham_adrift: %{story: again}} = TannhauserGate.Seeds.run()
+
+      assert arkham.id == again.id
+      refute again.is_default
+      assert %{name: "Arkham Adrift", theme: "sepia", currency_name: "dollars"} = again
+      assert again.banner_path == ArkhamAdrift.banner_path()
+      assert again.map_svg == ArkhamAdrift.map_svg()
+      assert "horror" in again.genres
+      assert again.pitch =~ "Arkham"
+
+      # The seeded rooms plus the guild vestry, all in a zone.
+      locations = Stories.list_locations(again)
+      assert length(locations) == length(ArkhamAdrift.locations()) + 1
+      assert length(TannhauserGate.Zones.list_zones(again)) == 3
+
+      assert Enum.all?(
+               locations,
+               &(&1.zone_id || &1.name == "Lamplighters' Vestry")
+             )
+
+      assert length(TannhauserGate.Sheet.list_items(again)) ==
+               length(ArkhamAdrift.sheet_items())
+
+      # The hope of the setting is part of the seeded guide.
+      assert [%{title: "The world", pages: pages}] = TannhauserGate.Guide.list_sections(again)
+      assert length(pages) == 5
+      assert Enum.any?(pages, &(&1.title == "Hope and the Narrow Gate"))
+
+      assert length(TannhauserGate.Bank.list_jobs(again)) == 6
+
+      assert [
+               %{name: "Archetype", options: [_, _, _, _, _, _]},
+               %{name: "Creed", options: [_, _, _, _]}
+             ] = TannhauserGate.Origins.list_groups(again)
+
+      assert ["health", "dread", "grace"] =
+               Enum.map(TannhauserGate.Trackers.list_trackers(again), & &1.slug)
+
+      assert %{
+               system: "pool",
+               die_size: 10,
+               special_tracker: "dread",
+               reroll_tracker: "grace"
+             } = again.dice_config
+
+      assert length(TannhauserGate.PeriodicActions.list_actions(again)) == 4
+      assert length(TannhauserGate.Items.list_items(again)) == 6
+
+      assert [%{name: "Hester Crane's pawnshop", location: %{name: "Independence Square"}}] =
+               TannhauserGate.Items.list_shops(again)
+
+      assert [
+               %{name: "The Lamplighters of St. Agnes", secret: false},
+               %{name: "The Black Star Lodge", secret: true}
+             ] = TannhauserGate.Guilds.list_guilds(again)
+
+      for key <-
+            ~w(origins items guilds chat_rp auto_xp esiti quests diary boards calendar weather reports)a do
+        assert Stories.module_enabled?(again, key), "#{key} should be enabled"
+      end
+
+      assert [%{status: "resolved"}] = TannhauserGate.Esiti.list_queue(again, "all")
+
+      assert [%{title: "Welcome to Arkham Adrift", pinned: true}] =
+               TannhauserGate.Boards.list_announcements(again)
+
+      assert %{year: 1923} = TannhauserGate.Calendars.now(again)
       assert length(TannhauserGate.Weather.list_conditions(again)) == 5
     end
 
