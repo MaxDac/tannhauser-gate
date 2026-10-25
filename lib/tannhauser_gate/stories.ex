@@ -115,6 +115,75 @@ defmodule TannhauserGate.Stories do
     Repo.exists?(from m in StoryMaster, where: m.story_id == ^story_id and m.user_id == ^user_id)
   end
 
+  ## Staff permissions
+
+  @permission_labels [
+    can_moderate: {"Moderate", "Delete chat entries and posts, handle reports and sanctions."},
+    can_approve_characters: {"Approve characters", "Review and approve or reject characters."},
+    can_award_xp: {"Award XP", "Hand out XP (also through esiti and quest rewards)."},
+    can_manage_esiti_quests: {"Esiti and quests", "Claim and resolve esiti, log quests."},
+    can_manage_economy: {"Economy", "Grant and remove items, adjust money."},
+    can_manage_world: {"World", "Zone events, action difficulty, calendar, weather and boards."}
+  ]
+
+  @doc "The staff permissions, as `{key, label, description}`."
+  def permissions do
+    for {key, {label, description}} <- @permission_labels, do: {key, label, description}
+  end
+
+  @doc """
+  Whether the user holds a staff `permission` (see
+  `TannhauserGate.Stories.StoryMaster.permissions/0`) in the story. The GDR
+  admin and platform admins hold every permission, masters those flagged on
+  their `story_masters` row, everyone else none.
+  """
+  def can?(user, story, permission) do
+    MapSet.member?(permissions(user, story), permission)
+  end
+
+  @doc "The set of staff permissions the user holds in the story."
+  def permissions(%User{} = user, %Story{} = story) do
+    case role(user, story) do
+      role when role in @admin_roles ->
+        MapSet.new(StoryMaster.permissions())
+
+      :master ->
+        row = Repo.get_by(StoryMaster, story_id: story.id, user_id: user.id)
+        MapSet.new(for p <- StoryMaster.permissions(), row && Map.get(row, p), do: p)
+
+      _ ->
+        MapSet.new()
+    end
+  end
+
+  def permissions(_, _), do: MapSet.new()
+
+  @doc "The `story_masters` rows of the story with their users, by username."
+  def list_master_rows(%Story{id: story_id}) do
+    Repo.all(
+      from m in StoryMaster,
+        join: u in assoc(m, :user),
+        where: m.story_id == ^story_id,
+        order_by: [asc: u.username],
+        preload: [user: u]
+    )
+  end
+
+  @doc """
+  Sets one permission flag of a master of the story. Returns
+  `{:ok, story_master}` or `{:error, :not_found}`.
+  """
+  def set_master_permission(%Story{id: story_id}, user_id, permission, value)
+      when is_boolean(value) do
+    with true <- permission in StoryMaster.permissions() || {:error, :not_found},
+         %StoryMaster{} = row <- Repo.get_by(StoryMaster, story_id: story_id, user_id: user_id) do
+      row |> StoryMaster.permissions_changeset(%{permission => value}) |> Repo.update()
+    else
+      nil -> {:error, :not_found}
+      error -> error
+    end
+  end
+
   ## Masters
 
   @doc "The masters of the story (not including its GDR admin), by username."

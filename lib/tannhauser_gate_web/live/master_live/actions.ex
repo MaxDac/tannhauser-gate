@@ -6,6 +6,8 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
   """
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_world}}
+
   alias TannhauserGate.{Characters, PeriodicActions}
 
   @impl true

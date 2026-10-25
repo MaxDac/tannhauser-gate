@@ -12,6 +12,7 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
   alias TannhauserGate.Esiti
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :esiti}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_esiti_quests}}
 
   @filters [
     {"active", "Active"},

@@ -27,6 +27,7 @@ defmodule TannhauserGate.Mailbox do
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Mailbox.Message
   alias TannhauserGate.Repo
+  alias TannhauserGate.Sanctions
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
 
@@ -243,9 +244,16 @@ defmodule TannhauserGate.Mailbox do
   @doc """
   Sends a message. `attrs` (string keys): `"sender"` and `"recipient"`
   (a character id or `"masters"`), `"subject"`, `"body"` and the optional
-  `"reply_to_id"`. Returns `{:ok, message}` or `{:error, changeset}`.
+  `"reply_to_id"`. Returns `{:ok, message}`, `{:error, :muted}` (see
+  `TannhauserGate.Sanctions.muted?/2`) or `{:error, changeset}`.
   """
   def send_message(%User{} = user, %Story{} = story, attrs) do
+    with :ok <- Sanctions.check_not_muted(user, story) do
+      do_send_message(user, story, attrs)
+    end
+  end
+
+  defp do_send_message(user, story, attrs) do
     master? = Stories.master?(user, story)
 
     %Message{story_id: story.id, sender_user_id: user.id}
@@ -254,6 +262,32 @@ defmodule TannhauserGate.Mailbox do
     |> put_recipient(story, master?)
     |> validate_not_to_self()
     |> put_reply_to(story, attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, message} ->
+        message = Repo.preload(message, [:sender_character, :recipient_character])
+        broadcast(story.id, :received, message)
+        {:ok, message}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  A letter from "The masters" to a character, sent by the platform on behalf
+  of `sender_user` (e.g. a sanction notice). Returns `{:ok, message}`.
+  """
+  def send_from_masters(%Story{} = story, sender_user, %Character{} = recipient, subject, body) do
+    %Message{
+      story_id: story.id,
+      sender_user_id: sender_user && sender_user.id,
+      from_masters: true,
+      sender_name: @masters_name,
+      recipient_character_id: recipient.id,
+      subject: String.slice(subject, 0, 200),
+      body: String.slice(body, 0, 20_000)
+    }
     |> Repo.insert()
     |> case do
       {:ok, message} ->

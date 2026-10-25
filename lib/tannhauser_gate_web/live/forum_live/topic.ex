@@ -2,7 +2,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
   use TannhauserGateWeb, :live_view
 
   alias TannhauserGate.Accounts.User
-  alias TannhauserGate.{Characters, Forum}
+  alias TannhauserGate.{Characters, Forum, Stories}
   alias TannhauserGateWeb.ForumLive.{Index, Section}
 
   @impl true
@@ -34,6 +34,8 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
     socket
     |> assign(:page_title, topic.title)
     |> assign(:topic, topic)
+    |> assign(:moderator?, MapSet.member?(socket.assigns.permissions, :can_moderate))
+    |> assign(:reports?, Stories.module_enabled?(story, :reports))
     |> assign(:characters, characters)
     |> assign(:editing_post_id, nil)
     |> assign(:edit_form, nil)
@@ -75,6 +77,14 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
       {:error, :locked} ->
         {:noreply, put_flash(socket, :error, "This topic is locked.")}
 
+      {:error, :muted} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           TannhauserGate.Sanctions.muted_message(user, socket.assigns.current_story)
+         )}
+
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "You cannot write in this section.")}
     end
@@ -82,7 +92,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
 
   def handle_event("edit_post", %{"id" => id}, socket) do
     with {:ok, post} <- fetch_post(socket, id),
-         true <- can_edit?(post, socket.assigns.current_user, socket.assigns.master?) do
+         true <- can_edit?(post, socket.assigns.current_user, socket.assigns.moderator?) do
       {:noreply,
        socket
        |> restream_editing()
@@ -251,7 +261,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
         <:actions>
           <div class="flex flex-wrap gap-2">
             <button
-              :if={@master?}
+              :if={@moderator?}
               id="toggle-pin"
               type="button"
               phx-click="toggle_flag"
@@ -263,7 +273,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
                 else: "Pin"}
             </button>
             <button
-              :if={@master?}
+              :if={@moderator?}
               id="toggle-lock"
               type="button"
               phx-click="toggle_flag"
@@ -274,7 +284,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               {if @topic.locked, do: "Unlock", else: "Lock"}
             </button>
             <button
-              :if={can_edit?(@topic, @current_user, @master?)}
+              :if={can_edit?(@topic, @current_user, @moderator?)}
               id="edit-topic"
               type="button"
               phx-click="edit_topic"
@@ -283,7 +293,7 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               <.icon name="hero-pencil" class="size-3" /> Rename
             </button>
             <button
-              :if={can_edit?(@topic, @current_user, @master?)}
+              :if={can_edit?(@topic, @current_user, @moderator?)}
               id="delete-topic"
               type="button"
               phx-click="delete_topic"
@@ -322,7 +332,16 @@ defmodule TannhauserGateWeb.ForumLive.Topic do
               · {format_time(post.inserted_at)}
               <span :if={post.edited_at} class="italic">· edited</span>
             </span>
-            <span :if={can_edit?(post, @current_user, @master?)} class="flex gap-3">
+            <.report_link
+              :if={@reports? and post.user_id != @current_user.id}
+              id={"report-post-#{post.id}"}
+              story={@current_story}
+              type="forum_post"
+              target_id={post.id}
+              return_to={~p"/g/#{@current_story}/forum/topics/#{@topic}"}
+              class="ml-auto"
+            />
+            <span :if={can_edit?(post, @current_user, @moderator?)} class="flex gap-3">
               <button
                 id={"edit-post-#{post.id}"}
                 type="button"

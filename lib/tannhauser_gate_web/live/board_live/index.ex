@@ -136,7 +136,7 @@ defmodule TannhauserGateWeb.BoardLive.Index do
         <:subtitle>
           In-character notices pinned around {@current_story.name}.
         </:subtitle>
-        <:actions :if={@master?}>
+        <:actions :if={MapSet.member?(@permissions, :can_manage_world)}>
           <.link
             id="boards-manage"
             navigate={~p"/g/#{@current_story}/master/boards"}
@@ -252,6 +252,18 @@ defmodule TannhauserGateWeb.BoardLive.Index do
               ]}
             >
               <.notice_card notice={notice} />
+              <.report_link
+                :if={
+                  TannhauserGate.Reports.enabled?(@current_story) and
+                    notice.user_id != @current_user.id
+                }
+                id={"notice-report-#{notice.id}"}
+                story={@current_story}
+                type="notice"
+                target_id={notice.id}
+                return_to={~p"/g/#{@current_story}/boards"}
+                class="absolute right-8 top-2 rounded-full p-1 opacity-50 group-hover:opacity-100"
+              />
               <button
                 :if={Boards.can_delete_notice?(@current_user, @current_story, notice)}
                 id={"notice-delete-#{notice.id}"}

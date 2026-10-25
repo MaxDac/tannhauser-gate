@@ -90,7 +90,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
           <.icon name="hero-megaphone" class="size-4" /> Announcements
           <.link
-            :if={@master?}
+            :if={MapSet.member?(@permissions, :can_manage_world)}
             id="announcements-manage"
             navigate={~p"/g/#{@current_story}/master/boards"}
             class="ml-auto text-xs font-semibold normal-case tracking-normal text-base-content/60 transition hover:text-primary"

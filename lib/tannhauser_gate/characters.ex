@@ -386,8 +386,9 @@ defmodule TannhauserGate.Characters do
   def submit_for_approval(%Character{}), do: {:error, :invalid_status}
 
   @doc """
-  Approves a character so it can play. Only the masters of its GDR (and the
-  GDR/platform admins) can do it. `notes` are optional reviewer notes.
+  Approves a character so it can play. Only the masters of its GDR holding the
+  `:can_approve_characters` staff permission (and the GDR/platform admins) can
+  do it. `notes` are optional reviewer notes.
   """
   def approve_character(%Character{} = character, %User{} = reviewer, notes \\ nil) do
     review(character, reviewer, "approved", notes)
@@ -407,7 +408,7 @@ defmodule TannhauserGate.Characters do
     do: {:error, :invalid_status}
 
   defp review(character, reviewer, status, notes) do
-    if Stories.master?(reviewer, story_of(character)) do
+    if Stories.can?(reviewer, story_of(character), :can_approve_characters) do
       character
       |> Character.review_changeset(status, %{
         review_notes: if(blank?(notes), do: nil, else: String.trim(notes)),
@@ -423,7 +424,10 @@ defmodule TannhauserGate.Characters do
   @doc "A human readable message for the approval errors."
   def approval_error_message(:invalid_status), do: "The character is already in that status."
   def approval_error_message(:notes_required), do: "Explain why the character is rejected."
-  def approval_error_message(:unauthorized), do: "Only the GDR masters can review characters."
+
+  def approval_error_message(:unauthorized),
+    do: "Only the GDR masters allowed to approve characters can review them."
+
   def approval_error_message(:invalid_state), do: "That state does not exist in this GDR."
 
   def approval_error_message(:origins_missing),

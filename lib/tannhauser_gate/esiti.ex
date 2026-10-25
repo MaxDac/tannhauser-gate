@@ -38,6 +38,7 @@ defmodule TannhauserGate.Esiti do
     Items,
     Mailbox,
     Repo,
+    Sanctions,
     Stories
   }
 
@@ -170,6 +171,12 @@ defmodule TannhauserGate.Esiti do
   def can_view?(user, %Story{} = story, %Esito{} = esito),
     do: Stories.master?(user, story) or owner?(user, esito)
 
+  @doc """
+  Whether the user handles esiti (claim, release, dismiss, resolve): the
+  `:can_manage_esiti_quests` staff permission (`Stories.can?/3`).
+  """
+  def manager?(user, %Story{} = story), do: Stories.can?(user, story, :can_manage_esiti_quests)
+
   @doc "Whether the user can post in the thread: owner or master, while it is active."
   def can_post?(user, %Story{} = story, %Esito{} = esito),
     do: Esito.active?(esito) and can_view?(user, story, esito)
@@ -218,6 +225,7 @@ defmodule TannhauserGate.Esiti do
   """
   def create_esito(%User{} = user, %Story{} = story, attrs) do
     with :ok <- check_enabled(story),
+         :ok <- Sanctions.check_not_muted(user, story),
          %Character{} = character <-
            find_by_id(requester_characters(user, story), attrs["character_id"]) ||
              {:error, :character_not_found},
@@ -328,7 +336,8 @@ defmodule TannhauserGate.Esiti do
     with :ok <- check_esito(story, esito),
          :ok <- check_enabled(story),
          true <- can_view?(user, story, esito) || {:error, :unauthorized},
-         true <- Esito.active?(esito) || {:error, :not_active} do
+         true <- Esito.active?(esito) || {:error, :not_active},
+         :ok <- Sanctions.check_not_muted(user, story) do
       author =
         cond do
           owner?(user, esito) ->
@@ -395,7 +404,7 @@ defmodule TannhauserGate.Esiti do
   defp transition(user, story, esito, from, event, fun) do
     with :ok <- check_esito(story, esito),
          :ok <- check_enabled(story),
-         true <- Stories.master?(user, story) || {:error, :unauthorized} do
+         true <- manager?(user, story) || {:error, :unauthorized} do
       esito |> update_status(from, fun) |> broadcast(event)
     end
   end
@@ -443,7 +452,7 @@ defmodule TannhauserGate.Esiti do
 
     with :ok <- check_esito(story, esito),
          :ok <- check_enabled(story),
-         true <- Stories.master?(user, story) || {:error, :unauthorized},
+         true <- manager?(user, story) || {:error, :unauthorized},
          true <- outcome != "" || {:error, :outcome_required},
          true <- String.length(outcome) <= 10_000 || {:error, :outcome_too_long},
          {:ok, effects} <- parse_effects(story, attrs) do
@@ -654,6 +663,7 @@ defmodule TannhauserGate.Esiti do
 
   def error_message(:module_disabled), do: "Esiti are not enabled in this GDR."
   def error_message(:unauthorized), do: "You can't do that with this esito."
+  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
   def error_message(:esito_not_found), do: "That esito does not exist in this GDR."
   def error_message(:character_not_found), do: "That character can't take part in this esito."
   def error_message(:location_not_found), do: "That room does not exist in this GDR."

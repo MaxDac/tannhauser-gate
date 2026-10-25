@@ -324,7 +324,7 @@ defmodule TannhauserGate.Quests do
   defp authorize(user, story) do
     cond do
       not enabled?(story) -> {:error, :module_disabled}
-      not Stories.master?(user, story) -> {:error, :unauthorized}
+      not Stories.can?(user, story, :can_manage_esiti_quests) -> {:error, :unauthorized}
       true -> :ok
     end
   end

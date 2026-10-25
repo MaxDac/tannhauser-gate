@@ -396,12 +396,11 @@ defmodule TannhauserGateWeb.RoomLive do
   def handle_event("delete_message", %{"id" => id}, socket) do
     story = socket.assigns.current_story
 
-    with true <- socket.assigns.master?,
-         %{} = message <- Chat.get_story_message(story.id, id) do
-      {:ok, _} = Chat.delete_message(message)
+    with %{} = message <- Chat.get_story_message(story.id, id),
+         {:ok, _} <- Chat.delete_message(socket.assigns.current_user, message) do
       {:noreply, socket}
     else
-      _ -> {:noreply, put_flash(socket, :error, "Only the GDR masters can delete messages.")}
+      _ -> {:noreply, put_flash(socket, :error, "Only the GDR moderators can delete messages.")}
     end
   end
 
@@ -772,8 +771,20 @@ defmodule TannhauserGateWeb.RoomLive do
                   <.icon name="hero-arrow-path" class="size-3" /> Reroll
                 </button>
 
+                <.report_link
+                  :if={
+                    Stories.module_enabled?(@current_story, :reports) and
+                      message.user_id != @current_user.id
+                  }
+                  id={"report-message-#{message.id}"}
+                  story={@current_story}
+                  type="chat"
+                  target_id={message.id}
+                  return_to={~p"/g/#{@current_story}/rooms/#{@location}"}
+                />
+
                 <button
-                  :if={@master?}
+                  :if={MapSet.member?(@permissions, :can_moderate)}
                   type="button"
                   id={"delete-message-#{message.id}"}
                   phx-click="delete_message"

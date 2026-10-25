@@ -8,6 +8,7 @@ defmodule TannhauserGateWeb.MasterLive.Items do
   alias TannhauserGate.{Characters, Items}
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :items}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_economy}}
 
   @impl true
   def mount(_params, _session, socket) do

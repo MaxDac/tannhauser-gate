@@ -12,6 +12,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
   alias TannhauserGate.Quests.{Participant, Quest}
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :quests}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_esiti_quests}}
 
   @impl true
   def mount(_params, _session, socket) do

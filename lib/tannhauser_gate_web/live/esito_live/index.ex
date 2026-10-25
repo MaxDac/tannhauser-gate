@@ -140,7 +140,7 @@ defmodule TannhauserGateWeb.EsitoLive.Index do
           job, a deal in the shadows. A master picks it up, talks it through with you and
           writes the outcome.
         </:subtitle>
-        <:actions :if={@master?}>
+        <:actions :if={MapSet.member?(@permissions, :can_manage_esiti_quests)}>
           <.link
             id="esiti-master-queue"
             navigate={~p"/g/#{@current_story}/master/esiti"}

@@ -78,6 +78,11 @@ defmodule TannhauserGateWeb.MailLive do
         |> assign(:message, message)
         |> assign(:message_side, if(in_inbox?, do: :inbox, else: :sent))
         |> assign(:can_reply?, in_inbox? and socket.assigns.sender_options != [])
+        |> assign(
+          :reportable?,
+          in_inbox? and message.sender_user_id != user.id and
+            TannhauserGate.Reports.enabled?(story)
+        )
     end
   end
 
@@ -113,6 +118,9 @@ defmodule TannhauserGateWeb.MailLive do
          socket
          |> put_flash(:info, "Message sent")
          |> push_navigate(to: ~p"/g/#{story}/mail/sent")}
+
+      {:error, :muted} ->
+        {:noreply, put_flash(socket, :error, TannhauserGate.Sanctions.muted_message(user, story))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset))}
@@ -297,6 +305,16 @@ defmodule TannhauserGateWeb.MailLive do
           >
             <.icon name="hero-arrow-uturn-left" class="size-4" /> Reply
           </.button>
+          <.report_link
+            :if={@reportable?}
+            id="report-mail"
+            story={@current_story}
+            type="mail"
+            target_id={@message.id}
+            return_to={~p"/g/#{@current_story}/mail/#{@message.id}"}
+            label="Report"
+            class="btn btn-ghost console-action"
+          />
           <button
             id="delete-message"
             type="button"
