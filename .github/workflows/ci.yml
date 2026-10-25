@@ -109,7 +109,15 @@ jobs:
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: test
-      - run: mix test
+      # Fails below the `test_coverage` threshold in mix.exs (a ratchet).
+      - run: mix test --cover
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: cover
+          retention-days: 7
+          if-no-files-found: ignore
 
   e2e:
     name: Playwright e2e

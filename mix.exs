@@ -12,7 +12,8 @@ defmodule TannhauserGate.MixProject do
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      test_coverage: test_coverage()
     ]
   end
 
@@ -89,6 +90,20 @@ defmodule TannhauserGate.MixProject do
     ]
   end
 
+  # `mix test --cover` fails when total coverage drops below the threshold.
+  # It is a ratchet: raise it whenever coverage goes up, never lower it.
+  defp test_coverage do
+    [
+      summary: [threshold: 87],
+      ignore_modules: [
+        TannhauserGate.DataCase,
+        TannhauserGateWeb.ConnCase,
+        TannhauserGate.AccountsFixtures,
+        TannhauserGate.GameFixtures
+      ]
+    ]
+  end
+
   # Aliases are shortcuts or tasks specific to the current project.
   # For example, to install project dependencies and perform other setup tasks, run:
   #
@@ -108,7 +123,7 @@ defmodule TannhauserGate.MixProject do
         "esbuild tannhauser_gate --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test --cover"]
     ]
   end
 end
