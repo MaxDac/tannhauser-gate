@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Arkham Adrift: a lit church spire over a fog-bound town adrift in a starless void">
+  <defs>
+    <linearGradient id="aa-void" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#050404"/>
+      <stop offset="55%" stop-color="#16110b"/>
+      <stop offset="100%" stop-color="#2a2116"/>
+    </linearGradient>
+    <radialGradient id="aa-eye" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#a9c98a" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#5f7a45" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#5f7a45" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aa-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fff1c4" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#d4a94a" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#d4a94a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="aa-ray" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#f3dc9a" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#f3dc9a" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="aa-fog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c9b48a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#c9b48a" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="400" fill="url(#aa-void)"/>
+
+  <!-- The dreaming thing beyond the void: a vast eye and reaching shapes. -->
+  <circle cx="960" cy="90" r="190" fill="url(#aa-eye)"/>
+  <ellipse cx="960" cy="90" rx="46" ry="16" fill="none" stroke="#a9c98a" stroke-opacity="0.45" stroke-width="2"/>
+  <ellipse cx="960" cy="90" rx="9" ry="14" fill="#a9c98a" fill-opacity="0.35"/>
+  <g fill="none" stroke="#3d4a2c" stroke-opacity="0.75" stroke-linecap="round">
+    <path d="M1200 40 C 1080 120, 1120 200, 1010 260 S 900 300, 880 360" stroke-width="16"/>
+    <path d="M1200 150 C 1110 180, 1150 260, 1060 300 S 980 330, 990 390" stroke-width="11"/>
+    <path d="M760 0 C 800 70, 740 120, 790 180 S 860 230, 820 280" stroke-width="9"/>
+    <path d="M1150 0 C 1100 60, 1040 40, 1020 120" stroke-width="7"/>
+  </g>
+
+  <!-- Light from the church: rays piercing the dark, pushing back the void. -->
+  <g fill="url(#aa-ray)">
+    <polygon points="300,150 120,0 190,0"/>
+    <polygon points="300,150 270,0 330,0"/>
+    <polygon points="300,150 420,0 500,0"/>
+    <polygon points="300,150 600,20 620,70"/>
+    <polygon points="300,150 0,60 0,110"/>
+  </g>
+  <circle cx="300" cy="150" r="120" fill="url(#aa-glow)"/>
+
+  <!-- The town: gambrel roofs, the church, the cliff edge. -->
+  <g fill="#0d0a07">
+    <path d="M0 300 L0 260 L40 260 L60 235 L95 235 L115 260 L140 260 L140 240 L170 220 L200 240 L200 300 Z"/>
+    <path d="M200 300 L200 250 L240 250 L240 200 L260 200 L260 250 L270 250 L270 300 Z"/>
+    <path d="M250 300 L250 200 L300 165 L350 200 L350 300 Z"/>
+    <path d="M285 200 L285 95 L300 55 L315 95 L315 200 Z"/>
+    <path d="M350 300 L350 240 L380 225 L410 240 L410 300 Z"/>
+    <path d="M410 300 L410 255 L450 255 L470 230 L505 230 L525 255 L560 255 L560 300 Z"/>
+    <path d="M560 300 L560 245 L600 220 L640 245 L640 300 Z"/>
+    <path d="M640 300 L640 265 L700 265 L700 300 Z"/>
+    <path d="M700 300 L700 270 L760 300 Z"/>
+  </g>
+  <!-- The cross atop the spire and the window that never goes dark. -->
+  <g stroke="#f3dc9a" stroke-width="3" stroke-linecap="round">
+    <path d="M300 22 V54"/>
+    <path d="M290 33 H310"/>
+  </g>
+  <path d="M292 140 A8 8 0 0 1 308 140 V162 H292 Z" fill="#f3dc9a"/>
+  <g fill="#d4a94a" fill-opacity="0.75">
+    <rect x="70" y="262" width="6" height="8"/>
+    <rect x="165" y="250" width="6" height="8"/>
+    <rect x="460" y="262" width="6" height="8"/>
+    <rect x="595" y="255" width="6" height="8"/>
+  </g>
+
+  <!-- The cliff where the streets end, falling into the void. -->
+  <path d="M0 300 L760 300 L790 320 L770 345 L800 370 L780 400 L0 400 Z" fill="#0a0806"/>
+  <path d="M760 300 L790 320 L770 345 L800 370 L780 400" fill="none" stroke="#c9b48a" stroke-opacity="0.25" stroke-width="2"/>
+  <rect y="250" width="1200" height="150" fill="url(#aa-fog)"/>
+
+  <!-- A lantern on the cliff path: someone is still searching for the way home. -->
+  <circle cx="720" cy="292" r="22" fill="url(#aa-glow)"/>
+  <circle cx="720" cy="292" r="3" fill="#fff1c4"/>
+
+  <g fill="#e6d9c0" fill-opacity="0.85" font-family="Georgia, 'Times New Roman', serif">
+    <text x="220" y="360" font-size="44" letter-spacing="6">ARKHAM ADRIFT</text>
+    <text x="222" y="385" font-size="15" letter-spacing="3" fill-opacity="0.6">1923 · THE LAMP STILL BURNS</text>
+  </g>
+</svg>

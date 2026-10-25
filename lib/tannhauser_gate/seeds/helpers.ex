@@ -1,7 +1,8 @@
 defmodule TannhauserGate.Seeds.Helpers do
   @moduledoc """
   Idempotent building blocks shared by the per-GDR seed modules
-  (`TannhauserGate.Seeds.DefaultGdr`, `TannhauserGate.Seeds.NeonRepublic`).
+  (`TannhauserGate.Seeds.DefaultGdr`, `TannhauserGate.Seeds.NeonRepublic`,
+  `TannhauserGate.Seeds.ArkhamAdrift`).
 
   Every helper creates data only when it is missing, so re-running the seeds
   never overwrites what admins and GDR admins changed later.

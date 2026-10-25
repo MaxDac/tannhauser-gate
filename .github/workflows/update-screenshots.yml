@@ -3,8 +3,18 @@ name: Update screenshots
 # Regenerates the Playwright screenshot baselines on the selected branch and
 # commits them back. Run it from the Actions tab ("Run workflow", pick the
 # branch) after an intentional UI change. Never run it on `main`.
+#
+# `changed` only rewrites screenshots that fail the comparison. Subtle changes
+# (e.g. dark artwork on a dark background) can stay within the tolerance, so
+# use `all` to force every baseline to be regenerated.
 on:
   workflow_dispatch:
+    inputs:
+      update_mode:
+        description: Which baselines to rewrite
+        type: choice
+        options: [changed, all]
+        default: changed
 
 permissions:
   contents: write
@@ -45,7 +55,7 @@ jobs:
       - working-directory: e2e
         run: npm ci
       - working-directory: e2e
-        run: npm run test:visual:update
+        run: npx playwright test -c playwright.visual.config.ts --update-snapshots=${{ inputs.update_mode }}
       - name: Commit baselines
         id: commit
         run: |

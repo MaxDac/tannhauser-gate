@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Neon Republic: Halcyon Bay's arcologies under an orbital ring, the data lattice glowing on the water">
+  <defs>
+    <linearGradient id="nr-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#02050a"/>
+      <stop offset="55%" stop-color="#091219"/>
+      <stop offset="100%" stop-color="#14304a"/>
+    </linearGradient>
+    <radialGradient id="nr-planet" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#4ab8e0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#4ab8e0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nr-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#e04ab8" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#e04ab8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="nr-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d2233"/>
+      <stop offset="100%" stop-color="#02050a"/>
+    </linearGradient>
+    <linearGradient id="nr-tower" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#172736"/>
+      <stop offset="100%" stop-color="#070d14"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="400" fill="url(#nr-sky)"/>
+
+  <!-- Stars, thinned by the sprawl's glow. -->
+  <g fill="#e0edf5" fill-opacity="0.6">
+    <circle cx="80" cy="40" r="1"/>
+    <circle cx="190" cy="90" r="1.2"/>
+    <circle cx="330" cy="30" r="1"/>
+    <circle cx="470" cy="70" r="1"/>
+    <circle cx="560" cy="25" r="1.3"/>
+    <circle cx="690" cy="55" r="1"/>
+    <circle cx="1010" cy="35" r="1"/>
+    <circle cx="1120" cy="80" r="1.2"/>
+  </g>
+
+  <!-- The orbital ring where the clans live, high above the bay. -->
+  <circle cx="900" cy="70" r="160" fill="url(#nr-planet)"/>
+  <ellipse cx="760" cy="60" rx="520" ry="70" fill="none" stroke="#4ab8e0" stroke-opacity="0.45" stroke-width="3" transform="rotate(-6 760 60)"/>
+  <ellipse cx="760" cy="60" rx="520" ry="70" fill="none" stroke="#a8e4f7" stroke-opacity="0.2" stroke-width="10" transform="rotate(-6 760 60)"/>
+  <g fill="#a8e4f7" fill-opacity="0.8" transform="rotate(-6 760 60)">
+    <rect x="455" y="115" width="18" height="6" rx="2"/>
+    <rect x="745" y="127" width="22" height="7" rx="2"/>
+    <rect x="1010" y="113" width="18" height="6" rx="2"/>
+  </g>
+
+  <!-- Arcologies of the combines. -->
+  <g fill="url(#nr-tower)">
+    <path d="M220 290 V170 L250 140 L280 170 V290 Z"/>
+    <path d="M300 290 V200 H350 V290 Z"/>
+    <path d="M380 290 V110 L420 70 L460 110 V290 Z"/>
+    <path d="M480 290 V190 H520 V160 H560 V290 Z"/>
+    <path d="M590 290 V130 H620 V90 H650 V130 H680 V290 Z"/>
+    <path d="M710 290 V180 L750 160 L790 180 V290 Z"/>
+    <path d="M820 290 V120 L850 60 L880 120 V290 Z"/>
+    <path d="M900 290 V210 H960 V290 Z"/>
+    <path d="M980 290 V170 H1020 V290 Z"/>
+    <path d="M0 290 V230 H60 V200 H110 V250 H160 V215 H200 V290 Z"/>
+    <path d="M1040 290 V220 H1100 V190 H1150 V240 H1200 V290 Z"/>
+  </g>
+  <!-- Window grids and the neon of the combines. -->
+  <g stroke="#4ab8e0" stroke-opacity="0.55" stroke-width="2">
+    <path d="M400 120 V280 M420 100 V280 M440 120 V280"/>
+    <path d="M605 140 V280 M635 100 V280 M665 140 V280"/>
+    <path d="M850 80 V280"/>
+  </g>
+  <g fill="#e04ab8" fill-opacity="0.85">
+    <rect x="236" y="175" width="28" height="4" rx="2"/>
+    <rect x="725" y="190" width="50" height="4" rx="2"/>
+    <rect x="985" y="180" width="30" height="4" rx="2"/>
+  </g>
+  <circle cx="420" cy="70" r="5" fill="#e04ab8"/>
+  <circle cx="420" cy="70" r="30" fill="url(#nr-glow)"/>
+  <circle cx="850" cy="60" r="5" fill="#4ab8e0"/>
+
+  <!-- The bay: the lattice shimmering under the water, in perspective. -->
+  <rect y="290" width="1200" height="110" fill="url(#nr-water)"/>
+  <g stroke="#4ab8e0" stroke-opacity="0.3" stroke-width="1" fill="none">
+    <path d="M0 310 H1200 M0 335 H1200 M0 365 H1200"/>
+    <path d="M600 290 L600 400 M600 290 L450 400 M600 290 L300 400 M600 290 L150 400 M600 290 L0 400 M600 290 L750 400 M600 290 L900 400 M600 290 L1050 400 M600 290 L1200 400"/>
+  </g>
+  <g fill-opacity="0.3">
+    <rect x="410" y="295" width="20" height="40" fill="#4ab8e0"/>
+    <rect x="236" y="295" width="28" height="3" fill="#e04ab8"/>
+    <rect x="725" y="295" width="50" height="3" fill="#e04ab8"/>
+  </g>
+
+  <!-- The Drowned Market: barges and their lanterns. -->
+  <g fill="#03070c">
+    <path d="M820 330 H960 L945 345 H835 Z"/>
+    <path d="M860 330 V312 H900 V330 Z"/>
+    <path d="M970 350 H1080 L1068 362 H982 Z"/>
+  </g>
+  <g fill="#ffb347">
+    <circle cx="845" cy="322" r="2.5"/>
+    <circle cx="935" cy="320" r="2.5"/>
+    <circle cx="1020" cy="343" r="2.5"/>
+  </g>
+
+  <g font-family="'Courier New', Consolas, monospace" fill="#c9dbe8">
+    <text x="220" y="362" font-size="36" font-weight="bold" letter-spacing="8" fill="#4ab8e0">NEON REPUBLIC</text>
+    <text x="222" y="386" font-size="14" letter-spacing="4" fill-opacity="0.7">HALCYON BAY · 2093 · JACK IN</text>
+  </g>
+</svg>

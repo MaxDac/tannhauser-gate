@@ -37,6 +37,7 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   alias TannhauserGate.Stories.Location
 
   @story_name "Neon Republic"
+  @banner_path "/images/gdr/neon-republic-banner.svg"
 
   @gm %{
     env: "NR_GM",
@@ -51,6 +52,7 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   @sample_announcement "Welcome to the Neon Republic"
 
   def story_name, do: @story_name
+  def banner_path, do: @banner_path
 
   @doc "The default credentials of the GM owning this GDR (env-overridable)."
   def gm_credentials, do: Helpers.credentials(@gm)
@@ -103,6 +105,8 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
               max_characters_per_user: 2
             })
 
+          # The banner is set only once: a GM may later replace or remove it.
+          {:ok, story} = Stories.set_banner(story, @banner_path)
           story
 
         story ->

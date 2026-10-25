@@ -222,6 +222,42 @@
   --noise: 0;
 }
 
+/* Sepia: aged parchment on deep umber, tarnished-gold primary and a sickly
+   green accent (cosmic horror, 1920s). Contrast on base-100 (#120e0a):
+   primary 8.8:1, base-content 13.8:1, accent 10.4:1 (WCAG AA). */
+@plugin "daisyui/packages/bundle/daisyui-theme" {
+  name: "sepia";
+  color-scheme: "dark";
+  --color-base-100: #120e0a;
+  --color-base-200: #1b150f;
+  --color-base-300: #282017;
+  --color-base-content: #e6d9c0;
+  --color-primary: #d4a94a;
+  --color-primary-content: #120e0a;
+  --color-secondary: #c9b48a;
+  --color-secondary-content: #120e0a;
+  --color-accent: #a9c98a;
+  --color-accent-content: #120e0a;
+  --color-neutral: #3a2f22;
+  --color-neutral-content: #f0e6d3;
+  --color-info: #c9b48a;
+  --color-info-content: #120e0a;
+  --color-success: #a9c98a;
+  --color-success-content: #120e0a;
+  --color-warning: #e0c44a;
+  --color-warning-content: #120e0a;
+  --color-error: #f87171;
+  --color-error-content: #120e0a;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
