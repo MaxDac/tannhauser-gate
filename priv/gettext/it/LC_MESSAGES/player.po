@@ -190,7 +190,7 @@ msgstr "Accetta invito"
 msgid "Account Settings"
 msgstr "Impostazioni account"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:937
+#: lib/tannhauser_gate_web/live/room_live.ex:934
 #, elixir-autogen
 msgid "Action tag"
 msgstr "Etichetta dell'azione"
@@ -205,7 +205,7 @@ msgstr "Azioni"
 msgid "Add picture"
 msgstr "Aggiungi immagine"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1007
+#: lib/tannhauser_gate_web/live/room_live.ex:1005
 #, elixir-autogen
 msgid "Add sheet items"
 msgstr "Aggiungi elementi della scheda"
@@ -422,17 +422,17 @@ msgstr "Valore base e bonus (origini ed equipaggiamento)"
 msgid "Be respectful of the other players, in and out of character. Harassment, hate speech and illegal content are not allowed. The masters and the GDR admins may moderate the chats, the forum and the characters, and the platform admins may suspend accounts that break these rules."
 msgstr "Rispetta gli altri giocatori, dentro e fuori dal gioco. Molestie, incitamento all'odio e contenuti illegali non sono ammessi. I master e gli amministratori dei GDR possono moderare chat, forum e personaggi, e gli amministratori della piattaforma possono sospendere gli account che violano queste regole."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1205
+#: lib/tannhauser_gate_web/live/room_live.ex:1203
 #, elixir-autogen
 msgid "Book"
 msgstr "Prenota"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1177
+#: lib/tannhauser_gate_web/live/room_live.ex:1175
 #, elixir-autogen
 msgid "Book as"
 msgstr "Prenota come"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1164
+#: lib/tannhauser_gate_web/live/room_live.ex:1162
 #, elixir-autogen
 msgid "Book this location"
 msgstr "Prenota questo luogo"
@@ -442,7 +442,7 @@ msgstr "Prenota questo luogo"
 msgid "Booked by %{who} until %{value} UTC%{more}"
 msgstr "Prenotato da %{who} fino alle %{value} UTC%{more}"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1130
+#: lib/tannhauser_gate_web/live/room_live.ex:1128
 #, elixir-autogen
 msgid "Booked now by"
 msgstr "Attualmente prenotato da"
@@ -452,12 +452,12 @@ msgstr "Attualmente prenotato da"
 msgid "Booking cancelled."
 msgstr "Prenotazione annullata."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1202
+#: lib/tannhauser_gate_web/live/room_live.ex:1200
 #, elixir-autogen
 msgid "Booking..."
 msgstr "Prenotazione..."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1124
+#: lib/tannhauser_gate_web/live/room_live.ex:1122
 #, elixir-autogen
 msgid "Bookings"
 msgstr "Prenotazioni"
@@ -489,12 +489,12 @@ msgstr "Di"
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:343
 #: lib/tannhauser_gate_web/live/forum_live/topic.ex:406
 #: lib/tannhauser_gate_web/live/gdr_live/profile.ex:633
-#: lib/tannhauser_gate_web/live/room_live.ex:1157
+#: lib/tannhauser_gate_web/live/room_live.ex:1155
 #, elixir-autogen
 msgid "Cancel"
 msgstr "Annulla"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1154
+#: lib/tannhauser_gate_web/live/room_live.ex:1152
 #, elixir-autogen
 msgid "Cancel this booking?"
 msgstr "Annullare questa prenotazione?"
@@ -859,7 +859,7 @@ msgid "Dice"
 msgstr "Dadi"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:473
-#: lib/tannhauser_gate_web/live/room_live.ex:1030
+#: lib/tannhauser_gate_web/live/room_live.ex:1028
 #, elixir-autogen
 msgid "Difficulty"
 msgstr "Difficoltà"
@@ -1075,13 +1075,13 @@ msgid "Experience"
 msgstr "Esperienza"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:454
-#: lib/tannhauser_gate_web/live/room_live.ex:1015
+#: lib/tannhauser_gate_web/live/room_live.ex:1013
 #, elixir-autogen
 msgid "Expression"
 msgstr "Espressione"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:464
-#: lib/tannhauser_gate_web/live/room_live.ex:1023
+#: lib/tannhauser_gate_web/live/room_live.ex:1021
 #, elixir-autogen
 msgid "Extra dice"
 msgstr "Dadi extra"
@@ -1155,7 +1155,7 @@ msgstr "Da"
 msgid "From %{value}"
 msgstr "Da %{value}"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1183
+#: lib/tannhauser_gate_web/live/room_live.ex:1181
 #, elixir-autogen
 msgid "From (UTC)"
 msgstr "Dalle (UTC)"
@@ -1369,7 +1369,7 @@ msgid "Invitations"
 msgstr "Inviti"
 
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:508
-#: lib/tannhauser_gate_web/live/room_live.ex:1196
+#: lib/tannhauser_gate_web/live/room_live.ex:1194
 #, elixir-autogen
 msgid "Invite"
 msgstr "Invita"
@@ -1446,7 +1446,7 @@ msgid "Keep me logged in"
 msgstr "Mantieni l'accesso"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:480
-#: lib/tannhauser_gate_web/live/room_live.ex:1038
+#: lib/tannhauser_gate_web/live/room_live.ex:1036
 #, elixir-autogen
 msgid "Label"
 msgstr "Etichetta"
@@ -1611,7 +1611,7 @@ msgid "Members"
 msgstr "Membri"
 
 #: lib/tannhauser_gate_web/live/mail_live.ex:392
-#: lib/tannhauser_gate_web/live/room_live.ex:947
+#: lib/tannhauser_gate_web/live/room_live.ex:944
 #, elixir-autogen
 msgid "Message"
 msgstr "Messaggio"
@@ -1632,7 +1632,7 @@ msgid "Message sent"
 msgstr "Messaggio inviato"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:465
-#: lib/tannhauser_gate_web/live/room_live.ex:1024
+#: lib/tannhauser_gate_web/live/room_live.ex:1022
 #, elixir-autogen
 msgid "Modifier"
 msgstr "Modificatore"
@@ -1749,7 +1749,7 @@ msgstr "Nessun XP registrato."
 msgid "No announcements from the masters."
 msgstr "Nessun annuncio dai master."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1135
+#: lib/tannhauser_gate_web/live/room_live.ex:1133
 #, elixir-autogen
 msgid "No bookings yet."
 msgstr "Nessuna prenotazione."
@@ -1905,7 +1905,7 @@ msgid "Notes from"
 msgstr "Note di"
 
 #: lib/tannhauser_gate_web/live/board_live/index.ex:259
-#: lib/tannhauser_gate_web/live/room_live.ex:1259
+#: lib/tannhauser_gate_web/live/room_live.ex:1257
 #, elixir-autogen
 msgid "Nothing pinned here."
 msgstr "Nessun avviso affisso."
@@ -1922,7 +1922,7 @@ msgstr "Avviso (Markdown)"
 
 #: lib/tannhauser_gate_web/live/board_live/index.ex:21
 #: lib/tannhauser_gate_web/live/board_live/index.ex:137
-#: lib/tannhauser_gate_web/live/room_live.ex:1225
+#: lib/tannhauser_gate_web/live/room_live.ex:1223
 #, elixir-autogen
 msgid "Notice boards"
 msgstr "Bacheche"
@@ -2089,7 +2089,7 @@ msgid "Open the sheet"
 msgstr "Apri la scheda"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:481
-#: lib/tannhauser_gate_web/live/room_live.ex:1039
+#: lib/tannhauser_gate_web/live/room_live.ex:1037
 #, elixir-autogen
 msgid "Optional"
 msgstr "Facoltativo"
@@ -2193,7 +2193,7 @@ msgid "Pin"
 msgstr "Metti in evidenza"
 
 #: lib/tannhauser_gate_web/live/board_live/index.ex:194
-#: lib/tannhauser_gate_web/live/room_live.ex:1248
+#: lib/tannhauser_gate_web/live/room_live.ex:1246
 #, elixir-autogen
 msgid "Pin a notice"
 msgstr "Affiggi un avviso"
@@ -2240,7 +2240,7 @@ msgid "Playing as %{name}"
 msgstr "Giochi come %{name}"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:443
-#: lib/tannhauser_gate_web/live/room_live.ex:1006
+#: lib/tannhauser_gate_web/live/room_live.ex:1004
 #, elixir-autogen
 msgid "Pool (sheet items)"
 msgstr "Riserva (elementi della scheda)"
@@ -2612,17 +2612,17 @@ msgstr "Recensioni"
 msgid "Rewards & effects"
 msgstr "Ricompense ed effetti"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1047
+#: lib/tannhauser_gate_web/live/room_live.ex:1045
 #, elixir-autogen
 msgid "Roll"
 msgstr "Tira"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:996
+#: lib/tannhauser_gate_web/live/room_live.ex:994
 #, elixir-autogen
 msgid "Roll as"
 msgstr "Tira come"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:981
+#: lib/tannhauser_gate_web/live/room_live.ex:979
 #, elixir-autogen
 msgid "Roll dice"
 msgstr "Tira i dadi"
@@ -2632,7 +2632,7 @@ msgstr "Tira i dadi"
 msgid "Roll for the requester"
 msgstr "Tira per il richiedente"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1044
+#: lib/tannhauser_gate_web/live/room_live.ex:1042
 #, elixir-autogen
 msgid "Rolling..."
 msgstr "Tiro..."
@@ -2680,11 +2680,6 @@ msgstr "Salva recensione"
 msgid "Saving..."
 msgstr "Salvataggio..."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:949
-#, elixir-autogen
-msgid "Say something..."
-msgstr "Di' qualcosa..."
-
 #: lib/tannhauser_gate_web/live/gdr_live/index.ex:211
 #: lib/tannhauser_gate_web/live/gdr_live/profile.ex:285
 #, elixir-autogen
@@ -2718,7 +2713,7 @@ msgstr "Seleziona i messaggi da eliminare"
 
 #: lib/tannhauser_gate_web/live/esito_live/show.ex:380
 #: lib/tannhauser_gate_web/live/mail_live.ex:398
-#: lib/tannhauser_gate_web/live/room_live.ex:975
+#: lib/tannhauser_gate_web/live/room_live.ex:973
 #, elixir-autogen
 msgid "Send"
 msgstr "Invia"
@@ -2756,7 +2751,7 @@ msgstr "Invia a"
 #: lib/tannhauser_gate_web/live/guild_live/show.ex:506
 #: lib/tannhauser_gate_web/live/mail_live.ex:396
 #: lib/tannhauser_gate_web/live/report_live/new.ex:171
-#: lib/tannhauser_gate_web/live/room_live.ex:972
+#: lib/tannhauser_gate_web/live/room_live.ex:970
 #: lib/tannhauser_gate_web/live/user_confirmation_instructions_live.ex:29
 #: lib/tannhauser_gate_web/live/user_forgot_password_live.ex:29
 #, elixir-autogen
@@ -3139,7 +3134,7 @@ msgstr "A"
 msgid "To %{value}"
 msgstr "A %{value}"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1189
+#: lib/tannhauser_gate_web/live/room_live.ex:1187
 #, elixir-autogen
 msgid "To (UTC)"
 msgstr "Alle (UTC)"
@@ -3587,7 +3582,7 @@ msgstr "almeno %{esiti_min_xp} XP guadagnati per inviarne una"
 msgid "at most %{esiti_max_open} open requests per character"
 msgstr "al massimo %{esiti_max_open} richieste aperte per personaggio"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:939
+#: lib/tannhauser_gate_web/live/room_live.ex:936
 #, elixir-autogen
 msgid "at the bar"
 msgstr "al bancone"
@@ -3612,12 +3607,12 @@ msgstr "di"
 msgid "cannot speak in character yet (OFF messages are allowed): a master must approve it and its state must allow playing."
 msgstr "non può ancora parlare in gioco (sono ammessi messaggi OFF): un master deve approvarlo e il suo stato deve consentire di giocare."
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1104
+#: lib/tannhauser_gate_web/live/room_live.ex:1102
 #, elixir-autogen
 msgid "d20 + modifier"
 msgstr "d20 + modificatore"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1108
+#: lib/tannhauser_gate_web/live/room_live.ex:1106
 #, elixir-format, elixir-autogen
 msgid "dice expression, e.g. %{default_expression}"
 msgstr "espressione dei dadi, es. %{default_expression}"
@@ -3668,7 +3663,7 @@ msgstr "solo master"
 msgid "members"
 msgstr "membri"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:964
+#: lib/tannhauser_gate_web/live/room_live.ex:961
 #, elixir-autogen
 msgid "min"
 msgstr "min"
@@ -3719,7 +3714,7 @@ msgstr "punti rimasti da spendere oltre il valore iniziale."
 msgid "pool of %{pool}"
 msgstr "riserva di %{pool}"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1099
+#: lib/tannhauser_gate_web/live/room_live.ex:1097
 #, elixir-format, elixir-autogen
 msgid "pool of d%{die_size}, success on %{success_threshold}+"
 msgstr "riserva di d%{die_size}, successo con %{success_threshold}+"
@@ -3813,7 +3808,7 @@ msgstr "contro"
 msgid "warning"
 msgstr "avvertimento"
 
-#: lib/tannhauser_gate_web/live/room_live.ex:1145
+#: lib/tannhauser_gate_web/live/room_live.ex:1143
 #, elixir-autogen
 msgid "with"
 msgstr "con"

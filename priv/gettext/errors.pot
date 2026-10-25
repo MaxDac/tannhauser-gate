@@ -43,7 +43,7 @@ msgstr ""
 msgid "already exists in this GDR"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:212
+#: lib/tannhauser_gate/stories/story.ex:217
 #, elixir-autogen
 msgid "already runs a GDR"
 msgstr ""
@@ -335,7 +335,7 @@ msgstr ""
 msgid "must be after the start"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:251
+#: lib/tannhauser_gate/stories/story.ex:256
 #, elixir-autogen
 msgid "must be an http(s) URL"
 msgstr ""
@@ -345,7 +345,7 @@ msgstr ""
 msgid "must be at least 1 for the item"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:236
+#: lib/tannhauser_gate/stories/story.ex:241
 #, elixir-autogen
 msgid "must be at least the minimum length"
 msgstr ""
@@ -410,12 +410,12 @@ msgstr ""
 msgid "must have the @ sign and no spaces"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:262
+#: lib/tannhauser_gate/stories/story.ex:267
 #, elixir-autogen
 msgid "must not contain scripts, event handlers or foreignObject"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:247
+#: lib/tannhauser_gate/stories/story.ex:252
 #, elixir-autogen
 msgid "must not contain spaces"
 msgstr ""
@@ -438,7 +438,7 @@ msgstr ""
 msgid "pick a room or a zone"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/story.ex:221
+#: lib/tannhauser_gate/stories/story.ex:226
 #, elixir-autogen
 msgid "pick at most 3 genres"
 msgstr ""
@@ -525,5 +525,7 @@ msgstr ""
 msgid "you already reviewed this GDR"
 msgstr ""
 
+#: lib/tannhauser_gate/stories/themes.ex:156
+#, elixir-autogen
 msgid "has an invalid %{setting} choice"
 msgstr ""

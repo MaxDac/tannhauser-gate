@@ -13,7 +13,8 @@ defmodule TannhauserGate.Stories.Themes do
       id: "tannhauser",
       name: dgettext_noop("domain", "Quiet noir"),
       game: "Tannhauser Gate",
-      description: dgettext_noop("domain", "Smoked jade, softened edges and cinematic restraint."),
+      description:
+        dgettext_noop("domain", "Smoked jade, softened edges and cinematic restraint."),
       colors: ~w(#101715 #151e1b #1e2b25 #dce7df #a4d5b5 #91a79a #c1e9ce),
       controls: %{"corners" => "soft", "density" => "comfortable", "effects" => "flat"}
     },
@@ -21,7 +22,8 @@ defmodule TannhauserGate.Stories.Themes do
       id: "azure",
       name: dgettext_noop("domain", "Neon circuit"),
       game: "Neon Republic",
-      description: dgettext_noop("domain", "Electric cyan, precise edges and a quiet accent light."),
+      description:
+        dgettext_noop("domain", "Electric cyan, precise edges and a quiet accent light."),
       colors: ~w(#0d171c #142129 #1c303c #d5e9ed #78cfe0 #8faeb8 #a6e7ef),
       controls: %{"corners" => "sharp", "density" => "compact", "effects" => "accent"}
     },
@@ -61,7 +63,8 @@ defmodule TannhauserGate.Stories.Themes do
       id: "crimson",
       name: dgettext_noop("domain", "Red ledger"),
       game: nil,
-      description: dgettext_noop("domain", "Muted vermilion and charcoal for intrigue and danger."),
+      description:
+        dgettext_noop("domain", "Muted vermilion and charcoal for intrigue and danger."),
       colors: ~w(#1b1011 #261719 #382225 #f0dddc #ee9f98 #b89a98 #f6c9c0),
       controls: %{"corners" => "sharp", "density" => "comfortable", "effects" => "flat"}
     },
@@ -107,6 +110,7 @@ defmodule TannhauserGate.Stories.Themes do
        end)}
     end)
   end
+
   def color_keys, do: @color_keys
   def default, do: "tannhauser"
   def platform, do: "platform"

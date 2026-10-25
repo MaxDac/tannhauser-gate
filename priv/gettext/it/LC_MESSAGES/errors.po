@@ -45,7 +45,7 @@ msgstr "esiste già"
 msgid "already exists in this GDR"
 msgstr "esiste già in questo GDR"
 
-#: lib/tannhauser_gate/stories/story.ex:212
+#: lib/tannhauser_gate/stories/story.ex:217
 #, elixir-autogen
 msgid "already runs a GDR"
 msgstr "gestisce già un GDR"
@@ -337,7 +337,7 @@ msgstr "deve essere accettato per registrarsi"
 msgid "must be after the start"
 msgstr "deve essere dopo l'inizio"
 
-#: lib/tannhauser_gate/stories/story.ex:251
+#: lib/tannhauser_gate/stories/story.ex:256
 #, elixir-autogen
 msgid "must be an http(s) URL"
 msgstr "deve essere un URL http(s)"
@@ -347,7 +347,7 @@ msgstr "deve essere un URL http(s)"
 msgid "must be at least 1 for the item"
 msgstr "deve essere almeno 1 per l'oggetto"
 
-#: lib/tannhauser_gate/stories/story.ex:236
+#: lib/tannhauser_gate/stories/story.ex:241
 #, elixir-autogen
 msgid "must be at least the minimum length"
 msgstr "deve essere almeno pari alla lunghezza minima"
@@ -412,12 +412,12 @@ msgstr "devono essere numeri interi tra -1000 e 1000"
 msgid "must have the @ sign and no spaces"
 msgstr "deve contenere il simbolo @ e nessuno spazio"
 
-#: lib/tannhauser_gate/stories/story.ex:262
+#: lib/tannhauser_gate/stories/story.ex:267
 #, elixir-autogen
 msgid "must not contain scripts, event handlers or foreignObject"
 msgstr "non deve contenere script, gestori di eventi o foreignObject"
 
-#: lib/tannhauser_gate/stories/story.ex:247
+#: lib/tannhauser_gate/stories/story.ex:252
 #, elixir-autogen
 msgid "must not contain spaces"
 msgstr "non deve contenere spazi"
@@ -440,7 +440,7 @@ msgstr "i nomi devono essere brevi"
 msgid "pick a room or a zone"
 msgstr "scegli una stanza o una zona"
 
-#: lib/tannhauser_gate/stories/story.ex:221
+#: lib/tannhauser_gate/stories/story.ex:226
 #, elixir-autogen
 msgid "pick at most 3 genres"
 msgstr "scegli al massimo 3 generi"
@@ -527,5 +527,7 @@ msgstr "hai già segnalato questo contenuto e i master se ne stanno occupando"
 msgid "you already reviewed this GDR"
 msgstr "hai già recensito questo GDR"
 
+#: lib/tannhauser_gate/stories/themes.ex:156
+#, elixir-autogen
 msgid "has an invalid %{setting} choice"
 msgstr "contiene una scelta non valida per %{setting}"

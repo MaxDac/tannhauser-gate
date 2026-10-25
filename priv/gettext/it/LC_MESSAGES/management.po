@@ -12,11 +12,6 @@ msgstr ""
 msgid " (cannot play)"
 msgstr " (non può giocare)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1030
-#, elixir-autogen
-msgid "#rrggbb"
-msgstr "#rrggbb"
-
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:344
 #, elixir-autogen, elixir-format
 msgid "%{action_cooldown_hours} h"
@@ -32,7 +27,7 @@ msgstr "%{character_name}: %{entry_amount} PE registrati"
 msgid "%{count} entries"
 msgstr "%{count} voci"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2153
+#: lib/tannhauser_gate_web/live/gm_live.ex:2128
 #, elixir-autogen, elixir-format
 msgid "%{count} topics"
 msgstr "%{count} discussioni"
@@ -47,7 +42,7 @@ msgstr "%{esiti_open} aperte · %{esiti_claimed} in corso"
 msgid "%{hours}h %{minutes}m"
 msgstr "%{hours}h %{minutes}m"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1201
+#: lib/tannhauser_gate_web/live/gm_live.ex:1176
 #, elixir-autogen, elixir-format
 msgid "%{length__items_by_kind_kind} items"
 msgstr "%{length__items_by_kind_kind} elementi"
@@ -67,7 +62,7 @@ msgstr "%{log_quantity}× %{log_item_name}"
 msgid "%{map_get__counts__guild_id__0} members · %{length_guild_ranks} ranks"
 msgstr "%{map_get__counts__guild_id__0} membri · %{length_guild_ranks} gradi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:287
+#: lib/tannhauser_gate_web/live/gm_live.ex:298
 #, elixir-autogen, elixir-format
 msgid "%{name} %{value}"
 msgstr "%{name} %{value}"
@@ -107,7 +102,7 @@ msgstr "%{reports_status_label_report_status} da %{value}"
 msgid "%{season} weight"
 msgstr "Peso di %{season}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:342
+#: lib/tannhauser_gate_web/live/gm_live.ex:353
 #, elixir-autogen, elixir-format
 msgid "%{sheet_kind_label_kind} saved"
 msgstr "%{sheet_kind_label_kind}: salvato"
@@ -117,7 +112,7 @@ msgstr "%{sheet_kind_label_kind}: salvato"
 msgid "%{string_capitalize_sanction_kind} issued to %{user_handle_sanction_user}."
 msgstr "%{string_capitalize_sanction_kind} inflitta a %{user_handle_sanction_user}."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:564
+#: lib/tannhauser_gate_web/live/gm_live.ex:575
 #, elixir-autogen, elixir-format
 msgid "%{user_username} is now a master"
 msgstr "%{user_username} ora è un master"
@@ -137,7 +132,7 @@ msgstr "%{verb} %{qty}× %{item_name}."
 msgid "%{who} · %{when_label_weather_set_at} · until %{when_label_weather_expires_at}"
 msgstr "%{who} · %{when_label_weather_set_at} · fino a %{when_label_weather_expires_at}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1163
+#: lib/tannhauser_gate_web/live/gm_live.ex:1138
 #, elixir-autogen
 msgid "(any value within each item range), a"
 msgstr "(qualsiasi valore nell'intervallo di ogni elemento), una"
@@ -162,32 +157,32 @@ msgstr "(tutti)"
 msgid "(hidden)"
 msgstr "(nascosta)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1272
+#: lib/tannhauser_gate_web/live/gm_live.ex:1247
 #, elixir-autogen
 msgid ") the tracker counts damage of each type instead of a single value."
 msgstr ") l'indicatore conta i danni di ogni tipo invece di un unico valore."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1272
+#: lib/tannhauser_gate_web/live/gm_live.ex:1247
 #, elixir-autogen
 msgid "). With damage types (e.g."
 msgstr "). Con i tipi di danno (ad es."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1599
+#: lib/tannhauser_gate_web/live/gm_live.ex:1574
 #, elixir-autogen
 msgid "+/- amount"
 msgstr "+/- importo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1184
+#: lib/tannhauser_gate_web/live/gm_live.ex:1159
 #, elixir-autogen
 msgid ", parentheses and the item keys. Leave it empty to forbid raising that category with XP."
 msgstr ", parentesi e le chiavi degli elementi. Lascia vuoto per impedire di aumentare questa categoria con i PE."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1184
+#: lib/tannhauser_gate_web/live/gm_live.ex:1159
 #, elixir-autogen
 msgid ", whole numbers,"
 msgstr ", numeri interi,"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1238
+#: lib/tannhauser_gate_web/live/gm_live.ex:1213
 #, elixir-autogen
 msgid "4,3,3,2,2,2,1"
 msgstr "4,3,3,2,2,2,1"
@@ -197,7 +192,7 @@ msgstr "4,3,3,2,2,2,1"
 msgid ": the content was deleted."
 msgstr ": il contenuto è stato eliminato."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1174
+#: lib/tannhauser_gate_web/live/gm_live.ex:1149
 #, elixir-autogen
 msgid "; the other items keep the starting value). Masters creating NPCs or editing characters are never limited."
 msgstr "; gli altri elementi mantengono il valore iniziale). I master che creano PNG o modificano personaggi non hanno limiti."
@@ -228,7 +223,7 @@ msgstr "Azioni"
 msgid "Active"
 msgstr "Attive"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2184
+#: lib/tannhauser_gate_web/live/gm_live.ex:2159
 #, elixir-autogen
 msgid "Add a master"
 msgstr "Aggiungi un master"
@@ -263,7 +258,7 @@ msgstr "Aggiungi oggetto"
 msgid "Add listing"
 msgstr "Aggiungi inserzione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2202
+#: lib/tannhauser_gate_web/live/gm_live.ex:2177
 #, elixir-autogen
 msgid "Add master"
 msgstr "Aggiungi master"
@@ -314,7 +309,7 @@ msgstr "Aggiunti ai valori del personaggio in formule, indicatori e dadi (posson
 msgid "Added to the tracker value, or to the damage of the chosen type (negative heals)."
 msgstr "Aggiunto al valore dell'indicatore o al danno del tipo scelto (i valori negativi curano)."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2202
+#: lib/tannhauser_gate_web/live/gm_live.ex:2177
 #, elixir-autogen
 msgid "Adding..."
 msgstr "Aggiunta..."
@@ -360,12 +355,12 @@ msgstr "Tutte le stanze"
 msgid "Amount (negative to correct)"
 msgstr "Importo (negativo per correggere)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1601
+#: lib/tannhauser_gate_web/live/gm_live.ex:1576
 #, elixir-autogen, elixir-format
 msgid "Amount for %{c_name}"
 msgstr "Importo per %{c_name}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:797
+#: lib/tannhauser_gate_web/live/gm_live.ex:808
 #, elixir-autogen
 msgid "An external community for the players (e.g. a Discord server), shown in the GDR navigation."
 msgstr "Una comunità esterna per i giocatori (ad es. un server Discord), mostrata nella navigazione del GDR."
@@ -424,7 +419,7 @@ msgstr "Qualsiasi tipo"
 msgid "Any status"
 msgstr "Qualsiasi stato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1609
+#: lib/tannhauser_gate_web/live/gm_live.ex:1584
 #, elixir-autogen
 msgid "Apply"
 msgstr "Applica"
@@ -451,7 +446,7 @@ msgstr "Approva"
 msgid "Approve new characters, set their state and edit any sheet."
 msgstr "Approva nuovi personaggi, imposta il loro stato e modifica qualsiasi scheda."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1829
+#: lib/tannhauser_gate_web/live/gm_live.ex:1804
 #, elixir-autogen
 msgid "Archive messages older than (days, empty = never)"
 msgstr "Archivia messaggi più vecchi di (giorni, vuoto = mai)"
@@ -476,12 +471,12 @@ msgstr "Area (punti del poligono)"
 msgid "Areas are SVG polygon points in map coordinates, e.g."
 msgstr "Le aree sono punti di un poligono SVG nelle coordinate della mappa, ad es."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2018
+#: lib/tannhauser_gate_web/live/gm_live.ex:1993
 #, elixir-autogen
 msgid "As damage of type"
 msgstr "Come danno di tipo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1063
+#: lib/tannhauser_gate_web/live/gm_live.ex:1038
 #, elixir-autogen
 msgid "Attribute"
 msgstr "Attributo"
@@ -496,7 +491,7 @@ msgstr "Registro di controllo"
 msgid "Auto"
 msgstr "Auto"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1871
+#: lib/tannhauser_gate_web/live/gm_live.ex:1846
 #, elixir-autogen
 msgid "Automatic XP"
 msgstr "PE automatici"
@@ -516,13 +511,13 @@ msgstr "Disponibili / guadagnati"
 msgid "Award XP"
 msgstr "Assegna PE"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:462
+#: lib/tannhauser_gate_web/live/gm_live.ex:473
 #, elixir-autogen
 msgid "Balance updated"
 msgstr "Saldo aggiornato"
 
 #: lib/tannhauser_gate_web/components/gm_nav.ex:20
-#: lib/tannhauser_gate_web/live/gm_live.ex:1577
+#: lib/tannhauser_gate_web/live/gm_live.ex:1552
 #, elixir-autogen
 msgid "Balances"
 msgstr "Saldi"
@@ -534,12 +529,12 @@ msgstr "Saldi"
 msgid "Ban"
 msgstr "Ban"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:897
+#: lib/tannhauser_gate_web/live/gm_live.ex:908
 #, elixir-autogen
 msgid "Banner (PNG, JPEG or WebP, about 1200×400)"
 msgstr "Banner (PNG, JPEG o WebP, circa 1200×400)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:269
+#: lib/tannhauser_gate_web/live/gm_live.ex:280
 #, elixir-autogen
 msgid "Banner removed"
 msgstr "Banner rimosso"
@@ -549,22 +544,22 @@ msgstr "Banner rimosso"
 msgid "Base price"
 msgstr "Prezzo base"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1998
+#: lib/tannhauser_gate_web/live/gm_live.ex:1973
 #, elixir-autogen
 msgid "Bestial failure: a failure with a special 1"
 msgstr "Fallimento bestiale: un fallimento con un 1 speciale"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:747
+#: lib/tannhauser_gate_web/live/gm_live.ex:758
 #, elixir-autogen
 msgid "Block letters between characters of the same player"
 msgstr "Blocca lettere tra personaggi dello stesso giocatore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:738
+#: lib/tannhauser_gate_web/live/gm_live.ex:749
 #, elixir-autogen
 msgid "Block money transfers and item gifts between characters of the same player"
 msgstr "Blocca trasferimenti di denaro e regali di oggetti tra personaggi dello stesso giocatore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:753
+#: lib/tannhauser_gate_web/live/gm_live.ex:764
 #, elixir-autogen
 msgid "Block whispers between characters of the same player"
 msgstr "Blocca sussurri tra personaggi dello stesso giocatore"
@@ -589,18 +584,18 @@ msgstr "Calendario"
 msgid "Calendar saved: the clock now runs from the date you set."
 msgstr "Calendario salvato: l'orologio ora parte dalla data impostata."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1423
+#: lib/tannhauser_gate_web/live/gm_live.ex:1398
 #, elixir-autogen
 msgid "Can play"
 msgstr "Può giocare"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:453
-#: lib/tannhauser_gate_web/live/gm_live.ex:1110
-#: lib/tannhauser_gate_web/live/gm_live.ex:1339
-#: lib/tannhauser_gate_web/live/gm_live.ex:1436
-#: lib/tannhauser_gate_web/live/gm_live.ex:1532
-#: lib/tannhauser_gate_web/live/gm_live.ex:1714
-#: lib/tannhauser_gate_web/live/gm_live.ex:2113
+#: lib/tannhauser_gate_web/live/gm_live.ex:1085
+#: lib/tannhauser_gate_web/live/gm_live.ex:1314
+#: lib/tannhauser_gate_web/live/gm_live.ex:1411
+#: lib/tannhauser_gate_web/live/gm_live.ex:1507
+#: lib/tannhauser_gate_web/live/gm_live.ex:1689
+#: lib/tannhauser_gate_web/live/gm_live.ex:2088
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:269
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:183
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:435
@@ -642,7 +637,7 @@ msgstr "Variazione"
 msgid "Character"
 msgstr "Personaggio"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1158
+#: lib/tannhauser_gate_web/live/gm_live.ex:1133
 #, elixir-autogen
 msgid "Character creation and XP"
 msgstr "Creazione del personaggio e PE"
@@ -659,7 +654,7 @@ msgstr "Pannello personaggi"
 msgid "Character deleted"
 msgstr "Personaggio eliminato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:773
+#: lib/tannhauser_gate_web/live/gm_live.ex:784
 #, elixir-autogen
 msgid "Character sheet template"
 msgstr "Modello della scheda personaggio"
@@ -676,12 +671,12 @@ msgstr "Personaggi"
 msgid "Characters can ask to join (otherwise invitation only)"
 msgstr "I personaggi possono chiedere di entrare (altrimenti solo su invito)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1842
+#: lib/tannhauser_gate_web/live/gm_live.ex:1817
 #, elixir-autogen
 msgid "Characters per in-character entry (speech and whispers). Leave empty for no limit."
 msgstr "Caratteri per intervento in gioco (parlato e sussurri). Lascia vuoto per non imporre limiti."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:717
+#: lib/tannhauser_gate_web/live/gm_live.ex:728
 #, elixir-autogen
 msgid "Characters per player"
 msgstr "Personaggi per giocatore"
@@ -696,7 +691,7 @@ msgstr "I personaggi eseguono azioni periodiche (ad es. una caccia) da una stanz
 msgid "Chat & dice"
 msgstr "Chat e dadi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1823
+#: lib/tannhauser_gate_web/live/gm_live.ex:1798
 #, elixir-autogen
 msgid "Chat history"
 msgstr "Cronologia chat"
@@ -723,7 +718,7 @@ msgstr "Registro chat a (UTC)"
 msgid "Chat messages"
 msgstr "Messaggi di chat"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1838
+#: lib/tannhauser_gate_web/live/gm_live.ex:1813
 #, elixir-autogen
 msgid "Chat roleplay: entry length"
 msgstr "Gioco in chat: lunghezza degli interventi"
@@ -744,7 +739,7 @@ msgstr "Scegli un personaggio"
 msgid "Choose a group"
 msgstr "Scegli un gruppo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2097
+#: lib/tannhauser_gate_web/live/gm_live.ex:2072
 #, elixir-autogen
 msgid "Choose a guild"
 msgstr "Scegli una gilda"
@@ -803,27 +798,27 @@ msgid "Closed"
 msgstr "Chiuse"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:440
-#: lib/tannhauser_gate_web/live/gm_live.ex:1676
+#: lib/tannhauser_gate_web/live/gm_live.ex:1651
 #, elixir-autogen
 msgid "Color"
 msgstr "Colore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:813
+#: lib/tannhauser_gate_web/live/gm_live.ex:824
 #, elixir-autogen
 msgid "Community"
 msgstr "Comunità"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:806
+#: lib/tannhauser_gate_web/live/gm_live.ex:817
 #, elixir-autogen
 msgid "Community URL"
 msgstr "URL della comunità"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:812
+#: lib/tannhauser_gate_web/live/gm_live.ex:823
 #, elixir-autogen
 msgid "Community label"
 msgstr "Etichetta della comunità"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:793
+#: lib/tannhauser_gate_web/live/gm_live.ex:804
 #, elixir-autogen
 msgid "Community link"
 msgstr "Link della comunità"
@@ -854,7 +849,7 @@ msgid "Content flagged by the members. Resolve or dismiss each report; snapshots
 msgstr "Contenuti segnalati dai membri. Risolvi o archivia ogni segnalazione; le istantanee conservano il testo segnalato anche se è stato eliminato."
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:343
-#: lib/tannhauser_gate_web/live/gm_live.ex:890
+#: lib/tannhauser_gate_web/live/gm_live.ex:901
 #, elixir-autogen
 msgid "Content rating"
 msgstr "Classificazione dei contenuti"
@@ -885,7 +880,7 @@ msgstr "Tempo di attesa"
 msgid "Cooldown (hours)"
 msgstr "Tempo di attesa (ore)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1903
+#: lib/tannhauser_gate_web/live/gm_live.ex:1878
 #, elixir-autogen
 msgid "Cooldown (minutes)"
 msgstr "Tempo di attesa (minuti)"
@@ -900,7 +895,7 @@ msgstr "Tempo di attesa di %{character_name} azzerato."
 msgid "Cooldown: %{action_cooldown_hours} h."
 msgstr "Tempo di attesa: %{action_cooldown_hours} h."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2025
+#: lib/tannhauser_gate_web/live/gm_live.ex:2000
 #, elixir-autogen
 msgid "Cost"
 msgstr "Costo"
@@ -930,12 +925,12 @@ msgstr "Crea gilde e fazioni, i loro gradi e stipendi."
 msgid "Create items in the Items tab first."
 msgstr "Crea prima gli oggetti nella scheda Oggetti."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2104
+#: lib/tannhauser_gate_web/live/gm_live.ex:2079
 #, elixir-autogen
 msgid "Create section"
 msgstr "Crea sezione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1216
+#: lib/tannhauser_gate_web/live/gm_live.ex:1191
 #, elixir-autogen
 msgid "Creation"
 msgstr "Creazione"
@@ -945,12 +940,12 @@ msgstr "Creazione"
 msgid "Creation & XP"
 msgstr "Creazione e PE"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1970
+#: lib/tannhauser_gate_web/live/gm_live.ex:1945
 #, elixir-autogen
 msgid "Criticals"
 msgstr "Critici"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:699
+#: lib/tannhauser_gate_web/live/gm_live.ex:710
 #, elixir-autogen
 msgid "Currency name"
 msgstr "Nome della valuta"
@@ -965,12 +960,7 @@ msgstr "Data attuale di gioco"
 msgid "Custom"
 msgstr "Personalizzato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1016
-#, elixir-autogen
-msgid "Custom colors (hex, e.g. #22cc88 — leave empty to keep the preset)"
-msgstr "Colori personalizzati (esadecimale, ad es. #22cc88 — lascia vuoto per mantenere la preimpostazione)"
-
-#: lib/tannhauser_gate_web/live/gm_live.ex:1897
+#: lib/tannhauser_gate_web/live/gm_live.ex:1872
 #, elixir-autogen
 msgid "Daily cap per character (UTC day)"
 msgstr "Limite giornaliero per personaggio (giorno UTC)"
@@ -981,7 +971,7 @@ msgstr "Limite giornaliero per personaggio (giorno UTC)"
 msgid "Damage type"
 msgstr "Tipo di danno"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1301
+#: lib/tannhauser_gate_web/live/gm_live.ex:1276
 #, elixir-autogen
 msgid "Damage types (optional, comma separated)"
 msgstr "Tipi di danno (opzionali, separati da virgole)"
@@ -1008,12 +998,12 @@ msgstr "Giorno"
 msgid "Default"
 msgstr "Predefinito"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1962
+#: lib/tannhauser_gate_web/live/gm_live.ex:1937
 #, elixir-autogen
 msgid "Default difficulty"
 msgstr "Difficoltà predefinita"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1932
+#: lib/tannhauser_gate_web/live/gm_live.ex:1907
 #, elixir-autogen
 msgid "Default expression"
 msgstr "Espressione predefinita"
@@ -1048,12 +1038,12 @@ msgstr "Definisci le proprietà delle zone nella scheda Zone per usarle come dif
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:553
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:666
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:838
-#: lib/tannhauser_gate_web/live/gm_live.ex:1142
-#: lib/tannhauser_gate_web/live/gm_live.ex:1386
-#: lib/tannhauser_gate_web/live/gm_live.ex:1485
-#: lib/tannhauser_gate_web/live/gm_live.ex:1563
-#: lib/tannhauser_gate_web/live/gm_live.ex:1762
-#: lib/tannhauser_gate_web/live/gm_live.ex:2169
+#: lib/tannhauser_gate_web/live/gm_live.ex:1117
+#: lib/tannhauser_gate_web/live/gm_live.ex:1361
+#: lib/tannhauser_gate_web/live/gm_live.ex:1460
+#: lib/tannhauser_gate_web/live/gm_live.ex:1538
+#: lib/tannhauser_gate_web/live/gm_live.ex:1737
+#: lib/tannhauser_gate_web/live/gm_live.ex:2144
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:305
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:219
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:261
@@ -1132,7 +1122,7 @@ msgstr "Eliminare questo gruppo, le sue opzioni e le scelte dei personaggi?"
 msgid "Delete this guild with its ranks, members and log?"
 msgstr "Eliminare questa gilda con gradi, membri e registro?"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1139
+#: lib/tannhauser_gate_web/live/gm_live.ex:1114
 #, elixir-autogen
 msgid "Delete this item? Character values for it are removed."
 msgstr "Eliminare questo elemento? I relativi valori dei personaggi verranno rimossi."
@@ -1142,7 +1132,7 @@ msgstr "Eliminare questo elemento? I relativi valori dei personaggi verranno rim
 msgid "Delete this item? It disappears from every inventory and shop."
 msgstr "Eliminare questo oggetto? Scomparirà da tutti gli inventari e negozi."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1560
+#: lib/tannhauser_gate_web/live/gm_live.ex:1535
 #, elixir-autogen
 msgid "Delete this job? Characters holding it become unemployed."
 msgstr "Eliminare questo lavoro? I personaggi che lo svolgono diventeranno disoccupati."
@@ -1184,7 +1174,7 @@ msgid "Delete this rank? Its members keep their membership without a rank."
 msgstr "Eliminare questo grado? I suoi membri rimarranno nella gilda senza grado."
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:484
-#: lib/tannhauser_gate_web/live/gm_live.ex:1760
+#: lib/tannhauser_gate_web/live/gm_live.ex:1735
 #, elixir-autogen
 msgid "Delete this room and its messages?"
 msgstr "Eliminare questa stanza e i suoi messaggi?"
@@ -1195,7 +1185,7 @@ msgid "Delete this section and all its pages?"
 msgstr "Eliminare questa sezione e tutte le sue pagine?"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:836
-#: lib/tannhauser_gate_web/live/gm_live.ex:2167
+#: lib/tannhauser_gate_web/live/gm_live.ex:2142
 #, elixir-autogen
 msgid "Delete this section and all its topics?"
 msgstr "Eliminare questa sezione e tutte le sue discussioni?"
@@ -1205,7 +1195,7 @@ msgstr "Eliminare questa sezione e tutte le sue discussioni?"
 msgid "Delete this shop and its listings?"
 msgstr "Eliminare questo negozio e le sue inserzioni?"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1479
+#: lib/tannhauser_gate_web/live/gm_live.ex:1454
 #, elixir-autogen
 msgid "Delete this state? Its characters are left without a state."
 msgstr "Eliminare questo stato? I suoi personaggi rimarranno senza stato."
@@ -1215,7 +1205,7 @@ msgstr "Eliminare questo stato? I suoi personaggi rimarranno senza stato."
 msgid "Delete this story with all its rooms, characters and messages?"
 msgstr "Eliminare questa storia con tutte le stanze, i personaggi e i messaggi?"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1383
+#: lib/tannhauser_gate_web/live/gm_live.ex:1358
 #, elixir-autogen
 msgid "Delete this tracker? Every character loses its value."
 msgstr "Eliminare questo indicatore? Ogni personaggio perderà il suo valore."
@@ -1225,21 +1215,21 @@ msgstr "Eliminare questo indicatore? Ogni personaggio perderà il suo valore."
 msgid "Delete this zone? Its locations will have no zone."
 msgstr "Eliminare questa zona? Le sue stanze rimarranno senza zona."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1078
+#: lib/tannhauser_gate_web/live/gm_live.ex:1053
 #, elixir-autogen
 msgid "Derived from the name, e.g. blood_potency"
 msgstr "Derivata dal nome, ad es. blood_potency"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1289
+#: lib/tannhauser_gate_web/live/gm_live.ex:1264
 #, elixir-autogen
 msgid "Derived from the name, e.g. willpower"
 msgstr "Derivata dal nome, ad es. willpower"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:428
-#: lib/tannhauser_gate_web/live/gm_live.ex:1083
-#: lib/tannhauser_gate_web/live/gm_live.ex:1513
-#: lib/tannhauser_gate_web/live/gm_live.ex:1665
-#: lib/tannhauser_gate_web/live/gm_live.ex:2074
+#: lib/tannhauser_gate_web/live/gm_live.ex:1058
+#: lib/tannhauser_gate_web/live/gm_live.ex:1488
+#: lib/tannhauser_gate_web/live/gm_live.ex:1640
+#: lib/tannhauser_gate_web/live/gm_live.ex:2049
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:165
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:360
 #: lib/tannhauser_gate_web/live/gm_live/zones.ex:276
@@ -1262,7 +1252,7 @@ msgstr "Descrizione (Markdown)"
 msgid "Description (optional)"
 msgstr "Descrizione (opzionale)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1919
+#: lib/tannhauser_gate_web/live/gm_live.ex:1894
 #, elixir-autogen
 msgid "Dice expression (NdX+modifier)"
 msgstr "Espressione dei dadi (NdX+modificatore)"
@@ -1272,12 +1262,12 @@ msgstr "Espressione dei dadi (NdX+modificatore)"
 msgid "Dice pool (sheet items)"
 msgstr "Riserva di dadi (elementi della scheda)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1910
+#: lib/tannhauser_gate_web/live/gm_live.ex:1885
 #, elixir-autogen
 msgid "Dice system"
 msgstr "Sistema di dadi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1950
+#: lib/tannhauser_gate_web/live/gm_live.ex:1925
 #, elixir-autogen
 msgid "Die size"
 msgstr "Facce del dado"
@@ -1300,7 +1290,7 @@ msgid "Difficulty of %{character_name} saved."
 msgstr "Difficoltà di %{character_name} salvata."
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:315
-#: lib/tannhauser_gate_web/live/gm_live.ex:839
+#: lib/tannhauser_gate_web/live/gm_live.ex:850
 #, elixir-autogen
 msgid "Directory listing"
 msgstr "Scheda nella directory"
@@ -1315,7 +1305,7 @@ msgstr "Archivia"
 msgid "Dismissed"
 msgstr "Archiviate"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1220
+#: lib/tannhauser_gate_web/live/gm_live.ex:1195
 #, elixir-autogen
 msgid "Distribution"
 msgstr "Distribuzione"
@@ -1325,7 +1315,7 @@ msgstr "Distribuzione"
 msgid "Done"
 msgstr "Fatto"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:762
+#: lib/tannhauser_gate_web/live/gm_live.ex:773
 #, elixir-autogen
 msgid "Draft (only you and your masters)"
 msgstr "Bozza (solo tu e i tuoi master)"
@@ -1335,12 +1325,12 @@ msgstr "Bozza (solo tu e i tuoi master)"
 msgid "Duration"
 msgstr "Durata"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1972
+#: lib/tannhauser_gate_web/live/gm_live.ex:1947
 #, elixir-autogen
 msgid "Each pair of max results"
 msgstr "Ogni coppia di risultati massimi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1798
+#: lib/tannhauser_gate_web/live/gm_live.ex:1773
 #, elixir-autogen
 msgid "Earned XP needed to file"
 msgstr "PE guadagnati necessari per inviare"
@@ -1348,12 +1338,12 @@ msgstr "PE guadagnati necessari per inviare"
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:164
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:473
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:545
-#: lib/tannhauser_gate_web/live/gm_live.ex:1134
-#: lib/tannhauser_gate_web/live/gm_live.ex:1375
-#: lib/tannhauser_gate_web/live/gm_live.ex:1471
-#: lib/tannhauser_gate_web/live/gm_live.ex:1555
-#: lib/tannhauser_gate_web/live/gm_live.ex:1756
-#: lib/tannhauser_gate_web/live/gm_live.ex:2160
+#: lib/tannhauser_gate_web/live/gm_live.ex:1109
+#: lib/tannhauser_gate_web/live/gm_live.ex:1350
+#: lib/tannhauser_gate_web/live/gm_live.ex:1446
+#: lib/tannhauser_gate_web/live/gm_live.ex:1530
+#: lib/tannhauser_gate_web/live/gm_live.ex:1731
+#: lib/tannhauser_gate_web/live/gm_live.ex:2135
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:294
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:203
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:245
@@ -1388,13 +1378,13 @@ msgstr "Modifica condizione"
 msgid "Edit guild"
 msgstr "Modifica gilda"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1053
+#: lib/tannhauser_gate_web/live/gm_live.ex:1028
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:255
 #, elixir-autogen
 msgid "Edit item"
 msgstr "Modifica elemento"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1500
+#: lib/tannhauser_gate_web/live/gm_live.ex:1475
 #, elixir-autogen
 msgid "Edit job"
 msgstr "Modifica lavoro"
@@ -1425,12 +1415,12 @@ msgid "Edit quest"
 msgstr "Modifica quest"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:414
-#: lib/tannhauser_gate_web/live/gm_live.ex:1651
+#: lib/tannhauser_gate_web/live/gm_live.ex:1626
 #, elixir-autogen
 msgid "Edit room"
 msgstr "Modifica stanza"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2053
+#: lib/tannhauser_gate_web/live/gm_live.ex:2028
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:155
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:207
 #, elixir-autogen
@@ -1447,12 +1437,12 @@ msgstr "Modifica scheda"
 msgid "Edit shop"
 msgstr "Modifica negozio"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1402
+#: lib/tannhauser_gate_web/live/gm_live.ex:1377
 #, elixir-autogen
 msgid "Edit state"
 msgstr "Modifica stato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1264
+#: lib/tannhauser_gate_web/live/gm_live.ex:1239
 #, elixir-autogen
 msgid "Edit tracker"
 msgstr "Modifica indicatore"
@@ -1472,7 +1462,7 @@ msgstr "Email"
 msgid "Emblem (optional)"
 msgstr "Emblema (opzionale)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:980
+#: lib/tannhauser_gate_web/live/gm_live.ex:991
 #, elixir-autogen, elixir-format
 msgid "Enable %{module_name}"
 msgstr "Attiva %{module_name}"
@@ -1498,7 +1488,7 @@ msgstr "Etichetta dell'era (ad es. AE)"
 msgid "Esiti"
 msgstr "Esiti"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1777
+#: lib/tannhauser_gate_web/live/gm_live.ex:1752
 #, elixir-autogen
 msgid "Esiti limits"
 msgstr "Limiti degli esiti"
@@ -1524,12 +1514,12 @@ msgstr "Tutti"
 msgid "Expires (optional, UTC)"
 msgstr "Scadenza (opzionale, UTC)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1926
+#: lib/tannhauser_gate_web/live/gm_live.ex:1901
 #, elixir-autogen
 msgid "Expression and d20"
 msgstr "Espressione e d20"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1979
+#: lib/tannhauser_gate_web/live/gm_live.ex:1954
 #, elixir-autogen
 msgid "Extra successes per pair"
 msgstr "Successi extra per coppia"
@@ -1550,7 +1540,7 @@ msgstr "Fallimento"
 msgid "Fix the errors to see a preview."
 msgstr "Correggi gli errori per vedere un'anteprima."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1162
+#: lib/tannhauser_gate_web/live/gm_live.ex:1137
 #, elixir-autogen
 msgid "For each category choose how players build a new character:"
 msgstr "Per ogni categoria scegli come i giocatori creano un nuovo personaggio:"
@@ -1574,7 +1564,7 @@ msgstr "Post del forum"
 msgid "Forum sections"
 msgstr "Sezioni del forum"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1218
+#: lib/tannhauser_gate_web/live/gm_live.ex:1193
 #, elixir-autogen
 msgid "Free"
 msgstr "Libera"
@@ -1605,7 +1595,7 @@ msgstr "Amministratore GDR:"
 msgid "GDR requests"
 msgstr "Richieste GDR"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:244
+#: lib/tannhauser_gate_web/live/gm_live.ex:255
 #, elixir-autogen
 msgid "GDR updated"
 msgstr "GDR aggiornato"
@@ -1650,7 +1640,7 @@ msgid "General"
 msgstr "Generale"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:327
-#: lib/tannhauser_gate_web/live/gm_live.ex:857
+#: lib/tannhauser_gate_web/live/gm_live.ex:868
 #, elixir-autogen
 msgid "Genres (up to 3)"
 msgstr "Generi (fino a 3)"
@@ -1690,7 +1680,7 @@ msgstr "Gruppo"
 msgid "Guide"
 msgstr "Guida"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2096
+#: lib/tannhauser_gate_web/live/gm_live.ex:2071
 #, elixir-autogen
 msgid "Guild (for guild sections)"
 msgstr "Gilda (per le sezioni di gilda)"
@@ -1727,7 +1717,7 @@ msgstr "Gestisci i contenuti segnalati dai membri."
 msgid "Hang it in one room, or across a whole zone (shown in every room of the zone)."
 msgstr "Collocala in una stanza o in un'intera zona (visibile in ogni stanza della zona)."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1637
+#: lib/tannhauser_gate_web/live/gm_live.ex:1612
 #, elixir-autogen
 msgid "Height"
 msgstr "Altezza"
@@ -1768,12 +1758,12 @@ msgstr "Ora"
 msgid "How it works"
 msgstr "Come funziona"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:721
+#: lib/tannhauser_gate_web/live/gm_live.ex:732
 #, elixir-autogen
 msgid "How many characters each player can create (drafts and rejected ones count; NPCs never do). With more than one, players switch the character they are playing from the navigation."
 msgstr "Quanti personaggi può creare ogni giocatore (contano anche bozze e personaggi rifiutati, mai i PNG). Con più personaggi, i giocatori possono cambiare quello attivo dalla navigazione."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:843
+#: lib/tannhauser_gate_web/live/gm_live.ex:854
 #, elixir-autogen
 msgid "How the GDR appears in the portal directory. The lifecycle is shown as a badge and does not change who can enter: use the status below for that."
 msgstr "Come appare il GDR nella directory del portale. La fase è mostrata come etichetta e non cambia chi può entrare: usa lo stato qui sotto per questo."
@@ -1844,8 +1834,8 @@ msgstr "Oggetto"
 msgid "Item deleted."
 msgstr "Oggetto eliminato."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1191
-#: lib/tannhauser_gate_web/live/gm_live.ex:1324
+#: lib/tannhauser_gate_web/live/gm_live.ex:1166
+#: lib/tannhauser_gate_web/live/gm_live.ex:1299
 #, elixir-autogen
 msgid "Item keys:"
 msgstr "Chiavi degli elementi:"
@@ -1869,7 +1859,7 @@ msgid "Items"
 msgstr "Oggetti"
 
 #: lib/tannhauser_gate_web/components/gm_nav.ex:19
-#: lib/tannhauser_gate_web/live/gm_live.ex:1540
+#: lib/tannhauser_gate_web/live/gm_live.ex:1515
 #, elixir-autogen
 msgid "Jobs"
 msgstr "Lavori"
@@ -1879,7 +1869,7 @@ msgstr "Lavori"
 msgid "Joined"
 msgstr "Iscrizione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1288
+#: lib/tannhauser_gate_web/live/gm_live.ex:1263
 #, elixir-autogen
 msgid "Key"
 msgstr "Chiave"
@@ -1889,12 +1879,12 @@ msgstr "Chiave"
 msgid "Key (optional)"
 msgstr "Chiave (opzionale)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1077
+#: lib/tannhauser_gate_web/live/gm_live.ex:1052
 #, elixir-autogen
 msgid "Key for formulas"
 msgstr "Chiave per le formule"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1061
+#: lib/tannhauser_gate_web/live/gm_live.ex:1036
 #: lib/tannhauser_gate_web/live/master_live/characters.ex:353
 #: lib/tannhauser_gate_web/live/master_live/sanctions.ex:219
 #, elixir-autogen
@@ -1907,7 +1897,7 @@ msgid "Leader rank"
 msgstr "Grado dirigente"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:337
-#: lib/tannhauser_gate_web/live/gm_live.ex:884
+#: lib/tannhauser_gate_web/live/gm_live.ex:895
 #, elixir-autogen
 msgid "Lifecycle"
 msgstr "Fase"
@@ -1937,7 +1927,7 @@ msgstr "Stanze:"
 msgid "Log"
 msgstr "Registro"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2019
+#: lib/tannhauser_gate_web/live/gm_live.ex:1994
 #, elixir-autogen
 msgid "Lower the value"
 msgstr "Riduci il valore"
@@ -1962,7 +1952,7 @@ msgstr "Solo manuali"
 msgid "Map"
 msgstr "Mappa"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1625
+#: lib/tannhauser_gate_web/live/gm_live.ex:1600
 #, elixir-autogen
 msgid "Map SVG"
 msgstr "SVG della mappa"
@@ -1972,7 +1962,7 @@ msgstr "SVG della mappa"
 msgid "Map and rooms"
 msgstr "Mappa e stanze"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1671
+#: lib/tannhauser_gate_web/live/gm_live.ex:1646
 #, elixir-autogen
 msgid "Map area (SVG path)"
 msgstr "Area della mappa (tracciato SVG)"
@@ -1992,7 +1982,7 @@ msgstr "Altezza della mappa"
 msgid "Map width"
 msgstr "Larghezza della mappa"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:777
+#: lib/tannhauser_gate_web/live/gm_live.ex:788
 #, elixir-autogen
 msgid "Markdown prefilled in the background of new characters (e.g. headings for appearance, past and goals). Players edit it freely."
 msgstr "Testo Markdown precompilato nel background dei nuovi personaggi (ad es. titoli per aspetto, passato e obiettivi). I giocatori possono modificarlo liberamente."
@@ -2003,7 +1993,7 @@ msgstr "Testo Markdown precompilato nel background dei nuovi personaggi (ad es. 
 msgid "Market only"
 msgstr "Solo al mercato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:608
+#: lib/tannhauser_gate_web/live/gm_live.ex:619
 #, elixir-autogen
 msgid "Master removed"
 msgstr "Master rimosso"
@@ -2030,7 +2020,7 @@ msgid "Master tools"
 msgstr "Strumenti master"
 
 #: lib/tannhauser_gate_web/components/gm_nav.ex:26
-#: lib/tannhauser_gate_web/live/gm_live.ex:2211
+#: lib/tannhauser_gate_web/live/gm_live.ex:2186
 #, elixir-autogen
 msgid "Masters"
 msgstr "Master"
@@ -2040,43 +2030,43 @@ msgstr "Master"
 msgid "Masters can move the clock from the master tools."
 msgstr "I master possono spostare l'orologio dagli strumenti master."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1407
+#: lib/tannhauser_gate_web/live/gm_live.ex:1382
 #, elixir-autogen
 msgid "Masters move characters between states. Characters in a state that cannot play (e.g. dead or in torpor) cannot speak in the chat rooms. New characters get the first state."
 msgstr "I master cambiano gli stati dei personaggi. I personaggi in uno stato che non può giocare (ad es. morto o in torpore) non possono parlare nelle chat. Ai nuovi personaggi viene assegnato il primo stato."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2188
+#: lib/tannhauser_gate_web/live/gm_live.ex:2163
 #, elixir-autogen
 msgid "Masters narrate the GDR: they run chats, edit characters and moderate the forum, but cannot change this configuration. Their permissions can be narrowed below."
 msgstr "I master narrano il GDR: gestiscono le chat, modificano i personaggi e moderano il forum, ma non possono cambiare questa configurazione. I loro permessi possono essere limitati qui sotto."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1095
+#: lib/tannhauser_gate_web/live/gm_live.ex:1070
 #: lib/tannhauser_gate_web/live/gm_live/weather.ex:299
 #, elixir-autogen
 msgid "Max"
 msgstr "Max"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2031
+#: lib/tannhauser_gate_web/live/gm_live.ex:2006
 #, elixir-autogen
 msgid "Max dice"
 msgstr "Dadi massimi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1294
+#: lib/tannhauser_gate_web/live/gm_live.ex:1269
 #, elixir-autogen
 msgid "Maximum (number or formula)"
 msgstr "Massimo (numero o formula)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:730
+#: lib/tannhauser_gate_web/live/gm_live.ex:741
 #, elixir-autogen
 msgid "Maximum characters per player"
 msgstr "Personaggi massimi per giocatore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:711
+#: lib/tannhauser_gate_web/live/gm_live.ex:722
 #, elixir-autogen
 msgid "Maximum guilds per character"
 msgstr "Gilde massime per personaggio"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1858
+#: lib/tannhauser_gate_web/live/gm_live.ex:1833
 #, elixir-autogen
 msgid "Maximum length"
 msgstr "Lunghezza massima"
@@ -2102,12 +2092,12 @@ msgstr "Scrivi al proprietario"
 msgid "Messages"
 msgstr "Messaggi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1993
+#: lib/tannhauser_gate_web/live/gm_live.ex:1968
 #, elixir-autogen
 msgid "Messy critical: a critical with a special max result"
 msgstr "Critico caotico: un critico con un risultato massimo speciale"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1090
+#: lib/tannhauser_gate_web/live/gm_live.ex:1065
 #: lib/tannhauser_gate_web/live/gm_live/weather.ex:292
 #, elixir-autogen
 msgid "Min"
@@ -2118,12 +2108,12 @@ msgstr "Min"
 msgid "Mine"
 msgstr "Mie"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1891
+#: lib/tannhauser_gate_web/live/gm_live.ex:1866
 #, elixir-autogen
 msgid "Minimum entry length"
 msgstr "Lunghezza minima dell'intervento"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1852
+#: lib/tannhauser_gate_web/live/gm_live.ex:1827
 #, elixir-autogen
 msgid "Minimum length"
 msgstr "Lunghezza minima"
@@ -2189,13 +2179,13 @@ msgstr "PNG"
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:422
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:828
 #: lib/tannhauser_gate_web/live/admin/requests_live.ex:88
-#: lib/tannhauser_gate_web/live/gm_live.ex:677
-#: lib/tannhauser_gate_web/live/gm_live.ex:1071
-#: lib/tannhauser_gate_web/live/gm_live.ex:1282
-#: lib/tannhauser_gate_web/live/gm_live.ex:1417
-#: lib/tannhauser_gate_web/live/gm_live.ex:1507
-#: lib/tannhauser_gate_web/live/gm_live.ex:1659
-#: lib/tannhauser_gate_web/live/gm_live.ex:2068
+#: lib/tannhauser_gate_web/live/gm_live.ex:688
+#: lib/tannhauser_gate_web/live/gm_live.ex:1046
+#: lib/tannhauser_gate_web/live/gm_live.ex:1257
+#: lib/tannhauser_gate_web/live/gm_live.ex:1392
+#: lib/tannhauser_gate_web/live/gm_live.ex:1482
+#: lib/tannhauser_gate_web/live/gm_live.ex:1634
+#: lib/tannhauser_gate_web/live/gm_live.ex:2043
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:151
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:266
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:354
@@ -2215,7 +2205,7 @@ msgstr "Nome"
 msgid "Narrate %{current_story_name}: run its scenes, characters and forum."
 msgstr "Narra %{current_story_name}: gestisci scene, personaggi e forum."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1937
+#: lib/tannhauser_gate_web/live/gm_live.ex:1912
 #, elixir-autogen
 msgid "Natural 20/1 are criticals (d20)"
 msgstr "20/1 naturali sono critici (d20)"
@@ -2241,13 +2231,13 @@ msgstr "Nuovo evento"
 msgid "New guild"
 msgstr "Nuova gilda"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1054
+#: lib/tannhauser_gate_web/live/gm_live.ex:1029
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:256
 #, elixir-autogen
 msgid "New item"
 msgstr "Nuovo elemento"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1500
+#: lib/tannhauser_gate_web/live/gm_live.ex:1475
 #, elixir-autogen
 msgid "New job"
 msgstr "Nuovo lavoro"
@@ -2274,12 +2264,12 @@ msgid "New quest"
 msgstr "Nuova quest"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:415
-#: lib/tannhauser_gate_web/live/gm_live.ex:1652
+#: lib/tannhauser_gate_web/live/gm_live.ex:1627
 #, elixir-autogen
 msgid "New room"
 msgstr "Nuova stanza"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2054
+#: lib/tannhauser_gate_web/live/gm_live.ex:2029
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:156
 #, elixir-autogen
 msgid "New section"
@@ -2290,7 +2280,7 @@ msgstr "Nuova sezione"
 msgid "New shop"
 msgstr "Nuovo negozio"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1403
+#: lib/tannhauser_gate_web/live/gm_live.ex:1378
 #, elixir-autogen
 msgid "New state"
 msgstr "Nuovo stato"
@@ -2301,7 +2291,7 @@ msgstr "Nuovo stato"
 msgid "New story"
 msgstr "Nuova storia"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1265
+#: lib/tannhauser_gate_web/live/gm_live.ex:1240
 #, elixir-autogen
 msgid "New tracker"
 msgstr "Nuovo indicatore"
@@ -2331,7 +2321,7 @@ msgstr "Nessun annuncio."
 msgid "No characters waiting for approval."
 msgstr "Nessun personaggio in attesa di approvazione."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1581
+#: lib/tannhauser_gate_web/live/gm_live.ex:1556
 #, elixir-autogen
 msgid "No characters yet."
 msgstr "Nessun personaggio."
@@ -2362,12 +2352,12 @@ msgstr "Nessuna gilda: aggiungi le fazioni del tuo mondo."
 msgid "No items yet: add weapons, clothes, medkits and anything your players can carry."
 msgstr "Nessun oggetto: aggiungi armi, vestiti, kit medici e tutto ciò che i giocatori possono trasportare."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1544
+#: lib/tannhauser_gate_web/live/gm_live.ex:1519
 #, elixir-autogen
 msgid "No jobs yet."
 msgstr "Nessun lavoro."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2215
+#: lib/tannhauser_gate_web/live/gm_live.ex:2190
 #, elixir-autogen
 msgid "No masters yet."
 msgstr "Nessun master."
@@ -2442,7 +2432,7 @@ msgstr "Nessun grado."
 msgid "No reports here."
 msgstr "Nessuna segnalazione qui."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2011
+#: lib/tannhauser_gate_web/live/gm_live.ex:1986
 #, elixir-autogen
 msgid "No rerolls"
 msgstr "Nessun ritiro"
@@ -2462,7 +2452,7 @@ msgstr "Nessuna sanzione."
 msgid "No shops yet. Shops appear on the Market page; place one in a room to open it from there too."
 msgstr "Nessun negozio. I negozi appaiono nella pagina Mercato; collocane uno in una stanza per aprirlo anche da lì."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1987
+#: lib/tannhauser_gate_web/live/gm_live.ex:1962
 #, elixir-autogen
 msgid "No special dice"
 msgstr "Nessun dado speciale"
@@ -2473,12 +2463,12 @@ msgstr "Nessun dado speciale"
 msgid "No state"
 msgstr "Nessuno stato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1448
+#: lib/tannhauser_gate_web/live/gm_live.ex:1423
 #, elixir-autogen
 msgid "No states: every approved character can play."
 msgstr "Nessuno stato: tutti i personaggi approvati possono giocare."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1351
+#: lib/tannhauser_gate_web/live/gm_live.ex:1326
 #, elixir-autogen
 msgid "No trackers yet."
 msgstr "Nessun indicatore."
@@ -2488,7 +2478,7 @@ msgstr "Nessun indicatore."
 msgid "No weather yet."
 msgstr "Nessun meteo."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1692
+#: lib/tannhauser_gate_web/live/gm_live.ex:1667
 #, elixir-autogen
 msgid "No zone"
 msgstr "Nessuna zona"
@@ -2498,7 +2488,7 @@ msgstr "Nessuna zona"
 msgid "No zones yet."
 msgstr "Nessuna zona."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1973
+#: lib/tannhauser_gate_web/live/gm_live.ex:1948
 #, elixir-autogen
 msgid "None"
 msgstr "Nessuno"
@@ -2508,7 +2498,7 @@ msgstr "Nessuno"
 msgid "Not saved yet: the clock shows once you save a calendar."
 msgstr "Non ancora salvato: l'orologio appare dopo aver salvato un calendario."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1606
+#: lib/tannhauser_gate_web/live/gm_live.ex:1581
 #: lib/tannhauser_gate_web/live/master_live/quests.ex:547
 #, elixir-autogen
 msgid "Note"
@@ -2519,7 +2509,7 @@ msgstr "Nota"
 msgid "Note (optional)"
 msgstr "Nota (opzionale)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1608
+#: lib/tannhauser_gate_web/live/gm_live.ex:1583
 #, elixir-autogen, elixir-format
 msgid "Note for %{c_name}"
 msgstr "Nota per %{c_name}"
@@ -2560,7 +2550,7 @@ msgstr "Ora in gioco"
 msgid "Numeric values every zone carries (e.g. danger, resonance). Periodic actions can use them as difficulty. Hidden properties are only shown to masters."
 msgstr "Valori numerici di ogni zona (ad es. pericolo, risonanza). Le azioni periodiche possono usarli come difficoltà. Le proprietà nascoste sono visibili solo ai master."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2138
+#: lib/tannhauser_gate_web/live/gm_live.ex:2113
 #, elixir-autogen
 msgid "Off game"
 msgstr "Fuori gioco"
@@ -2570,12 +2560,12 @@ msgstr "Fuori gioco"
 msgid "On failure"
 msgstr "In caso di fallimento"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2137
+#: lib/tannhauser_gate_web/live/gm_live.ex:2112
 #, elixir-autogen
 msgid "On game"
 msgstr "In gioco"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2084
+#: lib/tannhauser_gate_web/live/gm_live.ex:2059
 #, elixir-autogen
 msgid "On game (in character)"
 msgstr "In gioco (come personaggio)"
@@ -2585,7 +2575,7 @@ msgstr "In gioco (come personaggio)"
 msgid "On success"
 msgstr "In caso di successo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2058
+#: lib/tannhauser_gate_web/live/gm_live.ex:2033
 #, elixir-autogen
 msgid "On-game sections are written in character (only characters that can play); off-game ones as the player. Visibility limits who can read and write."
 msgstr "Nelle sezioni in gioco si scrive come personaggio (solo quelli che possono giocare); in quelle fuori gioco come giocatore. La visibilità limita chi può leggere e scrivere."
@@ -2595,7 +2585,7 @@ msgstr "Nelle sezioni in gioco si scrive come personaggio (solo quelli che posso
 msgid "One item per slot. While equipped, the modifiers are added to the character's values in dice pools, periodic actions, formulas and tracker maximums."
 msgstr "Un oggetto per slot. Quando è equipaggiato, i modificatori vengono aggiunti ai valori del personaggio nelle riserve di dadi, nelle azioni periodiche, nelle formule e nei massimi degli indicatori."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:947
+#: lib/tannhauser_gate_web/live/gm_live.ex:958
 #, elixir-autogen
 msgid "Only one banner is allowed"
 msgstr "È consentito un solo banner"
@@ -2613,19 +2603,19 @@ msgstr "È consentita una sola immagine"
 msgid "Open"
 msgstr "Apri"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1791
+#: lib/tannhauser_gate_web/live/gm_live.ex:1766
 #, elixir-autogen
 msgid "Open requests per character"
 msgstr "Richieste aperte per personaggio"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1700
+#: lib/tannhauser_gate_web/live/gm_live.ex:1675
 #, elixir-autogen
 msgid "Open to everyone"
 msgstr "Aperta a tutti"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1100
-#: lib/tannhauser_gate_web/live/gm_live.ex:1309
-#: lib/tannhauser_gate_web/live/gm_live.ex:1428
+#: lib/tannhauser_gate_web/live/gm_live.ex:1075
+#: lib/tannhauser_gate_web/live/gm_live.ex:1284
+#: lib/tannhauser_gate_web/live/gm_live.ex:1403
 #: lib/tannhauser_gate_web/live/master_live/guilds.ex:509
 #, elixir-autogen
 msgid "Order"
@@ -2681,12 +2671,12 @@ msgstr "Partecipante salvato."
 msgid "Participants"
 msgstr "Partecipanti"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1520
+#: lib/tannhauser_gate_web/live/gm_live.ex:1495
 #, elixir-autogen, elixir-format
 msgid "Pay (%{current_story_currency_name} per interval)"
 msgstr "Paga (%{current_story_currency_name} per intervallo)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:704
+#: lib/tannhauser_gate_web/live/gm_live.ex:715
 #, elixir-autogen
 msgid "Pay interval (hours)"
 msgstr "Intervallo di paga (ore)"
@@ -2735,7 +2725,7 @@ msgstr "Fissato in alto"
 msgid "Pitch"
 msgstr "Presentazione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:852
+#: lib/tannhauser_gate_web/live/gm_live.ex:863
 #, elixir-autogen
 msgid "Pitch (a one-line tagline)"
 msgstr "Presentazione (una frase)"
@@ -2756,17 +2746,17 @@ msgstr "Giocatore"
 msgid "Players"
 msgstr "Giocatori"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1781
+#: lib/tannhauser_gate_web/live/gm_live.ex:1756
 #, elixir-autogen
 msgid "Players file esiti (action requests) for the masters to resolve. Leave a field empty for no limit."
 msgstr "I giocatori inviano esiti (richieste d'azione) da risolvere ai master. Lascia un campo vuoto per non imporre limiti."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1219
+#: lib/tannhauser_gate_web/live/gm_live.ex:1194
 #, elixir-autogen
 msgid "Points pool"
 msgstr "Riserva di punti"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1231
+#: lib/tannhauser_gate_web/live/gm_live.ex:1206
 #, elixir-autogen
 msgid "Points pool (points mode)"
 msgstr "Riserva di punti (modalità punti)"
@@ -2777,7 +2767,7 @@ msgid "Pool"
 msgstr "Riserva"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:826
-#: lib/tannhauser_gate_web/live/gm_live.ex:2079
+#: lib/tannhauser_gate_web/live/gm_live.ex:2054
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:255
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:169
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:302
@@ -2824,15 +2814,10 @@ msgstr "Pubblica ciò che accade nelle zone; i giocatori lo vedono nelle stanze 
 msgid "Posting..."
 msgstr "Pubblicazione..."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1065
+#: lib/tannhauser_gate_web/live/gm_live.ex:1040
 #, elixir-autogen
 msgid "Power"
 msgstr "Potere"
-
-#: lib/tannhauser_gate_web/live/gm_live.ex:1012
-#, elixir-autogen
-msgid "Preset"
-msgstr "Preimpostazione"
 
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:327
 #, elixir-autogen
@@ -2849,7 +2834,7 @@ msgstr "Prezzo"
 msgid "Price (blank = base)"
 msgstr "Prezzo (vuoto = base)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1682
+#: lib/tannhauser_gate_web/live/gm_live.ex:1657
 #, elixir-autogen
 msgid "Private (players book it for a time slot and invite characters)"
 msgstr "Privata (i giocatori prenotano una fascia oraria e invitano personaggi)"
@@ -2869,7 +2854,7 @@ msgstr "Proprietà salvata."
 msgid "Public registry"
 msgstr "Registro pubblico"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:763
+#: lib/tannhauser_gate_web/live/gm_live.ex:774
 #, elixir-autogen
 msgid "Published"
 msgstr "Pubblicato"
@@ -2911,7 +2896,7 @@ msgstr "Quest salvata."
 msgid "Quests"
 msgstr "Quest"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:854
+#: lib/tannhauser_gate_web/live/gm_live.ex:865
 #, elixir-autogen
 msgid "Rain, neon and the ghosts in the machine."
 msgstr "Pioggia, neon e fantasmi nella macchina."
@@ -2993,9 +2978,9 @@ msgstr "Rifiuta"
 msgid "Release"
 msgstr "Rilascia"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:915
 #: lib/tannhauser_gate_web/live/gm_live.ex:926
-#: lib/tannhauser_gate_web/live/gm_live.ex:2243
+#: lib/tannhauser_gate_web/live/gm_live.ex:937
+#: lib/tannhauser_gate_web/live/gm_live.ex:2218
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:313
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:324
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:452
@@ -3009,7 +2994,7 @@ msgstr "Rilascia"
 msgid "Remove"
 msgstr "Rimuovi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2238
+#: lib/tannhauser_gate_web/live/gm_live.ex:2213
 #, elixir-autogen, elixir-format
 msgid "Remove %{master_user_username} from the masters?"
 msgstr "Rimuovere %{master_user_username} dai master?"
@@ -3074,12 +3059,12 @@ msgstr "Obbligatorio alla creazione"
 msgid "Requires master approval"
 msgstr "Richiede approvazione del master"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2004
+#: lib/tannhauser_gate_web/live/gm_live.ex:1979
 #, elixir-autogen
 msgid "Rerolls (pool only)"
 msgstr "Ritiri (solo riserva)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1699
+#: lib/tannhauser_gate_web/live/gm_live.ex:1674
 #, elixir-autogen
 msgid "Reserved to guild"
 msgstr "Riservata alla gilda"
@@ -3239,7 +3224,7 @@ msgstr "Stanza salvata"
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:16
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:66
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:593
-#: lib/tannhauser_gate_web/live/gm_live.ex:1723
+#: lib/tannhauser_gate_web/live/gm_live.ex:1698
 #, elixir-autogen
 msgid "Rooms"
 msgstr "Stanze"
@@ -3287,14 +3272,14 @@ msgstr "Sanzione revocata."
 msgid "Sanctions"
 msgstr "Sanzioni"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:817
-#: lib/tannhauser_gate_web/live/gm_live.ex:1803
+#: lib/tannhauser_gate_web/live/gm_live.ex:828
+#: lib/tannhauser_gate_web/live/gm_live.ex:1778
 #: lib/tannhauser_gate_web/live/gm_live/weather.ex:362
 #, elixir-autogen
 msgid "Save"
 msgstr "Salva"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1246
+#: lib/tannhauser_gate_web/live/gm_live.ex:1221
 #, elixir-autogen, elixir-format
 msgid "Save %{string_downcase_sheet_kind_label_kind}"
 msgstr "Salva %{string_downcase_sheet_kind_label_kind}"
@@ -3304,22 +3289,22 @@ msgstr "Salva %{string_downcase_sheet_kind_label_kind}"
 msgid "Save calendar"
 msgstr "Salva calendario"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2038
+#: lib/tannhauser_gate_web/live/gm_live.ex:2013
 #, elixir-autogen
 msgid "Save chat & dice"
 msgstr "Salva chat e dadi"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1105
+#: lib/tannhauser_gate_web/live/gm_live.ex:1080
 #, elixir-autogen
 msgid "Save item"
 msgstr "Salva elemento"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1527
+#: lib/tannhauser_gate_web/live/gm_live.ex:1502
 #, elixir-autogen
 msgid "Save job"
 msgstr "Salva lavoro"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1641
+#: lib/tannhauser_gate_web/live/gm_live.ex:1616
 #, elixir-autogen
 msgid "Save map"
 msgstr "Salva mappa"
@@ -3330,18 +3315,18 @@ msgid "Save page"
 msgstr "Salva pagina"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:443
-#: lib/tannhauser_gate_web/live/gm_live.ex:1704
+#: lib/tannhauser_gate_web/live/gm_live.ex:1679
 #, elixir-autogen
 msgid "Save room"
 msgstr "Salva stanza"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2103
+#: lib/tannhauser_gate_web/live/gm_live.ex:2078
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:173
 #, elixir-autogen
 msgid "Save section"
 msgstr "Salva sezione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1431
+#: lib/tannhauser_gate_web/live/gm_live.ex:1406
 #, elixir-autogen
 msgid "Save state"
 msgstr "Salva stato"
@@ -3351,20 +3336,15 @@ msgstr "Salva stato"
 msgid "Save story"
 msgstr "Salva storia"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1038
-#, elixir-autogen
-msgid "Save theme"
-msgstr "Salva tema"
-
-#: lib/tannhauser_gate_web/live/gm_live.ex:1329
+#: lib/tannhauser_gate_web/live/gm_live.ex:1304
 #, elixir-autogen
 msgid "Save tracker"
 msgstr "Salva indicatore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:314
-#: lib/tannhauser_gate_web/live/gm_live.ex:405
-#: lib/tannhauser_gate_web/live/gm_live.ex:434
-#: lib/tannhauser_gate_web/live/gm_live.ex:487
+#: lib/tannhauser_gate_web/live/gm_live.ex:325
+#: lib/tannhauser_gate_web/live/gm_live.ex:416
+#: lib/tannhauser_gate_web/live/gm_live.ex:445
+#: lib/tannhauser_gate_web/live/gm_live.ex:498
 #, elixir-autogen
 msgid "Saved"
 msgstr "Salvato"
@@ -3376,18 +3356,17 @@ msgstr "Salvare reimposta l'orologio: questo istante corrisponderà alla data e 
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:375
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:443
-#: lib/tannhauser_gate_web/live/gm_live.ex:817
-#: lib/tannhauser_gate_web/live/gm_live.ex:1038
-#: lib/tannhauser_gate_web/live/gm_live.ex:1105
-#: lib/tannhauser_gate_web/live/gm_live.ex:1246
-#: lib/tannhauser_gate_web/live/gm_live.ex:1329
-#: lib/tannhauser_gate_web/live/gm_live.ex:1431
-#: lib/tannhauser_gate_web/live/gm_live.ex:1527
-#: lib/tannhauser_gate_web/live/gm_live.ex:1641
-#: lib/tannhauser_gate_web/live/gm_live.ex:1704
-#: lib/tannhauser_gate_web/live/gm_live.ex:1803
-#: lib/tannhauser_gate_web/live/gm_live.ex:2038
-#: lib/tannhauser_gate_web/live/gm_live.ex:2101
+#: lib/tannhauser_gate_web/live/gm_live.ex:828
+#: lib/tannhauser_gate_web/live/gm_live.ex:1080
+#: lib/tannhauser_gate_web/live/gm_live.ex:1221
+#: lib/tannhauser_gate_web/live/gm_live.ex:1304
+#: lib/tannhauser_gate_web/live/gm_live.ex:1406
+#: lib/tannhauser_gate_web/live/gm_live.ex:1502
+#: lib/tannhauser_gate_web/live/gm_live.ex:1616
+#: lib/tannhauser_gate_web/live/gm_live.ex:1679
+#: lib/tannhauser_gate_web/live/gm_live.ex:1778
+#: lib/tannhauser_gate_web/live/gm_live.ex:2013
+#: lib/tannhauser_gate_web/live/gm_live.ex:2076
 #: lib/tannhauser_gate_web/live/gm_live/actions.ex:261
 #: lib/tannhauser_gate_web/live/gm_live/calendar.ex:180
 #: lib/tannhauser_gate_web/live/gm_live/guide.ex:173
@@ -3443,7 +3422,7 @@ msgstr "Segreta (solo membri e master vedono la gilda e i suoi membri)"
 msgid "Section"
 msgstr "Sezione"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:521
+#: lib/tannhauser_gate_web/live/gm_live.ex:532
 #, elixir-autogen
 msgid "Section created"
 msgstr "Sezione creata"
@@ -3463,12 +3442,12 @@ msgstr "Sezione eliminata."
 msgid "Section saved."
 msgstr "Sezione salvata."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:520
+#: lib/tannhauser_gate_web/live/gm_live.ex:531
 #, elixir-autogen
 msgid "Section updated"
 msgstr "Sezione aggiornata"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2121
+#: lib/tannhauser_gate_web/live/gm_live.ex:2096
 #, elixir-autogen
 msgid "Sections"
 msgstr "Sezioni"
@@ -3539,7 +3518,7 @@ msgstr "Scheda"
 msgid "Sheet bonuses"
 msgstr "Bonus alla scheda"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:786
+#: lib/tannhauser_gate_web/live/gm_live.ex:797
 #, elixir-autogen
 msgid "Sheet template (Markdown)"
 msgstr "Modello scheda (Markdown)"
@@ -3564,7 +3543,7 @@ msgstr "Negozi"
 msgid "Show"
 msgstr "Mostra"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1064
+#: lib/tannhauser_gate_web/live/gm_live.ex:1039
 #, elixir-autogen
 msgid "Skill"
 msgstr "Abilità"
@@ -3579,7 +3558,7 @@ msgstr "Slot (vuoto = non equipaggiabile)"
 msgid "Source"
 msgstr "Fonte"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1986
+#: lib/tannhauser_gate_web/live/gm_live.ex:1961
 #, elixir-autogen
 msgid "Special dice count (tracker, e.g. hunger)"
 msgstr "Numero di dadi speciali (indicatore, ad es. fame)"
@@ -3594,7 +3573,7 @@ msgstr "Velocità (secondi di gioco per secondo reale)"
 msgid "Speed ×%{saved_ratio} · %{length__saved_month_names} months a year"
 msgstr "Velocità ×%{saved_ratio} · %{length__saved_month_names} mesi all'anno"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2010
+#: lib/tannhauser_gate_web/live/gm_live.ex:1985
 #, elixir-autogen
 msgid "Spend tracker (e.g. willpower)"
 msgstr "Spendi indicatore (ad es. volontà)"
@@ -3604,12 +3583,12 @@ msgstr "Spendi indicatore (ad es. volontà)"
 msgid "Stackable (a character can hold more than one)"
 msgstr "Accumulabile (un personaggio può averne più di uno)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1226
+#: lib/tannhauser_gate_web/live/gm_live.ex:1201
 #, elixir-autogen
 msgid "Starting value"
 msgstr "Valore iniziale"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1316
+#: lib/tannhauser_gate_web/live/gm_live.ex:1291
 #, elixir-autogen
 msgid "Starts full (otherwise starts at 0)"
 msgstr "Inizia pieno (altrimenti parte da 0)"
@@ -3631,13 +3610,13 @@ msgid "State updated"
 msgstr "Stato aggiornato"
 
 #: lib/tannhauser_gate_web/components/gm_nav.ex:18
-#: lib/tannhauser_gate_web/live/gm_live.ex:1444
+#: lib/tannhauser_gate_web/live/gm_live.ex:1419
 #, elixir-autogen
 msgid "States"
 msgstr "Stati"
 
 #: lib/tannhauser_gate_web/live/admin/requests_live.ex:92
-#: lib/tannhauser_gate_web/live/gm_live.ex:760
+#: lib/tannhauser_gate_web/live/gm_live.ex:771
 #: lib/tannhauser_gate_web/live/master_live/reports.ex:150
 #, elixir-autogen
 msgid "Status"
@@ -3683,20 +3662,20 @@ msgstr "Storia salvata"
 msgid "Success"
 msgstr "Successo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1956
+#: lib/tannhauser_gate_web/live/gm_live.ex:1931
 #, elixir-autogen
 msgid "Success on"
 msgstr "Successo con"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1921
-#: lib/tannhauser_gate_web/live/gm_live.ex:1943
+#: lib/tannhauser_gate_web/live/gm_live.ex:1896
+#: lib/tannhauser_gate_web/live/gm_live.ex:1918
 #, elixir-autogen
 msgid "Success pool"
 msgstr "Riserva di successi"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:155
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:310
-#: lib/tannhauser_gate_web/live/gm_live.ex:683
+#: lib/tannhauser_gate_web/live/gm_live.ex:694
 #, elixir-autogen
 msgid "Summary"
 msgstr "Riepilogo"
@@ -3706,7 +3685,7 @@ msgstr "Riepilogo"
 msgid "Summary (Markdown)"
 msgstr "Riepilogo (Markdown)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1917
+#: lib/tannhauser_gate_web/live/gm_live.ex:1892
 #, elixir-autogen
 msgid "System"
 msgstr "Sistema"
@@ -3726,12 +3705,12 @@ msgstr "Temperatura °C"
 msgid "Text (Markdown)"
 msgstr "Testo (Markdown)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:470
+#: lib/tannhauser_gate_web/live/gm_live.ex:481
 #, elixir-autogen
 msgid "That character is not in this GDR."
 msgstr "Questo personaggio non appartiene a questo GDR."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:599
+#: lib/tannhauser_gate_web/live/gm_live.ex:610
 #, elixir-autogen
 msgid "That master does not exist in this GDR."
 msgstr "Questo master non esiste in questo GDR."
@@ -3741,8 +3720,8 @@ msgstr "Questo master non esiste in questo GDR."
 msgid "That request was already reviewed."
 msgstr "Questa richiesta è già stata esaminata."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:537
-#: lib/tannhauser_gate_web/live/gm_live.ex:551
+#: lib/tannhauser_gate_web/live/gm_live.ex:548
+#: lib/tannhauser_gate_web/live/gm_live.ex:562
 #, elixir-autogen
 msgid "That section is not in this GDR."
 msgstr "Questa sezione non appartiene a questo GDR."
@@ -3758,27 +3737,27 @@ msgstr "Questa zona non esiste in questo GDR."
 msgid "The GDR admin has not set up the calendar yet: setting a date starts a real-world-like calendar."
 msgstr "L'amministratore del GDR non ha ancora configurato il calendario: impostare una data avvia un calendario simile a quello reale."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1181
+#: lib/tannhauser_gate_web/live/gm_live.ex:1156
 #, elixir-autogen
 msgid "The XP cost formula gives the price to raise an item by one point. It can use"
 msgstr "La formula del costo in PE determina il prezzo per aumentare un elemento di un punto. Può usare"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:687
+#: lib/tannhauser_gate_web/live/gm_live.ex:698
 #, elixir-autogen
 msgid "The background, rules and customs of the world are written in the"
 msgstr "L'ambientazione, le regole e le usanze del mondo sono descritte nella"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:942
+#: lib/tannhauser_gate_web/live/gm_live.ex:953
 #, elixir-autogen
 msgid "The banner is too large (max 5 MB)"
 msgstr "Il banner è troppo grande (max 5 MB)"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:945
+#: lib/tannhauser_gate_web/live/gm_live.ex:956
 #, elixir-autogen
 msgid "The banner must be a PNG, JPEG or WebP image"
 msgstr "Il banner deve essere un'immagine PNG, JPEG o WebP"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:252
+#: lib/tannhauser_gate_web/live/gm_live.ex:263
 #, elixir-autogen
 msgid "The banner must be a PNG, JPEG or WebP image."
 msgstr "Il banner deve essere un'immagine PNG, JPEG o WebP."
@@ -3881,7 +3860,7 @@ msgstr "Questo GDR non ha azioni periodiche: l'amministratore le definisce nella
 msgid "This GDR has no zones yet: the GDR admin defines them in GM config."
 msgstr "Questo GDR non ha ancora zone: l'amministratore le definisce nella configurazione GM."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2219
+#: lib/tannhauser_gate_web/live/gm_live.ex:2194
 #, elixir-autogen
 msgid "Tick what each master may do. The GDR admin and platform admins can always do everything."
 msgstr "Seleziona cosa può fare ogni master. L'amministratore del GDR e quelli della piattaforma possono sempre fare tutto."
@@ -3911,23 +3890,23 @@ msgstr "Discussioni"
 msgid "Tracker"
 msgstr "Indicatore"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:374
+#: lib/tannhauser_gate_web/live/gm_live.ex:385
 #, elixir-autogen
 msgid "Tracker saved"
 msgstr "Indicatore salvato"
 
 #: lib/tannhauser_gate_web/components/gm_nav.ex:17
-#: lib/tannhauser_gate_web/live/gm_live.ex:1347
+#: lib/tannhauser_gate_web/live/gm_live.ex:1322
 #, elixir-autogen
 msgid "Trackers"
 msgstr "Indicatori"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1269
+#: lib/tannhauser_gate_web/live/gm_live.ex:1244
 #, elixir-autogen
 msgid "Trackers are resources every character has, like health, willpower or hunger. The maximum is a number or a formula over the item keys (e.g."
 msgstr "Gli indicatori sono risorse di ogni personaggio, come salute, volontà o fame. Il massimo è un numero o una formula basata sulle chiavi degli elementi (ad es."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:956
+#: lib/tannhauser_gate_web/live/gm_live.ex:967
 #, elixir-autogen
 msgid "Turn on the optional features your GDR uses. Disabled modules are hidden from the players and their data is kept, so you can turn them back on at any time."
 msgstr "Attiva le funzionalità opzionali del tuo GDR. I moduli disattivati sono nascosti ai giocatori e i loro dati vengono conservati, così puoi riattivarli in qualsiasi momento."
@@ -3942,7 +3921,7 @@ msgstr "Senza categoria"
 msgid "Unhide"
 msgstr "Mostra"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:298
+#: lib/tannhauser_gate_web/live/gm_live.ex:309
 #, elixir-autogen
 msgid "Unknown module."
 msgstr "Modulo sconosciuto."
@@ -4029,7 +4008,7 @@ msgstr "Aggiorna negozio"
 msgid "Update zone"
 msgstr "Aggiorna zona"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:950
+#: lib/tannhauser_gate_web/live/gm_live.ex:961
 #: lib/tannhauser_gate_web/live/gm_live/items.ex:137
 #: lib/tannhauser_gate_web/live/gm_live/origins.ex:176
 #: lib/tannhauser_gate_web/live/master_live/guilds.ex:192
@@ -4038,7 +4017,7 @@ msgid "Upload error: %{inspect_other}"
 msgstr "Errore di caricamento: %{inspect_other}"
 
 #: lib/tannhauser_gate_web/live/admin/admin_live.ex:740
-#: lib/tannhauser_gate_web/live/gm_live.ex:2198
+#: lib/tannhauser_gate_web/live/gm_live.ex:2173
 #: lib/tannhauser_gate_web/live/master_live/sanctions.ex:213
 #, elixir-autogen
 msgid "Username"
@@ -4057,7 +4036,7 @@ msgstr "Utenti"
 msgid "Using it consumes one unit"
 msgstr "L'uso consuma un'unità"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1237
+#: lib/tannhauser_gate_web/live/gm_live.ex:1212
 #, elixir-autogen
 msgid "Values to assign (distribution mode)"
 msgstr "Valori da assegnare (modalità distribuzione)"
@@ -4072,12 +4051,12 @@ msgstr "Visualizza"
 msgid "Visibility"
 msgstr "Visibilità"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:2089
+#: lib/tannhauser_gate_web/live/gm_live.ex:2064
 #, elixir-autogen
 msgid "Visible to"
 msgstr "Visibile a"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1321
+#: lib/tannhauser_gate_web/live/gm_live.ex:1296
 #, elixir-autogen
 msgid "Visible to everyone on the public sheet"
 msgstr "Visibile a tutti nella scheda pubblica"
@@ -4157,7 +4136,7 @@ msgstr "Cosa è accaduto (Markdown)"
 msgid "What happens in the zones of %{current_story_name}."
 msgstr "Cosa accade nelle zone di %{current_story_name}."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1632
+#: lib/tannhauser_gate_web/live/gm_live.ex:1607
 #, elixir-autogen
 msgid "Width"
 msgstr "Larghezza"
@@ -4168,12 +4147,12 @@ msgstr "Larghezza"
 msgid "XP"
 msgstr "PE"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1243
+#: lib/tannhauser_gate_web/live/gm_live.ex:1218
 #, elixir-autogen
 msgid "XP cost formula"
 msgstr "Formula del costo in PE"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1875
+#: lib/tannhauser_gate_web/live/gm_live.ex:1850
 #, elixir-autogen
 msgid "XP for each in-character speech of a player character (no OFF, whispers, dice or NPCs). Leave the amount empty to pause the awards."
 msgstr "PE per ogni intervento in gioco di un personaggio giocante (non OFF, sussurri, dadi o PNG). Lascia vuoto l'importo per sospendere le assegnazioni."
@@ -4183,7 +4162,7 @@ msgstr "PE per ogni intervento in gioco di un personaggio giocante (non OFF, sus
 msgid "XP log"
 msgstr "Registro PE"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1885
+#: lib/tannhauser_gate_web/live/gm_live.ex:1860
 #, elixir-autogen
 msgid "XP per entry"
 msgstr "PE per intervento"
@@ -4204,7 +4183,7 @@ msgstr "Non puoi modificare il tuo stato di amministratore."
 msgid "You took the request."
 msgstr "Hai preso in carico la richiesta."
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1691
+#: lib/tannhauser_gate_web/live/gm_live.ex:1666
 #: lib/tannhauser_gate_web/live/master_live/boards.ex:381
 #: lib/tannhauser_gate_web/live/master_live/weather.ex:291
 #: lib/tannhauser_gate_web/live/master_live/zones.ex:138
@@ -4286,17 +4265,17 @@ msgstr "di %{character_user_username}"
 msgid "by %{quest_rewards_applied_by_username}"
 msgstr "da %{quest_rewards_applied_by_username}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1465
+#: lib/tannhauser_gate_web/live/gm_live.ex:1440
 #, elixir-autogen
 msgid "cannot play"
 msgstr "non può giocare"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1295
+#: lib/tannhauser_gate_web/live/gm_live.ex:1270
 #, elixir-autogen
 msgid "composure + resolve"
 msgstr "composure + resolve"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1920
+#: lib/tannhauser_gate_web/live/gm_live.ex:1895
 #, elixir-autogen
 msgid "d20 + modifier"
 msgstr "d20 + modificatore"
@@ -4311,12 +4290,12 @@ msgstr "predefinita"
 msgid "default %{property_default_value}"
 msgstr "predefinito %{property_default_value}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:292
+#: lib/tannhauser_gate_web/live/gm_live.ex:303
 #, elixir-autogen
 msgid "disabled"
 msgstr "disattivato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1171
+#: lib/tannhauser_gate_web/live/gm_live.ex:1146
 #, elixir-autogen
 msgid "distribution"
 msgstr "distribuzione"
@@ -4331,7 +4310,7 @@ msgstr "ad es. Armi"
 msgid "e.g. weapon, body"
 msgstr "ad es. arma, corpo"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:291
+#: lib/tannhauser_gate_web/live/gm_live.ex:302
 #, elixir-autogen
 msgid "enabled"
 msgstr "attivato"
@@ -4351,12 +4330,12 @@ msgstr "scaduto"
 msgid "expires"
 msgstr "scade"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1163
+#: lib/tannhauser_gate_web/live/gm_live.ex:1138
 #, elixir-autogen
 msgid "free"
 msgstr "libera"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:692
+#: lib/tannhauser_gate_web/live/gm_live.ex:703
 #, elixir-autogen
 msgid "guide"
 msgstr "guida"
@@ -4366,7 +4345,7 @@ msgstr "guida"
 msgid "hidden"
 msgstr "nascosta"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:807
+#: lib/tannhauser_gate_web/live/gm_live.ex:818
 #, elixir-autogen
 msgid "https://discord.gg/..."
 msgstr "https://discord.gg/..."
@@ -4397,12 +4376,12 @@ msgstr "dirigente"
 msgid "map tab"
 msgstr "scheda mappa"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1363
+#: lib/tannhauser_gate_web/live/gm_live.ex:1338
 #, elixir-autogen
 msgid "max"
 msgstr "max"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1244
+#: lib/tannhauser_gate_web/live/gm_live.ex:1219
 #, elixir-autogen
 msgid "next * 5"
 msgstr "next * 5"
@@ -4423,7 +4402,7 @@ msgstr "nessuna"
 msgid "nothing"
 msgstr "nessuno"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1171
+#: lib/tannhauser_gate_web/live/gm_live.ex:1146
 #, elixir-autogen
 msgid "of values to assign (e.g."
 msgstr "di valori da assegnare (ad es."
@@ -4453,23 +4432,23 @@ msgstr "per personaggio (predefinita %{action_default_difficulty})"
 msgid "permanent"
 msgstr "permanente"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1464
+#: lib/tannhauser_gate_web/live/gm_live.ex:1439
 #, elixir-autogen
 msgid "plays"
 msgstr "può giocare"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1167
+#: lib/tannhauser_gate_web/live/gm_live.ex:1142
 #, elixir-autogen
 msgid "points pool"
 msgstr "riserva di punti"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1368
-#: lib/tannhauser_gate_web/live/gm_live.ex:1734
+#: lib/tannhauser_gate_web/live/gm_live.ex:1343
+#: lib/tannhauser_gate_web/live/gm_live.ex:1709
 #, elixir-autogen
 msgid "private"
 msgstr "privato"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1367
+#: lib/tannhauser_gate_web/live/gm_live.ex:1342
 #, elixir-autogen
 msgid "public"
 msgstr "pubblico"
@@ -4499,7 +4478,7 @@ msgstr "segreta"
 msgid "spent on %{entry_item_name}: %{entry_from_value} → %{entry_to_value}"
 msgstr "spesi per %{entry_item_name}: %{entry_from_value} → %{entry_to_value}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1303
+#: lib/tannhauser_gate_web/live/gm_live.ex:1278
 #, elixir-autogen
 msgid "superficial, aggravated"
 msgstr "superficiale, aggravato"
@@ -4509,7 +4488,7 @@ msgstr "superficiale, aggravato"
 msgid "to %{log_target_character_name}"
 msgstr "a %{log_target_character_name}"
 
-#: lib/tannhauser_gate_web/live/gm_live.ex:1167
+#: lib/tannhauser_gate_web/live/gm_live.ex:1142
 #, elixir-autogen
 msgid "to spend above the starting value, or a"
 msgstr "da spendere oltre il valore iniziale, oppure una"
@@ -4583,162 +4562,17 @@ msgstr "· unico"
 msgid "—"
 msgstr "—"
 
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Make it your world"
-msgstr "Rendi questo mondo tuo"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Eight identities, one design system. Every preset is available to every GDR."
-msgstr "Otto identità, un unico sistema di design. Ogni preimpostazione è disponibile per tutti i GDR."
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Corners"
-msgstr "Angoli"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Density"
-msgstr "Densità"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Effects"
-msgstr "Effetti"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Use preset default"
-msgstr "Usa il valore della preimpostazione"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Custom colours"
-msgstr "Colori personalizzati"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Optional hex overrides"
-msgstr "Colori esadecimali opzionali"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Leave a field empty to inherit the preset. Button text adjusts to the chosen colour."
-msgstr "Lascia un campo vuoto per ereditare la preimpostazione. Il testo dei pulsanti si adatta al colore scelto."
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Changes below are a preview until you save."
-msgstr "Le modifiche qui sotto sono solo un'anteprima finché non salvi."
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Reset to preset"
-msgstr "Ripristina preimpostazione"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Unsaved appearance preview"
-msgstr "Anteprima dell'aspetto non salvata"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Live preview"
-msgstr "Anteprima dal vivo"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Not saved"
-msgstr "Non salvato"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Primary action"
-msgstr "Azione principale"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Secondary"
-msgstr "Secondaria"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Quiet action"
-msgstr "Azione discreta"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Destructive"
-msgstr "Distruttiva"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Unavailable"
-msgstr "Non disponibile"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Character name"
-msgstr "Nome del personaggio"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Message type"
-msgstr "Tipo di messaggio"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "In character"
-msgstr "In gioco"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
+#: lib/tannhauser_gate_web/components/core_components.ex:242
 #, elixir-autogen
 msgid "OFF"
 msgstr "Fuori gioco"
 
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Whisper"
-msgstr "Sussurro"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Show action tags"
-msgstr "Mostra le etichette delle azioni"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Validation example"
-msgstr "Esempio di validazione"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Choose a valid value"
-msgstr "Scegli un valore valido"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
+#: lib/tannhauser_gate_web/components/core_components.ex:274
 #, elixir-autogen
 msgid "at the counter"
 msgstr "al bancone"
 
-#: lib/tannhauser_gate_web/components/core_components.ex
+#: lib/tannhauser_gate_web/components/core_components.ex:277
 #, elixir-autogen
 msgid "Mara places a brass key beside her untouched bowl and glances towards the door.\n\n\"The station was empty. No guards, no passengers. But the departures board was counting down to a train that wasn't on any schedule.\"\n\nShe lowers her voice. \"Tell me you found something better than another locked office.\""
 msgstr "Mara posa una chiave d'ottone accanto alla ciotola intatta e lancia uno sguardo alla porta.\n\n\"La stazione era vuota. Niente guardie, niente passeggeri. Ma il tabellone delle partenze segnava il conto alla rovescia per un treno che non compariva in nessun orario.\"\n\nAbbassa la voce. \"Dimmi che hai trovato qualcosa di meglio di un altro ufficio chiuso a chiave.\""
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Message"
-msgstr "Messaggio"
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Let the scene unfold..."
-msgstr "Lascia che la scena prenda vita..."
-
-#: lib/tannhauser_gate_web/components/core_components.ex
-#, elixir-autogen
-msgid "Send message"
-msgstr "Invia messaggio"

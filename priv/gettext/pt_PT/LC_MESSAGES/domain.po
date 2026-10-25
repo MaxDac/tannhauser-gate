@@ -1832,89 +1832,147 @@ msgstr "já tens uma personagem neste GDR"
 msgid "you already have the maximum number of characters in this GDR (%{max})"
 msgstr "já tens o número máximo de personagens neste GDR (%{max})"
 
+#: lib/tannhauser_gate/stories/themes.ex:14
+#, elixir-autogen
 msgid "Quiet noir"
 msgstr "Noir sereno"
 
+#: lib/tannhauser_gate/stories/themes.ex:17
+#, elixir-autogen
 msgid "Smoked jade, softened edges and cinematic restraint."
 msgstr "Jade fumado, contornos suaves e sobriedade cinematográfica."
 
+#: lib/tannhauser_gate/stories/themes.ex:23
+#, elixir-autogen
 msgid "Neon circuit"
 msgstr "Circuito de néon"
 
+#: lib/tannhauser_gate/stories/themes.ex:26
+#, elixir-autogen
 msgid "Electric cyan, precise edges and a quiet accent light."
 msgstr "Ciano elétrico, contornos precisos e uma luz de realce discreta."
 
+#: lib/tannhauser_gate/stories/themes.ex:32
+#, elixir-autogen
 msgid "Last light"
 msgstr "Última luz"
 
+#: lib/tannhauser_gate/stories/themes.ex:34
+#, elixir-autogen
 msgid "Lamplight gold and aged ink: warmth in the dark."
 msgstr "Dourado de candeeiro e tinta envelhecida: calor na escuridão."
 
+#: lib/tannhauser_gate/stories/themes.ex:40
+#, elixir-autogen
 msgid "Velvet night"
 msgstr "Noite de veludo"
 
+#: lib/tannhauser_gate/stories/themes.ex:42
+#, elixir-autogen
 msgid "Oxblood, dusty rose and nocturnal elegance."
 msgstr "Vermelho-sangue, rosa velho e elegância noturna."
 
+#: lib/tannhauser_gate/stories/themes.ex:48
+#, elixir-autogen
 msgid "Midnight glass"
 msgstr "Vidro da meia-noite"
 
+#: lib/tannhauser_gate/stories/themes.ex:50
+#, elixir-autogen
 msgid "Cool violet and softly layered, rounded surfaces."
 msgstr "Violeta frio e superfícies arredondadas em camadas suaves."
 
+#: lib/tannhauser_gate/stories/themes.ex:56
+#, elixir-autogen
 msgid "After hours"
 msgstr "Pela noite dentro"
 
+#: lib/tannhauser_gate/stories/themes.ex:58
+#, elixir-autogen
 msgid "Amber and espresso, intimate and understated."
 msgstr "Âmbar e café expresso, íntimos e discretos."
 
+#: lib/tannhauser_gate/stories/themes.ex:64
+#, elixir-autogen
 msgid "Red ledger"
 msgstr "Livro vermelho"
 
+#: lib/tannhauser_gate/stories/themes.ex:67
+#, elixir-autogen
 msgid "Muted vermilion and charcoal for intrigue and danger."
 msgstr "Vermelhão suave e carvão para intriga e perigo."
 
+#: lib/tannhauser_gate/stories/themes.ex:73
+#, elixir-autogen
 msgid "Moonsteel"
 msgstr "Aço lunar"
 
+#: lib/tannhauser_gate/stories/themes.ex:75
+#, elixir-autogen
 msgid "Silver-blue, slate and clean, quiet controls."
 msgstr "Azul prateado, ardósia e controlos simples e discretos."
 
+#: lib/tannhauser_gate/stories/themes.ex:85
+#, elixir-autogen
 msgid "Precise"
 msgstr "Precisos"
 
+#: lib/tannhauser_gate/stories/themes.ex:86
+#, elixir-autogen
 msgid "Softened"
 msgstr "Suavizados"
 
+#: lib/tannhauser_gate/stories/themes.ex:87
+#, elixir-autogen
 msgid "Rounded"
 msgstr "Arredondados"
 
+#: lib/tannhauser_gate/stories/themes.ex:90
+#, elixir-autogen
 msgid "Comfortable"
 msgstr "Confortável"
 
+#: lib/tannhauser_gate/stories/themes.ex:91
+#, elixir-autogen
 msgid "Compact"
 msgstr "Compacta"
 
+#: lib/tannhauser_gate/stories/themes.ex:94
+#, elixir-autogen
 msgid "Quiet / flat"
 msgstr "Discretos / planos"
 
+#: lib/tannhauser_gate/stories/themes.ex:95
+#, elixir-autogen
 msgid "Soft atmosphere"
 msgstr "Ambiente suave"
 
+#: lib/tannhauser_gate/stories/themes.ex:96
+#, elixir-autogen
 msgid "Accent light"
 msgstr "Luz de realce"
 
+#: lib/tannhauser_gate/stories/themes.ex:162
+#, elixir-autogen
 msgid "corners"
 msgstr "cantos"
 
+#: lib/tannhauser_gate/stories/themes.ex:163
+#, elixir-autogen
 msgid "density"
 msgstr "densidade"
 
+#: lib/tannhauser_gate/stories/themes.ex:164
+#, elixir-autogen
 msgid "effects"
 msgstr "efeitos"
 
+#: lib/tannhauser_gate/stories/themes.ex:215
+#, elixir-autogen
 msgid "Accent has low contrast against a surface. Choose a lighter text colour or darker surface."
 msgstr "A cor de realce tem pouco contraste com uma superfície. Escolhe uma cor de texto mais clara ou uma superfície mais escura."
 
+#: lib/tannhauser_gate/stories/themes.ex:220
+#, elixir-autogen
 msgid "Body text has low contrast against a surface. Choose a lighter text colour or darker surface."
 msgstr "O texto principal tem pouco contraste com uma superfície. Escolhe uma cor de texto mais clara ou uma superfície mais escura."

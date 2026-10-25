@@ -49,22 +49,34 @@ defmodule TannhauserGateWeb.CoreComponents do
       <.form for={@form} id="theme-form" phx-change="validate_story" phx-submit="save_story">
         <div class="rounded-xl border border-base-content/10 bg-base-200/60 p-5 sm:p-6">
           <div class="mb-5">
-            <h2 class="text-lg font-semibold text-base-content">{dgettext("shared", "Make it your world")}</h2>
+            <h2 class="text-lg font-semibold text-base-content">
+              {dgettext("shared", "Make it your world")}
+            </h2>
             <p class="mt-1 text-sm text-fog-400">
-              {dgettext("shared", "Eight identities, one design system. Every preset is available to every GDR.")}
+              {dgettext(
+                "shared",
+                "Eight identities, one design system. Every preset is available to every GDR."
+              )}
             </p>
           </div>
           <div id="theme-presets" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <.theme_card :for={theme <- @themes} theme={theme} selected={@selected == theme.id} />
           </div>
           <div class="mt-5 grid gap-x-5 sm:grid-cols-2 lg:grid-cols-4">
-            <.input field={@form[:theme]} type="select" label={dgettext("shared", "Preset")} options={Themes.options()} />
             <.input
-              :for={{key, label} <- [
-                {"corners", dgettext("shared", "Corners")},
-                {"density", dgettext("shared", "Density")},
-                {"effects", dgettext("shared", "Effects")}
-              ]}
+              field={@form[:theme]}
+              type="select"
+              label={dgettext("shared", "Preset")}
+              options={Themes.options()}
+            />
+            <.input
+              :for={
+                {key, label} <- [
+                  {"corners", dgettext("shared", "Corners")},
+                  {"density", dgettext("shared", "Density")},
+                  {"effects", dgettext("shared", "Effects")}
+                ]
+              }
               type="select"
               id={"control-#{key}"}
               name={"story[control_style][#{key}]"}
@@ -80,10 +92,16 @@ defmodule TannhauserGateWeb.CoreComponents do
           <details id="theme-colours" class="mt-4 rounded-xl border border-base-content/10 p-4">
             <summary class="cursor-pointer text-sm font-medium text-base-content">
               {dgettext("shared", "Custom colours")}
-              <span class="ml-2 text-xs font-normal text-fog-400">{dgettext("shared", "Optional hex overrides")}</span>
+              <span class="ml-2 text-xs font-normal text-fog-400">{dgettext(
+                "shared",
+                "Optional hex overrides"
+              )}</span>
             </summary>
             <p class="mt-3 text-xs text-fog-400">
-              {dgettext("shared", "Leave a field empty to inherit the preset. Button text adjusts to the chosen colour.")}
+              {dgettext(
+                "shared",
+                "Leave a field empty to inherit the preset. Button text adjusts to the chosen colour."
+              )}
             </p>
             <div class="mt-3 grid gap-x-5 sm:grid-cols-2 lg:grid-cols-4">
               <.input
@@ -101,12 +119,18 @@ defmodule TannhauserGateWeb.CoreComponents do
             </div>
           </details>
           <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <p class="text-xs text-fog-400">{dgettext("shared", "Changes below are a preview until you save.")}</p>
+            <p class="text-xs text-fog-400">
+              {dgettext("shared", "Changes below are a preview until you save.")}
+            </p>
             <div class="flex gap-2">
               <.button id="theme-reset" type="button" variant="ghost" phx-click="reset_theme">
                 {dgettext("shared", "Reset to preset")}
               </.button>
-              <.button id="theme-save" variant="primary" phx-disable-with={dgettext("shared", "Saving...")}>
+              <.button
+                id="theme-save"
+                variant="primary"
+                phx-disable-with={dgettext("shared", "Saving...")}
+              >
                 {dgettext("shared", "Save theme")}
               </.button>
             </div>
@@ -168,7 +192,8 @@ defmodule TannhauserGateWeb.CoreComponents do
     >
       <div class="border-b border-base-content/10 px-5 py-4">
         <h2 class="font-semibold">
-          {dgettext("shared", "Live preview")} <span class="ml-2 text-xs font-normal text-fog-400">{dgettext("shared", "Not saved")}</span>
+          {dgettext("shared", "Live preview")}
+          <span class="ml-2 text-xs font-normal text-fog-400">{dgettext("shared", "Not saved")}</span>
         </h2>
         <p
           :for={warning <- Themes.contrast_warnings(@theme, @overrides)}
@@ -181,10 +206,22 @@ defmodule TannhauserGateWeb.CoreComponents do
       <div class="grid lg:grid-cols-2">
         <div class="space-y-4 border-b border-base-content/10 p-5 lg:border-r lg:border-b-0">
           <div class="flex flex-wrap gap-2">
-            <.button id="preview-primary" type="button" variant="primary">{dgettext("shared", "Primary action")}</.button>
-            <.button id="preview-secondary" type="button" variant="secondary">{dgettext("shared", "Secondary")}</.button>
-            <.button id="preview-ghost" type="button" variant="ghost">{dgettext("shared", "Quiet action")}</.button>
-            <.button id="preview-danger" type="button" variant="danger">{dgettext("shared", "Destructive")}</.button>
+            <.button id="preview-primary" type="button" variant="primary">{dgettext(
+              "shared",
+              "Primary action"
+            )}</.button>
+            <.button id="preview-secondary" type="button" variant="secondary">{dgettext(
+              "shared",
+              "Secondary"
+            )}</.button>
+            <.button id="preview-ghost" type="button" variant="ghost">{dgettext(
+              "shared",
+              "Quiet action"
+            )}</.button>
+            <.button id="preview-danger" type="button" variant="danger">{dgettext(
+              "shared",
+              "Destructive"
+            )}</.button>
             <.button id="preview-disabled" type="button" disabled>{dgettext("shared", "Unavailable")}</.button>
           </div>
           <.input
@@ -200,7 +237,11 @@ defmodule TannhauserGateWeb.CoreComponents do
             value="speech"
             type="select"
             label={dgettext("shared", "Message type")}
-            options={[{dgettext("shared", "In character"), "speech"}, {dgettext("management", "OFF"), "ooc"}, {dgettext("shared", "Whisper"), "whisper"}]}
+            options={[
+              {dgettext("shared", "In character"), "speech"},
+              {dgettext("management", "OFF"), "ooc"},
+              {dgettext("shared", "Whisper"), "whisper"}
+            ]}
           />
           <.input
             id="preview-check"
@@ -232,7 +273,12 @@ defmodule TannhauserGateWeb.CoreComponents do
                 id="preview-chat-body"
                 tag={dgettext("management", "at the counter")}
                 highlight
-                body={dgettext("management", "Mara places a brass key beside her untouched bowl and glances towards the door.\n\n\"The station was empty. No guards, no passengers. But the departures board was counting down to a train that wasn't on any schedule.\"\n\nShe lowers her voice. \"Tell me you found something better than another locked office.\"")}
+                body={
+                  dgettext(
+                    "management",
+                    "Mara places a brass key beside her untouched bowl and glances towards the door.\n\n\"The station was empty. No guards, no passengers. But the departures board was counting down to a train that wasn't on any schedule.\"\n\nShe lowers her voice. \"Tell me you found something better than another locked office.\""
+                  )
+                }
                 class="mt-2 text-sm leading-relaxed"
               />
             </div>
@@ -249,7 +295,8 @@ defmodule TannhauserGateWeb.CoreComponents do
             />
             <div class="flex justify-end">
               <.button id="preview-send" type="button" variant="primary" size="sm">
-                {dgettext("shared", "Send message")} <.icon name="hero-arrow-right-micro" class="size-4" />
+                {dgettext("shared", "Send message")}
+                <.icon name="hero-arrow-right-micro" class="size-4" />
               </.button>
             </div>
           </div>
