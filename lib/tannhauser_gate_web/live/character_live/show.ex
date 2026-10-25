@@ -9,7 +9,18 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience, Guilds, Items, Origins, Quests, Sheet, Trackers}
+  alias TannhauserGate.{
+    Characters,
+    Diary,
+    Experience,
+    Guilds,
+    Items,
+    Origins,
+    Quests,
+    Sheet,
+    Trackers
+  }
+
   alias TannhauserGate.Items.Item
 
   @impl true
@@ -23,7 +34,15 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
        |> put_flash(:error, "That character does not exist in this GDR.")
        |> push_navigate(to: ~p"/g/#{story}/characters")}
     else
-      {:ok, assign_character(socket, character)}
+      {:ok,
+       socket
+       |> assign_character(character)
+       |> allow_upload(:gallery,
+         accept: Diary.image_extensions(),
+         max_entries: 1,
+         max_file_size: Diary.max_image_size()
+       )
+       |> assign(:gallery_form, to_form(%{"caption" => ""}, as: :gallery))}
     end
   end
 
@@ -50,6 +69,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     )
     |> assign_progress(character, full?, master?)
     |> assign_inventory(character, full?, master?)
+    |> assign_diary(character)
     |> assign(:review_form, to_form(%{"notes" => ""}, as: :review))
     |> assign(:state_form, to_form(%{"state_id" => character.state_id}, as: :character_state))
   end
@@ -91,6 +111,19 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:give_form, to_form(%{"item_id" => "", "to" => "", "quantity" => "1"}, as: :give))
   end
 
+  # Diary module: the latest readable entries and the gallery.
+  defp assign_diary(socket, character) do
+    user = socket.assigns.current_user
+    diary? = Diary.enabled?(character.story)
+
+    socket
+    |> assign(:diary?, diary?)
+    |> assign(:diary_entries, Diary.list_entries(character, user, limit: 3))
+    |> assign(:diary_writer?, diary? and Diary.can_write?(user, character))
+    |> assign(:gallery, Diary.list_images(character))
+    |> assign(:gallery_manager?, diary? and Diary.can_manage_gallery?(user, character))
+  end
+
   defp reload(socket) do
     assign_character(socket, Characters.get_character!(socket.assigns.character.id))
   end
@@ -106,6 +139,44 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
        |> push_navigate(to: ~p"/g/#{socket.assigns.current_story}/characters")}
     else
       {:noreply, put_flash(socket, :error, "You can't delete this character.")}
+    end
+  end
+
+  def handle_event("validate_gallery", _params, socket), do: {:noreply, socket}
+
+  def handle_event("cancel_gallery_upload", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :gallery, ref)}
+
+  def handle_event("add_image", %{"gallery" => params}, socket) do
+    %{character: character, current_user: user} = socket.assigns
+
+    results =
+      consume_uploaded_entries(socket, :gallery, fn %{path: path}, _entry ->
+        {:ok, Diary.add_image(user, character, path, %{"caption" => params["caption"]})}
+      end)
+
+    case results do
+      [{:ok, _image}] ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Picture added to the gallery")
+         |> assign(:gallery_form, to_form(%{"caption" => ""}, as: :gallery))
+         |> reload()}
+
+      [{:error, reason}] ->
+        {:noreply, put_flash(socket, :error, Diary.error_message(reason))}
+
+      [] ->
+        {:noreply, put_flash(socket, :error, "Choose a picture first.")}
+    end
+  end
+
+  def handle_event("delete_image", %{"id" => id}, socket) do
+    %{character: character, current_user: user} = socket.assigns
+
+    case Diary.delete_image(user, character, id) do
+      {:ok, _} -> {:noreply, socket |> put_flash(:info, "Picture removed") |> reload()}
+      {:error, reason} -> {:noreply, put_flash(socket, :error, Diary.error_message(reason))}
     end
   end
 
@@ -298,6 +369,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <.link
@@ -475,7 +547,11 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
 
               <p class="notepad-label mt-4">Description</p>
 
-              <p class="notepad-text whitespace-pre-line">{@character.description || "—"}</p>
+              <.markdown
+                id="character-description"
+                content={@character.description || "—"}
+                class="notepad-text"
+              />
 
               <p class="notepad-label mt-4">Job</p>
 
@@ -487,7 +563,11 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
 
           <p class="notepad-label mt-8">Background</p>
 
-          <p class="notepad-text whitespace-pre-line">{@character.background || "—"}</p>
+          <.markdown
+            id="character-background"
+            content={@character.background || "—"}
+            class="notepad-text"
+          />
 
           <div :if={@origins != []} id="character-origins" class="mt-8">
             <p class="notepad-label">Origins</p>
@@ -568,9 +648,63 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
             </ul>
           </div>
 
+          <.gallery_section
+            :if={@diary? and (@gallery != [] or @gallery_manager?)}
+            gallery={@gallery}
+            manager?={@gallery_manager?}
+            uploads={@uploads}
+            form={@gallery_form}
+            character={@character}
+          />
+
+          <div :if={@diary?} id="character-diary" class="mt-8">
+            <p class="notepad-label flex items-center gap-2">
+              Diary
+              <.link
+                id="character-diary-link"
+                navigate={~p"/g/#{@current_story}/characters/#{@character}/diary"}
+                class="ml-auto normal-case tracking-normal text-sm underline decoration-dotted underline-offset-4 transition hover:text-[#0f1a13]"
+              >
+                {if @diary_writer?, do: "Open & write", else: "Read the diary"} →
+              </.link>
+            </p>
+            <p
+              :if={@diary_entries == []}
+              id="character-diary-empty"
+              class="notepad-text text-sm opacity-60"
+            >
+              No pages written yet.
+            </p>
+            <ul class="notepad-text">
+              <li
+                :for={entry <- @diary_entries}
+                id={"character-diary-entry-#{entry.id}"}
+                class="flex flex-wrap items-baseline gap-x-3"
+              >
+                <.link
+                  navigate={
+                    ~p"/g/#{@current_story}/characters/#{@character}/diary#diary-entry-#{entry.id}"
+                  }
+                  class="font-semibold transition hover:underline"
+                >
+                  {entry.title}
+                </.link>
+                <span class="text-sm opacity-70">
+                  {entry.game_date_label || Calendar.strftime(entry.inserted_at, "%d/%m/%Y")}
+                </span>
+                <span
+                  :if={entry.visibility != "public"}
+                  class="text-xs uppercase tracking-wider opacity-60"
+                >
+                  · {Diary.visibility_label(entry.visibility)}
+                </span>
+              </li>
+            </ul>
+          </div>
+
           <div :if={@character.off_game_info} id="character-off-game" class="mt-8">
             <p class="notepad-label">Off-game info</p>
-            <p class="notepad-text whitespace-pre-line">{@character.off_game_info}</p>
+            <.markdown content={@character.off_game_info} class="notepad-text" />
           </div>
 
           <div :for={{kind, entries} <- @sheet} :if={entries != []} id={"sheet-#{kind}"} class="mt-8">
@@ -827,6 +961,126 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     </Layouts.app>
     """
   end
+
+  attr :gallery, :list, required: true
+  attr :manager?, :boolean, required: true
+  attr :uploads, :map, required: true
+  attr :form, :any, required: true
+  attr :character, :map, required: true
+
+  defp gallery_section(assigns) do
+    errors =
+      upload_errors(assigns.uploads.gallery) ++
+        Enum.flat_map(
+          assigns.uploads.gallery.entries,
+          &upload_errors(assigns.uploads.gallery, &1)
+        )
+
+    assigns =
+      assigns
+      |> assign(:errors, Enum.map(errors, &gallery_upload_error/1))
+      |> assign(:full?, length(assigns.gallery) >= Diary.max_images())
+
+    ~H"""
+    <div id="character-gallery" class="mt-8">
+      <p class="notepad-label">
+        Gallery
+        <span :if={@manager?} class="ml-1 tabular-nums opacity-70">
+          {length(@gallery)}/{Diary.max_images()}
+        </span>
+      </p>
+      <p :if={@gallery == []} id="character-gallery-empty" class="notepad-text text-sm opacity-60">
+        No pictures yet.
+      </p>
+      <ul class="mt-3 grid grid-cols-2 gap-5 sm:grid-cols-3">
+        <li
+          :for={{image, index} <- Enum.with_index(@gallery)}
+          id={"gallery-image-#{image.id}"}
+          class={[
+            "polaroid group relative transition duration-200 hover:z-10 hover:rotate-0 hover:scale-105",
+            if(rem(index, 2) == 0, do: "rotate-2", else: "-rotate-2")
+          ]}
+        >
+          <figure>
+            <a href={image.path} target="_blank" rel="noopener" class="block">
+              <img
+                src={image.path}
+                alt={image.caption || "Picture of #{@character.name}"}
+                class="aspect-square w-full object-cover"
+                loading="lazy"
+              />
+            </a>
+            <figcaption class="min-h-[1.2rem] truncate" title={image.caption}>
+              {image.caption}
+            </figcaption>
+          </figure>
+          <button
+            :if={@manager?}
+            type="button"
+            id={"gallery-delete-#{image.id}"}
+            phx-click="delete_image"
+            phx-value-id={image.id}
+            data-confirm="Remove this picture?"
+            class="absolute -right-2 -top-2 grid size-6 place-items-center rounded-full bg-error text-error-content opacity-0 shadow transition group-hover:opacity-100 focus:opacity-100"
+            aria-label="Remove picture"
+          >
+            <.icon name="hero-x-mark-micro" class="size-4" />
+          </button>
+        </li>
+      </ul>
+
+      <.form
+        :if={@manager? and not @full?}
+        for={@form}
+        id="gallery-form"
+        phx-change="validate_gallery"
+        phx-submit="add_image"
+        class="mt-4 flex flex-wrap items-end gap-2 text-sm"
+      >
+        <div phx-drop-target={@uploads.gallery.ref} class="flex items-center gap-2">
+          <.live_img_preview
+            :for={entry <- @uploads.gallery.entries}
+            entry={entry}
+            class="size-12 rounded object-cover ring-2 ring-[#1d6b40]"
+          />
+          <.live_file_input
+            upload={@uploads.gallery}
+            class="file-input file-input-xs w-56"
+            aria-describedby="gallery-hint"
+          />
+        </div>
+        <input
+          type="text"
+          name="gallery[caption]"
+          value={@form[:caption].value}
+          maxlength="140"
+          placeholder="Caption"
+          aria-label="Caption"
+          class="input input-xs w-48"
+        />
+        <button class="btn btn-xs console-action" phx-disable-with="Uploading...">
+          <.icon name="hero-photo-micro" class="size-3" /> Add picture
+        </button>
+        <button
+          :for={entry <- @uploads.gallery.entries}
+          type="button"
+          phx-click="cancel_gallery_upload"
+          phx-value-ref={entry.ref}
+          class="btn btn-ghost btn-xs"
+        >
+          Cancel
+        </button>
+        <p id="gallery-hint" class="w-full text-xs opacity-60">PNG, JPEG or WebP, max 5 MB.</p>
+        <p :for={error <- @errors} class="gallery-error w-full text-xs text-error">{error}</p>
+      </.form>
+    </div>
+    """
+  end
+
+  defp gallery_upload_error(:too_large), do: "The image is too large (max 5 MB)"
+  defp gallery_upload_error(:not_accepted), do: "Only PNG, JPEG and WebP images are allowed"
+  defp gallery_upload_error(:too_many_files), do: "One picture at a time"
+  defp gallery_upload_error(other), do: "Upload error: #{inspect(other)}"
 
   attr :item, :map, required: true
   attr :cost, :any, required: true

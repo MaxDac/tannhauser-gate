@@ -81,7 +81,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
         {TannhauserGateWeb.GdrPresence, :track},
-        {TannhauserGateWeb.MailNotifier, :subscribe}
+        {TannhauserGateWeb.MailNotifier, :subscribe},
+        {TannhauserGateWeb.BoardsNotifier, :subscribe}
       ] do
       live "/g/:story_id", GdrLive.Home, :show
 
@@ -89,6 +90,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/characters/new", CharacterLive.Form, :new
       live "/g/:story_id/characters/:id", CharacterLive.Show, :show
       live "/g/:story_id/characters/:id/edit", CharacterLive.Form, :edit
+      live "/g/:story_id/characters/:id/diary", DiaryLive, :index
 
       live "/g/:story_id/guide", GuideLive, :index
       live "/g/:story_id/guide/:page_id", GuideLive, :show
@@ -117,6 +119,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/esiti", EsitoLive.Index, :index
       live "/g/:story_id/esiti/:id", EsitoLive.Show, :show
       live "/g/:story_id/quests", QuestLive.Index, :index
+      live "/g/:story_id/boards", BoardLive.Index, :index
     end
 
     live_session :gdr_admin,
@@ -126,7 +129,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :load_story},
         {TannhauserGateWeb.UserAuth, :ensure_gdr_admin},
         {TannhauserGateWeb.GdrPresence, :track},
-        {TannhauserGateWeb.MailNotifier, :subscribe}
+        {TannhauserGateWeb.MailNotifier, :subscribe},
+        {TannhauserGateWeb.BoardsNotifier, :subscribe}
       ] do
       live "/g/:story_id/gm", GmLive, :index
       live "/g/:story_id/gm/guide", GmLive.Guide, :index
@@ -145,7 +149,8 @@ defmodule TannhauserGateWeb.Router do
         {TannhauserGateWeb.UserAuth, :load_story},
         {TannhauserGateWeb.UserAuth, :ensure_master},
         {TannhauserGateWeb.GdrPresence, :track},
-        {TannhauserGateWeb.MailNotifier, :subscribe}
+        {TannhauserGateWeb.MailNotifier, :subscribe},
+        {TannhauserGateWeb.BoardsNotifier, :subscribe}
       ] do
       live "/g/:story_id/master", MasterLive, :index
       live "/g/:story_id/master/characters", MasterLive.Characters, :index
@@ -157,6 +162,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/guilds", MasterLive.Guilds, :index
       live "/g/:story_id/master/esiti", MasterLive.Esiti, :index
       live "/g/:story_id/master/quests", MasterLive.Quests, :index
+      live "/g/:story_id/master/boards", MasterLive.Boards, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

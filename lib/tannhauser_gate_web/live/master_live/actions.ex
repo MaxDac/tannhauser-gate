@@ -108,6 +108,7 @@ defmodule TannhauserGateWeb.MasterLive.Actions do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <div class="mb-4">
         <.link

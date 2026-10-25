@@ -58,6 +58,10 @@ defmodule TannhauserGateWeb.Layouts do
     default: 0,
     doc: "the unread messages of the GDR mailbox (see `TannhauserGateWeb.MailNotifier`)"
 
+  attr :announcements_unread, :integer,
+    default: 0,
+    doc: "the unread GDR announcements (see `TannhauserGateWeb.BoardsNotifier`)"
+
   attr :last_location, :map,
     default: nil,
     doc: "the user's last chat room in the GDR, for the \"Return to chat\" link"
@@ -174,11 +178,21 @@ defmodule TannhauserGateWeb.Layouts do
           <ul :if={@current_story} class="menu w-full gap-1 p-0" aria-label="Sections">
             <li>
               <.nav_link
+                id="nav-home"
                 navigate={~p"/g/#{@current_story}"}
                 icon="hero-home"
                 current_path={@current_path}
               >
                 Home
+                <span
+                  :if={@announcements_unread > 0}
+                  id="nav-announcements-unread"
+                  class="badge badge-sm badge-accent ml-auto animate-pulse"
+                  aria-label={"#{@announcements_unread} unread announcements"}
+                  title="Unread announcements"
+                >
+                  {@announcements_unread}
+                </span>
               </.nav_link>
             </li>
             <li>
@@ -292,6 +306,16 @@ defmodule TannhauserGateWeb.Layouts do
                 current_path={@current_path}
               >
                 Quests
+              </.nav_link>
+            </li>
+            <li :if={Stories.module_enabled?(@current_story, :boards)}>
+              <.nav_link
+                id="nav-boards"
+                navigate={~p"/g/#{@current_story}/boards"}
+                icon="hero-clipboard-document-list"
+                current_path={@current_path}
+              >
+                Notice boards
               </.nav_link>
             </li>
             <li :if={Stories.master_role?(@story_role)}>
