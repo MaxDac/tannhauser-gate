@@ -32,6 +32,7 @@ defmodule TannhauserGate.Stories.Story do
     field :archive_after_days, :integer, default: 30
     field :community_url, :string
     field :community_label, :string
+    field :modules, :map, default: %{}
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -81,6 +82,15 @@ defmodule TannhauserGate.Stories.Story do
     |> cast(attrs, @gm_fields)
     |> cast_embed(:dice_config)
     |> validate_story()
+  end
+
+  @doc """
+  Changeset for the optional feature modules (`TannhauserGate.Modules`) of
+  the GDR. Unknown keys and non-boolean values are dropped.
+  """
+  def modules_changeset(story, modules) do
+    story
+    |> change(modules: TannhauserGate.Modules.sanitize(modules))
   end
 
   defp validate_story(changeset) do

@@ -233,6 +233,16 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
+  # Guards the pages of an optional module (`TannhauserGate.Modules`): when the
+  # GDR has not enabled it, the user is sent back to the GDR home page.
+  def on_mount({:require_module, key}, _params, _session, socket) do
+    if Stories.module_enabled?(socket.assigns.current_story, key) do
+      {:cont, socket}
+    else
+      deny_story_access(socket, "That feature is not enabled in this GDR.")
+    end
+  end
+
   # Masters, the GDR admin and platform admins may use the master tools.
   def on_mount(:ensure_master, _params, _session, socket) do
     if socket.assigns.master? do

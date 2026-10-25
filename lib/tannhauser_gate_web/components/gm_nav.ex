@@ -8,6 +8,7 @@ defmodule TannhauserGateWeb.GmNav do
 
   @tabs [
     {"general", "General", :core},
+    {"modules", "Modules", :core},
     {"guide", "Guide", :page},
     {"theme", "Theme", :core},
     {"sheet", "Sheet", :core},
@@ -24,8 +25,21 @@ defmodule TannhauserGateWeb.GmNav do
     {"masters", "Masters", :core}
   ]
 
+  # Tabs of optional modules (`TannhauserGate.Modules`), shown only when the
+  # module is enabled: {key, label, kind, module}.
+  @module_tabs []
+
   @doc "The keys of the tabs rendered by `GmLive` itself."
-  def core_tabs, do: for({key, _, :core} <- @tabs, do: key)
+  def core_tabs,
+    do: for({key, _, :core} <- @tabs, do: key) ++ for({key, _, :core, _} <- @module_tabs, do: key)
+
+  @doc "The tabs shown for the story: the core ones plus those of its enabled modules."
+  def visible_tabs(story) do
+    @tabs ++
+      for {key, label, kind, module} <- @module_tabs,
+          TannhauserGate.Stories.module_enabled?(story, module),
+          do: {key, label, kind}
+  end
 
   attr :story, :map, required: true
 
@@ -51,7 +65,7 @@ defmodule TannhauserGateWeb.GmNav do
   def gm_tabs(assigns) do
     assigns =
       assign(assigns,
-        tabs: @tabs,
+        tabs: visible_tabs(assigns.story),
         in_core?: assigns.tab in core_tabs()
       )
 
