@@ -53,6 +53,7 @@ defmodule TannhauserGateWeb.GmLive do
 
   defp load(socket, "general"), do: assign_story_form(socket, story(socket))
   defp load(socket, "theme"), do: assign_story_form(socket, story(socket))
+  defp load(socket, "esiti"), do: assign_story_form(socket, story(socket))
   defp load(socket, "modules"), do: assign(socket, :modules, Modules.all())
 
   defp load(socket, "map"),
@@ -534,6 +535,7 @@ defmodule TannhauserGateWeb.GmLive do
         <.map_tab :if={@tab == "map"} {assigns} /> <.chat_tab :if={@tab == "chat"} {assigns} />
         <.forum_tab :if={@tab == "forum"} {assigns} />
         <.masters_tab :if={@tab == "masters"} {assigns} />
+        <.esiti_tab :if={@tab == "esiti"} {assigns} />
       </div>
     </Layouts.app>
     """
@@ -1209,6 +1211,36 @@ defmodule TannhauserGateWeb.GmLive do
         </ul>
       </.panel>
     </div>
+    """
+  end
+
+  defp esiti_tab(assigns) do
+    ~H"""
+    <.panel>
+      <.form for={@story_form} id="esiti-settings-form" phx-submit="save_story">
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Esiti limits</h2>
+        <p class="mb-3 text-xs text-base-content/60">
+          Players file esiti (action requests) for the masters to resolve. Leave a field empty
+          for no limit.
+        </p>
+        <div class="grid gap-x-4 sm:grid-cols-2">
+          <.input
+            field={@story_form[:esiti_max_open]}
+            type="number"
+            label="Open requests per character"
+            min="1"
+            max="50"
+          />
+          <.input
+            field={@story_form[:esiti_min_xp]}
+            type="number"
+            label="Earned XP needed to file"
+            min="0"
+          />
+        </div>
+        <.button id="save-esiti-settings" phx-disable-with="Saving...">Save</.button>
+      </.form>
+    </.panel>
     """
   end
 

@@ -6,19 +6,38 @@ defmodule TannhauserGateWeb.MasterLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Repo, Stories}
+  alias TannhauserGate.{Characters, Esiti, Repo, Stories}
 
   @impl true
   def mount(_params, _session, socket) do
     story = Repo.preload(socket.assigns.current_story, :owner)
+    esiti? = Esiti.enabled?(story)
+    if esiti? and connected?(socket), do: Esiti.subscribe(story.id)
 
     {:ok,
      socket
      |> assign(:page_title, "Master tools")
+     |> assign(:esiti?, esiti?)
+     |> assign_esiti_counts()
      |> assign(:owner, story.owner)
      |> assign(:queue_count, length(Characters.list_approval_queue(story.id)))
      |> stream(:masters, Stories.list_masters(story))}
   end
+
+  defp assign_esiti_counts(%{assigns: %{esiti?: true}} = socket) do
+    counts = Esiti.status_counts(socket.assigns.current_story)
+
+    assign(socket,
+      esiti_open: Map.get(counts, "open", 0),
+      esiti_claimed: Map.get(counts, "claimed", 0)
+    )
+  end
+
+  defp assign_esiti_counts(socket), do: assign(socket, esiti_open: 0, esiti_claimed: 0)
+
+  @impl true
+  def handle_info({:esiti, _event, _esito}, socket), do: {:noreply, assign_esiti_counts(socket)}
+  def handle_info(_message, socket), do: {:noreply, socket}
 
   @impl true
   def render(assigns) do
@@ -124,6 +143,35 @@ defmodule TannhauserGateWeb.MasterLive do
           title="Guilds"
         >
           Create guilds and factions, their ranks and salaries.
+        </.entry_point>
+
+        <.entry_point
+          :if={@esiti?}
+          id="master-esiti"
+          navigate={~p"/g/#{@current_story}/master/esiti"}
+          icon="hero-scale"
+          title="Esiti"
+        >
+          Claim and resolve the players' action requests.
+          <span
+            id="master-esiti-count"
+            class={[
+              "badge badge-sm badge-soft ml-1",
+              if(@esiti_open > 0, do: "badge-warning", else: "badge-info")
+            ]}
+          >
+            {@esiti_open} open · {@esiti_claimed} in progress
+          </span>
+        </.entry_point>
+
+        <.entry_point
+          :if={Stories.module_enabled?(@current_story, :quests)}
+          id="master-quests"
+          navigate={~p"/g/#{@current_story}/master/quests"}
+          icon="hero-book-open"
+          title="Quests"
+        >
+          Record the quests you ran, their participants and rewards.
         </.entry_point>
 
         <.entry_point
