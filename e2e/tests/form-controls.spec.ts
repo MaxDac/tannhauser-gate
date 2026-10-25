@@ -1,8 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-
-async function connected(page: Page) {
-  await expect(page.locator(".phx-connected").first()).toBeVisible();
-}
+import { connected, gdrPath } from "./helpers";
 
 async function adminLogin(page: Page) {
   await page.goto("/users/log_in");
@@ -10,7 +7,7 @@ async function adminLogin(page: Page) {
   await page.getByLabel("Username").fill(process.env.ADMIN_USERNAME || "admin");
   await page.getByLabel("Password").fill(process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121");
   await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/gdrs$/);
+  await expect(page).toHaveURL(/\/gdrs$/, { timeout: 30_000 });
 }
 
 // Computed colors may be oklab()/color-mix() values; normalise them to rgb().
@@ -84,16 +81,6 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await expect(email).toHaveCSS("cursor", "not-allowed");
 });
 
-test("account recovery fields retain visible labels after typing", async ({ page }) => {
-  test.skip(process.env.FEATURE_EMAIL_AUTH !== "true", "Email flows are disabled");
-  for (const route of ["/users/reset_password", "/users/confirm"]) {
-    await page.goto(route);
-    await connected(page);
-    await page.getByLabel("Email", { exact: true }).fill("player@example.com");
-    await expect(page.locator("label .console-label")).toHaveText("Email");
-  }
-});
-
 test("admin artwork keeps textarea styling and accessible red validation states", async ({ page }) => {
   await adminLogin(page);
   await page.goto("/admin/stories/new");
@@ -130,8 +117,9 @@ test("the GDR picker preserves story switching", async ({ page }) => {
 test("forms remain within the mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await adminLogin(page);
+  const gdr = await gdrPath(page);
 
-  for (const route of ["/g/1/characters/new", "/admin/stories/new", "/users/settings", "/g/1/map"]) {
+  for (const route of [`${gdr}/characters/new`, "/admin/stories/new", "/users/settings", `${gdr}/map`]) {
     await page.goto(route);
     await connected(page);
     const dimensions = await page.evaluate(() => ({

@@ -178,18 +178,25 @@ defmodule TannhauserGate.ChatRpTest do
             Chat.subscribe_whispers(ctx.location.id, viewer)
             send(parent, {:subscribed, self()})
 
+            # Local PubSub delivery is synchronous, so once the parent says the
+            # whisper exists any broadcast is already in this mailbox.
+            receive do
+              :check -> :ok
+            end
+
             receive do
               {:new_message, message} -> send(parent, {:got, self(), message.id})
             after
-              300 -> send(parent, {:nothing, self()})
+              0 -> send(parent, {:nothing, self()})
             end
           end)
 
         assert_receive {:subscribed, ^pid}
         {:ok, %{id: new_id}} = whisper(ctx, "Again #{inspect(viewer)}")
+        send(pid, :check)
 
         if expected,
-          do: assert_receive({:got, ^pid, ^new_id}),
+          do: assert_receive({:got, ^pid, ^new_id}, 1_000),
           else: assert_receive({:nothing, ^pid}, 1_000)
       end
     end

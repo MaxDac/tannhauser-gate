@@ -32,7 +32,7 @@ defmodule TannhauserGate.Diary.Entry do
   def changeset(entry, attrs) do
     entry
     |> cast(attrs, [:title, :body, :game_date_label, :visibility])
-    |> update_change(:title, &String.trim/1)
+    |> update_change(:title, &(&1 && String.trim(&1)))
     |> validate_required([:title, :body, :visibility])
     |> validate_length(:title, max: 120)
     |> validate_length(:body, max: 20_000)

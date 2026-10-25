@@ -1,46 +1,25 @@
-import { test, expect, Browser, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import path from "node:path";
-
-// Runs against a dev database prepared with `mix ecto.setup` (seeds the
-// Tannhauser Gate story, its rooms, forum sections and the default admin).
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121";
-
-// The seeded Tannhauser Gate story is the first row of a fresh database.
-const GDR = "/g/1";
+import {
+  ADMIN_PASSWORD,
+  ADMIN_USERNAME,
+  PASSWORD as password,
+  SEEDED_GDR,
+  approveCharacter,
+  connected,
+  dismissFlashes,
+  gdrPath,
+  logIn,
+} from "./helpers";
 
 const stamp = Date.now();
 const username = `runner${stamp}`;
 const email = `runner${stamp}@example.com`;
-const password = "more-human-than-human";
 const characterName = `Deckard ${stamp}`;
 const message = `Have you ever retired a human by mistake? ${stamp}`;
 const topicTitle = `Origami unicorns ${stamp}`;
 
 test.describe.configure({ mode: "serial" });
-
-async function connected(page: Page) {
-  await expect(page.locator(".phx-connected").first()).toBeVisible();
-}
-
-async function logIn(page: Page, user: string, pass: string) {
-  await page.goto("/users/log_in");
-  await connected(page);
-  await page.getByLabel("Username").fill(user);
-  await page.getByLabel("Password").fill(pass);
-  await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/gdrs$/);
-  await dismissFlashes(page);
-}
-
-async function dismissFlashes(page: Page) {
-  const flashes = page.locator("#flash-group [role=alert]:visible");
-  await expect(flashes.first()).toBeVisible();
-  while ((await flashes.count()) > 0) {
-    await flashes.first().click();
-    await page.waitForTimeout(250);
-  }
-}
 
 test("registers a new user", async ({ page }) => {
   await page.goto("/");
@@ -54,33 +33,19 @@ test("registers a new user", async ({ page }) => {
   await page.getByLabel("I accept the terms and disclaimer").check();
   await page.getByRole("button", { name: "Create an account" }).click();
   await expect(page).toHaveURL(/\/gdrs$/);
-  await expect(page.locator("#gdrs")).toContainText("Tannhauser Gate");
+  await expect(page.locator("#gdrs")).toContainText(SEEDED_GDR);
 });
-
-// A master (here the platform admin) approves the character from the master
-// character dashboard, so it can speak in the chat rooms.
-async function approveCharacter(browser: Browser, name: string) {
-  const context = await browser.newContext();
-  const admin = await context.newPage();
-  await logIn(admin, ADMIN_USERNAME, ADMIN_PASSWORD);
-  await admin.goto(`${GDR}/master/characters`);
-  await connected(admin);
-  await admin.setViewportSize({ width: 1280, height: 900 });
-  const card = admin.locator("#approval-queue li").filter({ hasText: name });
-  await card.getByRole("button", { name: "Approve" }).click();
-  await expect(admin.locator("#approval-queue li").filter({ hasText: name })).toHaveCount(0);
-  await context.close();
-}
 
 test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await logIn(page, username, password);
 
   // Enter the GDR and create a character with avatar
+  const gdr = await gdrPath(page);
   await page
-    .locator("#gdrs article", { hasText: "Tannhauser Gate" })
+    .locator("#gdrs article", { hasText: SEEDED_GDR })
     .getByRole("link", { name: /Enter/ })
     .click();
-  await expect(page).toHaveURL(new RegExp(`${GDR}$`));
+  await expect(page).toHaveURL(new RegExp(`${gdr}$`));
   await page.locator("#drawer").getByRole("link", { name: "Characters", exact: true }).click();
   await page.locator("#new-character").click();
   await connected(page);
@@ -118,7 +83,7 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await page.locator("#submit-for-approval").click();
   await expect(page.locator("#character-approval-status")).toContainText("Awaiting approval");
   await dismissFlashes(page);
-  await approveCharacter(browser, characterName);
+  await approveCharacter(browser, gdr, characterName);
 
   // Map -> room
   await page.locator("#drawer").getByRole("link", { name: "Map", exact: true }).click();
