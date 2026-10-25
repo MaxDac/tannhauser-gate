@@ -1230,6 +1230,74 @@ defmodule TannhauserGateWeb.GmLive do
           min="1"
         />
 
+        <fieldset
+          :if={Stories.module_enabled?(@current_story, :chat_rp)}
+          id="chat-rp-settings"
+          class="mt-4 rounded-lg border border-secondary/20 p-4"
+        >
+          <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
+            Chat roleplay: entry length
+          </legend>
+          <p class="mb-2 text-xs text-base-content/60">
+            Characters per in-character entry (speech and whispers). Leave empty for no limit.
+          </p>
+          <div class="grid gap-x-4 sm:grid-cols-2">
+            <.input
+              field={@story_form[:chat_min_length]}
+              type="number"
+              label="Minimum length"
+              min="0"
+            />
+            <.input
+              field={@story_form[:chat_max_length]}
+              type="number"
+              label="Maximum length"
+              min="1"
+              max="4000"
+            />
+          </div>
+        </fieldset>
+
+        <fieldset
+          :if={Stories.module_enabled?(@current_story, :auto_xp)}
+          id="auto-xp-settings"
+          class="mt-4 rounded-lg border border-secondary/20 p-4"
+        >
+          <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
+            Automatic XP
+          </legend>
+          <p class="mb-2 text-xs text-base-content/60">
+            XP for each in-character speech of a player character (no OFF, whispers, dice or NPCs).
+            Leave the amount empty to pause the awards.
+          </p>
+          <div class="grid gap-x-4 sm:grid-cols-2">
+            <.input
+              field={@story_form[:auto_xp_amount]}
+              type="number"
+              label="XP per entry"
+              min="1"
+            />
+            <.input
+              field={@story_form[:auto_xp_min_length]}
+              type="number"
+              label="Minimum entry length"
+              min="0"
+            />
+            <.input
+              field={@story_form[:auto_xp_daily_cap]}
+              type="number"
+              label="Daily cap per character (UTC day)"
+              min="1"
+            />
+            <.input
+              field={@story_form[:auto_xp_cooldown_minutes]}
+              type="number"
+              label="Cooldown (minutes)"
+              min="0"
+            />
+          </div>
+        </fieldset>
+
         <h2 class="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
           Dice system
         </h2>

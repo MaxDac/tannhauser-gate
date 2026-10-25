@@ -6,6 +6,11 @@ defmodule TannhauserGateWeb.GdrPresence do
 
   Mounted with `on_mount {TannhauserGateWeb.GdrPresence, :track}` after
   `UserAuth`'s `:load_story`; rooms call `enter_location/2`.
+
+  Each user also shows a presence status (available, busy, away, looking for
+  play), saved per GDR (`Stories.set_presence_status/3`) and changed from the
+  drawer with the `"set_presence_status"` event, handled here for every
+  LiveView of the GDR.
   """
 
   import Phoenix.Component, only: [assign: 3]
@@ -35,6 +40,7 @@ defmodule TannhauserGateWeb.GdrPresence do
           location_id: nil,
           location_name: nil,
           location_private: false,
+          status: Stories.presence_status(user, story.id),
           online_at: System.system_time(:millisecond)
         })
 
@@ -43,7 +49,8 @@ defmodule TannhauserGateWeb.GdrPresence do
       {:cont,
        socket
        |> assign(:online, list_online(story.id))
-       |> attach_hook(:gdr_presence, :handle_info, &handle_info/2)}
+       |> attach_hook(:gdr_presence, :handle_info, &handle_info/2)
+       |> attach_hook(:gdr_presence_status, :handle_event, &handle_event/3)}
     else
       {:cont, assign(socket, :online, [])}
     end
@@ -54,6 +61,25 @@ defmodule TannhauserGateWeb.GdrPresence do
   end
 
   defp handle_info(_message, socket), do: {:cont, socket}
+
+  defp handle_event("set_presence_status", %{"presence" => %{"status" => status}}, socket) do
+    %{current_user: user, current_story: story} = socket.assigns
+
+    case Stories.set_presence_status(user, story.id, status) do
+      {:ok, status} ->
+        # Bumping `online_at` makes this page the one listed for the user.
+        Presence.update(self(), topic(story.id), to_string(user.id), fn meta ->
+          Map.merge(meta, %{status: status, online_at: System.system_time(:millisecond)})
+        end)
+
+        {:halt, assign(socket, :online, list_online(story.id))}
+
+      {:error, _} ->
+        {:halt, socket}
+    end
+  end
+
+  defp handle_event(_event, _params, socket), do: {:cont, socket}
 
   @doc """
   Records that the current LiveView user is in a location: updates their
@@ -95,6 +121,20 @@ defmodule TannhauserGateWeb.GdrPresence do
   end
 
   def character_location(_, _, _), do: nil
+
+  @doc "The presence status of the player of an online character, or nil."
+  def character_status(online, character_id) when is_list(online) and not is_nil(character_id) do
+    Enum.find_value(online, &(&1[:character_id] == character_id && (&1[:status] || "available")))
+  end
+
+  def character_status(_, _), do: nil
+
+  @doc "The presence status of a user, from the online list (nil when offline)."
+  def user_status(online, user_id) when is_list(online) do
+    Enum.find_value(online, &(&1[:user_id] == user_id && (&1[:status] || "available")))
+  end
+
+  def user_status(_, _), do: nil
 
   @doc """
   The users online in a GDR: one entry per user (their most recent page),

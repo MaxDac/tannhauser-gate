@@ -447,13 +447,17 @@ defmodule TannhauserGateWeb.Admin.RoomsLive do
   @impl true
   def handle_params(%{"id" => id}, _url, socket) do
     location = Stories.get_location!(id)
-    if connected?(socket), do: Chat.subscribe(location.id)
+
+    if connected?(socket) do
+      Chat.subscribe(location.id)
+      Chat.subscribe_whispers(location.id, :all)
+    end
 
     {:noreply,
      socket
      |> assign(:page_title, "Conversation · #{location.name}")
      |> assign(:location, location)
-     |> stream(:messages, Chat.list_messages(location.id, 500), reset: true)}
+     |> stream(:messages, Chat.list_messages(location.id, limit: 500, viewer: :all), reset: true)}
   end
 
   def handle_params(_params, _url, socket) do

@@ -74,6 +74,82 @@ defmodule TannhauserGate.Experience do
 
   defp parse_amount(_), do: {:error, :invalid_amount}
 
+  ## Automatic XP (chat activity)
+
+  @auto_reason "Chat activity"
+
+  @doc """
+  Awards the automatic chat activity XP of the GDR (`auto_xp` module) to a
+  player character for an in-character entry of `length` characters.
+
+  The story settings decide the award: `auto_xp_amount` per entry of at
+  least `auto_xp_min_length` characters, at most `auto_xp_daily_cap` XP per
+  character per UTC day and one award every `auto_xp_cooldown_minutes`. The
+  checks run in a transaction holding a lock on the character, so concurrent
+  entries cannot exceed the cap. Entries are recorded with `source: "auto"`
+  and the reason "#{@auto_reason}".
+
+  Returns `{:ok, entry}` or `{:error, reason}` with reason `:disabled`,
+  `:npc`, `:too_short`, `:cooldown` or `:daily_cap`. Option `:now` sets the
+  current time (tests).
+  """
+  def award_chat_activity(%Story{} = story, %Character{} = character, length, opts \\ []) do
+    now = opts |> Keyword.get(:now, DateTime.utc_now()) |> DateTime.truncate(:second)
+    amount = story.auto_xp_amount
+
+    cond do
+      not Stories.module_enabled?(story, :auto_xp) or not is_integer(amount) or amount <= 0 ->
+        {:error, :disabled}
+
+      character.is_npc or character.story_id != story.id ->
+        {:error, :npc}
+
+      length < (story.auto_xp_min_length || 0) ->
+        {:error, :too_short}
+
+      true ->
+        Repo.transaction(fn -> do_auto_award(story, character, amount, now) end)
+    end
+  end
+
+  defp do_auto_award(story, character, amount, now) do
+    lock_character!(character)
+    cooldown = story.auto_xp_cooldown_minutes || 0
+    cap = story.auto_xp_daily_cap
+
+    if cooldown > 0 and auto_since(character, DateTime.add(now, -cooldown * 60)).count > 0 do
+      Repo.rollback(:cooldown)
+    end
+
+    amount =
+      if cap do
+        today = DateTime.new!(DateTime.to_date(now), ~T[00:00:00], "Etc/UTC")
+        min(amount, cap - auto_since(character, today).sum)
+      else
+        amount
+      end
+
+    if amount <= 0, do: Repo.rollback(:daily_cap)
+
+    insert_entry!(character, %{
+      kind: "award",
+      amount: amount,
+      reason: @auto_reason,
+      source: "auto",
+      inserted_at: now
+    })
+  end
+
+  defp auto_since(character, since) do
+    Repo.one(
+      from e in Entry,
+        where:
+          e.character_id == ^character.id and e.source == "auto" and e.kind == "award" and
+            e.inserted_at > ^since,
+        select: %{count: count(e.id), sum: coalesce(sum(e.amount), 0)}
+    )
+  end
+
   ## Spending
 
   @doc """
@@ -244,16 +320,25 @@ defmodule TannhauserGate.Experience do
     )
   end
 
-  @doc "The latest XP log entries of a whole GDR, newest first."
-  def list_story_entries(story_id, limit \\ 50) do
-    Repo.all(
-      from e in Entry,
-        where: e.story_id == ^story_id,
-        order_by: [desc: e.inserted_at, desc: e.id],
-        limit: ^limit,
-        preload: [:author, :character]
+  @doc """
+  The latest XP log entries of a whole GDR, newest first. Options: `:limit`
+  (default 50) and `:source` (`"manual"`, `"auto"`, or anything else for all).
+  """
+  def list_story_entries(story_id, opts \\ []) do
+    from(e in Entry,
+      where: e.story_id == ^story_id,
+      order_by: [desc: e.inserted_at, desc: e.id],
+      limit: ^Keyword.get(opts, :limit, 50),
+      preload: [:author, :character]
     )
+    |> filter_source(opts[:source])
+    |> Repo.all()
   end
+
+  defp filter_source(query, source) when source in ["manual", "auto"],
+    do: where(query, [e], e.source == ^source)
+
+  defp filter_source(query, _source), do: query
 
   @doc "A human readable message for the XP errors."
   def error_message(:unauthorized), do: "You are not allowed to do that."
