@@ -109,15 +109,21 @@ test.describe("player", () => {
   test("map", async ({ page }) => {
     await page.goto(`${GDR}/map`);
     await expect(page.locator("#city-map")).toBeVisible();
+    await expect(page.locator("#map-pins a.map-pin").first()).toBeVisible();
     await snap(page, "map");
+  });
+
+  test("mobile map", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${GDR}/map`);
+    await expect(page.locator("#map-pins a.map-pin").first()).toBeVisible();
+    await snap(page, "map-mobile");
   });
 
   test("room chat", async ({ page }) => {
     await page.goto(`${GDR}/map`);
     await settle(page);
-    await page
-      .locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]")
-      .click({ force: true });
+    await page.locator("#map-pins a.map-pin[data-location-name=\"Ozu's Noodle Counter\"]").click();
     await expect(page).toHaveURL(/\/g\/\d+\/rooms\/\d+$/);
     await expect(page.locator("#messages li.chat-message")).toHaveCount(3);
     await snap(page, "room-chat");

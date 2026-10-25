@@ -1,0 +1,76 @@
+<defs>
+  <radialGradient id="aa-void" cx="0.5" cy="0.45" r="0.75">
+    <stop offset="0%" stop-color="#2a2116"/>
+    <stop offset="60%" stop-color="#120e0a"/>
+    <stop offset="100%" stop-color="#030202"/>
+  </radialGradient>
+  <radialGradient id="aa-dreamer" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#a9c98a" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="#5f7a45" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="aa-lamp" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#fff1c4" stop-opacity="0.45"/>
+    <stop offset="40%" stop-color="#d4a94a" stop-opacity="0.16"/>
+    <stop offset="100%" stop-color="#d4a94a" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="aa-gate" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#fff1c4" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#fff1c4" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="aa-paper" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M40 0H0V40" fill="none" stroke="#c9b48a" stroke-opacity="0.05" stroke-width="1"/>
+  </pattern>
+</defs>
+<rect width="1000" height="700" fill="url(#aa-void)"/>
+<circle cx="960" cy="640" r="220" fill="url(#aa-dreamer)"/>
+<ellipse cx="960" cy="640" rx="60" ry="20" fill="none" stroke="#a9c98a" stroke-opacity="0.35" stroke-width="2"/>
+<g fill="none" stroke="#3d4a2c" stroke-opacity="0.7" stroke-linecap="round">
+  <path d="M1000 520 C 930 560, 900 640, 840 670" stroke-width="14"/>
+  <path d="M1000 600 C 920 610, 880 690, 820 700" stroke-width="10"/>
+  <path d="M0 640 C 60 600, 40 560, 90 520" stroke-width="9"/>
+</g>
+<path d="M20 30 L980 20 L990 230 L975 400 L930 470 L820 480 L840 640 L700 690 L560 680 L300 690 L240 670 L120 600 L40 520 L15 380 Z" fill="#1d1710" stroke="#c9b48a" stroke-opacity="0.3" stroke-width="2"/>
+<rect width="1000" height="700" fill="url(#aa-paper)"/>
+<circle cx="225" cy="165" r="330" fill="url(#aa-lamp)"/>
+<g fill="#f3dc9a" opacity="0.07">
+  <polygon points="225,165 600,0 700,0"/>
+  <polygon points="225,165 1000,240 1000,320"/>
+  <polygon points="225,165 520,700 440,700"/>
+  <polygon points="225,165 0,520 0,600"/>
+</g>
+<path d="M1000 300 C 900 320, 840 470, 720 480 S 600 560, 620 700" fill="none" stroke="#3f5450" stroke-width="22" stroke-opacity="0.8"/>
+<path d="M1000 300 C 900 320, 840 470, 720 480 S 600 560, 620 700" fill="none" stroke="#8fa7a0" stroke-opacity="0.3" stroke-width="2"/>
+<g stroke="#6b5a40" stroke-opacity="0.55" stroke-width="6" fill="none" stroke-linecap="round">
+  <path d="M40 270 H840"/>
+  <path d="M340 30 V560"/>
+  <path d="M560 380 L620 330"/>
+  <path d="M340 470 H650"/>
+  <path d="M880 210 V250"/>
+</g>
+<g stroke="#c9b48a" stroke-opacity="0.18" stroke-width="2" fill="none" stroke-dasharray="5 7">
+  <path d="M40 270 H840"/>
+  <path d="M340 30 V560"/>
+</g>
+<g fill="#120e0a" stroke="#3a2f22" stroke-width="1">
+  <path d="M60 40 L120 40 L120 70 L90 55 L60 70 Z"/>
+  <rect x="620" y="200" width="60" height="50"/>
+  <rect x="60" y="470" width="90" height="70"/>
+  <rect x="420" y="410" width="80" height="40"/>
+  <rect x="860" y="400" width="60" height="50"/>
+</g>
+<g stroke="#f3dc9a" stroke-width="4" stroke-linecap="round">
+  <path d="M225 110 V160"/>
+  <path d="M208 126 H242"/>
+</g>
+<g fill="#d4a94a" opacity="0.6">
+  <rect x="80" y="490" width="4" height="5"/><rect x="640" y="215" width="4" height="5"/>
+  <rect x="440" y="420" width="4" height="5"/><rect x="880" y="415" width="4" height="5"/>
+</g>
+<circle cx="430" cy="690" r="40" fill="url(#aa-gate)"/>
+<path d="M422 700 V676 A8 8 0 0 1 438 676 V700" fill="none" stroke="#fff1c4" stroke-opacity="0.7" stroke-width="2"/>
+<g fill="#c9b48a" fill-opacity="0.08">
+  <ellipse cx="140" cy="640" rx="160" ry="30"/>
+  <ellipse cx="900" cy="440" rx="120" ry="24"/>
+  <ellipse cx="520" cy="15" rx="260" ry="18"/>
+</g>
+<text x="980" y="40" text-anchor="end" font-family="Georgia, serif" font-size="15" letter-spacing="3" fill="#e6d9c0" fill-opacity="0.55">ARKHAM ADRIFT · 1923</text>

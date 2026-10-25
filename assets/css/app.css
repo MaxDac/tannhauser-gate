@@ -515,14 +515,17 @@
 
   /* ---- Map ---- */
   .map-room polygon {
-    fill-opacity: 0.18;
-    stroke-width: 2;
+    fill-opacity: 0.08;
+    stroke-opacity: 0.5;
+    stroke-width: 1.5;
+    stroke-dasharray: 6 5;
     cursor: pointer;
-    transition: fill-opacity 150ms ease, filter 150ms ease;
+    transition: fill-opacity 150ms ease, stroke-opacity 150ms ease, filter 150ms ease;
   }
   .map-room polygon:hover,
   .map-room polygon:focus {
-    fill-opacity: 0.45;
+    fill-opacity: 0.3;
+    stroke-opacity: 0.9;
     filter: drop-shadow(0 0 8px currentColor);
     outline: none;
   }
@@ -530,15 +533,173 @@
     fill-opacity: 0.25;
     stroke-width: 2;
   }
-  .map-label {
-    fill: #e2ece5;
+  /* Soft vignette so pins pop against the artwork */
+  .map-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.55);
+  }
+  /* The overlay lets clicks reach the room areas; only the pins catch them. */
+  #map-pins {
+    pointer-events: none;
+  }
+  #map-pins .map-pin {
+    pointer-events: auto;
+  }
+  /* A pin is anchored by its tip on the room's centroid; the link box is a
+     44px touch target. */
+  .map-pin {
+    --pin-color: #4ae08a;
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    transform: translate(-50%, -100%);
+    outline: none;
+  }
+  .map-pin:hover,
+  .map-pin:focus-visible {
+    z-index: 3;
+  }
+  .map-pin::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    width: 14px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 0 var(--pin-color);
+    animation: map-pin-ping 3.2s ease-out infinite;
+  }
+  .map-pin-marker {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    margin-bottom: 0.375rem;
+    border: 2px solid rgba(8, 10, 9, 0.9);
+    border-radius: 50% 50% 50% 0;
+    background: var(--pin-color);
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.55),
+      0 0 0 3px color-mix(in srgb, var(--pin-color) 28%, transparent);
+    transform: rotate(-45deg);
+    transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms ease;
+  }
+  .map-pin:hover .map-pin-marker,
+  .map-pin:focus-visible .map-pin-marker {
+    transform: translateY(-4px) rotate(-45deg) scale(1.12);
+    box-shadow:
+      0 10px 18px rgba(0, 0, 0, 0.6),
+      0 0 0 3px color-mix(in srgb, var(--pin-color) 45%, transparent),
+      0 0 22px var(--pin-color);
+  }
+  .map-pin:focus-visible .map-pin-marker {
+    outline: 2px solid #f5f7f6;
+    outline-offset: 3px;
+  }
+  .map-pin-index {
+    transform: rotate(45deg);
+    color: #0a0c0b;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    paint-order: stroke;
-    stroke: #0b100d;
-    stroke-width: 4px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .map-pin-lock {
+    position: absolute;
+    top: 0.125rem;
+    right: 0.125rem;
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: #0a0c0b;
+    color: var(--pin-color);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pin-color) 60%, transparent);
+  }
+  /* Names of the pins. MapPins (Elixir) lays them out in map-width units (cqw)
+     so they never overlap; the metrics here must match it. On narrow maps,
+     and for labels with no free spot, the name shows on hover/focus only and
+     the numbered list names the pins. */
+  .map-frame {
+    container-type: inline-size;
+  }
+  .map-pin-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    display: none;
+    padding: 0.1em 0.55em;
+    border: 1px solid color-mix(in srgb, var(--pin-color) 45%, transparent);
+    border-radius: 9999px;
+    background: rgba(6, 8, 7, 0.85);
+    color: #eef3f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, 0.3rem);
+    transition: border-color 150ms ease, color 150ms ease;
+  }
+  .map-pin:hover .map-pin-label,
+  .map-pin:focus-visible .map-pin-label {
+    display: block;
+    border-color: var(--pin-color);
+    color: #fff;
+  }
+  @container (min-width: 560px) {
+    .map-pin-label[data-placed] {
+      display: block;
+      top: calc(100% + var(--label-y) * 1cqw);
+      left: calc(50% + var(--label-x) * 1cqw);
+      font-size: min(1.6cqw, 0.875rem);
+      transform: none;
+    }
+  }
+  .map-legend-index {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 9999px;
+    background: var(--pin-color);
+    color: #0a0c0b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+  }
+  @keyframes map-pin-ping {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--pin-color) 70%, transparent);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 12px transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-pin::after {
+      animation: none;
+    }
+    .map-pin-marker {
+      transition: none;
+    }
   }
 
   /* ---- Detective notepad (character sheet) ---- */

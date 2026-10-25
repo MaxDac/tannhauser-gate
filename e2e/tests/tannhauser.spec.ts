@@ -87,7 +87,7 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   // Map -> room
   await page.locator("#drawer").getByRole("link", { name: "Map", exact: true }).click();
   await expect(page.locator("#city-map")).toBeVisible();
-  await page.locator("#city-map polygon[data-location-name=\"Ozu's Noodle Counter\"]").click({ force: true });
+  await page.locator("#map-pins a.map-pin[data-location-name=\"Ozu's Noodle Counter\"]").click();
   await expect(page).toHaveURL(/\/g\/\d+\/rooms\/\d+$/);
   await expect(page.locator("h1")).toContainText("Ozu's Noodle Counter");
 
