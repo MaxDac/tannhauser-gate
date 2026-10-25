@@ -2,9 +2,9 @@ import { expect, Browser, Page } from "@playwright/test";
 import path from "node:path";
 
 // The specs run against a dev database prepared with `mix setup` (seeds the
-// Tannhauser Gate, Neon Republic and Arkham Adrift GDRs, their rooms, jobs,
-// forum sections, GM owners and the default admin). The database persists
-// across runs, so every created record gets a unique suffix.
+// Tannhauser Gate, Neon Republic, Arkham Adrift and Toronto by Night GDRs,
+// their rooms, jobs, forum sections, GM owners and the default admin). The
+// database persists across runs, so every created record gets a unique suffix.
 //
 // The seeded admin must change its initial password at the first access: the
 // suite changes it once to ADMIN_E2E_PASSWORD and logs in with that from then

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Old Ezra of the Undercity: a bald, grey-green head with long pointed ears, pale glowing eyes, fangs and a ragged hood">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.38" r="0.75">
+      <stop offset="0%" stop-color="#1e3424"/>
+      <stop offset="100%" stop-color="#060a07"/>
+    </radialGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3e3428"/>
+      <stop offset="100%" stop-color="#16120c"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg)"/>
+  
+  <path d="M60 150 C 50 50, 206 50, 196 150 L208 256 L48 256 Z" fill="#2c251c"/>
+  <path d="M110 148 L110 186 Q128 198 146 186 L146 148 Z" fill="#6c7c68"/>
+  <path d="M26 256 C 34 202, 78 182, 128 182 C 178 182, 222 202, 230 256 Z" fill="url(#cloth)"/><path d="M70 170 L96 256 M186 170 L160 256" stroke="#1e1912" stroke-width="3"/>
+  <path d="M90 100 L54 72 L76 120 Q84 132 92 126 Z" fill="#9fae9a" stroke="#6c7c68" stroke-width="1.5"/><path d="M166 100 L202 72 L180 120 Q172 132 164 126 Z" fill="#9fae9a" stroke="#6c7c68" stroke-width="1.5"/>
+  <path d="M88 116 C 84 66, 104 46, 128 46 C 152 46, 172 66, 168 116 C 166 146, 152 170, 128 172 C 104 170, 90 146, 88 116 Z" fill="#9fae9a"/>
+  <path d="M100 160 Q128 176 156 160 Q146 170 128 170 Q110 170 100 160 Z" fill="#6c7c68" opacity="0.35"/>
+  
+  <ellipse cx="110" cy="114" rx="10" ry="4.8" fill="#1a1c18"/>
+    <circle cx="110" cy="114" r="4.4" fill="#d8e48a"/>
+    <circle cx="110" cy="114" r="1.9" fill="#0b0a12"/>
+    <circle cx="111.6" cy="112.4" r="1" fill="#ffffff" opacity="0.8"/>
+    <path d="M99 114 Q110 106 121 114" fill="none" stroke="#2a3228" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="146" cy="114" rx="10" ry="4.8" fill="#1a1c18"/>
+    <circle cx="146" cy="114" r="4.4" fill="#d8e48a"/>
+    <circle cx="146" cy="114" r="1.9" fill="#0b0a12"/>
+    <circle cx="147.6" cy="112.4" r="1" fill="#ffffff" opacity="0.8"/>
+    <path d="M135 114 Q146 106 157 114" fill="none" stroke="#2a3228" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="110" cy="114" r="9" fill="#d8e48a" opacity="0.18"/>
+    <circle cx="146" cy="114" r="9" fill="#d8e48a" opacity="0.18"/>
+  
+  <path d="M128 116 Q123 132 127 138 Q131 139 135 136" fill="none" stroke="#6c7c68" stroke-width="2" stroke-linecap="round"/>
+    <path d="M114 148 Q128 147 142 148 Q128 158 114 148 Z" fill="#4a3a3e"/>
+    <path d="M114 148 Q128 154 142 148" fill="none" stroke="#2a3228" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+    <ellipse cx="102" cy="132" rx="9" ry="5" fill="#4a3a3e" opacity="0.12"/>
+    <ellipse cx="154" cy="132" rx="9" ry="5" fill="#4a3a3e" opacity="0.12"/>
+    <path d="M120 150 L122 156 L124 150 Z M132 150 L134 156 L136 150 Z" fill="#f6f1ec"/>
+  
+  <path d="M104 78 Q128 72 152 78 M108 88 Q128 84 148 88" fill="none" stroke="#6c7c68" stroke-width="1.6"/><path d="M100 124 Q104 132 112 130 M156 124 Q152 132 144 130" fill="none" stroke="#6c7c68" stroke-width="1.4"/><path d="M52 256 Q60 220 70 210 L60 256 Z M204 256 Q196 220 186 210 L196 256 Z" fill="#1e1912"/>
+  <circle cx="128" cy="128" r="126" fill="none" stroke="#9fb4d4" stroke-opacity="0.55" stroke-width="3"/>
+</svg>

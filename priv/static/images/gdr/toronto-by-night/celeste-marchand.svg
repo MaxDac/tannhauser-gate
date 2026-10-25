@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Celeste Marchand: a dark auburn bob, green eyes, red lips, a ruby choker and a black evening dress">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.38" r="0.75">
+      <stop offset="0%" stop-color="#5a2346"/>
+      <stop offset="100%" stop-color="#0b0a12"/>
+    </radialGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16121c"/>
+      <stop offset="100%" stop-color="#050408"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg)"/>
+  
+  <path d="M76 112 C 70 52, 186 52, 180 112 L184 166 Q170 172 160 160 L96 160 Q86 172 72 166 Z" fill="#6b1f2a"/>
+  <path d="M110 148 L110 186 Q128 198 146 186 L146 148 Z" fill="#d2ada1"/>
+  <path d="M34 256 C 40 206, 84 188, 128 188 C 172 188, 216 206, 222 256 Z" fill="#f0d7cd"/><path d="M44 256 C 60 226, 92 222, 128 232 C 164 222, 196 226, 212 256 Z" fill="url(#cloth)"/>
+  <ellipse cx="87" cy="118" rx="7" ry="12" fill="#d2ada1"/><ellipse cx="169" cy="118" rx="7" ry="12" fill="#d2ada1"/>
+  <path d="M86 110 C 86 72, 104 58, 128 58 C 152 58, 170 72, 170 110 C 170 140, 156 166, 128 168 C 100 166, 86 140, 86 110 Z" fill="#f4ded6"/>
+  <path d="M100 160 Q128 176 156 160 Q146 170 128 170 Q110 170 100 160 Z" fill="#d2ada1" opacity="0.35"/>
+  
+  <ellipse cx="110" cy="114" rx="10" ry="4.8" fill="#f1ebee"/>
+    <circle cx="110" cy="114" r="4.4" fill="#5fae7f"/>
+    <circle cx="110" cy="114" r="1.9" fill="#0b0a12"/>
+    <circle cx="111.6" cy="112.4" r="1" fill="#ffffff" opacity="0.8"/>
+    <path d="M99 114 Q110 106 121 114" fill="none" stroke="#3c2a2e" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="146" cy="114" rx="10" ry="4.8" fill="#f1ebee"/>
+    <circle cx="146" cy="114" r="4.4" fill="#5fae7f"/>
+    <circle cx="146" cy="114" r="1.9" fill="#0b0a12"/>
+    <circle cx="147.6" cy="112.4" r="1" fill="#ffffff" opacity="0.8"/>
+    <path d="M135 114 Q146 106 157 114" fill="none" stroke="#3c2a2e" stroke-width="2" stroke-linecap="round"/>
+  <path d="M98 102 Q110 96 121 101" fill="none" stroke="#5a1a24" stroke-width="3.2" stroke-linecap="round"/><path d="M135 101 Q146 96 158 102" fill="none" stroke="#5a1a24" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M128 116 Q123 132 127 138 Q131 139 135 136" fill="none" stroke="#d2ada1" stroke-width="2" stroke-linecap="round"/>
+    <path d="M114 148 Q128 142 142 148 Q128 158 114 148 Z" fill="#b3142f"/>
+    <path d="M114 148 Q128 149 142 148" fill="none" stroke="#3c2a2e" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+    <ellipse cx="102" cy="132" rx="9" ry="5" fill="#b3142f" opacity="0.12"/>
+    <ellipse cx="154" cy="132" rx="9" ry="5" fill="#b3142f" opacity="0.12"/>
+    <path d="M120 150 L122 156 L124 150 Z M132 150 L134 156 L136 150 Z" fill="#f6f1ec"/>
+  <path d="M82 110 C 78 38, 178 38, 174 110 L172 98 Q128 90 84 98 Z" fill="#7a2532"/><path d="M100 96 L102 74 M116 94 L116 70 M140 94 L140 70 M156 96 L154 74" fill="none" stroke="#8e3240" stroke-width="1.6"/>
+  <path d="M110 178 Q128 186 146 178" fill="none" stroke="#16121c" stroke-width="4"/><path d="M128 184 L123 190 L128 197 L133 190 Z" fill="#c4143a"/><path d="M86 132 L86 144" stroke="#e8c46a" stroke-width="2"/><circle cx="86" cy="146" r="2.5" fill="#e8c46a"/><path d="M170 132 L170 144" stroke="#e8c46a" stroke-width="2"/><circle cx="170" cy="146" r="2.5" fill="#e8c46a"/>
+  <circle cx="128" cy="128" r="126" fill="none" stroke="#ec5a6d" stroke-opacity="0.55" stroke-width="3"/>
+</svg>

@@ -1,6 +1,6 @@
 defmodule TannhauserGate.Seeds do
   @moduledoc """
-  Idempotent seed data: the platform admin, the three sample GDRs and their
+  Idempotent seed data: the platform admin, the four sample GDRs and their
   GM owners.
 
     * "Tannhauser Gate" (`TannhauserGate.Seeds.DefaultGdr`) - the default GDR,
@@ -8,7 +8,9 @@ defmodule TannhauserGate.Seeds do
     * "Neon Republic" (`TannhauserGate.Seeds.NeonRepublic`) - a sprawl of
       console cowboys, orbital clans and rogue AIs;
     * "Arkham Adrift" (`TannhauserGate.Seeds.ArkhamAdrift`) - cosmic horror
-      with a light that does not go out: Arkham, 1923, adrift in the void.
+      with a light that does not go out: Arkham, 1923, adrift in the void;
+    * "Toronto by Night" (`TannhauserGate.Seeds.TorontoByNight`) - modern
+      gothic-punk vampires (in the style of V5) in Toronto, 2026.
 
   Seeded accounts are created confirmed and flagged to change their password
   at the first access; their credentials can be overridden with environment
@@ -16,7 +18,7 @@ defmodule TannhauserGate.Seeds do
   *inspired* by their genres and sources.
   """
 
-  alias TannhauserGate.Seeds.{ArkhamAdrift, DefaultGdr, Helpers, NeonRepublic}
+  alias TannhauserGate.Seeds.{ArkhamAdrift, DefaultGdr, Helpers, NeonRepublic, TorontoByNight}
 
   @admin %{
     env: "ADMIN",
@@ -31,20 +33,22 @@ defmodule TannhauserGate.Seeds do
   @doc """
   Seeds everything. Returns the admin, the default story (`:story`) and its
   GM owner (`:gm`), and the story and GM of the other GDRs under
-  `:neon_republic` and `:arkham_adrift`.
+  `:neon_republic`, `:arkham_adrift` and `:toronto_by_night`.
   """
   def run do
     admin = seed_admin()
     %{story: story, gm: gm} = DefaultGdr.run(admin)
     neon_republic = NeonRepublic.run(admin)
     arkham_adrift = ArkhamAdrift.run(admin)
+    toronto_by_night = TorontoByNight.run(admin)
 
     %{
       admin: admin,
       story: story,
       gm: gm,
       neon_republic: neon_republic,
-      arkham_adrift: arkham_adrift
+      arkham_adrift: arkham_adrift,
+      toronto_by_night: toronto_by_night
     }
   end
 
@@ -62,7 +66,8 @@ defmodule TannhauserGate.Seeds do
       {"Platform admin", Helpers.credentials(@admin)},
       {"#{DefaultGdr.story_name()} GM", DefaultGdr.gm_credentials()},
       {"#{NeonRepublic.story_name()} GM", NeonRepublic.gm_credentials()},
-      {"#{ArkhamAdrift.story_name()} GM", ArkhamAdrift.gm_credentials()}
+      {"#{ArkhamAdrift.story_name()} GM", ArkhamAdrift.gm_credentials()},
+      {"#{TorontoByNight.story_name()} GM", TorontoByNight.gm_credentials()}
     ]
   end
 

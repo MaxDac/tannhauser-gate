@@ -5,7 +5,7 @@ defmodule TannhauserGate.GameContextsTest do
   import TannhauserGate.GameFixtures
 
   alias TannhauserGate.{Accounts, Characters, Chat, Forum, Stories}
-  alias TannhauserGate.Seeds.{ArkhamAdrift, DefaultGdr, NeonRepublic}
+  alias TannhauserGate.Seeds.{ArkhamAdrift, DefaultGdr, NeonRepublic, TorontoByNight}
   alias TannhauserGate.Stories.Location
 
   describe "accounts roles" do
@@ -276,10 +276,11 @@ defmodule TannhauserGate.GameContextsTest do
         story: story,
         gm: gm,
         neon_republic: %{story: neon, gm: neon_gm},
-        arkham_adrift: %{story: arkham, gm: arkham_gm}
+        arkham_adrift: %{story: arkham, gm: arkham_gm},
+        toronto_by_night: %{story: toronto, gm: toronto_gm}
       } = TannhauserGate.Seeds.run()
 
-      gms = [gm, neon_gm, arkham_gm]
+      gms = [gm, neon_gm, arkham_gm, toronto_gm]
       assert Enum.all?([admin | gms], & &1.must_change_password)
       assert Enum.all?([admin | gms], & &1.confirmed_at)
       assert Enum.all?(gms, &Accounts.gm?/1)
@@ -287,9 +288,11 @@ defmodule TannhauserGate.GameContextsTest do
       assert story.owner_id == gm.id
       assert neon.owner_id == neon_gm.id
       assert arkham.owner_id == arkham_gm.id
+      assert toronto.owner_id == toronto_gm.id
       assert Stories.role(gm, story) == :gdr_admin
       assert Stories.role(neon_gm, neon) == :gdr_admin
       assert Stories.role(arkham_gm, arkham) == :gdr_admin
+      assert Stories.role(toronto_gm, toronto) == :gdr_admin
 
       # A later run keeps a changed password and does not flag the account again.
       {:ok, _} = Accounts.set_must_change_password(gm, false)
@@ -446,6 +449,101 @@ defmodule TannhauserGate.GameContextsTest do
                TannhauserGate.Boards.list_announcements(again)
 
       assert %{year: 1923} = TannhauserGate.Calendars.now(again)
+      assert length(TannhauserGate.Weather.list_conditions(again)) == 5
+    end
+
+    test "run/0 seeds the Toronto by Night GDR, idempotently" do
+      %{toronto_by_night: %{story: toronto}} = TannhauserGate.Seeds.run()
+      %{toronto_by_night: %{story: again}} = TannhauserGate.Seeds.run()
+
+      assert toronto.id == again.id
+      refute again.is_default
+      assert %{name: "Toronto by Night", theme: "nocturne", currency_name: "loonies"} = again
+      assert again.banner_path == TorontoByNight.banner_path()
+      assert again.map_svg == TorontoByNight.map_svg()
+      assert "horror" in again.genres
+      assert again.pitch =~ "Toronto"
+
+      # The seeded rooms plus the guild's secret junction, all in a zone.
+      locations = Stories.list_locations(again)
+      assert length(locations) == length(TorontoByNight.locations()) + 1
+      assert length(TannhauserGate.Zones.list_zones(again)) == 3
+
+      assert Enum.all?(
+               locations,
+               &(&1.zone_id || &1.name == "The Exchange, PATH Junction 13")
+             )
+
+      # A full V5-style sheet: 9 attributes, 27 skills and 12 disciplines.
+      items = TannhauserGate.Sheet.list_items(again)
+      counts = Enum.frequencies_by(items, & &1.kind)
+      assert counts == %{"attribute" => 9, "skill" => 27, "power" => 12}
+
+      assert [%{title: "The city", pages: pages}] = TannhauserGate.Guide.list_sections(again)
+      assert length(pages) == 7
+      assert Enum.any?(pages, &(&1.title == "Hunger and the Beast"))
+
+      assert length(TannhauserGate.Bank.list_jobs(again)) == 6
+
+      assert [%{name: "Clan", options: clans}, %{name: "Predator type", options: predators}] =
+               TannhauserGate.Origins.list_groups(again)
+
+      assert length(clans) == 14
+      assert length(predators) == 9
+
+      assert ["health", "willpower", "hunger", "humanity"] =
+               Enum.map(TannhauserGate.Trackers.list_trackers(again), & &1.slug)
+
+      assert %{
+               system: "pool",
+               die_size: 10,
+               special_tracker: "hunger",
+               messy_crit: true,
+               bestial_failure: true,
+               reroll_tracker: "willpower",
+               reroll_damage_type: "superficial"
+             } = again.dice_config
+
+      assert length(TannhauserGate.PeriodicActions.list_actions(again)) == 4
+      assert length(TannhauserGate.Items.list_items(again)) == 6
+
+      assert [%{name: "Mrs. Okafor's Night Pharmacy", location: %{name: "Kensington Market"}}] =
+               TannhauserGate.Items.list_shops(again)
+
+      assert [
+               %{name: "Camarilla Court of Toronto", secret: false},
+               %{name: "Free Streets Anarchs", secret: false},
+               %{name: "The Undercity Exchange", secret: true}
+             ] = TannhauserGate.Guilds.list_guilds(again)
+
+      for key <-
+            ~w(origins items guilds chat_rp auto_xp esiti quests diary boards calendar weather reports)a do
+        assert Stories.module_enabled?(again, key), "#{key} should be enabled"
+      end
+
+      # Every named NPC has its portrait, shipped as a static asset.
+      npcs =
+        TannhauserGate.Repo.all_by(TannhauserGate.Characters.Character,
+          story_id: again.id,
+          is_npc: true
+        )
+
+      assert length(npcs) == length(TorontoByNight.npcs())
+
+      for npc <- npcs do
+        assert "/images/gdr/toronto-by-night/" <> _ = npc.avatar_path
+
+        assert File.exists?(
+                 Path.join(:code.priv_dir(:tannhauser_gate), "static" <> npc.avatar_path)
+               )
+      end
+
+      assert [%{status: "resolved"}] = TannhauserGate.Esiti.list_queue(again, "all")
+
+      assert [%{title: "Welcome to Toronto by Night", pinned: true}] =
+               TannhauserGate.Boards.list_announcements(again)
+
+      assert %{year: 2026} = TannhauserGate.Calendars.now(again)
       assert length(TannhauserGate.Weather.list_conditions(again)) == 5
     end
 

@@ -7,7 +7,7 @@ defmodule TannhauserGate.Stories.Themes do
   are accepted, so the values can safely be rendered in an inline style.
   """
 
-  @presets ~w(tannhauser ember azure crimson sepia)
+  @presets ~w(tannhauser ember azure crimson sepia nocturne)
   @color_keys ~w(primary secondary accent base-100 base-200 base-300 base-content)
   @hex ~r/\A#[0-9a-fA-F]{6}\z/
 

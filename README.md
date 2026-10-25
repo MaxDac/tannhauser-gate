@@ -232,7 +232,7 @@ and login accepts the username or the email. See the "Enable email" GitHub issue
 ### Seeded GDRs and accounts
 
 The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) are safe to re-run: they only create
-what is missing and never overwrite edits. They create three GDRs:
+what is missing and never overwrite edits. They create four GDRs:
 
 - **Tannhauser Gate** — the default GDR (Neo-Meridian, 2121), with every module, trackers (Health,
   Stress), a d10 dice pool and the "Work the streets" periodic action.
@@ -246,6 +246,14 @@ what is missing and never overwrite edits. They create three GDRs:
   and search for the Narrow Gate home. It uses the `sepia` theme, with Dread (madness dice) and Grace
   (rerolls, restored by charity) trackers on a d10 pool, and the same full placeholder content as
   Neon Republic.
+- **Toronto by Night** — an unofficial fan setting in the style of *Vampire: The Masquerade* (5th
+  edition), with original lore and art: Toronto, 2026, where a Ventrue Prince rules downtown, Anarch
+  Barons hold the Free Streets and a Nosferatu broker sells secrets under the PATH. It uses the new
+  `nocturne` theme and a full V5-style sheet (9 attributes, 27 skills, 12 Disciplines), Clan and
+  Predator type origins, Health and Willpower (superficial/aggravated), Hunger (Hunger dice with
+  messy criticals and bestial failures) and Humanity trackers, Willpower rerolls, and six named NPCs
+  with original SVG portraits (`priv/static/images/gdr/toronto-by-night/`), plus the same full
+  placeholder content as the other GDRs.
 
 Each GDR gets an original directory banner (SVG, served from `priv/static/images/gdr/`), set only
 when the GDR is created so a GM can replace or remove it. A one-off migration gives the banner to
@@ -259,6 +267,7 @@ They also create a platform admin and one GM owner per GDR:
 | Tannhauser Gate GM | `tannhauser_gm` | `gm@tannhauser.gate` | `change-me-tannhauser-gm-2121` | `TG_GM_USERNAME`, `TG_GM_EMAIL`, `TG_GM_PASSWORD` |
 | Neon Republic GM | `neon_gm` | `gm@neon.republic` | `change-me-neon-republic-2093` | `NR_GM_USERNAME`, `NR_GM_EMAIL`, `NR_GM_PASSWORD` |
 | Arkham Adrift GM | `arkham_gm` | `gm@arkham.adrift` | `change-me-arkham-adrift-1923` | `AA_GM_USERNAME`, `AA_GM_EMAIL`, `AA_GM_PASSWORD` |
+| Toronto by Night GM | `tbn_gm` | `gm@toronto.bynight` | `change-me-toronto-by-night-2026` | `TBN_GM_USERNAME`, `TBN_GM_EMAIL`, `TBN_GM_PASSWORD` |
 
 Every seeded account must **change its password at the first login**: until then, every page
 redirects to **Settings**. Re-running the seeds never resets a changed password. Admins can promote

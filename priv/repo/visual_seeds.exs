@@ -15,7 +15,8 @@ alias TannhauserGate.Forum.Section
   story: story,
   admin: admin,
   neon_republic: %{story: neon_republic},
-  arkham_adrift: %{story: arkham_adrift}
+  arkham_adrift: %{story: arkham_adrift},
+  toronto_by_night: %{story: toronto_by_night}
 } = Seeds.run()
 
 # The screenshots log in with the seeded admin's initial password: skip the
@@ -34,6 +35,7 @@ end
 story = disable_clock_and_weather.(story)
 disable_clock_and_weather.(neon_republic)
 disable_clock_and_weather.(arkham_adrift)
+disable_clock_and_weather.(toronto_by_night)
 
 player_email = "player@tannhauser.gate"
 player_password = "more-human-than-human"

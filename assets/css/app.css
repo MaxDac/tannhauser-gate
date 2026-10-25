@@ -258,6 +258,43 @@
   --noise: 0;
 }
 
+/* Nocturne: blood red on blue-black night, cold steel secondary and an old
+   gold accent (modern gothic, vampires). Contrast on base-100/200/300
+   (#0b0a12, #13111d, #1e1a2b): primary 5.9/5.6/5.1:1, secondary >= 8:1,
+   accent >= 10.1:1, base-content >= 13:1 (WCAG AA). */
+@plugin "daisyui/packages/bundle/daisyui-theme" {
+  name: "nocturne";
+  color-scheme: "dark";
+  --color-base-100: #0b0a12;
+  --color-base-200: #13111d;
+  --color-base-300: #1e1a2b;
+  --color-base-content: #e6dfea;
+  --color-primary: #ec5a6d;
+  --color-primary-content: #0b0a12;
+  --color-secondary: #9fb4d4;
+  --color-secondary-content: #0b0a12;
+  --color-accent: #e8c46a;
+  --color-accent-content: #0b0a12;
+  --color-neutral: #2a2236;
+  --color-neutral-content: #efe9f2;
+  --color-info: #9fb4d4;
+  --color-info-content: #0b0a12;
+  --color-success: #7fd4a0;
+  --color-success-content: #0b0a12;
+  --color-warning: #e8c46a;
+  --color-warning-content: #0b0a12;
+  --color-error: #ff8a8a;
+  --color-error-content: #0b0a12;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
