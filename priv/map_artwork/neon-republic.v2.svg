@@ -1,0 +1,150 @@
+<defs>
+  <linearGradient id="nr-sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#04070e"/>
+    <stop offset="100%" stop-color="#0b1624"/>
+  </linearGradient>
+  <linearGradient id="nr-bay" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#08243a"/>
+    <stop offset="100%" stop-color="#020812"/>
+  </linearGradient>
+  <radialGradient id="nr-orbit" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#a8e4f7" stop-opacity="0.24"/>
+    <stop offset="100%" stop-color="#a8e4f7" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="nr-pink" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#ff7ab8" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#ff7ab8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="nr-lantern" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#ffd27a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#ffd27a" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="nr-lattice" width="50" height="50" patternUnits="userSpaceOnUse">
+    <path d="M50 0H0V50" fill="none" stroke="#4ab8e0" stroke-opacity="0.06" stroke-width="1"/>
+    <circle cx="0" cy="0" r="1.5" fill="#a8e4f7" fill-opacity="0.22"/>
+  </pattern>
+  <pattern id="nr-blocks" width="32" height="24" patternUnits="userSpaceOnUse">
+    <rect x="2" y="2" width="28" height="20" fill="#0c1826" stroke="#1a2f45" stroke-width="1"/>
+    <rect x="6" y="7" width="3" height="2" fill="#4ab8e0" fill-opacity="0.35"/>
+    <rect x="20" y="14" width="3" height="2" fill="#ff7ab8" fill-opacity="0.3"/>
+  </pattern>
+  <pattern id="nr-capsules" width="14" height="10" patternUnits="userSpaceOnUse">
+    <rect x="1" y="1" width="12" height="8" rx="3" fill="#0f2233" stroke="#6fd0f0" stroke-opacity="0.4" stroke-width="0.8"/>
+    <circle cx="10" cy="5" r="1" fill="#6fd0f0" fill-opacity="0.6"/>
+  </pattern>
+  <pattern id="nr-couches" width="20" height="14" patternUnits="userSpaceOnUse">
+    <rect x="2" y="3" width="16" height="7" rx="3" fill="#11263a" stroke="#86cfe8" stroke-opacity="0.45" stroke-width="0.8"/>
+  </pattern>
+  <pattern id="nr-waves" width="44" height="14" patternUnits="userSpaceOnUse">
+    <path d="M0 7 Q11 2 22 7 T44 7" fill="none" stroke="#3fb8c8" stroke-opacity="0.18" stroke-width="1"/>
+  </pattern>
+</defs>
+<rect width="1000" height="700" fill="url(#nr-sky)"/>
+<path d="M0 0 H1000 V660 L640 660 C 600 660, 582 620, 585 560 C 588 520, 585 468, 560 468 C 300 480, 150 455, 0 470 Z" fill="url(#nr-blocks)"/>
+<rect width="1000" height="700" fill="url(#nr-lattice)"/>
+<path d="M0 470 C 150 455, 300 480, 560 468 C 585 468, 588 520, 585 560 C 582 620, 600 660, 640 660 L 1000 660 L1000 700 L0 700 Z" fill="url(#nr-bay)"/>
+<path d="M0 470 C 150 455, 300 480, 560 468 C 585 468, 588 520, 585 560 C 582 620, 600 660, 640 660 L 1000 660 L1000 700 L0 700 Z" fill="url(#nr-waves)"/>
+<path d="M0 470 C 150 455, 300 480, 560 468 C 585 468, 588 520, 585 560 C 582 620, 600 660, 640 660 L 1000 660" fill="none" stroke="#3fb8c8" stroke-opacity="0.55" stroke-width="2"/>
+<g stroke="#03060b" stroke-width="18" fill="none" stroke-linecap="square">
+  <path d="M0 240 H1000"/>
+  <path d="M320 0 V465"/>
+  <path d="M535 240 V465"/>
+  <path d="M740 240 V655"/>
+  <path d="M0 440 H1000"/>
+</g>
+<g stroke="#9be7ff" stroke-opacity="0.22" stroke-width="1.5" fill="none" stroke-dasharray="6 8">
+  <path d="M0 240 H1000"/>
+  <path d="M320 0 V465"/>
+  <path d="M0 440 H1000"/>
+  <path d="M740 240 V655"/>
+</g>
+<circle cx="880" cy="140" r="170" fill="url(#nr-orbit)"/>
+<path d="M700 470 C 760 360, 820 300, 860 200" fill="none" stroke="#e8f6ff" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="3 6"/>
+<path d="M708 472 C 768 362, 828 302, 868 202" fill="none" stroke="#4ab8e0" stroke-opacity="0.25" stroke-width="1"/>
+<ellipse cx="880" cy="140" rx="74" ry="62" fill="#0b1a28" stroke="#e8f6ff" stroke-opacity="0.45" stroke-width="2"/>
+<ellipse cx="880" cy="140" rx="50" ry="40" fill="#163b2a" stroke="#86e0b0" stroke-opacity="0.5" stroke-width="1.5"/>
+<ellipse cx="880" cy="140" rx="18" ry="14" fill="#0b1a28" stroke="#e8f6ff" stroke-opacity="0.5"/>
+<g fill="#4fbf7a" fill-opacity="0.55">
+  <circle cx="850" cy="125" r="5"/><circle cx="905" cy="118" r="4"/><circle cx="912" cy="160" r="5"/><circle cx="852" cy="162" r="4"/>
+</g>
+<ellipse cx="880" cy="140" rx="128" ry="34" fill="none" stroke="#a8e4f7" stroke-opacity="0.3" stroke-width="1.5"/>
+<g fill="#060c14" stroke="#4ab8e0" stroke-opacity="0.55" stroke-width="1.5">
+  <path d="M395 178 L418 140 L582 140 L605 178 Z"/>
+  <path d="M424 140 L445 100 L555 100 L576 140 Z"/>
+  <path d="M451 100 L470 62 L530 62 L549 100 Z"/>
+  <path d="M476 62 L490 38 L510 38 L524 62 Z"/>
+</g>
+<g fill="#4fbf7a" fill-opacity="0.6">
+  <circle cx="470" cy="164" r="6"/><circle cx="490" cy="168" r="5"/><circle cx="510" cy="164" r="6"/><circle cx="530" cy="168" r="5"/>
+</g>
+<g fill="#4ab8e0" fill-opacity="0.5">
+  <rect x="440" y="122" width="3" height="3"/><rect x="480" y="122" width="3" height="3"/><rect x="520" y="122" width="3" height="3"/><rect x="556" y="122" width="3" height="3"/>
+  <rect x="470" y="82" width="3" height="3"/><rect x="527" y="82" width="3" height="3"/>
+</g>
+<rect x="95" y="95" width="140" height="100" fill="#0a1522" stroke="#86cfe8" stroke-opacity="0.45" stroke-width="1.5"/>
+<rect x="104" y="104" width="122" height="82" fill="url(#nr-couches)"/>
+<rect x="652" y="52" width="96" height="76" fill="#0d1620" stroke="#ffb86b" stroke-opacity="0.45" stroke-width="1.5"/>
+<g fill="#ffb86b" fill-opacity="0.35">
+  <rect x="660" y="62" width="22" height="14"/><rect x="688" y="62" width="22" height="14"/><rect x="716" y="62" width="22" height="14"/>
+</g>
+<path d="M700 52 V30 M688 24 A14 14 0 0 1 712 24" fill="none" stroke="#ffb86b" stroke-opacity="0.6" stroke-width="1.5"/>
+<rect x="125" y="295" width="150" height="110" fill="#0a1522" stroke="#a8e4f7" stroke-opacity="0.45" stroke-width="1.5"/>
+<g fill="none" stroke="#a8e4f7" stroke-opacity="0.35" stroke-width="1">
+  <path d="M135 310 H265 M135 318 H265 M135 326 H265"/>
+</g>
+<rect x="160" y="350" width="80" height="28" fill="#162c3d" stroke="#a8e4f7" stroke-opacity="0.6"/>
+<g stroke="#a8e4f7" stroke-opacity="0.45" stroke-width="1">
+  <path d="M166 356 L174 372 M180 354 L186 374 M196 357 L200 371 M212 355 L220 373 M228 356 L232 372"/>
+</g>
+<rect x="362" y="272" width="136" height="118" fill="#0a1522" stroke="#6fd0f0" stroke-opacity="0.45" stroke-width="1.5"/>
+<rect x="368" y="278" width="124" height="106" fill="url(#nr-capsules)"/>
+<rect x="575" y="275" width="120" height="100" fill="#0a1522" stroke="#9be7ff" stroke-opacity="0.45" stroke-width="1.5"/>
+<path d="M635 300 V350 M610 325 H660" stroke="#9be7ff" stroke-opacity="0.7" stroke-width="8"/>
+<circle cx="635" cy="325" r="38" fill="none" stroke="#9be7ff" stroke-opacity="0.25" stroke-width="1.5" stroke-dasharray="3 5"/>
+<circle cx="850" cy="345" r="110" fill="url(#nr-pink)"/>
+<path d="M775 345 H925" stroke="#03060b" stroke-width="22"/>
+<g fill="#0d1a28" stroke="#ff7ab8" stroke-opacity="0.5" stroke-width="1">
+  <rect x="782" y="290" width="30" height="40"/><rect x="818" y="290" width="30" height="40"/><rect x="854" y="290" width="30" height="40"/><rect x="890" y="290" width="30" height="40"/>
+  <rect x="782" y="360" width="30" height="40"/><rect x="818" y="360" width="30" height="40"/><rect x="854" y="360" width="30" height="40"/><rect x="890" y="360" width="30" height="40"/>
+</g>
+<g stroke-width="2.5" stroke-linecap="round">
+  <path d="M786 334 H808 M858 334 H880" stroke="#ff7ab8" stroke-opacity="0.85"/>
+  <path d="M822 356 H844 M894 356 H916" stroke="#4ab8e0" stroke-opacity="0.75"/>
+</g>
+<g fill="#0d2232" stroke="#3fb8c8" stroke-opacity="0.55" stroke-width="1.2">
+  <rect x="215" y="515" width="90" height="34" rx="10"/>
+  <rect x="315" y="508" width="80" height="40" rx="10"/>
+  <rect x="405" y="518" width="100" height="32" rx="10"/>
+  <rect x="235" y="560" width="110" height="36" rx="10"/>
+  <rect x="355" y="560" width="70" height="40" rx="10"/>
+  <rect x="435" y="565" width="72" height="34" rx="10"/>
+  <rect x="270" y="610" width="96" height="34" rx="10"/>
+  <rect x="380" y="612" width="110" height="32" rx="10"/>
+</g>
+<g stroke="#3fb8c8" stroke-opacity="0.4" stroke-width="1.2">
+  <path d="M305 532 H315 M395 530 H405 M345 578 H355 M425 580 H435 M318 596 V610 M430 600 V612"/>
+</g>
+<g fill="url(#nr-lantern)">
+  <circle cx="250" cy="532" r="9"/><circle cx="355" cy="528" r="9"/><circle cx="455" cy="534" r="9"/>
+  <circle cx="290" cy="578" r="9"/><circle cx="390" cy="580" r="9"/><circle cx="470" cy="582" r="9"/>
+  <circle cx="318" cy="627" r="9"/><circle cx="435" cy="628" r="9"/>
+</g>
+<rect x="615" y="485" width="170" height="130" fill="#0a1522" stroke="#c9dbe8" stroke-opacity="0.45" stroke-width="1.5"/>
+<circle cx="700" cy="550" r="44" fill="none" stroke="#c9dbe8" stroke-opacity="0.55" stroke-width="2"/>
+<circle cx="700" cy="550" r="30" fill="none" stroke="#c9dbe8" stroke-opacity="0.35" stroke-dasharray="4 5"/>
+<path d="M690 550 L700 520 L710 550 L706 580 L694 580 Z" fill="#e8f6ff" fill-opacity="0.75"/>
+<g fill="#c9dbe8" fill-opacity="0.7">
+  <circle cx="625" cy="605" r="2"/><circle cx="645" cy="605" r="2"/><circle cx="665" cy="605" r="2"/><circle cx="735" cy="605" r="2"/><circle cx="755" cy="605" r="2"/><circle cx="775" cy="605" r="2"/>
+</g>
+<g transform="translate(70 615)" fill="none" stroke="#9be7ff" stroke-opacity="0.6">
+  <circle r="26" stroke-width="1"/>
+  <path d="M0 -34 L6 0 L0 34 L-6 0 Z" fill="#9be7ff" fill-opacity="0.25" stroke-width="1"/>
+  <path d="M-34 0 L0 -5 L34 0 L0 5 Z" stroke-width="0.8"/>
+  <text y="-38" text-anchor="middle" font-family="monospace" font-size="11" fill="#9be7ff" stroke="none">N</text>
+</g>
+<g font-family="monospace" font-size="10" letter-spacing="3" fill="#9be7ff" fill-opacity="0.38">
+  <text x="20" y="236">COMBINE ARTERY</text>
+  <text x="20" y="436">THE FLOOR</text>
+  <text x="130" y="690">HALCYON BAY</text>
+</g>
+<text x="980" y="688" text-anchor="end" font-family="monospace" font-size="14" letter-spacing="2" fill="#9be7ff" fill-opacity="0.65">NEON REPUBLIC · HALCYON BAY · 2093</text>

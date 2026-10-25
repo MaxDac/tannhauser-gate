@@ -48,7 +48,7 @@ test("creates an NPC and speaks as it in a room", async () => {
 
   await page.goto(`${gdr}/map`);
   await connected(page);
-  await page.locator(`#city-map polygon[data-location-name="${ROOM}"]`).click({ force: true });
+  await page.locator(`#map-pins a.map-pin[data-location-name="${ROOM}"]`).click();
   await expect(page).toHaveURL(/\/g\/\d+\/rooms\/\d+$/);
   await connected(page);
   const speaker = page.getByLabel("Speak as");

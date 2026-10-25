@@ -1,0 +1,156 @@
+<defs>
+  <linearGradient id="tbn-land" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#120f1a"/>
+    <stop offset="100%" stop-color="#1c1828"/>
+  </linearGradient>
+  <linearGradient id="tbn-lake" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#0f1a2c"/>
+    <stop offset="100%" stop-color="#05080f"/>
+  </linearGradient>
+  <radialGradient id="tbn-glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#ec5a6d" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="#ec5a6d" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="tbn-gold" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#e8c46a" stop-opacity="0.26"/>
+    <stop offset="100%" stop-color="#e8c46a" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="tbn-moon" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#e6dfea" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#e6dfea" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="tbn-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+    <path d="M24 0H0V24" fill="none" stroke="#9fb4d4" stroke-opacity="0.05" stroke-width="1"/>
+  </pattern>
+  <pattern id="tbn-blocks" width="30" height="26" patternUnits="userSpaceOnUse">
+    <rect x="3" y="3" width="24" height="20" fill="#16121f" stroke="#2a2236" stroke-width="1"/>
+    <rect x="8" y="8" width="2" height="3" fill="#e8c46a" fill-opacity="0.3"/>
+    <rect x="19" y="14" width="2" height="3" fill="#e8c46a" fill-opacity="0.18"/>
+  </pattern>
+  <pattern id="tbn-trees" width="18" height="16" patternUnits="userSpaceOnUse">
+    <circle cx="5" cy="5" r="4" fill="#24402f" fill-opacity="0.9"/>
+    <circle cx="13" cy="12" r="4.5" fill="#2e5038" fill-opacity="0.85"/>
+  </pattern>
+  <pattern id="tbn-graves" width="14" height="14" patternUnits="userSpaceOnUse">
+    <path d="M4 12 V6 A3 3 0 0 1 10 6 V12 Z" fill="#26222f" stroke="#8a7f9a" stroke-opacity="0.45" stroke-width="0.7"/>
+  </pattern>
+  <pattern id="tbn-ripples" width="48" height="16" patternUnits="userSpaceOnUse">
+    <path d="M0 8 Q12 3 24 8 T48 8" fill="none" stroke="#9fb4d4" stroke-opacity="0.1" stroke-width="1"/>
+  </pattern>
+</defs>
+<rect width="1000" height="700" fill="url(#tbn-land)"/>
+<rect width="1000" height="520" fill="url(#tbn-blocks)"/>
+<rect width="1000" height="520" fill="url(#tbn-grid)"/>
+<path d="M0 520 C 120 505, 240 515, 360 508 C 470 502, 560 500, 640 505 C 720 510, 800 500, 870 515 C 920 525, 960 510, 1000 505 L1000 700 L0 700 Z" fill="url(#tbn-lake)"/>
+<path d="M0 520 C 120 505, 240 515, 360 508 C 470 502, 560 500, 640 505 C 720 510, 800 500, 870 515 C 920 525, 960 510, 1000 505 L1000 700 L0 700 Z" fill="url(#tbn-ripples)"/>
+<path d="M0 520 C 120 505, 240 515, 360 508 C 470 502, 560 500, 640 505 C 720 510, 800 500, 870 515 C 920 525, 960 510, 1000 505" fill="none" stroke="#9fb4d4" stroke-opacity="0.4" stroke-width="2"/>
+<circle cx="880" cy="620" r="60" fill="url(#tbn-moon)"/>
+<path d="M800 610 Q 880 600 960 612" fill="none" stroke="#e6dfea" stroke-opacity="0.2" stroke-width="2"/>
+<path d="M820 630 Q 880 622 940 632" fill="none" stroke="#e6dfea" stroke-opacity="0.14" stroke-width="2"/>
+<path d="M350 600 C 400 570, 520 555, 600 560 C 640 565, 650 600, 620 615 C 560 640, 450 660, 400 655 C 360 650, 330 620, 350 600 Z" fill="#17261f" stroke="#7fb0c4" stroke-opacity="0.45" stroke-width="1.5"/>
+<path d="M360 605 C 410 580, 520 568, 590 572 C 625 576, 630 600, 605 610 C 550 630, 455 646, 410 642 C 375 638, 352 620, 360 605 Z" fill="url(#tbn-trees)"/>
+<path d="M300 640 C 330 625, 350 630, 360 645" fill="none" stroke="#7fb0c4" stroke-opacity="0.4" stroke-width="3"/>
+<path d="M375 615 V590" stroke="#e6dfea" stroke-opacity="0.7" stroke-width="3"/>
+<circle cx="375" cy="588" r="12" fill="url(#tbn-gold)"/>
+<path d="M500 512 L470 580" stroke="#e8c46a" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4 5"/>
+<path d="M800 0 C 790 80, 820 150, 800 220 C 785 280, 830 330, 815 400 C 805 450, 790 480, 780 510" fill="none" stroke="#1d3427" stroke-width="110" stroke-opacity="0.9" stroke-linecap="round"/>
+<path d="M800 0 C 790 80, 820 150, 800 220 C 785 280, 830 330, 815 400 C 805 450, 790 480, 780 510" fill="none" stroke="url(#tbn-trees)" stroke-width="90" stroke-linecap="round"/>
+<path d="M800 0 C 790 80, 820 150, 800 220 C 785 280, 830 330, 815 400 C 805 450, 790 480, 780 510" fill="none" stroke="#6a8a5a" stroke-opacity="0.55" stroke-width="2.5"/>
+<path d="M845 0 C 840 120, 860 260, 850 380 C 845 440, 830 480, 820 512" fill="none" stroke="#3a3350" stroke-width="6"/>
+<path d="M845 0 C 840 120, 860 260, 850 380 C 845 440, 830 480, 820 512" fill="none" stroke="#e8c46a" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="3 6"/>
+<path d="M120 0 C 140 60, 110 120, 130 180" fill="none" stroke="#24402f" stroke-width="26" stroke-opacity="0.75" stroke-linecap="round"/>
+<g stroke="#2f2a42" stroke-width="12" fill="none" stroke-linecap="square">
+  <path d="M0 185 H1000"/>
+  <path d="M0 320 H420 M570 320 H740"/>
+  <path d="M0 500 H875"/>
+  <path d="M315 0 V500"/>
+  <path d="M500 0 V292"/>
+  <path d="M600 0 V500"/>
+</g>
+<g stroke="#e6dfea" stroke-opacity="0.18" stroke-width="1.5" fill="none" stroke-dasharray="6 8">
+  <path d="M0 185 H1000"/>
+  <path d="M0 320 H420 M570 320 H740"/>
+  <path d="M500 0 V292"/>
+  <path d="M315 0 V500"/>
+</g>
+<path d="M375 240 C 420 260, 440 330, 450 420 L 480 455" fill="none" stroke="#7f9a8a" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="2 5"/>
+<circle cx="500" cy="350" r="210" fill="url(#tbn-gold)"/>
+<rect x="345" y="78" width="120" height="78" fill="#1e1826" stroke="#e8c46a" stroke-opacity="0.55" stroke-width="1.5"/>
+<path d="M345 100 H465" stroke="#e8c46a" stroke-opacity="0.4" stroke-width="1"/>
+<path d="M380 156 V132 A25 25 0 0 1 430 132 V156" fill="#2a1f24" stroke="#e8c46a" stroke-opacity="0.6" stroke-width="1.5"/>
+<g fill="#e8c46a" fill-opacity="0.65">
+  <rect x="356" y="86" width="8" height="8"/><rect x="376" y="86" width="8" height="8"/><rect x="426" y="86" width="8" height="8"/><rect x="446" y="86" width="8" height="8"/>
+</g>
+<path d="M372 156 H438" stroke="#ec5a6d" stroke-opacity="0.6" stroke-width="3"/>
+<g fill="#0b0a12" stroke="#9fb4d4" stroke-opacity="0.55" stroke-width="1.2">
+  <rect x="470" y="310" width="50" height="82"/>
+  <rect x="525" y="330" width="26" height="62"/>
+  <rect x="440" y="340" width="26" height="52"/>
+</g>
+<g stroke="#9fb4d4" stroke-opacity="0.25" stroke-width="1">
+  <path d="M478 310 V392 M488 310 V392 M498 310 V392 M508 310 V392"/>
+</g>
+<rect x="476" y="316" width="38" height="8" fill="#e8c46a" fill-opacity="0.55"/>
+<rect x="428" y="430" width="124" height="52" fill="#1a1620" stroke="#7f9a8a" stroke-opacity="0.55" stroke-width="1.5"/>
+<g stroke="#7f9a8a" stroke-opacity="0.5" stroke-width="3">
+  <path d="M442 440 V476 M460 440 V476 M478 440 V476 M502 440 V476 M520 440 V476 M538 440 V476"/>
+</g>
+<rect x="340" y="210" width="60" height="60" fill="#14181a" stroke="#7f9a8a" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="4 3"/>
+<circle cx="370" cy="240" r="10" fill="none" stroke="#7f9a8a" stroke-opacity="0.6"/>
+<g stroke="#2a2236" stroke-width="1">
+  <rect x="182" y="215" width="20" height="26" fill="#e88a5a" fill-opacity="0.45"/>
+  <rect x="206" y="215" width="20" height="26" fill="#6ab08a" fill-opacity="0.45"/>
+  <rect x="230" y="215" width="20" height="26" fill="#d4c06a" fill-opacity="0.45"/>
+  <rect x="254" y="215" width="20" height="26" fill="#9a6ab0" fill-opacity="0.45"/>
+  <rect x="182" y="262" width="20" height="26" fill="#6a9ab0" fill-opacity="0.45"/>
+  <rect x="206" y="262" width="20" height="26" fill="#ec5a6d" fill-opacity="0.45"/>
+  <rect x="230" y="262" width="20" height="26" fill="#e88a5a" fill-opacity="0.45"/>
+  <rect x="254" y="262" width="20" height="26" fill="#6ab08a" fill-opacity="0.45"/>
+</g>
+<path d="M182 252 H280" stroke="#e8c46a" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="1 4"/>
+<circle cx="225" cy="380" r="70" fill="url(#tbn-glow)"/>
+<rect x="165" y="345" width="120" height="72" fill="#1b141d" stroke="#ec5a6d" stroke-opacity="0.6" stroke-width="1.5"/>
+<path d="M165 345 L225 330 L285 345" fill="none" stroke="#ec5a6d" stroke-opacity="0.6" stroke-width="1.5"/>
+<g stroke="#ec5a6d" stroke-opacity="0.45" stroke-width="5">
+  <path d="M185 355 V405 M210 355 V405 M240 355 V405 M265 355 V405"/>
+</g>
+<circle cx="225" cy="398" r="9" fill="none" stroke="#e8c46a" stroke-opacity="0.7" stroke-width="2"/>
+<g fill="#3a2220" stroke="#c98a5a" stroke-opacity="0.55" stroke-width="1">
+  <rect x="630" y="400" width="40" height="32"/><rect x="678" y="400" width="42" height="32"/>
+  <rect x="630" y="442" width="40" height="30"/><rect x="678" y="442" width="42" height="30"/>
+</g>
+<path d="M630 437 Q 650 444 675 437 T 720 437" fill="none" stroke="#e8c46a" stroke-opacity="0.6" stroke-width="1" stroke-dasharray="1 4"/>
+<path d="M705 400 V375" stroke="#c98a5a" stroke-opacity="0.6" stroke-width="5"/>
+<rect x="622" y="162" width="88" height="88" fill="url(#tbn-graves)"/>
+<path d="M650 230 V200 L665 180 L680 200 V230 Z" fill="#0b0a12" stroke="#8a7f9a" stroke-opacity="0.65" stroke-width="1.2"/>
+<path d="M665 172 V184 M660 177 H670" stroke="#8a7f9a" stroke-opacity="0.8" stroke-width="1.5"/>
+<g fill="#f0eef4" fill-opacity="0.25" stroke="#d8d0c0" stroke-opacity="0.5" stroke-width="1">
+  <path d="M885 365 L975 348 L980 495 L895 495 C 905 470, 890 440, 900 410 C 905 390, 890 380, 885 365 Z"/>
+</g>
+<g stroke="#d8d0c0" stroke-opacity="0.35" stroke-width="1" fill="none">
+  <path d="M905 380 L915 470 M930 372 L938 480 M955 362 L960 488"/>
+</g>
+<path d="M880 505 C 920 520, 960 515, 1000 510" fill="none" stroke="#d8d0c0" stroke-opacity="0.2" stroke-width="6"/>
+<circle cx="380" cy="470" r="38" fill="url(#tbn-glow)"/>
+<g stroke="#e6dfea" stroke-opacity="0.85" fill="none">
+  <path d="M380 410 V500" stroke-width="2"/>
+  <path d="M373 500 L380 440 L387 500" stroke-width="1.5"/>
+  <ellipse cx="380" cy="452" rx="8" ry="3.5" stroke-width="1.5"/>
+</g>
+<circle cx="380" cy="407" r="3" fill="#ec5a6d"/>
+<ellipse cx="345" cy="490" rx="14" ry="8" fill="#1e1a2b" stroke="#9fb4d4" stroke-opacity="0.5"/>
+<g fill="#e6dfea" fill-opacity="0.45" font-family="Georgia, serif" font-size="11" letter-spacing="2">
+  <text x="20" y="180">BLOOR</text>
+  <text x="20" y="315">QUEEN</text>
+  <text x="505" y="40" transform="rotate(90 505 40)">YONGE</text>
+  <text x="320" y="40" transform="rotate(90 320 40)">SPADINA</text>
+  <text x="20" y="495">LAKESHORE</text>
+  <text x="40" y="600" font-size="13" letter-spacing="6" fill-opacity="0.3">LAKE ONTARIO</text>
+</g>
+<g transform="translate(940 60)" fill="none" stroke="#e6dfea" stroke-opacity="0.55">
+  <circle r="24" stroke-width="1"/>
+  <path d="M0 -32 L5 0 L0 32 L-5 0 Z" fill="#ec5a6d" fill-opacity="0.3" stroke-width="1"/>
+  <path d="M-32 0 L0 -4 L32 0 L0 4 Z" stroke-width="0.8"/>
+  <text y="-36" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#e6dfea" stroke="none">N</text>
+</g>
+<text x="980" y="685" text-anchor="end" font-family="Georgia, serif" font-size="15" letter-spacing="3" fill="#e6dfea" fill-opacity="0.6">TORONTO BY NIGHT · LAKE ONTARIO</text>

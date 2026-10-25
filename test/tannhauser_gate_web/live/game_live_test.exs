@@ -268,6 +268,49 @@ defmodule TannhauserGateWeb.GameLiveTest do
       assert path == "/g/#{story.id}/rooms/#{location.id}"
     end
 
+    test "places a numbered pin on each room that opens it", %{
+      conn: conn,
+      story: story,
+      location: location
+    } do
+      vault =
+        location_fixture(story, %{
+          name: "The Vault",
+          area: "500,350 700,350 700,560 500,560",
+          color: "#ec5a6d",
+          private: true
+        })
+
+      {:ok, lv, _html} = live(conn, ~p"/g/#{story}/map")
+
+      assert has_element?(lv, "#map-pins #room-pin-#{location.id}[aria-label='Noodle Bar']")
+      assert has_element?(lv, "#room-pin-#{location.id} .map-pin-index", "1")
+      assert has_element?(lv, "#room-pin-#{vault.id} .map-pin-index", "2")
+      assert has_element?(lv, "#room-pin-#{location.id}[style*='left: 20.0%; top: 28.571%']")
+      assert has_element?(lv, "#room-pin-#{vault.id}[style*='left: 60.0%; top: 65.0%']")
+      assert has_element?(lv, "#room-pin-#{vault.id}[style*='--pin-color: #ec5a6d']")
+      assert has_element?(lv, "#room-pin-#{vault.id} .map-pin-lock")
+      refute has_element?(lv, "#room-pin-#{location.id} .map-pin-lock")
+      assert has_element?(lv, "#room-pin-#{vault.id} .map-pin-label", "The Vault")
+      assert has_element?(lv, "#room-link-#{vault.id} .map-legend-index", "2")
+
+      assert {:error, {:live_redirect, %{to: path}}} =
+               lv |> element("#room-pin-#{vault.id}") |> render_click()
+
+      assert path == "/g/#{story.id}/rooms/#{vault.id}"
+    end
+
+    test "pins follow custom map dimensions", %{conn: conn} do
+      story = story_fixture(%{map_width: 2000, map_height: 500, map_svg: ""})
+      room = location_fixture(story, %{area: "1000,100 1400,100 1400,300 1000,300"})
+
+      {:ok, lv, _html} = live(conn, ~p"/g/#{story}/map")
+
+      assert has_element?(lv, "#city-map[viewBox='0 0 2000 500']")
+      refute has_element?(lv, "#map-artwork")
+      assert has_element?(lv, "#room-pin-#{room.id}[style*='left: 60.0%; top: 40.0%']")
+    end
+
     test "sends messages showing avatar, name, time and text", ctx do
       {:ok, lv, _html} = live(ctx.conn, ~p"/g/#{ctx.story}/rooms/#{ctx.location}")
 

@@ -2,17 +2,20 @@ defmodule TannhauserGateWeb.MapLive do
   use TannhauserGateWeb, :live_view
 
   alias TannhauserGate.{Bookings, Chat, Guilds, Stories, Weather, Zones}
-  alias TannhauserGate.Stories.Location
+  alias TannhauserGateWeb.MapPins
 
   @impl true
   def mount(_params, _session, socket) do
     story = Stories.get_story!(socket.assigns.current_story.id)
+    # Stable numbering for the pins and the legend.
+    story = %{story | locations: Enum.sort_by(story.locations, & &1.id)}
     weather? = Weather.enabled?(story)
     if weather? and connected?(socket), do: Weather.subscribe(story.id)
 
     {:ok,
      socket
      |> assign(:story, story)
+     |> assign(:pins, MapPins.layout(story.locations, story.map_width, story.map_height))
      |> assign(:weather?, weather?)
      |> assign(:zones, if(weather?, do: Zones.list_zones(story), else: []))
      |> load_weather()
@@ -83,8 +86,11 @@ defmodule TannhauserGateWeb.MapLive do
         <:subtitle>{@story.summary}</:subtitle>
       </.header>
 
-      <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_18rem]">
-        <div class="self-start overflow-hidden rounded-xl border border-mint/30 bg-night shadow-phosphor">
+      <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div
+          id="map-frame"
+          class="map-frame relative self-start overflow-hidden rounded-xl border border-mint/30 bg-night shadow-phosphor"
+        >
           <svg
             id="city-map"
             viewBox={"0 0 #{@story.map_width} #{@story.map_height}"}
@@ -111,31 +117,62 @@ defmodule TannhauserGateWeb.MapLive do
               >
                 <title>{location.name}</title>
               </polygon>
-              <text
-                x={elem(Location.centroid(location), 0)}
-                y={elem(Location.centroid(location), 1)}
-                text-anchor="middle"
-                dominant-baseline="middle"
-                pointer-events="none"
-                class="map-label"
-              >
-                {location.name}
-              </text>
             </g>
           </svg>
+
+          <nav id="map-pins" aria-label={"Locations of #{@story.name}"} class="absolute inset-0">
+            <.link
+              :for={%{location: location, index: index} = pin <- @pins}
+              id={"room-pin-#{location.id}"}
+              navigate={~p"/g/#{@current_story}/rooms/#{location}"}
+              class="map-pin"
+              style={MapPins.pin_style(pin)}
+              aria-label={location.name}
+              data-location-name={location.name}
+              title={location.name}
+            >
+              <span class="map-pin-marker" aria-hidden="true">
+                <span class="map-pin-index">{index}</span>
+              </span>
+              <span
+                :if={location.private}
+                class="map-pin-lock"
+                aria-hidden="true"
+              >
+                <.icon name="hero-lock-closed" class="size-2.5" />
+              </span>
+              <span
+                class="map-pin-label"
+                style={MapPins.label_style(pin)}
+                data-placed={pin.label && "true"}
+                aria-hidden="true"
+              >
+                {location.name}
+              </span>
+            </.link>
+          </nav>
         </div>
 
-        <aside>
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">Rooms</h2>
+        <aside class="map-legend self-start rounded-xl border border-mint/20 bg-ink/70 p-4 backdrop-blur">
+          <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-mint">
+            <.icon name="hero-map-pin" class="size-4" /> Locations
+          </h2>
           <ul id="room-list" class="mt-3 space-y-2">
-            <li :for={location <- @story.locations}>
+            <li :for={{location, index} <- Enum.with_index(@story.locations, 1)}>
               <.link
+                id={"room-link-#{location.id}"}
                 navigate={~p"/g/#{@current_story}/rooms/#{location}"}
-                class="flex items-center justify-between gap-3 rounded-md border border-mint/20 bg-ink/80 px-3 py-2 text-sm hover:border-phosphor/60 hover:text-phosphor"
+                class="group flex items-center justify-between gap-3 rounded-md border border-mint/20 bg-ink/80 px-3 py-2 text-sm transition duration-150 hover:-translate-y-px hover:border-phosphor/60 hover:text-phosphor"
               >
-                <span class="flex items-center gap-2">
-                  <span class="h-2.5 w-2.5 rounded-full" style={"background: #{location.color}"}></span>
-                  {location.name}
+                <span class="flex min-w-0 items-center gap-2">
+                  <span
+                    class="map-legend-index"
+                    style={"--pin-color: #{location.color}"}
+                    aria-hidden="true"
+                  >
+                    {index}
+                  </span>
+                  <span class="truncate">{location.name}</span>
                   <.icon
                     :if={location.private}
                     name="hero-lock-closed"

@@ -15,6 +15,8 @@ defmodule TannhauserGate.Stories.Location do
 
   @points_format ~r/^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?(\s+-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?){2,}\s*$/
 
+  @type t :: %__MODULE__{}
+
   schema "locations" do
     field :name, :string
     field :description, :string

@@ -33,7 +33,7 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Tannhauser Gate"
@@ -1051,52 +1051,5 @@ defmodule TannhauserGate.Seeds.DefaultGdr do
   Original SVG artwork for the city of Neo-Meridian (1000x700). Rooms are
   overlaid at runtime from the locations' polygons.
   """
-  def map_svg do
-    """
-    <defs>
-      <linearGradient id="tg-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#050a07"/>
-        <stop offset="100%" stop-color="#0e1c14"/>
-      </linearGradient>
-      <pattern id="tg-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M40 0H0V40" fill="none" stroke="#4ae08a" stroke-opacity="0.07" stroke-width="1"/>
-      </pattern>
-      <pattern id="tg-rain" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
-        <line x1="0" y1="0" x2="0" y2="10" stroke="#9bf5bf" stroke-opacity="0.1" stroke-width="1"/>
-      </pattern>
-    </defs>
-    <rect width="1000" height="700" fill="url(#tg-sky)"/>
-    <rect width="1000" height="700" fill="url(#tg-grid)"/>
-    <path d="M0 500 C 150 470, 250 560, 400 500 S 650 450, 1000 520 L1000 700 L0 700 Z" fill="#0a1f16" opacity="0.9"/>
-    <path d="M0 500 C 150 470, 250 560, 400 500 S 650 450, 1000 520" fill="none" stroke="#2fb89a" stroke-opacity="0.5" stroke-width="2"/>
-    <g stroke="#2c8f58" stroke-opacity="0.45" stroke-width="6" fill="none" stroke-linecap="round">
-      <path d="M0 240 H1000"/>
-      <path d="M330 0 V700"/>
-      <path d="M800 0 V460"/>
-      <path d="M0 470 L620 420 L1000 440"/>
-    </g>
-    <g stroke="#86e0b0" stroke-opacity="0.2" stroke-width="2" fill="none" stroke-dasharray="6 8">
-      <path d="M0 240 H1000"/>
-      <path d="M330 0 V700"/>
-      <path d="M800 0 V460"/>
-    </g>
-    <g fill="#142219" stroke="#24382b" stroke-width="1">
-      <rect x="20" y="20" width="50" height="190"/>
-      <rect x="290" y="30" width="30" height="180"/>
-      <rect x="610" y="200" width="40" height="30"/>
-      <rect x="850" y="270" width="110" height="160"/>
-      <rect x="20" y="490" width="240" height="190"/>
-      <rect x="350" y="430" width="200" height="60"/>
-    </g>
-    <g fill="#9be35a" opacity="0.45">
-      <rect x="30" y="40" width="4" height="4"/><rect x="50" y="80" width="4" height="4"/>
-      <rect x="300" y="60" width="4" height="4"/><rect x="870" y="300" width="4" height="4"/>
-      <rect x="920" y="360" width="4" height="4"/><rect x="60" y="540" width="4" height="4"/>
-      <rect x="160" y="600" width="4" height="4"/><rect x="420" y="450" width="4" height="4"/>
-    </g>
-    <circle cx="500" cy="105" r="140" fill="#4ae08a" opacity="0.06"/>
-    <rect width="1000" height="700" fill="url(#tg-rain)"/>
-    <text x="980" y="690" text-anchor="end" font-family="monospace" font-size="14" fill="#86e0b0" fill-opacity="0.6">NEO-MERIDIAN · SECTOR 9 · 2121</text>
-    """
-  end
+  def map_svg, do: MapArtwork.read!("tannhauser-gate")
 end

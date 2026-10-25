@@ -33,7 +33,7 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Quests.Quest
-  alias TannhauserGate.Seeds.Helpers
+  alias TannhauserGate.Seeds.{Helpers, MapArtwork}
   alias TannhauserGate.Stories.Location
 
   @story_name "Neon Republic"
@@ -1042,54 +1042,5 @@ defmodule TannhauserGate.Seeds.NeonRepublic do
   end
 
   @doc "Original SVG artwork for Halcyon Bay (1000x700)."
-  def map_svg do
-    """
-    <defs>
-      <linearGradient id="nr-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#05080f"/>
-        <stop offset="100%" stop-color="#0c1824"/>
-      </linearGradient>
-      <pattern id="nr-lattice" width="50" height="50" patternUnits="userSpaceOnUse">
-        <path d="M50 0H0V50" fill="none" stroke="#4ab8e0" stroke-opacity="0.08" stroke-width="1"/>
-        <circle cx="0" cy="0" r="1.5" fill="#a8e4f7" fill-opacity="0.25"/>
-      </pattern>
-      <radialGradient id="nr-orbit" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0%" stop-color="#a8e4f7" stop-opacity="0.18"/>
-        <stop offset="100%" stop-color="#a8e4f7" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="1000" height="700" fill="url(#nr-sky)"/>
-    <rect width="1000" height="700" fill="url(#nr-lattice)"/>
-    <circle cx="880" cy="140" r="150" fill="url(#nr-orbit)"/>
-    <ellipse cx="880" cy="140" rx="120" ry="40" fill="none" stroke="#a8e4f7" stroke-opacity="0.35" stroke-width="2"/>
-    <path d="M700 470 C 760 360, 820 300, 860 220" fill="none" stroke="#e8f6ff" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="4 6"/>
-    <path d="M0 480 C 120 460, 240 520, 380 480 S 620 520, 1000 650 L1000 700 L0 700 Z" fill="#071722" opacity="0.95"/>
-    <path d="M0 480 C 120 460, 240 520, 380 480 S 620 520, 1000 650" fill="none" stroke="#3fb8c8" stroke-opacity="0.5" stroke-width="2"/>
-    <g stroke="#2a6f8f" stroke-opacity="0.5" stroke-width="6" fill="none" stroke-linecap="round">
-      <path d="M0 240 H760"/>
-      <path d="M320 0 V480"/>
-      <path d="M740 240 V470"/>
-      <path d="M0 440 H560"/>
-    </g>
-    <g stroke="#9be7ff" stroke-opacity="0.2" stroke-width="2" fill="none" stroke-dasharray="6 8">
-      <path d="M0 240 H760"/>
-      <path d="M320 0 V480"/>
-    </g>
-    <g fill="#101e2b" stroke="#1f3447" stroke-width="1">
-      <rect x="20" y="20" width="40" height="200"/>
-      <rect x="270" y="30" width="36" height="190"/>
-      <rect x="650" y="160" width="60" height="70"/>
-      <rect x="20" y="280" width="70" height="140"/>
-      <rect x="540" y="420" width="40" height="40"/>
-      <rect x="40" y="520" width="140" height="150"/>
-    </g>
-    <g fill="#ff7ab8" opacity="0.5">
-      <rect x="30" y="50" width="4" height="4"/><rect x="45" y="120" width="4" height="4"/>
-      <rect x="285" y="70" width="4" height="4"/><rect x="40" y="320" width="4" height="4"/>
-      <rect x="670" y="190" width="4" height="4"/><rect x="90" y="560" width="4" height="4"/>
-    </g>
-    <circle cx="500" cy="105" r="130" fill="#4ab8e0" opacity="0.06"/>
-    <text x="980" y="690" text-anchor="end" font-family="monospace" font-size="14" fill="#9be7ff" fill-opacity="0.6">NEON REPUBLIC · HALCYON BAY · 2093</text>
-    """
-  end
+  def map_svg, do: MapArtwork.read!("neon-republic")
 end
