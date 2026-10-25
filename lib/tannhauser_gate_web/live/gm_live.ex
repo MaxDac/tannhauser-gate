@@ -11,7 +11,7 @@ defmodule TannhauserGateWeb.GmLive do
   import TannhauserGateWeb.GmNav
   alias TannhauserGateWeb.GmNav
 
-  alias TannhauserGate.{Bank, Characters, Dice, Forum, Sheet, Stories, Trackers, Zones}
+  alias TannhauserGate.{Bank, Characters, Dice, Forum, Modules, Sheet, Stories, Trackers, Zones}
   alias TannhauserGate.Bank.Job
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
@@ -28,7 +28,9 @@ defmodule TannhauserGateWeb.GmLive do
   def handle_params(params, _uri, socket) do
     tab = params["tab"] || "general"
 
-    if tab in GmNav.core_tabs() do
+    visible = for {key, _, :core} <- GmNav.visible_tabs(socket.assigns.current_story), do: key
+
+    if tab in visible do
       {:noreply, socket |> assign(:tab, tab) |> assign(:page_title, "GM dashboard") |> load(tab)}
     else
       {:noreply, push_patch(socket, to: ~p"/g/#{socket.assigns.current_story}/gm")}
@@ -39,6 +41,7 @@ defmodule TannhauserGateWeb.GmLive do
 
   defp load(socket, "general"), do: assign_story_form(socket, story(socket))
   defp load(socket, "theme"), do: assign_story_form(socket, story(socket))
+  defp load(socket, "modules"), do: assign(socket, :modules, Modules.all())
   defp load(socket, "map"), do: socket |> assign_story_form(story(socket)) |> reload_locations()
 
   defp load(socket, "chat") do
@@ -175,6 +178,26 @@ defmodule TannhauserGateWeb.GmLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, :story_form, to_form(changeset, as: :story))}
+    end
+  end
+
+  ## Modules
+
+  def handle_event("toggle_module", %{"key" => key}, socket) do
+    story = story(socket)
+    enabled? = not Stories.module_enabled?(story, key)
+
+    case Stories.set_module_enabled(story, key, enabled?) do
+      {:ok, updated} ->
+        name = Modules.get(key).name
+
+        {:noreply,
+         socket
+         |> assign(:current_story, updated)
+         |> put_flash(:info, "#{name} #{if enabled?, do: "enabled", else: "disabled"}")}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Unknown module.")}
     end
   end
 
@@ -463,6 +486,7 @@ defmodule TannhauserGateWeb.GmLive do
 
       <div class="mt-6">
         <.general_tab :if={@tab == "general"} {assigns} />
+        <.modules_tab :if={@tab == "modules"} {assigns} />
         <.theme_tab :if={@tab == "theme"} {assigns} /> <.sheet_tab :if={@tab == "sheet"} {assigns} />
         <.creation_tab :if={@tab == "creation"} {assigns} />
         <.trackers_tab :if={@tab == "trackers"} {assigns} />
@@ -533,6 +557,54 @@ defmodule TannhauserGateWeb.GmLive do
         </fieldset>
         <.button phx-disable-with="Saving...">Save</.button>
       </.form>
+    </.panel>
+    """
+  end
+
+  defp modules_tab(assigns) do
+    ~H"""
+    <.panel>
+      <p class="mb-4 text-sm text-base-content/70">
+        Turn on the optional features your GDR uses. Disabled modules are hidden from the players
+        and their data is kept, so you can turn them back on at any time.
+      </p>
+      <ul id="modules-list" class="divide-y divide-secondary/15">
+        <li
+          :for={module <- @modules}
+          id={"module-#{module.key}"}
+          class="flex items-start gap-4 py-3"
+        >
+          <.icon name={module.icon} class="mt-0.5 size-5 shrink-0 text-secondary" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold">{module.name}</p>
+            <p class="text-xs text-base-content/60">{module.description}</p>
+          </div>
+          <button
+            type="button"
+            id={"module-toggle-#{module.key}"}
+            role="switch"
+            aria-checked={to_string(Stories.module_enabled?(@current_story, module.key))}
+            aria-label={"Enable #{module.name}"}
+            phx-click="toggle_module"
+            phx-value-key={module.key}
+            class={[
+              "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200",
+              if(Stories.module_enabled?(@current_story, module.key),
+                do: "border-primary bg-primary/30",
+                else: "border-secondary/40 bg-base-300"
+              )
+            ]}
+          >
+            <span class={[
+              "inline-block size-4 rounded-full shadow transition-transform duration-200",
+              if(Stories.module_enabled?(@current_story, module.key),
+                do: "translate-x-6 bg-primary",
+                else: "translate-x-1 bg-base-content/50"
+              )
+            ]} />
+          </button>
+        </li>
+      </ul>
     </.panel>
     """
   end

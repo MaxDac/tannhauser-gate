@@ -179,6 +179,14 @@ defmodule TannhauserGate.GameFixtures do
     topic
   end
 
+  @doc "Enables the optional modules (`TannhauserGate.Modules`) on the story."
+  def enable_modules(story, keys) do
+    Enum.reduce(List.wrap(keys), story, fn key, story ->
+      {:ok, story} = TannhauserGate.Stories.set_module_enabled(story, key, true)
+      story
+    end)
+  end
+
   # 1x1 transparent PNG
   def png_fixture do
     Base.decode64!(

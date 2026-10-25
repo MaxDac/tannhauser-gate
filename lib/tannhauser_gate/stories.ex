@@ -9,6 +9,7 @@ defmodule TannhauserGate.Stories do
   alias TannhauserGate.Accounts
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Characters
+  alias TannhauserGate.Modules
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories.{LastLocation, Location, Story, StoryMaster}
 
@@ -177,6 +178,25 @@ defmodule TannhauserGate.Stories do
   end
 
   def change_story_as_gm(%Story{} = story, attrs \\ %{}), do: Story.gm_changeset(story, attrs)
+
+  ## Optional modules
+
+  @doc """
+  Whether the optional module `key` (see `TannhauserGate.Modules`) is enabled
+  in the story.
+  """
+  def module_enabled?(%Story{modules: modules}, key), do: Modules.enabled?(modules, key)
+  def module_enabled?(_, _), do: false
+
+  @doc "Turns the optional module `key` on or off for the story."
+  def set_module_enabled(%Story{} = story, key, enabled?) when is_boolean(enabled?) do
+    if Modules.module?(key) do
+      modules = Map.put(story.modules || %{}, to_string(key), enabled?)
+      story |> Story.modules_changeset(modules) |> Repo.update()
+    else
+      {:error, :unknown_module}
+    end
+  end
 
   def get_story!(id), do: Story |> Repo.get!(id) |> Repo.preload(:locations)
 

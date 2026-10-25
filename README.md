@@ -31,6 +31,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - **players**: everyone else. Draft GDRs are visible only to their admin and masters.
 - **GM dashboard** (`/g/:id/gm`, only the GDR admin and platform admins):
   - name, summary, status (draft or published);
+  - **modules** (`/g/:id/gm/modules`): switches for the optional features of the GDR (`TannhauserGate.Modules`). Each one is off by default; turning one off hides it from the players but keeps its data. Code checks them with `Stories.module_enabled?/2`, and module pages are guarded by the `{TannhauserGateWeb.UserAuth, {:require_module, key}}` on_mount hook;
   - the **community link**: an optional http(s) URL (e.g. a Discord server) with a label, shown in the GDR navigation as an external link;
   - the **guide** (`/g/:id/gm/guide`): sections holding ordered Markdown pages, edited with a live preview;
   - **zones** (`/g/:id/gm/zones`): numeric zone properties (name, key, default, visible to players or masters only) and zones with a value per property. Each room belongs to at most one zone, picked in the map tab;
