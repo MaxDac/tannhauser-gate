@@ -469,6 +469,7 @@ defmodule TannhauserGateWeb.Layouts do
             </li>
             <li>
               <.nav_link
+                id="nav-settings"
                 navigate={~p"/users/settings"}
                 icon="hero-cog-6-tooth"
                 current_path={@current_path}
@@ -478,6 +479,7 @@ defmodule TannhauserGateWeb.Layouts do
             </li>
             <li>
               <.link
+                id="nav-log-out"
                 href={~p"/users/log_out"}
                 method="delete"
                 class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold uppercase tracking-wider text-fog-300 hover:bg-mint/10 hover:text-mint"

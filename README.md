@@ -252,19 +252,32 @@ mix test
 
 These cover the contexts, authorization, the seeds, and every LiveView, including avatar uploads, admin access control, the formula evaluator, creation budgets and the wizard, trackers and XP.
 
+**Coverage.** `mix test --cover` prints per-module coverage, writes an HTML report to `cover/`, and fails
+when the total drops below the `test_coverage` threshold in `mix.exs`. CI and `mix precommit` both run
+it, and CI uploads the report as the `coverage-report` artifact. When you add tests, raise the threshold
+to the new total, rounded down, so coverage can only go up.
+
 ### End-to-end tests (Playwright)
 
-The E2E suite lives in [`e2e/`](e2e). It boots `mix phx.server` against the seeded dev database and
-drives Chromium through the full journey:
+The E2E suite lives in [`e2e/`](e2e). It runs headless Chromium against two `mix phx.server`
+instances that share the seeded dev database. The first runs on `E2E_PORT`. The second runs on
+`E2E_PORT + 1` with `FEATURE_EMAIL_AUTH=true`, for the email flows. Shared helpers live in
+[`e2e/tests/helpers.ts`](e2e/tests/helpers.ts). Every spec creates its own uniquely named accounts and
+data, so the suite can run repeatedly against the same database. The flows:
 
-1. register;
-2. create a character with an avatar through the creation wizard and submit it for approval;
-3. approve it as the admin from the master character dashboard;
-4. open a room from the map;
-5. send a chat message;
-6. open a forum topic and reply;
-7. check that a regular user is denied admin access;
-8. check that the admin can read the conversation.
+- **tannhauser**: register, create a character with an avatar through the wizard, approve it as the
+  admin, open a room from the map, chat, reply on the forum, check that players are denied admin
+  access, and check that the admin can read the conversation;
+- **email-auth**: registration with the confirmation email, and password reset from the emailed link
+  (read from the dev mailbox);
+- **account**: change email and password in the settings, log out, then log in with the new password;
+- **gdr-lifecycle**: an admin grants the GM role, then rejects one GDR request and approves another.
+  The GM publishes the GDR and writes a guide, zone properties, zones and periodic actions, and a
+  player reads the guide;
+- **player**: take and quit a job, a GM balance adjustment, bank transfers, mail, and editing and
+  deleting a character;
+- **master**: the dashboard, NPC creation, speaking as an NPC, the chat log, moderation, and zone events;
+- **form-controls**: focus, validation and mobile layout of the forms.
 
 ```bash
 mix ecto.reset                     # fresh, seeded dev database
@@ -274,7 +287,7 @@ npx playwright install --with-deps chromium
 npx playwright test
 ```
 
-Set `E2E_PORT` to use a port other than 4000, and `DEV_DATABASE` to point at another dev database. Locally, if a server is already running on that port, the suite reuses it, so pick a free port when another server is running. For example:
+Set `E2E_PORT` to use a port other than 4000 (the suite also uses the next port), and `DEV_DATABASE` to point at another dev database. Locally, if a server is already running on either port, the suite reuses it, so pick free ports when another server is running. For example:
 
 ```bash
 DEV_DATABASE=tannhauser_gate_e2e_dev E2E_PORT=4210 npx playwright test
@@ -321,7 +334,7 @@ Every pull request to `main` must pass these CI jobs. They are enforced by the
 | `format` | `mix format --check-formatted` |
 | `credo` | `mix credo --strict` |
 | `dialyzer` | `mix dialyzer` (PLTs in `priv/plts`, cached in CI) |
-| `mix test` | `mix test` |
+| `mix test` | `mix test --cover` (fails below the coverage threshold) |
 | `Playwright e2e` | `cd e2e && npx playwright test` |
 | `Playwright screenshots` | `cd e2e && npm run test:visual` |
 
