@@ -307,12 +307,12 @@ msgstr "está reservado"
 msgid "is still associated with this entry"
 msgstr "continua associado a esta entrada"
 
-#: lib/tannhauser_gate/stories/location.ex:47
+#: lib/tannhauser_gate/stories/location.ex:49
 #, elixir-autogen
 msgid "must be a hex color like #4ae08a"
 msgstr "tem de ser uma cor hexadecimal como #4ae08a"
 
-#: lib/tannhauser_gate/stories/location.ex:44
+#: lib/tannhauser_gate/stories/location.ex:46
 #, elixir-autogen
 msgid "must be a list of at least 3 x,y points separated by spaces"
 msgstr "tem de ser uma lista de pelo menos 3 pontos x,y separados por espaços"

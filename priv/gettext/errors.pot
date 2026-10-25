@@ -305,12 +305,12 @@ msgstr ""
 msgid "is still associated with this entry"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/location.ex:47
+#: lib/tannhauser_gate/stories/location.ex:49
 #, elixir-autogen
 msgid "must be a hex color like #4ae08a"
 msgstr ""
 
-#: lib/tannhauser_gate/stories/location.ex:44
+#: lib/tannhauser_gate/stories/location.ex:46
 #, elixir-autogen
 msgid "must be a list of at least 3 x,y points separated by spaces"
 msgstr ""
