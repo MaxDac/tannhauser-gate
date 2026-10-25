@@ -8,6 +8,7 @@ defmodule TannhauserGateWeb.UserAuth do
   import Phoenix.Controller
 
   alias TannhauserGate.Accounts
+  alias TannhauserGate.Calendars
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
 
@@ -213,8 +214,9 @@ defmodule TannhauserGateWeb.UserAuth do
          role when not is_nil(role) <- Stories.role(user, story) do
       {:cont,
        socket
-       |> Phoenix.Component.assign(:current_story, story)
-       |> assign_story_role(role)}
+       |> Phoenix.Component.assign(:current_story, Calendars.preload(story))
+       |> assign_story_role(role)
+       |> follow_calendar()}
     else
       _ ->
         {:halt,
@@ -355,4 +357,30 @@ defmodule TannhauserGateWeb.UserAuth do
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: ~p"/gdrs"
+
+  # With the calendar module on, the layout clock re-anchors when the GDR
+  # admin or a master changes the calendar.
+  defp follow_calendar(socket) do
+    story = socket.assigns.current_story
+
+    if Calendars.enabled?(story) and Phoenix.LiveView.connected?(socket) do
+      Calendars.subscribe(story.id)
+
+      Phoenix.LiveView.attach_hook(socket, :calendar, :handle_info, fn
+        {:calendar_changed, config}, socket ->
+          story = socket.assigns.current_story
+
+          {:halt,
+           if(story && story.id == config.story_id,
+             do: Phoenix.Component.assign(socket, :current_story, %{story | calendar: config}),
+             else: socket
+           )}
+
+        _message, socket ->
+          {:cont, socket}
+      end)
+    else
+      socket
+    end
+  end
 end

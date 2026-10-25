@@ -26,6 +26,7 @@ defmodule TannhauserGate.Esiti.Esito do
     field :outcome, :string
     field :dice_result, :map
     field :effects, :map
+    field :game_date_label, :string
 
     belongs_to :story, TannhauserGate.Stories.Story
     belongs_to :character, TannhauserGate.Characters.Character

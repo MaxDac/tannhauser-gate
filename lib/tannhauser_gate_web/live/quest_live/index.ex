@@ -72,7 +72,7 @@ defmodule TannhauserGateWeb.QuestLive.Index do
               <div>
                 <h2 class="text-lg font-semibold text-primary">{quest.title}</h2>
                 <p class="text-xs text-base-content/60">
-                  {Calendar.strftime(quest.held_on, "%d/%m/%Y")}
+                  {quest.game_date_label || Calendar.strftime(quest.held_on, "%d/%m/%Y")}
                   <span :if={quest.location}>
                     · <.icon name="hero-map-pin-micro" class="size-3" /> {quest.location.name}
                   </span>

@@ -186,6 +186,26 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={Stories.module_enabled?(@current_story, :calendar)}
+          id="master-calendar"
+          navigate={~p"/g/#{@current_story}/master/calendar"}
+          icon="hero-calendar-days"
+          title="Game calendar"
+        >
+          See the in-game date and move the clock to a new date and time.
+        </.entry_point>
+
+        <.entry_point
+          :if={Stories.module_enabled?(@current_story, :weather)}
+          id="master-weather"
+          navigate={~p"/g/#{@current_story}/master/weather"}
+          icon="hero-cloud"
+          title="Weather"
+        >
+          Set the weather of each zone or roll it from the weather table.
+        </.entry_point>
+
+        <.entry_point
           id="master-map"
           navigate={~p"/g/#{@current_story}/map"}
           icon="hero-map"

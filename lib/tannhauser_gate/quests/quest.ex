@@ -20,6 +20,7 @@ defmodule TannhauserGate.Quests.Quest do
     field :title, :string
     field :summary, :string
     field :held_on, :date
+    field :game_date_label, :string
     field :visibility, :string, default: "public"
     field :log_from, :utc_datetime
     field :log_to, :utc_datetime
@@ -38,11 +39,21 @@ defmodule TannhauserGate.Quests.Quest do
   @doc "Changeset for the editable fields; `location_id` is checked by `TannhauserGate.Quests`."
   def changeset(quest, attrs) do
     quest
-    |> cast(attrs, [:title, :summary, :held_on, :visibility, :location_id, :log_from, :log_to])
+    |> cast(attrs, [
+      :title,
+      :summary,
+      :held_on,
+      :game_date_label,
+      :visibility,
+      :location_id,
+      :log_from,
+      :log_to
+    ])
     |> update_change(:title, &String.trim/1)
     |> validate_required([:title, :held_on, :visibility])
     |> validate_length(:title, max: 120)
     |> validate_length(:summary, max: 20_000)
+    |> validate_length(:game_date_label, max: 80)
     |> validate_inclusion(:visibility, @visibilities)
     |> validate_range()
   end

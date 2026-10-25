@@ -258,6 +258,14 @@ defmodule TannhauserGate.GameContextsTest do
 
       assert %{} = notices = TannhauserGate.Boards.notices_by_board([board])
       assert [%{character: %{name: "Mara Quill"}}] = notices[board.id]
+
+      assert TannhauserGate.Stories.module_enabled?(again, :calendar)
+      assert TannhauserGate.Stories.module_enabled?(again, :weather)
+      assert %{year: 2121, month_name: month} = TannhauserGate.Calendars.now(again)
+      assert month in TannhauserGate.Calendars.get_calendar(again).month_names
+      assert length(TannhauserGate.Weather.list_conditions(again)) == 5
+      zones = TannhauserGate.Zones.list_zones(again)
+      assert map_size(TannhauserGate.Weather.zone_weathers(again)) == length(zones)
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do
