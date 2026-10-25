@@ -30,6 +30,229 @@ defmodule TannhauserGateWeb.CoreComponents do
 
   alias Phoenix.HTML.Form
   alias Phoenix.LiveView.JS
+  alias TannhauserGate.Stories.Themes
+
+  @doc "The GDR appearance editor, using the same controls as the rest of the application."
+  attr :form, Phoenix.HTML.Form, required: true
+
+  def appearance_editor(assigns) do
+    assigns =
+      assigns
+      |> assign(:themes, Themes.all())
+      |> assign(:selected, assigns.form[:theme].value)
+      |> assign(:overrides, assigns.form[:theme_overrides].value || %{})
+      |> assign(:controls, assigns.form[:control_style].value || %{})
+
+    ~H"""
+    <div class="space-y-6">
+      <.form for={@form} id="theme-form" phx-change="validate_story" phx-submit="save_story">
+        <div class="rounded-xl border border-base-content/10 bg-base-200/60 p-5 sm:p-6">
+          <div class="mb-5">
+            <h2 class="text-lg font-semibold text-base-content">Make it your world</h2>
+            <p class="mt-1 text-sm text-fog-400">
+              Eight identities, one design system. Every preset is available to every GDR.
+            </p>
+          </div>
+          <div id="theme-presets" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <.theme_card :for={theme <- @themes} theme={theme} selected={@selected == theme.id} />
+          </div>
+          <div class="mt-5 grid gap-x-5 sm:grid-cols-2 lg:grid-cols-4">
+            <.input field={@form[:theme]} type="select" label="Preset" options={Themes.options()} />
+            <.input
+              :for={key <- ~w(corners density effects)}
+              type="select"
+              id={"control-#{key}"}
+              name={"story[control_style][#{key}]"}
+              label={String.capitalize(key)}
+              value={@controls[key]}
+              prompt="Use preset default"
+              options={Themes.control_options()[key]}
+            />
+          </div>
+          <div :if={@form[:control_style].errors != []} id="control-style-errors" role="alert">
+            <.error :for={error <- @form[:control_style].errors}>{translate_error(error)}</.error>
+          </div>
+          <details id="theme-colours" class="mt-4 rounded-xl border border-base-content/10 p-4">
+            <summary class="cursor-pointer text-sm font-medium text-base-content">
+              Custom colours
+              <span class="ml-2 text-xs font-normal text-fog-400">Optional hex overrides</span>
+            </summary>
+            <p class="mt-3 text-xs text-fog-400">
+              Leave a field empty to inherit the preset. Button text adjusts to the chosen colour.
+            </p>
+            <div class="mt-3 grid gap-x-5 sm:grid-cols-2 lg:grid-cols-4">
+              <.input
+                :for={key <- Themes.color_keys()}
+                type="text"
+                id={"override-#{key}"}
+                name={"story[theme_overrides][#{key}]"}
+                value={@overrides[key]}
+                label={key}
+                placeholder={Themes.palette(@selected)[key]}
+                pattern="#[0-9a-fA-F]{6}"
+                maxlength="7"
+                phx-debounce="250"
+              />
+            </div>
+          </details>
+          <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <p class="text-xs text-fog-400">Changes below are a preview until you save.</p>
+            <div class="flex gap-2">
+              <.button id="theme-reset" type="button" variant="ghost" phx-click="reset_theme">
+                Reset to preset
+              </.button>
+              <.button id="theme-save" variant="primary" phx-disable-with="Saving...">
+                Save theme
+              </.button>
+            </div>
+          </div>
+        </div>
+      </.form>
+      <.appearance_preview theme={@selected} overrides={@overrides} controls={@controls} />
+    </div>
+    """
+  end
+
+  @doc "A selectable GDR preset card. Selection is handled by the owning LiveView."
+  attr :theme, :map, required: true
+  attr :selected, :boolean, default: false
+
+  def theme_card(assigns) do
+    ~H"""
+    <button
+      id={"theme-preset-#{@theme.id}"}
+      type="button"
+      phx-click="preview_theme"
+      phx-value-theme={@theme.id}
+      aria-pressed={to_string(@selected)}
+      class={[
+        "theme-preset rounded-xl border p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary",
+        if(@selected,
+          do: "border-primary/70 bg-primary/10",
+          else: "border-base-content/15 bg-base-200/50 hover:border-primary/40"
+        )
+      ]}
+    >
+      <span class="mb-3 flex gap-1.5" aria-hidden="true">
+        <span
+          :for={color <- Enum.take(@theme.colors, -3)}
+          class="size-3 rounded-full ring-1 ring-white/10"
+          style={"background-color:#{color}"}
+        />
+      </span>
+      <span class="block text-sm font-semibold text-base-content">{@theme.name}</span>
+      <span :if={@theme.game} class="mt-1 block text-xs text-secondary">{@theme.game}</span>
+      <span class="mt-2 block text-xs leading-relaxed text-fog-400">{@theme.description}</span>
+    </button>
+    """
+  end
+
+  @doc "A scoped, unsaved preview of the shared controls and a long chat entry."
+  attr :theme, :string, required: true
+  attr :overrides, :map, default: %{}
+  attr :controls, :map, default: %{}
+
+  def appearance_preview(assigns) do
+    ~H"""
+    <section
+      id="theme-preview"
+      data-theme={@theme}
+      style={Themes.style(@theme, @overrides, @controls)}
+      class="overflow-hidden rounded-xl border border-base-content/15 bg-base-100 text-base-content"
+      aria-label="Unsaved appearance preview"
+    >
+      <div class="border-b border-base-content/10 px-5 py-4">
+        <h2 class="font-semibold">
+          Live preview <span class="ml-2 text-xs font-normal text-fog-400">Not saved</span>
+        </h2>
+        <p
+          :for={warning <- Themes.contrast_warnings(@theme, @overrides)}
+          class="mt-2 text-sm text-warning"
+          role="status"
+        >
+          {warning}
+        </p>
+      </div>
+      <div class="grid lg:grid-cols-2">
+        <div class="space-y-4 border-b border-base-content/10 p-5 lg:border-r lg:border-b-0">
+          <div class="flex flex-wrap gap-2">
+            <.button id="preview-primary" type="button" variant="primary">Primary action</.button>
+            <.button id="preview-secondary" type="button" variant="secondary">Secondary</.button>
+            <.button id="preview-ghost" type="button" variant="ghost">Quiet action</.button>
+            <.button id="preview-danger" type="button" variant="danger">Destructive</.button>
+            <.button id="preview-disabled" type="button" disabled>Unavailable</.button>
+          </div>
+          <.input
+            id="preview-input"
+            name="preview-input"
+            value=""
+            label="Character name"
+            placeholder="Mara Voss"
+          />
+          <.input
+            id="preview-select"
+            name="preview-select"
+            value="speech"
+            type="select"
+            label="Message type"
+            options={[{"In character", "speech"}, {"OFF", "ooc"}, {"Whisper", "whisper"}]}
+          />
+          <.input
+            id="preview-check"
+            name="preview-check"
+            value={true}
+            type="checkbox"
+            label="Show action tags"
+          />
+          <.input
+            id="preview-error"
+            name="preview-error"
+            value=""
+            label="Validation example"
+            errors={["Choose a valid value"]}
+          />
+        </div>
+        <div class="p-5">
+          <div class="flex items-start gap-3">
+            <TannhauserGateWeb.GameComponents.avatar
+              character={%{name: "Mara Voss", avatar_path: nil}}
+              class="size-11 shrink-0"
+            />
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-baseline gap-x-3">
+                <span class="font-semibold text-primary">Mara Voss</span>
+                <time class="text-xs text-fog-400" datetime="2121-11-03T21:01:00Z">2121-11-03 21:01</time>
+              </div>
+              <TannhauserGateWeb.ChatComponents.chat_body
+                id="preview-chat-body"
+                tag="at the counter"
+                highlight
+                body={"Mara places a brass key beside her untouched bowl and glances towards the door.\n\n\"The station was empty. No guards, no passengers. But the departures board was counting down to a train that wasn't on any schedule.\"\n\nShe lowers her voice. \"Tell me you found something better than another locked office.\""}
+                class="mt-2 text-sm leading-relaxed"
+              />
+            </div>
+          </div>
+          <div class="mt-5 border-t border-base-content/10 pt-4">
+            <.input
+              id="preview-message"
+              name="preview-message"
+              value=""
+              type="textarea"
+              label="Message"
+              placeholder="Let the scene unfold..."
+              rows="3"
+            />
+            <div class="flex justify-end">
+              <.button id="preview-send" type="button" variant="primary" size="sm">
+                Send message <.icon name="hero-arrow-right-micro" class="size-4" />
+              </.button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    """
+  end
 
   @doc """
   Renders flash notices.
@@ -97,15 +320,22 @@ defmodule TannhauserGateWeb.CoreComponents do
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled type)
   attr :class, :any
-  attr :variant, :string, values: ~w(primary)
+  attr :variant, :string, values: ~w(primary secondary ghost danger)
+  attr :size, :string, default: "md", values: ~w(xs sm md lg)
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-outline"}
+    variants = %{
+      "primary" => "btn-primary",
+      "secondary" => "btn-soft btn-primary",
+      "ghost" => "btn-ghost",
+      "danger" => "btn-soft btn-error",
+      nil => "btn-soft btn-primary"
+    }
 
     assigns =
       assign_new(assigns, :class, fn ->
-        ["btn console-action", Map.fetch!(variants, assigns[:variant])]
+        ["btn console-action", "btn-#{assigns.size}", Map.fetch!(variants, assigns[:variant])]
       end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do

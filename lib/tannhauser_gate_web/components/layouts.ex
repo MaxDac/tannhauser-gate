@@ -104,7 +104,14 @@ defmodule TannhauserGateWeb.Layouts do
     <div
       id="app-shell"
       data-theme={@current_story && @current_story.theme}
-      style={@current_story && Themes.style(@current_story.theme_overrides)}
+      style={
+        @current_story &&
+          Themes.style(
+            @current_story.theme,
+            @current_story.theme_overrides,
+            @current_story.control_style
+          )
+      }
       class="drawer bg-base-100 text-base-content lg:drawer-open"
     >
       <input id="drawer-toggle" type="checkbox" class="drawer-toggle" aria-label="Toggle navigation" />

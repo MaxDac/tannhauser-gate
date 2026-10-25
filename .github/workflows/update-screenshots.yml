@@ -22,7 +22,7 @@ permissions:
 
 env:
   ELIXIR_VERSION: "1.20.4"
-  OTP_VERSION: "29.1"
+  OTP_VERSION: "29.1.2"
   MIX_ENV: dev
   CI: "true"
   PGUSER: postgres

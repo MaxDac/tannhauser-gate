@@ -40,7 +40,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - **items** (`/g/:id/gm/items`, module *Items & market*): the item catalog — name, Markdown description, optional image, category, base price, *stackable* flag, an optional equip slot (free text, e.g. "weapon"; an item with a slot is equippable), modifiers (item key → ±N, validated like origin bonuses) and an optional consumable effect (a tracker change, optionally on a damage type, and whether using it consumes one unit);
   - **shops** (`/g/:id/gm/shops`, module *Items & market*): shops with a description, optionally placed in a room, and their listings (item, price override, stock; an empty stock means unlimited);
   - **periodic actions** (`/g/:id/gm/actions`, e.g. a hunt): a dice pool of sheet items, a difficulty taken from a zone property of the room's zone or set by the masters per character (with a default), a tracker effect on success and on failure (a change, optionally on a damage type) and a cooldown in hours;
-  - theme preset plus optional custom colours (hex only);
+  - **appearance** (`/g/:id/gm/theme`): eight selectable daisyUI/Tailwind presets, custom colours (hex only), corner style, comfortable/compact density and subtle surface effects, with an unsaved live preview;
   - attributes, skills and powers, each with a name, description, min/max range and a key used in formulas (e.g. `strength`);
   - **creation and XP** per category (attribute/skill/power): free entry, a points pool (points to spend above the starting value) or a distribution (values like `4,3,3,2,2,2,1` to assign to items), the starting value, and the XP cost formula to raise an item by one point (e.g. `next * 5`);
   - **trackers** (health, willpower, hunger…): a name, a maximum given by a number or a formula over the item keys (e.g. `stamina + 3`), optional damage types (e.g. `superficial, aggravated`), whether it starts full and whether it is shown on the public sheet;
@@ -133,27 +133,47 @@ The platform-level storefront of the GDRs (`TannhauserGate.Directory`, always on
 
 ## Theme
 
-The UI uses a console / "Matrix" green palette tuned for long reading sessions. It is a custom
-dark daisyUI theme called `tannhauser`. The primary phosphor green (#4ae08a) is deliberately softer
-than pure #00ff00. It sits on a green-tinted near-black (`base-100`, #0b100d) instead of pure black,
-and body text uses green-grey tones rather than saturated green. All text colours meet WCAG AA, and
-most exceed AAA (phosphor is 11.3:1, body text 13.1:1). Red is reserved for errors and destructive
-actions.
+The shared controls use daisyUI 5.7.50 and Tailwind CSS 4.3.3, with quiet surfaces,
+theme-coloured focus rings and no raised button bevels. Platform pages (GDR selection,
+account and admin) keep a neutral `platform` theme. Every GDR can choose any of these
+eight presets under **GM dashboard > Theme** (`/g/:id/gm/theme`):
 
-The theme, extra design tokens (`phosphor`, `mint`, `night`, `ink`, `fog-*`, fonts) and the
-notepad, map and polaroid styles are all in [`assets/css/app.css`](assets/css/app.css).
-UI components use daisyUI classes (`btn`, `input`, `select`, `drawer`, `alert`, ...).
+| Preset | Stable ID | Suggested setting |
+|--------|-----------|-------------------|
+| Quiet noir | `tannhauser` | Tannhauser Gate |
+| Neon circuit | `azure` | Neon Republic |
+| Last light | `sepia` | Arkham Adrift |
+| Velvet night | `nocturne` | Toronto by Night |
+| Midnight glass | `midnight` | Any GDR |
+| After hours | `ember` | Any GDR |
+| Red ledger | `crimson` | Any GDR |
+| Moonsteel | `silver` | Any GDR |
 
-`tannhauser` is the theme of the default GDR. The platform pages (GDR selection, account,
-admin) use a neutral `platform` theme. GMs choose a preset for their GDR (`tannhauser`,
-`ember`, `azure`, `crimson` or `sepia`) and can override its main colours with hex values. The
-design tokens follow the active daisyUI theme, so the custom components restyle with it.
+GMs can override the seven main colours with `#RRGGBB` values, choose sharp/soft/round
+corners, comfortable/compact density and flat/soft/accent effects. Blank fields inherit
+the preset. Changes only affect the scoped live preview until **Save theme** is pressed;
+**Reset to preset** clears the overrides in the preview and also needs saving.
+Button text automatically chooses a contrasting foreground, and the preview warns about
+low-contrast text/surface combinations. Saved settings apply only to that GDR.
 
-Shared form controls add scoped `console-field`, `console-check`, and `console-action` styles:
-inset dark surfaces, readable borders, restrained green focus rings, and distinct error,
-disabled, and read-only states. Labels stay visible, and field errors are associated through
-`aria-describedby` without changing LiveView's validation timing. Reduced-motion preferences
-disable control transitions. The theme remains flat for unrelated components.
+For developers, the reusable control markup lives in
+[`CoreComponents`](lib/tannhauser_gate_web/components/core_components.ex): `button/1`,
+`input/1`, `theme_card/1`, `appearance_preview/1` and `appearance_editor/1`. Edit these
+components to change their structure or default classes; LiveViews own form state and events,
+not copies of the appearance UI. Buttons support `primary`, `secondary`, `ghost` and `danger`
+variants, with `xs`, `sm`, `md` and `lg` sizes.
+
+Preset metadata, palettes, control defaults and safe CSS-token generation live in
+[`Stories.Themes`](lib/tannhauser_gate/stories/themes.ex). Shared daisyUI styling and
+extra design tokens (`phosphor`, `mint`, `night`, `ink`, `fog-*`, fonts), along with the
+notepad, map and polaroid styles, live in [`assets/css/app.css`](assets/css/app.css).
+Scoped CSS variables also restyle existing direct daisyUI controls (`btn`, `input`,
+`select`, `drawer`, `alert`, ...), without leaking one GDR's appearance into another.
+
+Controls retain visible labels, focus indicators, error, disabled and read-only states;
+field errors use `aria-describedby` without changing LiveView's validation timing.
+Reduced-motion preferences disable control transitions and touch controls retain a
+comfortable minimum target height.
 
 `<.input class="...">` and `<.button class="...">` **replace** their default classes. Include
 the complete control styling when overriding, for example

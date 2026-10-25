@@ -152,6 +152,56 @@ test.describe("admin", () => {
     await snap(page, "admin-dashboard");
   });
 
+  test("appearance editor and all eight presets", async ({ page }) => {
+    await page.goto(`${GDR}/gm/theme`);
+    await expect(page.locator("#theme-presets > button")).toHaveCount(8);
+    await snap(page, "appearance-editor");
+    const shellStyle = await page.locator("#app-shell").getAttribute("style");
+
+    for (const preset of [
+      "tannhauser", "azure", "sepia", "nocturne",
+      "midnight", "ember", "crimson", "silver",
+    ]) {
+      await page.locator(`#theme-preset-${preset}`).click();
+      await expect(page.locator("#theme-preview")).toHaveAttribute("data-theme", preset);
+      await expect(page.locator(`#theme-preset-${preset}`)).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator("#app-shell")).toHaveAttribute("style", shellStyle!);
+      await settle(page);
+      await expect(page.locator("#theme-preview")).toHaveScreenshot(`appearance-${preset}.png`);
+    }
+  });
+
+  test("appearance overrides, focus and validation states", async ({ page }) => {
+    await page.goto(`${GDR}/gm/theme`);
+    await settle(page);
+    await page.locator("#control-corners").selectOption("round");
+    await expect(page.locator("#theme-preview")).toHaveAttribute("style", /--radius-field:1.2rem/);
+    await page.locator("#control-density").selectOption("compact");
+    await expect(page.locator("#theme-preview")).toHaveAttribute("style", /--control-height:2.25rem/);
+    await page.locator("#control-effects").selectOption("soft");
+    await expect(page.locator("#theme-preview")).toHaveAttribute("style", /--control-shadow:0 4px 16px/);
+    await page.locator("#theme-colours summary").click();
+    await page.locator("#override-primary").fill("#ccddff");
+    await expect(page.locator("#theme-preview")).toHaveAttribute("style", /--color-primary:#ccddff/);
+    await expect(page.locator("#preview-disabled")).toBeDisabled();
+    await expect(page.locator("#preview-error")).toHaveAttribute("aria-invalid", "true");
+    await page.locator("#preview-input").focus();
+    await settle(page);
+    await expect(page.locator("#theme-preview")).toHaveScreenshot("appearance-custom-focus.png");
+  });
+
+  test("mobile appearance editor", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${GDR}/gm/theme`);
+    await expect(page.locator("#theme-form")).toBeVisible();
+    const dimensions = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      viewport: window.innerWidth,
+    }));
+    expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport);
+    await snap(page, "appearance-mobile");
+  });
+
   test("stories", async ({ page }) => {
     await visit(page, "/admin/stories", "admin-stories");
   });

@@ -29,7 +29,7 @@ defmodule TannhauserGateWeb.GmLive do
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Sheet.Item
-  alias TannhauserGate.Stories.{Location, StoryMaster, Themes}
+  alias TannhauserGate.Stories.{Location, StoryMaster}
   alias TannhauserGate.Trackers.Tracker
 
   @impl true
@@ -166,10 +166,7 @@ defmodule TannhauserGateWeb.GmLive do
   defp apply_banner(story, path), do: Stories.set_banner(story, path)
 
   defp assign_story_form(socket, story) do
-    socket
-    |> assign(:story_form, to_form(Stories.change_story_as_gm(story), as: :story))
-    |> assign(:preset_names, Themes.presets())
-    |> assign(:color_keys, Themes.color_keys())
+    assign(socket, :story_form, to_form(Stories.change_story_as_gm(story), as: :story))
   end
 
   defp assign_item_form(socket, item),
@@ -221,6 +218,20 @@ defmodule TannhauserGateWeb.GmLive do
   def handle_event("validate_story", %{"story" => params}, socket) do
     changeset = Stories.change_story_as_gm(story(socket), params)
     {:noreply, assign(socket, :story_form, to_form(changeset, as: :story, action: :validate))}
+  end
+
+  def handle_event("preview_theme", %{"theme" => theme}, socket) do
+    params = Map.put(socket.assigns.story_form.params, "theme", theme)
+    handle_event("validate_story", %{"story" => params}, socket)
+  end
+
+  def handle_event("reset_theme", _, socket) do
+    params =
+      socket.assigns.story_form.params
+      |> Map.put("theme_overrides", %{})
+      |> Map.put("control_style", %{})
+
+    handle_event("validate_story", %{"story" => params}, socket)
   end
 
   def handle_event("save_story", %{"story" => params}, socket) do
@@ -884,36 +895,7 @@ defmodule TannhauserGateWeb.GmLive do
 
   defp theme_tab(assigns) do
     ~H"""
-    <.panel>
-      <.form for={@story_form} id="theme-form" phx-submit="save_story">
-        <.input
-          field={@story_form[:theme]}
-          type="select"
-          label="Preset"
-          options={@preset_names}
-        />
-        <h2 class="mt-4 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          Custom colors (hex, e.g. #22cc88 — leave empty to keep the preset)
-        </h2>
-
-        <div class="mt-2 grid gap-x-6 sm:grid-cols-2">
-          <.input
-            :for={key <- @color_keys}
-            type="text"
-            id={"override-#{key}"}
-            name={"story[theme_overrides][#{key}]"}
-            value={(@story_form[:theme_overrides].value || %{})[key]}
-            label={key}
-            placeholder="#rrggbb"
-          />
-        </div>
-
-        <.error :for={msg <- Enum.map(@story_form[:theme_overrides].errors, &translate_error/1)}>
-          {msg}
-        </.error>
-        <.button phx-disable-with="Saving...">Save theme</.button>
-      </.form>
-    </.panel>
+    <.appearance_editor form={@story_form} />
     """
   end
 

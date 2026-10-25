@@ -668,7 +668,7 @@ defmodule TannhauserGateWeb.RoomLive do
 
       <section
         :if={@access?}
-        class="mt-6 flex h-[65vh] flex-col overflow-hidden rounded-xl border border-mint/30 bg-ink/80"
+        class="mt-6 flex h-[75vh] min-h-[38rem] flex-col overflow-hidden rounded-xl border border-base-content/15 bg-base-100"
       >
         <div :if={@more?} class="border-b border-mint/10 p-2 text-center">
           <button
@@ -824,7 +824,7 @@ defmodule TannhauserGateWeb.RoomLive do
           </li>
         </ol>
 
-        <div class="border-t border-mint/20 bg-night/60 p-4">
+        <div class="chat-composer border-t border-base-content/10 bg-base-200/35 p-4 sm:px-5">
           <p :if={@speakers == [] and !@master?} class="text-sm text-fog-400">
             You need a character in this GDR to speak. <.link
               navigate={~p"/g/#{@current_story}/characters/new"}
@@ -850,9 +850,9 @@ defmodule TannhauserGateWeb.RoomLive do
             id={"message-form-#{@form_id}"}
             phx-change="change_message"
             phx-submit="send"
-            class="flex flex-col gap-3 sm:flex-row sm:items-end"
+            class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2 xl:grid-cols-4"
           >
-            <div :if={@speakers != []} class="sm:w-52">
+            <div :if={@speakers != []}>
               <.input
                 field={@form[:character_id]}
                 type="select"
@@ -861,7 +861,7 @@ defmodule TannhauserGateWeb.RoomLive do
               />
             </div>
 
-            <div class="sm:w-44">
+            <div>
               <.input
                 field={@form[:kind]}
                 type="select"
@@ -874,7 +874,7 @@ defmodule TannhauserGateWeb.RoomLive do
               />
             </div>
 
-            <div :if={@rp? && @form[:kind].value == "whisper"} class="sm:w-48">
+            <div :if={@rp? && @form[:kind].value == "whisper"}>
               <.input
                 field={@form[:recipient_character_id]}
                 type="select"
@@ -884,10 +884,7 @@ defmodule TannhauserGateWeb.RoomLive do
               />
             </div>
 
-            <div
-              :if={@rp? && @speakers != [] && counter?(@form, @rp?)}
-              class="sm:w-40"
-            >
+            <div :if={@rp? && @speakers != [] && counter?(@form, @rp?)}>
               <.input
                 field={@form[:tag]}
                 type="text"
@@ -897,13 +894,13 @@ defmodule TannhauserGateWeb.RoomLive do
               />
             </div>
 
-            <div class="relative min-w-0 flex-1 sm:min-w-[12rem]">
+            <div class="relative col-span-full min-w-0">
               <.input
                 field={@form[:body]}
                 type="textarea"
                 label="Message"
-                rows="2"
-                placeholder="Say something..."
+                rows="3"
+                placeholder="Let the scene unfold..."
                 phx-debounce="250"
                 required
               />
@@ -924,10 +921,11 @@ defmodule TannhauserGateWeb.RoomLive do
             </div>
 
             <.button
+              id="chat-send"
               phx-disable-with="Sending..."
-              class="btn btn-primary console-action sm:mb-[1.125rem]"
+              class="btn btn-primary console-action col-span-full justify-self-end"
             >
-              Send
+              Send <.icon name="hero-arrow-right-micro" class="size-4" />
             </.button>
           </.form>
 

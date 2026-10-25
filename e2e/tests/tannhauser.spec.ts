@@ -92,17 +92,22 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await expect(page.locator("h1")).toContainText("Ozu's Noodle Counter");
 
   const messageBounds = await page.getByLabel("Message").boundingBox();
-  const sendBounds = await page.getByRole("button", { name: "Send", exact: true }).boundingBox();
+  const sendBounds = await page.locator("#chat-send").boundingBox();
+  const composerBounds = await page.locator("form[id^='message-form-']").boundingBox();
   expect(messageBounds).not.toBeNull();
   expect(sendBounds).not.toBeNull();
+  expect(composerBounds).not.toBeNull();
+  expect(Math.abs(messageBounds!.x - composerBounds!.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(messageBounds!.width - composerBounds!.width)).toBeLessThanOrEqual(1);
+  expect(sendBounds!.y).toBeGreaterThanOrEqual(messageBounds!.y + messageBounds!.height);
   expect(
-    Math.abs(messageBounds!.y + messageBounds!.height - sendBounds!.y - sendBounds!.height),
+    Math.abs(messageBounds!.x + messageBounds!.width - sendBounds!.x - sendBounds!.width),
   ).toBeLessThanOrEqual(1);
 
   // Chat message
   await page.getByLabel("Speak as").selectOption({ label: characterName });
   await page.getByLabel("Message").fill(message);
-  await page.getByRole("button", { name: "Send" }).click();
+  await page.locator("#chat-send").click();
   const posted = page.locator("#messages li.chat-message").filter({ hasText: message });
   await expect(posted).toBeVisible();
   await expect(posted.locator(".chat-name")).toContainText(characterName);
