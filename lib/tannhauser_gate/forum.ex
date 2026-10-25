@@ -29,6 +29,7 @@ defmodule TannhauserGate.Forum do
   alias TannhauserGate.Guilds
   alias TannhauserGate.Guilds.Guild
   alias TannhauserGate.Repo
+  alias TannhauserGate.Sanctions
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
 
@@ -214,16 +215,16 @@ defmodule TannhauserGate.Forum do
   sections both are authored as `attrs["character_id"]`, which must be a
   character the user can act as.
 
-  Returns `{:ok, topic}`, `{:error, :unauthorized}` when the user cannot see
+  Returns `{:ok, topic}`, `{:error, :muted}`, `{:error, :unauthorized}` when the user cannot see
   the section, or `{:error, changeset}` (a topic or post changeset).
   """
   def create_topic(%User{} = user, %Section{} = section, attrs) do
     story = story_of(section)
 
-    if can_view_section?(user, story, section) do
-      do_create_topic(user, section, attrs)
-    else
-      {:error, :unauthorized}
+    cond do
+      not can_view_section?(user, story, section) -> {:error, :unauthorized}
+      Sanctions.muted?(user, story) -> {:error, :muted}
+      true -> do_create_topic(user, section, attrs)
     end
   end
 
@@ -252,27 +253,32 @@ defmodule TannhauserGate.Forum do
     end
   end
 
-  @doc "Whether the user can edit or delete the topic: its author or a master."
+  @doc "Whether the user can edit or delete the topic: its author or a moderator."
   def can_edit_topic?(%User{id: user_id} = user, %Story{} = story, %Topic{} = topic),
-    do: topic.user_id == user_id or Stories.master?(user, story)
+    do: topic.user_id == user_id or Stories.can?(user, story, :can_moderate)
 
   def can_edit_topic?(_, _, _), do: false
 
   @doc "Renames a topic, if the user can edit it."
   def update_topic(user, %Story{} = story, %Topic{} = topic, attrs) do
-    if can_edit_topic?(user, story, topic) do
-      topic |> Topic.changeset(attrs) |> Repo.update()
-    else
-      {:error, :unauthorized}
+    cond do
+      not can_edit_topic?(user, story, topic) -> {:error, :unauthorized}
+      muted_author?(user, story) -> {:error, :muted}
+      true -> topic |> Topic.changeset(attrs) |> Repo.update()
     end
   end
 
+  # Moderators may still fix content; everyone else is blocked while muted.
+  defp muted_author?(user, story),
+    do: not Stories.can?(user, story, :can_moderate) and Sanctions.muted?(user, story)
+
   @doc """
   Locks/unlocks or pins/unpins a topic (`"locked"`, `"pinned"`): masters only.
-  Locked topics accept new posts only from masters.
+  Locked topics accept new posts only from masters. Moderators only
+  (`Stories.can?(user, story, :can_moderate)`).
   """
   def set_topic_flags(user, %Story{} = story, %Topic{} = topic, attrs) do
-    if Stories.master?(user, story) do
+    if Stories.can?(user, story, :can_moderate) do
       topic |> Topic.flags_changeset(attrs) |> Repo.update()
     else
       {:error, :unauthorized}
@@ -336,7 +342,7 @@ defmodule TannhauserGate.Forum do
   `attrs["character_id"]`, which must be a character the user can act as.
   Locked topics accept replies only from masters.
 
-  Returns `{:ok, post}`, `{:error, :unauthorized}`, `{:error, :locked}` or
+  Returns `{:ok, post}`, `{:error, :unauthorized}`, `{:error, :locked}`, `{:error, :muted}` or
   `{:error, changeset}`.
   """
   def create_post(%User{} = user, %Topic{} = topic, attrs) do
@@ -349,6 +355,9 @@ defmodule TannhauserGate.Forum do
 
       topic.locked and not Stories.master?(user, story) ->
         {:error, :locked}
+
+      Sanctions.muted?(user, story) ->
+        {:error, :muted}
 
       true ->
         do_create_post(user, topic, attrs)
@@ -372,21 +381,26 @@ defmodule TannhauserGate.Forum do
     end
   end
 
-  @doc "Whether the user can edit or delete the post: its author or a master."
+  @doc "Whether the user can edit or delete the post: its author or a moderator."
   def can_edit_post?(%User{id: user_id} = user, %Story{} = story, %Post{} = post),
-    do: post.user_id == user_id or Stories.master?(user, story)
+    do: post.user_id == user_id or Stories.can?(user, story, :can_moderate)
 
   def can_edit_post?(_, _, _), do: false
 
   @doc "Edits the body of a post, if the user can edit it, stamping `edited_at`."
   def update_post(user, %Story{} = story, %Post{} = post, attrs) do
-    if can_edit_post?(user, story, post) do
-      post
-      |> Post.changeset(attrs)
-      |> Changeset.put_change(:edited_at, DateTime.utc_now(:second))
-      |> Repo.update()
-    else
-      {:error, :unauthorized}
+    cond do
+      not can_edit_post?(user, story, post) ->
+        {:error, :unauthorized}
+
+      muted_author?(user, story) ->
+        {:error, :muted}
+
+      true ->
+        post
+        |> Post.changeset(attrs)
+        |> Changeset.put_change(:edited_at, DateTime.utc_now(:second))
+        |> Repo.update()
     end
   end
 

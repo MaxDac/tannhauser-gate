@@ -6,7 +6,7 @@ defmodule TannhauserGateWeb.MasterLive do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Esiti, Repo, Stories}
+  alias TannhauserGate.{Characters, Esiti, Repo, Reports, Stories}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -18,6 +18,8 @@ defmodule TannhauserGateWeb.MasterLive do
      socket
      |> assign(:page_title, "Master tools")
      |> assign(:esiti?, esiti?)
+     |> assign(:reports?, Reports.enabled?(story))
+     |> assign(:reports_open, Reports.open_count(story))
      |> assign_esiti_counts()
      |> assign(:owner, story.owner)
      |> assign(:queue_count, length(Characters.list_approval_queue(story.id)))
@@ -34,6 +36,9 @@ defmodule TannhauserGateWeb.MasterLive do
   end
 
   defp assign_esiti_counts(socket), do: assign(socket, esiti_open: 0, esiti_claimed: 0)
+
+  defp can?(permissions, list) when is_list(list), do: Enum.any?(list, &can?(permissions, &1))
+  defp can?(permissions, permission), do: MapSet.member?(permissions, permission)
 
   @impl true
   def handle_info({:esiti, _event, _esito}, socket), do: {:noreply, assign_esiti_counts(socket)}
@@ -70,6 +75,7 @@ defmodule TannhauserGateWeb.MasterLive do
 
       <div id="master-entry-points" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <.entry_point
+          :if={can?(@permissions, [:can_approve_characters, :can_award_xp])}
           id="master-characters"
           navigate={~p"/g/#{@current_story}/master/characters"}
           icon="hero-identification"
@@ -91,6 +97,7 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={can?(@permissions, :can_moderate)}
           id="master-moderation"
           navigate={~p"/g/#{@current_story}/master/moderation"}
           icon="hero-shield-check"
@@ -100,6 +107,7 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={can?(@permissions, :can_moderate)}
           id="master-chat-log"
           navigate={~p"/g/#{@current_story}/master/chat-log"}
           icon="hero-document-magnifying-glass"
@@ -109,6 +117,7 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={can?(@permissions, :can_manage_world)}
           id="master-zones"
           navigate={~p"/g/#{@current_story}/master/zones"}
           icon="hero-globe-europe-africa"
@@ -118,6 +127,7 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={can?(@permissions, :can_manage_world)}
           id="master-actions"
           navigate={~p"/g/#{@current_story}/master/actions"}
           icon="hero-bolt"
@@ -127,7 +137,10 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={Stories.module_enabled?(@current_story, :items)}
+          :if={
+            Stories.module_enabled?(@current_story, :items) and
+              can?(@permissions, :can_manage_economy)
+          }
           id="master-items"
           navigate={~p"/g/#{@current_story}/master/items"}
           icon="hero-shopping-bag"
@@ -147,7 +160,7 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={@esiti?}
+          :if={@esiti? and can?(@permissions, :can_manage_esiti_quests)}
           id="master-esiti"
           navigate={~p"/g/#{@current_story}/master/esiti"}
           icon="hero-scale"
@@ -166,7 +179,10 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={Stories.module_enabled?(@current_story, :quests)}
+          :if={
+            Stories.module_enabled?(@current_story, :quests) and
+              can?(@permissions, :can_manage_esiti_quests)
+          }
           id="master-quests"
           navigate={~p"/g/#{@current_story}/master/quests"}
           icon="hero-book-open"
@@ -176,7 +192,9 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={Stories.module_enabled?(@current_story, :boards)}
+          :if={
+            Stories.module_enabled?(@current_story, :boards) and can?(@permissions, :can_manage_world)
+          }
           id="master-boards"
           navigate={~p"/g/#{@current_story}/master/boards"}
           icon="hero-megaphone"
@@ -186,7 +204,10 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={Stories.module_enabled?(@current_story, :calendar)}
+          :if={
+            Stories.module_enabled?(@current_story, :calendar) and
+              can?(@permissions, :can_manage_world)
+          }
           id="master-calendar"
           navigate={~p"/g/#{@current_story}/master/calendar"}
           icon="hero-calendar-days"
@@ -196,13 +217,45 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
-          :if={Stories.module_enabled?(@current_story, :weather)}
+          :if={
+            Stories.module_enabled?(@current_story, :weather) and
+              can?(@permissions, :can_manage_world)
+          }
           id="master-weather"
           navigate={~p"/g/#{@current_story}/master/weather"}
           icon="hero-cloud"
           title="Weather"
         >
           Set the weather of each zone or roll it from the weather table.
+        </.entry_point>
+
+        <.entry_point
+          :if={@reports? and can?(@permissions, :can_moderate)}
+          id="master-reports"
+          navigate={~p"/g/#{@current_story}/master/reports"}
+          icon="hero-flag"
+          title="Reports"
+        >
+          Handle the content flagged by the members.
+          <span
+            id="master-reports-count"
+            class={[
+              "badge badge-sm badge-soft ml-1",
+              if(@reports_open > 0, do: "badge-warning", else: "badge-info")
+            ]}
+          >
+            {@reports_open} open
+          </span>
+        </.entry_point>
+
+        <.entry_point
+          :if={@reports? and can?(@permissions, :can_moderate)}
+          id="master-sanctions"
+          navigate={~p"/g/#{@current_story}/master/sanctions"}
+          icon="hero-no-symbol"
+          title="Sanctions"
+        >
+          Warn, mute or ban members, and read the sanctions log.
         </.entry_point>
 
         <.entry_point

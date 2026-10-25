@@ -5,6 +5,8 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
   """
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_moderate}}
+
   import TannhauserGateWeb.ChatComponents
 
   alias TannhauserGate.{Chat, Stories}

@@ -10,6 +10,7 @@ defmodule TannhauserGateWeb.MasterLive.Calendar do
   alias TannhauserGate.Calendars
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :calendar}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_world}}
 
   @impl true
   def mount(_params, _session, socket) do

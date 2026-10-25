@@ -15,7 +15,10 @@ defmodule TannhauserGate.Boards do
   The masters hang boards (`TannhauserGate.Boards.Board`) in a room or in a
   zone (shown in every room of the zone). Players post short in-character
   notices (`TannhauserGate.Boards.Notice`) as a character they can act as;
-  the author deletes their notices and the masters delete any. A board can be
+  the author deletes their notices and the moderators delete any. Managing
+  announcements and boards takes the `:can_manage_world` staff permission
+  (`Stories.can?/3`), deleting others' notices `:can_moderate`, and muted
+  users cannot post notices (`TannhauserGate.Sanctions`). A board can be
   restricted to a guild when the guilds module is on: only the players of
   its active members and the masters see and use it (the same rule as
   guild rooms, see `TannhauserGate.Bookings.can_access?/2`).
@@ -26,7 +29,7 @@ defmodule TannhauserGate.Boards do
   import Ecto.Query, warn: false
 
   alias TannhauserGate.Boards.{Announcement, AnnouncementRead, Board, Notice}
-  alias TannhauserGate.{Characters, Guilds, Repo, Stories}
+  alias TannhauserGate.{Characters, Guilds, Repo, Sanctions, Stories}
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Stories.{Location, Story}
 
@@ -98,7 +101,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Posts an announcement (masters only)."
   def create_announcement(user, %Story{} = story, attrs) do
-    with :ok <- check_master(user, story) do
+    with :ok <- check_world_manager(user, story) do
       %Announcement{story_id: story.id, user_id: user.id}
       |> Announcement.changeset(attrs)
       |> Repo.insert()
@@ -108,7 +111,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Edits an announcement (masters only)."
   def update_announcement(user, %Story{} = story, %Announcement{} = announcement, attrs) do
-    with :ok <- check_master(user, story),
+    with :ok <- check_world_manager(user, story),
          :ok <- same_story(announcement, story) do
       announcement
       |> Announcement.changeset(attrs)
@@ -119,7 +122,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Deletes an announcement (masters only)."
   def delete_announcement(user, %Story{} = story, %Announcement{} = announcement) do
-    with :ok <- check_master(user, story),
+    with :ok <- check_world_manager(user, story),
          :ok <- same_story(announcement, story) do
       announcement |> Repo.delete() |> broadcast_result(:announcement)
     end
@@ -257,7 +260,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Creates a board (masters only); its room, zone and guild must belong to the story."
   def create_board(user, %Story{} = story, attrs) do
-    with :ok <- check_master(user, story) do
+    with :ok <- check_world_manager(user, story) do
       %Board{story_id: story.id}
       |> Board.changeset(attrs)
       |> validate_refs(story)
@@ -268,7 +271,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Updates a board (masters only)."
   def update_board(user, %Story{} = story, %Board{} = board, attrs) do
-    with :ok <- check_master(user, story),
+    with :ok <- check_world_manager(user, story),
          :ok <- same_story(board, story) do
       board
       |> Board.changeset(attrs)
@@ -280,7 +283,7 @@ defmodule TannhauserGate.Boards do
 
   @doc "Deletes a board and its notices (masters only)."
   def delete_board(user, %Story{} = story, %Board{} = board) do
-    with :ok <- check_master(user, story),
+    with :ok <- check_world_manager(user, story),
          :ok <- same_story(board, story) do
       board |> Repo.delete() |> broadcast_result(:board)
     end
@@ -344,6 +347,7 @@ defmodule TannhauserGate.Boards do
     with :ok <- check_enabled(story),
          :ok <- same_story(board, story),
          :ok <- authorize(accessible?(user, story, board)),
+         :ok <- Sanctions.check_not_muted(user, story),
          {:ok, character} <- acting_character(user, story, attrs) do
       %Notice{
         board_id: board.id,
@@ -370,27 +374,27 @@ defmodule TannhauserGate.Boards do
     end
   end
 
-  @doc "Removes a notice: its author or a master."
+  @doc "Removes a notice: its author or a moderator."
   def delete_notice(user, %Story{} = story, %Notice{} = notice) do
     with :ok <- same_story(notice, story),
-         :ok <- authorize(notice.user_id == user.id or Stories.master?(user, story)) do
+         :ok <- authorize(can_delete_notice?(user, story, notice)) do
       notice |> Repo.delete() |> broadcast_result(:notice)
     end
   end
 
   @doc "Whether the user can remove the notice."
   def can_delete_notice?(user, story, %Notice{} = notice),
-    do: notice.user_id == user.id or Stories.master?(user, story)
+    do: notice.user_id == user.id or Stories.can?(user, story, :can_moderate)
 
   ## Helpers
 
   defp check_enabled(story),
     do: if(enabled?(story), do: :ok, else: {:error, :module_disabled})
 
-  defp check_master(user, story) do
+  defp check_world_manager(user, story) do
     cond do
       not enabled?(story) -> {:error, :module_disabled}
-      Stories.master?(user, story) -> :ok
+      Stories.can?(user, story, :can_manage_world) -> :ok
       true -> {:error, :unauthorized}
     end
   end
@@ -408,6 +412,7 @@ defmodule TannhauserGate.Boards do
 
   def error_message(:module_disabled), do: "Bulletin boards are not enabled in this GDR."
   def error_message(:unauthorized), do: "You can't do that on this board."
+  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
   def error_message(:not_found), do: "That item does not exist in this GDR."
   def error_message(:character_not_found), do: "Pick one of your playable characters."
   def error_message(_), do: "Something went wrong."

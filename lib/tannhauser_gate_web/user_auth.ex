@@ -9,6 +9,7 @@ defmodule TannhauserGateWeb.UserAuth do
 
   alias TannhauserGate.Accounts
   alias TannhauserGate.Calendars
+  alias TannhauserGate.Sanctions
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Story
 
@@ -211,13 +212,25 @@ defmodule TannhauserGateWeb.UserAuth do
 
     with {id, ""} <- Integer.parse(to_string(params["story_id"])),
          %Story{} = story <- Stories.get_story(id),
-         role when not is_nil(role) <- Stories.role(user, story) do
+         role when not is_nil(role) <- Stories.role(user, story),
+         :ok <- check_not_banned(user, story, role) do
       {:cont,
        socket
        |> Phoenix.Component.assign(:current_story, Calendars.preload(story))
        |> assign_story_role(role)
+       |> Phoenix.Component.assign(:permissions, Stories.permissions(user, story))
+       |> flash_sanctions(user, story)
        |> follow_calendar()}
     else
+      {:banned, story, ban} ->
+        {:halt,
+         socket
+         |> Phoenix.LiveView.put_flash(
+           :error,
+           "You are banned from #{story.name} #{Sanctions.until(ban)}. Reason: #{ban.reason}"
+         )
+         |> Phoenix.LiveView.redirect(to: ~p"/gdrs")}
+
       _ ->
         {:halt,
          socket
@@ -254,6 +267,16 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
+  # Guards a master page with a staff permission (`Stories.can?/3`), or any
+  # of a list of permissions.
+  def on_mount({:require_permission, permissions}, _params, _session, socket) do
+    if Enum.any?(List.wrap(permissions), &MapSet.member?(socket.assigns.permissions, &1)) do
+      {:cont, socket}
+    else
+      deny_story_access(socket, "You don't have the permission to use that tool.")
+    end
+  end
+
   # Tracks the current path so the navigation drawer can highlight the
   # active section.
   def on_mount(:assign_current_path, _params, _session, socket) do
@@ -262,6 +285,7 @@ defmodule TannhauserGateWeb.UserAuth do
      |> Phoenix.Component.assign(:current_path, nil)
      |> Phoenix.Component.assign(:current_story, nil)
      |> assign_story_role(nil)
+     |> Phoenix.Component.assign(:permissions, MapSet.new())
      |> Phoenix.LiveView.attach_hook(:current_path, :handle_params, fn _params, url, socket ->
        {:cont, Phoenix.Component.assign(socket, :current_path, URI.parse(url).path)}
      end)}
@@ -274,6 +298,34 @@ defmodule TannhauserGateWeb.UserAuth do
       {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(socket))}
     else
       {:cont, socket}
+    end
+  end
+
+  # The staff (masters, GDR admin, platform admins) is never banned.
+  defp check_not_banned(user, story, role) do
+    if Stories.master_role?(role) or not Sanctions.enabled?(story) do
+      :ok
+    else
+      case Sanctions.active_sanction(user, story, "ban") do
+        nil -> :ok
+        ban -> {:banned, story, ban}
+      end
+    end
+  end
+
+  # Shows the sanctions the user was not told about yet (once, when connected).
+  defp flash_sanctions(socket, user, story) do
+    if Phoenix.LiveView.connected?(socket) do
+      case Sanctions.pop_unseen(user, story) do
+        [] ->
+          socket
+
+        sanctions ->
+          message = Enum.map_join(sanctions, " ", &Sanctions.notice_text/1)
+          Phoenix.LiveView.put_flash(socket, :error, message)
+      end
+    else
+      socket
     end
   end
 

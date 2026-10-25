@@ -28,7 +28,7 @@ defmodule TannhauserGate.Diary do
 
   import Ecto.Query, warn: false
 
-  alias TannhauserGate.{Characters, Repo, Storage, Stories}
+  alias TannhauserGate.{Characters, Repo, Sanctions, Storage, Stories}
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Diary.{Entry, Image}
   alias TannhauserGate.Stories.Story
@@ -117,7 +117,8 @@ defmodule TannhauserGate.Diary do
   @doc "Writes a new entry in the character's diary."
   def create_entry(user, %Character{} = character, attrs) do
     with :ok <- check_enabled(character),
-         :ok <- authorize(can_write?(user, character)) do
+         :ok <- authorize(can_write?(user, character)),
+         :ok <- Sanctions.check_not_muted(user, character.story_id) do
       %Entry{story_id: character.story_id, character_id: character.id, user_id: user.id}
       |> Entry.changeset(attrs)
       |> Repo.insert()
@@ -127,7 +128,8 @@ defmodule TannhauserGate.Diary do
   @doc "Updates an entry of the character."
   def update_entry(user, %Character{} = character, %Entry{} = entry, attrs) do
     with :ok <- check_enabled(character),
-         :ok <- authorize(entry.character_id == character.id and can_write?(user, character)) do
+         :ok <- authorize(entry.character_id == character.id and can_write?(user, character)),
+         :ok <- Sanctions.check_not_muted(user, character.story_id) do
       entry |> Entry.changeset(attrs) |> Repo.update()
     end
   end
@@ -170,6 +172,7 @@ defmodule TannhauserGate.Diary do
 
     with :ok <- check_enabled(character),
          :ok <- authorize(can_manage_gallery?(user, character)),
+         :ok <- Sanctions.check_not_muted(user, character.story_id),
          :ok <- check_room(character),
          {:ok, type} <- check_image(source_path),
          true <- changeset.valid? || {:error, changeset} do
@@ -241,6 +244,7 @@ defmodule TannhauserGate.Diary do
     ]
 
   def error_message(:module_disabled), do: "Diaries are not enabled in this GDR."
+  def error_message(:muted), do: "You cannot write in this GDR right now."
   def error_message(:unauthorized), do: "You can't do that on this character."
   def error_message(:not_found), do: "That item does not exist."
   def error_message(:gallery_full), do: "The gallery is full (#{@max_images} pictures)."

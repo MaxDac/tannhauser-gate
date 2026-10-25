@@ -28,12 +28,13 @@ defmodule TannhauserGateWeb.GmLive do
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Sheet.Item
-  alias TannhauserGate.Stories.{Location, Themes}
+  alias TannhauserGate.Stories.{Location, StoryMaster, Themes}
   alias TannhauserGate.Trackers.Tracker
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    # Master rows are keyed by user, like the users they used to be.
+    {:ok, stream_configure(socket, :masters, dom_id: &"masters-#{&1.user_id}")}
   end
 
   @impl true
@@ -122,7 +123,7 @@ defmodule TannhauserGateWeb.GmLive do
   end
 
   defp load(socket, "masters") do
-    masters = Stories.list_masters(story(socket))
+    masters = Stories.list_master_rows(story(socket))
 
     socket
     |> assign(:masters_empty?, masters == [])
@@ -486,6 +487,26 @@ defmodule TannhauserGateWeb.GmLive do
          socket
          |> put_flash(:error, Stories.master_error_message(reason))
          |> assign(:master_form, to_form(%{"username" => username}, as: :master))}
+    end
+  end
+
+  def handle_event("toggle_permission", %{"user_id" => user_id, "perm" => perm} = params, socket) do
+    permission =
+      Enum.find(StoryMaster.permissions(), &(Atom.to_string(&1) == perm))
+
+    with true <- permission != nil,
+         {user_id, ""} <- Integer.parse(user_id),
+         {:ok, row} <-
+           Stories.set_master_permission(
+             story(socket),
+             user_id,
+             permission,
+             params["value"] == "true"
+           ) do
+      row = TannhauserGate.Repo.preload(row, :user)
+      {:noreply, stream_insert(socket, :masters, row)}
+    else
+      _ -> {:noreply, put_flash(socket, :error, "That master does not exist in this GDR.")}
     end
   end
 
@@ -1542,7 +1563,7 @@ defmodule TannhauserGateWeb.GmLive do
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Add a master</h2>
         <p class="mt-1 text-sm text-base-content/60">
           Masters narrate the GDR: they run chats, edit characters and moderate the forum,
-          but cannot change this configuration.
+          but cannot change this configuration. Their permissions can be narrowed below.
         </p>
 
         <.form for={@master_form} id="master-form" phx-submit="add_master">
@@ -1564,21 +1585,49 @@ defmodule TannhauserGateWeb.GmLive do
           No masters yet.
         </p>
 
+        <p class="mt-1 text-xs text-base-content/60">
+          Tick what each master may do. The GDR admin and platform admins can always do everything.
+        </p>
+
         <ul id="masters" phx-update="stream" class="mt-1 divide-y divide-secondary/10">
           <li
             :for={{dom_id, master} <- @streams.masters}
             id={dom_id}
-            class="flex items-center justify-between gap-2 py-1.5 text-sm"
+            class="py-3 text-sm"
           >
-            <span>{master.username}</span>
-            <.link
-              id={"remove-master-#{master.id}"}
-              phx-click="remove_master"
-              phx-value-id={master.id}
-              data-confirm={"Remove #{master.username} from the masters?"}
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-semibold">{master.user.username}</span>
+              <.link
+                id={"remove-master-#{master.user_id}"}
+                phx-click="remove_master"
+                phx-value-id={master.user_id}
+                data-confirm={"Remove #{master.user.username} from the masters?"}
+              >
+                Remove
+              </.link>
+            </div>
+            <div
+              id={"master-permissions-#{master.user_id}"}
+              class="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2"
             >
-              Remove
-            </.link>
+              <label
+                :for={{key, label, description} <- Stories.permissions()}
+                class="flex cursor-pointer items-center gap-2 text-xs text-base-content/80 transition-colors hover:text-base-content"
+                title={description}
+              >
+                <input
+                  type="checkbox"
+                  id={"master-#{master.user_id}-#{key}"}
+                  class="checkbox checkbox-xs console-check"
+                  checked={Map.fetch!(master, key)}
+                  phx-click="toggle_permission"
+                  phx-value-user_id={master.user_id}
+                  phx-value-perm={key}
+                  phx-value-value={to_string(!Map.fetch!(master, key))}
+                />
+                {label}
+              </label>
+            </div>
           </li>
         </ul>
       </.panel>
