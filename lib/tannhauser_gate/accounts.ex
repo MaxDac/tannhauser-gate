@@ -246,6 +246,7 @@ defmodule TannhauserGate.Accounts do
       user
       |> User.password_changeset(attrs)
       |> User.validate_current_password(password)
+      |> validate_new_password(user, password, attrs)
 
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset)
@@ -256,6 +257,22 @@ defmodule TannhauserGate.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  # An account forced to change its initial password cannot keep it.
+  defp validate_new_password(changeset, %User{must_change_password: true}, current, attrs)
+       when is_binary(current) do
+    if (attrs["password"] || attrs[:password]) == current do
+      Ecto.Changeset.add_error(
+        changeset,
+        :password,
+        "must be different from the current password"
+      )
+    else
+      changeset
+    end
+  end
+
+  defp validate_new_password(changeset, _user, _current, _attrs), do: changeset
 
   ## Session
 
@@ -406,6 +423,22 @@ defmodule TannhauserGate.Accounts do
   """
   def gm?(%User{gm: true}), do: true
   def gm?(_), do: false
+
+  @doc """
+  Returns true when the user must change their password before using the
+  site (e.g. a seeded account still on its default credentials).
+  """
+  def must_change_password?(%User{must_change_password: true}), do: true
+  def must_change_password?(_), do: false
+
+  @doc """
+  Sets whether the user must change their password at the next access.
+  """
+  def set_must_change_password(%User{} = user, value) when is_boolean(value) do
+    user
+    |> User.must_change_password_changeset(value)
+    |> Repo.update()
+  end
 
   @doc """
   Lists all users ordered by email.

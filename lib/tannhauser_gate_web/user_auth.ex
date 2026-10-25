@@ -20,6 +20,8 @@ defmodule TannhauserGateWeb.UserAuth do
   @remember_me_cookie "_tannhauser_gate_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
+  @must_change_password_message "Please choose a new password before continuing."
+
   @doc """
   Logs the user in.
 
@@ -172,7 +174,7 @@ defmodule TannhauserGateWeb.UserAuth do
     socket = mount_current_user(socket, session)
 
     if socket.assigns.current_user do
-      {:cont, socket}
+      ensure_password_changed(socket)
     else
       socket =
         socket
@@ -194,7 +196,7 @@ defmodule TannhauserGateWeb.UserAuth do
          |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")}
 
       Accounts.admin?(socket.assigns.current_user) ->
-        {:cont, socket}
+        ensure_password_changed(socket)
 
       true ->
         {:halt,
@@ -329,6 +331,20 @@ defmodule TannhauserGateWeb.UserAuth do
     end
   end
 
+  # Accounts flagged `must_change_password` (seeded accounts on their default
+  # credentials) can only reach the settings page until they change it.
+  defp ensure_password_changed(socket) do
+    if Accounts.must_change_password?(socket.assigns.current_user) and
+         socket.view != TannhauserGateWeb.UserSettingsLive do
+      {:halt,
+       socket
+       |> Phoenix.LiveView.put_flash(:error, @must_change_password_message)
+       |> Phoenix.LiveView.redirect(to: ~p"/users/settings")}
+    else
+      {:cont, socket}
+    end
+  end
+
   defp mount_current_user(socket, session) do
     Phoenix.Component.assign_new(socket, :current_user, fn ->
       if user_token = session["user_token"] do
@@ -371,14 +387,25 @@ defmodule TannhauserGateWeb.UserAuth do
   they use the application at all, here would be a good place.
   """
   def require_authenticated_user(conn, _opts) do
-    if conn.assigns[:current_user] do
-      conn
-    else
-      conn
-      |> put_flash(:error, "You must log in to access this page.")
-      |> maybe_store_return_to()
-      |> redirect(to: ~p"/users/log_in")
-      |> halt()
+    user = conn.assigns[:current_user]
+
+    cond do
+      is_nil(user) ->
+        conn
+        |> put_flash(:error, "You must log in to access this page.")
+        |> maybe_store_return_to()
+        |> redirect(to: ~p"/users/log_in")
+        |> halt()
+
+      Accounts.must_change_password?(user) and
+          not String.starts_with?(conn.request_path, "/users/settings") ->
+        conn
+        |> put_flash(:error, @must_change_password_message)
+        |> redirect(to: ~p"/users/settings")
+        |> halt()
+
+      true ->
+        conn
     end
   end
 

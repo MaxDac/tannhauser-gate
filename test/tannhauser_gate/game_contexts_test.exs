@@ -5,6 +5,7 @@ defmodule TannhauserGate.GameContextsTest do
   import TannhauserGate.GameFixtures
 
   alias TannhauserGate.{Accounts, Characters, Chat, Forum, Stories}
+  alias TannhauserGate.Seeds.NeonRepublic
   alias TannhauserGate.Stories.Location
 
   describe "accounts roles" do
@@ -266,6 +267,104 @@ defmodule TannhauserGate.GameContextsTest do
       assert length(TannhauserGate.Weather.list_conditions(again)) == 5
       zones = TannhauserGate.Zones.list_zones(again)
       assert map_size(TannhauserGate.Weather.zone_weathers(again)) == length(zones)
+    end
+
+    test "run/0 seeds GM owners and flags every seeded account to change its password" do
+      %{admin: admin, story: story, gm: gm, neon_republic: %{story: neon, gm: neon_gm}} =
+        TannhauserGate.Seeds.run()
+
+      assert Enum.all?([admin, gm, neon_gm], & &1.must_change_password)
+      assert Enum.all?([admin, gm, neon_gm], & &1.confirmed_at)
+      assert Accounts.gm?(gm) and Accounts.gm?(neon_gm)
+      refute Accounts.admin?(gm)
+      assert story.owner_id == gm.id
+      assert neon.owner_id == neon_gm.id
+      assert Stories.role(gm, story) == :gdr_admin
+      assert Stories.role(neon_gm, neon) == :gdr_admin
+
+      # A later run keeps a changed password and does not flag the account again.
+      {:ok, _} = Accounts.set_must_change_password(gm, false)
+      %{gm: gm_again} = TannhauserGate.Seeds.run()
+      assert gm_again.id == gm.id
+      refute gm_again.must_change_password
+
+      assert [{"Platform admin", %{email: "admin@tannhauser.gate"}} | _] =
+               TannhauserGate.Seeds.credentials()
+    end
+
+    test "run/0 seeds trackers, dice and periodic actions in the default story" do
+      %{story: story} = TannhauserGate.Seeds.run()
+
+      assert ["health", "stress"] =
+               Enum.map(TannhauserGate.Trackers.list_trackers(story), & &1.slug)
+
+      assert %{system: "pool", die_size: 10, special_tracker: "stress"} = story.dice_config
+
+      assert [%{name: "Work the streets", zone_property: "danger"}] =
+               TannhauserGate.PeriodicActions.list_actions(story)
+    end
+
+    test "run/0 seeds the Neon Republic GDR, idempotently" do
+      %{story: default, neon_republic: %{story: neon}} = TannhauserGate.Seeds.run()
+      %{story: default_again, neon_republic: %{story: again}} = TannhauserGate.Seeds.run()
+
+      assert neon.id == again.id
+      assert default.id == default_again.id
+      assert default_again.is_default
+      refute again.is_default
+      assert %{name: "Neon Republic", theme: "azure", currency_name: "scrip"} = again
+      assert again.map_svg == NeonRepublic.map_svg()
+      assert "cyberpunk" in again.genres
+      assert again.pitch =~ "Halcyon Bay"
+
+      # The seeded rooms plus the guild ops floor, all in a zone.
+      locations = Stories.list_locations(again)
+      assert length(locations) == length(NeonRepublic.locations()) + 1
+      zones = TannhauserGate.Zones.list_zones(again)
+      assert length(zones) == 3
+
+      assert Enum.all?(
+               locations,
+               &(&1.zone_id || &1.name == "Directorate Ops Floor")
+             )
+
+      assert length(TannhauserGate.Sheet.list_items(again)) ==
+               length(NeonRepublic.sheet_items())
+
+      assert [%{title: "The world", pages: [_, _, _, _]}] =
+               TannhauserGate.Guide.list_sections(again)
+
+      assert length(TannhauserGate.Bank.list_jobs(again)) == 6
+      assert [%{options: [_, _, _, _]}] = TannhauserGate.Origins.list_groups(again)
+
+      assert ["health", "edge", "static"] =
+               Enum.map(TannhauserGate.Trackers.list_trackers(again), & &1.slug)
+
+      assert %{system: "pool", die_size: 6, reroll_tracker: "edge"} = again.dice_config
+      assert length(TannhauserGate.PeriodicActions.list_actions(again)) == 2
+
+      assert length(TannhauserGate.Items.list_items(again)) == 4
+
+      assert [%{name: "Auntie Ruo's barge", location: %{name: "The Drowned Market"}}] =
+               TannhauserGate.Items.list_shops(again)
+
+      assert [
+               %{name: "Combine Security Directorate", secret: false},
+               %{name: "The Loose Wires", secret: true}
+             ] = TannhauserGate.Guilds.list_guilds(again)
+
+      for key <-
+            ~w(origins items guilds chat_rp auto_xp esiti quests diary boards calendar weather reports)a do
+        assert Stories.module_enabled?(again, key), "#{key} should be enabled"
+      end
+
+      assert [%{status: "resolved"}] = TannhauserGate.Esiti.list_queue(again, "all")
+
+      assert [%{title: "Welcome to the Neon Republic", pinned: true}] =
+               TannhauserGate.Boards.list_announcements(again)
+
+      assert %{year: 2093} = TannhauserGate.Calendars.now(again)
+      assert length(TannhauserGate.Weather.list_conditions(again)) == 5
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do

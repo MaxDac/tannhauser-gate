@@ -11,6 +11,18 @@ defmodule TannhauserGateWeb.UserSettingsLive do
         <:subtitle>Manage your account email address and password settings</:subtitle>
       </.header>
 
+      <div
+        :if={@current_user.must_change_password}
+        id="must-change-password-notice"
+        class="mx-auto mb-8 flex max-w-xl items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm"
+      >
+        <.icon name="hero-key" class="mt-0.5 size-5 shrink-0 text-warning" />
+        <p>
+          This account still uses its initial password. Choose a new one below to
+          continue using the site.
+        </p>
+      </div>
+
       <div class="mx-auto max-w-xl space-y-12 divide-y divide-secondary/20">
         <div class="pb-12">
           <.form

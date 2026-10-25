@@ -1,8 +1,6 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
 import {
-  ADMIN_PASSWORD,
-  ADMIN_USERNAME,
   PASSWORD as password,
   SEEDED_GDR,
   approveCharacter,
@@ -10,6 +8,7 @@ import {
   dismissFlashes,
   gdrPath,
   logIn,
+  logInAsAdmin,
 } from "./helpers";
 
 const stamp = Date.now();
@@ -132,7 +131,7 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
 });
 
 test("admin can reach the control room and read conversations", async ({ page }) => {
-  await logIn(page, ADMIN_USERNAME, ADMIN_PASSWORD);
+  await logInAsAdmin(page);
   await page.locator("#admin-link").click();
   await expect(page.locator("#admin-stats")).toBeVisible();
 

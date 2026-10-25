@@ -11,15 +11,23 @@
 alias TannhauserGate.{Accounts, Characters, Chat, Forum, Mailbox, Repo, Seeds, Storage, Stories}
 alias TannhauserGate.Forum.Section
 
-%{story: story, admin: admin} = Seeds.run()
+%{story: story, admin: admin, neon_republic: %{story: neon_republic}} = Seeds.run()
+
+# The screenshots log in with the seeded admin's initial password: skip the
+# forced change at the first access.
+{:ok, admin} = Accounts.set_must_change_password(admin, false)
 
 # The game clock advances with real time and the weather is rolled at random:
-# keep both off so the screenshots never change.
-story =
+# keep both off (in every GDR) so the screenshots never change.
+disable_clock_and_weather = fn story ->
   Enum.reduce([:calendar, :weather], story, fn key, story ->
     {:ok, story} = Stories.set_module_enabled(story, key, false)
     story
   end)
+end
+
+story = disable_clock_and_weather.(story)
+disable_clock_and_weather.(neon_republic)
 
 player_email = "player@tannhauser.gate"
 player_password = "more-human-than-human"

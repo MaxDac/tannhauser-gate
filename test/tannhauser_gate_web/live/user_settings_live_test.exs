@@ -82,6 +82,56 @@ defmodule TannhauserGateWeb.UserSettingsLiveTest do
     end
   end
 
+  describe "initial password change" do
+    setup %{conn: conn} do
+      password = valid_user_password()
+      user = user_fixture(%{password: password})
+      {:ok, user} = Accounts.set_must_change_password(user, true)
+      %{conn: log_in_user(conn, user), user: user, password: password}
+    end
+
+    test "other pages redirect to the settings", %{conn: conn} do
+      assert {:error, {:redirect, %{to: "/users/settings"}}} = live(conn, ~p"/gdrs")
+    end
+
+    test "shows the notice and rejects the same password", %{conn: conn, password: password} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+      assert has_element?(lv, "#must-change-password-notice")
+
+      result =
+        lv
+        |> form("#password_form", %{
+          "current_password" => password,
+          "user" => %{"password" => password, "password_confirmation" => password}
+        })
+        |> render_submit()
+
+      assert result =~ "must be different from the current password"
+    end
+
+    test "a new password clears the flag", %{conn: conn, user: user, password: password} do
+      new_password = "a brand new secret"
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      form =
+        form(lv, "#password_form", %{
+          "current_password" => password,
+          "user" => %{
+            "login" => user.username,
+            "password" => new_password,
+            "password_confirmation" => new_password
+          }
+        })
+
+      render_submit(form)
+      new_password_conn = follow_trigger_action(form, conn)
+      assert redirected_to(new_password_conn) == ~p"/users/settings"
+
+      user = Accounts.get_user_by_email_and_password(user.email, new_password)
+      refute user.must_change_password
+    end
+  end
+
   describe "update password form" do
     setup %{conn: conn} do
       password = valid_user_password()

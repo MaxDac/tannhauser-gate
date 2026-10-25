@@ -11,6 +11,7 @@ defmodule TannhauserGate.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :admin, :boolean, default: false
     field :gm, :boolean, default: false
+    field :must_change_password, :boolean, default: false
     field :accepted_terms_at, :utc_datetime
     field :terms_accepted, :boolean, virtual: true
     timestamps(type: :utc_datetime)
@@ -173,6 +174,15 @@ defmodule TannhauserGate.Accounts.User do
     |> cast(attrs, [:password])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(opts)
+    |> put_change(:must_change_password, false)
+  end
+
+  @doc """
+  Flags (or unflags) the account so its password must be changed before the
+  user can do anything else (seeded accounts with well-known credentials).
+  """
+  def must_change_password_changeset(user, value) when is_boolean(value) do
+    change(user, must_change_password: value)
   end
 
   @doc """
