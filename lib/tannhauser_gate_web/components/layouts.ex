@@ -254,6 +254,16 @@ defmodule TannhauserGateWeb.Layouts do
                 Jobs
               </.nav_link>
             </li>
+            <li :if={Stories.module_enabled?(@current_story, :items)}>
+              <.nav_link
+                id="nav-market"
+                navigate={~p"/g/#{@current_story}/market"}
+                icon="hero-building-storefront"
+                current_path={@current_path}
+              >
+                Market
+              </.nav_link>
+            </li>
             <li :if={Stories.master_role?(@story_role)}>
               <.nav_link
                 id="nav-master-tools"

@@ -9,7 +9,20 @@ defmodule TannhauserGate.Seeds do
 
   import Ecto.Query, warn: false
 
-  alias TannhauserGate.{Accounts, Bank, Forum, Guide, Origins, Repo, Sheet, Stories, Zones}
+  alias TannhauserGate.{
+    Accounts,
+    Bank,
+    Forum,
+    Guide,
+    Items,
+    Origins,
+    Repo,
+    Sheet,
+    Stories,
+    Trackers,
+    Zones
+  }
+
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Forum.Section
   alias TannhauserGate.Stories.Location
@@ -31,6 +44,7 @@ defmodule TannhauserGate.Seeds do
     seed_guide(story)
     seed_zones(story)
     story = seed_origins(story)
+    story = seed_items(story)
     %{admin: admin, story: story}
   end
 
@@ -255,6 +269,88 @@ defmodule TannhauserGate.Seeds do
       story
     end
   end
+
+  ## Items
+
+  @doc """
+  Enables the items module on the default story and seeds a few items and the
+  "Black market" shop in the Neon Bazaar the first time (an admin who later
+  disables the module keeps it off). Returns the (possibly updated) story.
+  """
+  def seed_items(story) do
+    if Items.list_items(story) == [] do
+      {:ok, story} = Stories.set_module_enabled(story, :items, true)
+      slugs = Sheet.slugs(story)
+      # The medkit heals a "health" tracker, if the GDR admin defined one.
+      health = Enum.find(Trackers.list_trackers(story), &(&1.slug == "health"))
+
+      {:ok, medkit} =
+        Items.create_item(
+          story,
+          Map.merge(
+            %{
+              name: "Medkit",
+              category: "Medical",
+              price: 50,
+              description:
+                "Synth-skin patches, a painkiller auto-injector and a stapler. " <>
+                  "*Not* street-legal without a Precinct permit."
+            },
+            medkit_effect(health)
+          )
+        )
+
+      {:ok, blaster} =
+        Items.create_item(story, %{
+          name: "Blaster pistol",
+          category: "Weapons",
+          price: 400,
+          stackable: false,
+          slot: "weapon",
+          modifiers: Map.take(%{"firearms" => 1}, slugs),
+          description:
+            "A heavy, double-trigger sidearm, the kind Wardens carry. " <>
+              "Loud enough to stop an Echo, and a conversation."
+        })
+
+      {:ok, coat} =
+        Items.create_item(story, %{
+          name: "Trench coat",
+          category: "Clothing",
+          price: 120,
+          stackable: false,
+          slot: "body",
+          modifiers: Map.take(%{"streetwise" => 1}, slugs),
+          description: "Long, waxed and rain-proof. In the Undercity nobody looks twice at it."
+        })
+
+      bazaar = Enum.find(Stories.list_locations(story), &(&1.name == "Neon Bazaar"))
+
+      {:ok, shop} =
+        Items.create_shop(story, %{
+          name: "Black market",
+          location_id: bazaar && bazaar.id,
+          description:
+            "Behind a noodle-steam curtain in the Neon Bazaar, Mama Oyelaran sells what " <>
+              "the Precincts would rather you didn't own. Cash only, no questions."
+        })
+
+      {:ok, _} = Items.create_listing(story, shop, %{item_id: medkit.id, stock: 10, position: 0})
+      {:ok, _} = Items.create_listing(story, shop, %{item_id: blaster.id, stock: 2, position: 1})
+      {:ok, _} = Items.create_listing(story, shop, %{item_id: coat.id, price: 100, position: 2})
+
+      story
+    else
+      story
+    end
+  end
+
+  defp medkit_effect(nil), do: %{}
+
+  defp medkit_effect(%{damage_types: [type | _]} = tracker),
+    do: %{tracker_id: tracker.id, effect_change: -2, effect_damage_type: type}
+
+  defp medkit_effect(tracker), do: %{tracker_id: tracker.id, effect_change: 2}
 
   ## Guide and zones
 

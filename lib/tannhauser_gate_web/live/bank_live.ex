@@ -54,6 +54,7 @@ defmodule TannhauserGateWeb.BankLive do
     cond do
       t.kind == "pay" -> "Pay"
       t.kind == "adjustment" -> "GM adjustment"
+      t.kind == "purchase" -> "Purchase"
       t.from_character_id == character.id -> "To #{t.to_character && t.to_character.name}"
       true -> "From #{t.from_character && t.from_character.name}"
     end

@@ -15,6 +15,7 @@ defmodule TannhauserGate.Characters do
   alias Ecto.Multi
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Characters.{Character, State}
+  alias TannhauserGate.Items
   alias TannhauserGate.Origins
   alias TannhauserGate.Repo
   alias TannhauserGate.Sheet
@@ -297,7 +298,9 @@ defmodule TannhauserGate.Characters do
 
   These are the *effective* values: the origin bonuses
   (`TannhauserGate.Origins.bonuses/1`) are added when the origins module is
-  enabled, so they may exceed the item maximum. Creation budgets and XP costs
+  enabled, and the modifiers of the equipped items
+  (`TannhauserGate.Items.equipment_modifiers/1`) when the items module is, so
+  they may exceed the item maximum. Creation budgets and XP costs
   use the base values (`sheet/1`, `trait_values/1`) instead.
   """
   def values_by_slug(%Character{} = character) do
@@ -306,6 +309,7 @@ defmodule TannhauserGate.Characters do
     |> Enum.flat_map(fn {_kind, entries} -> Enum.map(entries, fn {i, v} -> {i.slug, v} end) end)
     |> Map.new()
     |> Origins.apply_bonuses(Origins.bonuses(character))
+    |> Origins.apply_bonuses(Items.equipment_modifiers(character))
   end
 
   # Fills missing values with the category defaults and checks the creation
