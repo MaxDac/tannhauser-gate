@@ -1,12 +1,12 @@
 defmodule TannhauserGateWeb.GdrLive.Home do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Boards, Characters, Guide, Sheet}
+  alias TannhauserGate.{Boards, Guide, Sheet}
 
   @impl true
   def mount(_params, _session, socket) do
     %{current_story: story, current_user: user} = socket.assigns
-    mine = Characters.get_user_story_character(user, story.id)
+    mine = socket.assigns.active_character
     boards? = Boards.enabled?(story)
 
     {:ok,
@@ -56,6 +56,8 @@ defmodule TannhauserGateWeb.GdrLive.Home do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

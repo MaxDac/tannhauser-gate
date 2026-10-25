@@ -8,12 +8,13 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
   def mount(_params, _session, socket) do
     story = socket.assigns.current_story
     characters = Characters.list_story_characters(story.id)
-    mine = Characters.get_user_story_character(socket.assigns.current_user, story.id)
+    user = socket.assigns.current_user
 
     {:ok,
      socket
      |> assign(:page_title, "Characters · #{story.name}")
-     |> assign(:mine, mine)
+     |> assign(:mine, socket.assigns.active_character)
+     |> assign(:can_create?, Characters.can_create_character?(user, story))
      |> assign(:empty?, characters == [])
      |> stream(:characters, characters)}
   end
@@ -29,6 +30,8 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
@@ -38,11 +41,12 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
 
         <:actions>
           <.button
-            :if={is_nil(@mine)}
+            :if={@can_create?}
             id="new-character"
             navigate={~p"/g/#{@current_story}/characters/new"}
           >
-            <.icon name="hero-plus" class="size-4" /> Create your character
+            <.icon name="hero-plus" class="size-4" />
+            {if @mine, do: "Create another character", else: "Create your character"}
           </.button>
 
           <.button
@@ -50,7 +54,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
             id="my-character"
             navigate={~p"/g/#{@current_story}/characters/#{@mine}"}
           >
-            Your character
+            {if length(@my_characters) > 1, do: "Playing as #{@mine.name}", else: "Your character"}
           </.button>
         </:actions>
       </.header>

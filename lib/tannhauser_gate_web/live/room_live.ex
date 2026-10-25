@@ -49,7 +49,7 @@ defmodule TannhauserGateWeb.RoomLive do
   defp load(socket, location) do
     %{current_user: user, current_story: story} = socket.assigns
     characters = Characters.playable_characters(user, story)
-    own = Characters.get_user_story_character(user, story.id)
+    own = Characters.active_character(user, story)
     speakers = if own && own not in characters, do: characters ++ [own], else: characters
 
     viewer = if socket.assigns.master?, do: :all, else: user
@@ -548,6 +548,8 @@ defmodule TannhauserGateWeb.RoomLive do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

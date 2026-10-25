@@ -190,6 +190,8 @@ defmodule TannhauserGateWeb.GmLive.Origins do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

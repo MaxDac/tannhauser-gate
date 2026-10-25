@@ -256,10 +256,10 @@ defmodule TannhauserGate.Sanctions do
     end
   end
 
-  # A letter from "The masters" to the sanctioned user's character, if any.
+  # A letter from "The masters" to the sanctioned user's active character, if any.
   defp notify(%Sanction{} = sanction, issuer, story) do
-    case Characters.list_user_characters(sanction.user, story.id) do
-      [character | _] ->
+    case Characters.active_character(sanction.user, story.id) do
+      %Characters.Character{} = character ->
         Mailbox.send_from_masters(
           story,
           issuer,
@@ -269,7 +269,7 @@ defmodule TannhauserGate.Sanctions do
             "\n\nIf you think this is a mistake, write to the masters."
         )
 
-      [] ->
+      nil ->
         :ok
     end
   end

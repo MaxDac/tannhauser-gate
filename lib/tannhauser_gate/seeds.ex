@@ -107,7 +107,10 @@ defmodule TannhauserGate.Seeds do
       map_svg: map_svg(),
       map_width: 1000,
       map_height: 700,
-      is_default: true
+      is_default: true,
+      # Showcases multiple characters per user (set only when the story is
+      # first created: later runs keep the GDR admin's choice).
+      max_characters_per_user: 2
     }
 
     story =

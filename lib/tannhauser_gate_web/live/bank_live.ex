@@ -7,7 +7,7 @@ defmodule TannhauserGateWeb.BankLive do
   def mount(_params, _session, socket) do
     story = socket.assigns.current_story
 
-    case Characters.get_user_story_character(socket.assigns.current_user, story.id) do
+    case socket.assigns.active_character do
       nil ->
         {:ok,
          socket
@@ -75,12 +75,14 @@ defmodule TannhauserGateWeb.BankLive do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
       <.header>
         Bank
-        <:subtitle>{@character.name}'s account</:subtitle>
+        <:subtitle><span id="bank-character">{@character.name}</span>'s account</:subtitle>
       </.header>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
