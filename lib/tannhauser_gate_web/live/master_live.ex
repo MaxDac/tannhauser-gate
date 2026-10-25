@@ -117,6 +117,16 @@ defmodule TannhauserGateWeb.MasterLive do
         </.entry_point>
 
         <.entry_point
+          :if={Stories.module_enabled?(@current_story, :guilds)}
+          id="master-guilds"
+          navigate={~p"/g/#{@current_story}/master/guilds"}
+          icon="hero-flag"
+          title="Guilds"
+        >
+          Create guilds and factions, their ranks and salaries.
+        </.entry_point>
+
+        <.entry_point
           id="master-map"
           navigate={~p"/g/#{@current_story}/map"}
           icon="hero-map"

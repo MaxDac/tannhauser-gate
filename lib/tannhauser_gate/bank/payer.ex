@@ -1,6 +1,7 @@
 defmodule TannhauserGate.Bank.Payer do
   @moduledoc """
-  Periodically credits the pay of every character's job. Disabled in tests
+  Periodically credits the pay of every character's job and the guild
+  salaries (`Bank.pay_due/1`). Disabled in tests
   (`config :tannhauser_gate, :start_payer, false`); call `Bank.pay_due/1`
   directly there.
   """

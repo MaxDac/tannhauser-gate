@@ -11,6 +11,7 @@ defmodule TannhauserGate.Bank do
   alias Ecto.Multi
   alias TannhauserGate.Bank.{Job, Transaction}
   alias TannhauserGate.Characters.Character
+  alias TannhauserGate.Guilds.Membership
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories.Story
 
@@ -55,12 +56,17 @@ defmodule TannhauserGate.Bank do
   ## Pay
 
   @doc """
-  Credits the pay of every character whose pay interval has elapsed.
+  Credits the pay of every character whose pay interval has elapsed, and the
+  guild salaries (see `pay_guild_salaries/1`).
 
-  Returns the number of characters paid. Safe to call repeatedly: a character
-  is only paid once per elapsed interval.
+  Returns the number of payments made. Safe to call repeatedly: a character
+  (or a guild membership) is only paid once per elapsed interval.
   """
   def pay_due(now \\ now()) do
+    pay_jobs(now) + pay_guild_salaries(now)
+  end
+
+  defp pay_jobs(now) do
     from(c in Character,
       join: j in assoc(c, :job),
       join: s in assoc(c, :story),
@@ -102,6 +108,66 @@ defmodule TannhauserGate.Bank do
         })
 
         character |> Ecto.Changeset.change(last_paid_at: now) |> Repo.update!()
+        :paid
+      else
+        _ -> Repo.rollback(:not_due)
+      end
+    end)
+  end
+
+  @doc """
+  Credits the rank salary of every active guild member (guilds module) whose
+  pay interval elapsed since the membership's `last_paid_at` (set when the
+  membership becomes active). Each payment is a `"pay"` ledger entry noted
+  "Guild salary: <guild> (<rank>)". Only GDRs with the module enabled are
+  paid. Returns the number of salaries paid.
+  """
+  def pay_guild_salaries(now \\ now()) do
+    from(m in Membership,
+      join: g in assoc(m, :guild),
+      join: r in assoc(m, :rank),
+      join: s in Story,
+      on: s.id == g.story_id,
+      where: m.status == "active" and r.salary > 0,
+      where: fragment("coalesce((?->>'guilds')::boolean, false)", s.modules),
+      where:
+        is_nil(m.last_paid_at) or
+          fragment(
+            "? <= ? - (? * interval '1 hour')",
+            m.last_paid_at,
+            type(^now, :utc_datetime),
+            s.pay_interval_hours
+          ),
+      select: m.id
+    )
+    |> Repo.all()
+    |> Enum.count(fn id -> match?({:ok, :paid}, pay_membership(id, now)) end)
+  end
+
+  defp pay_membership(id, now) do
+    Repo.transaction(fn ->
+      membership =
+        Repo.one(
+          from m in Membership,
+            where: m.id == ^id and m.status == "active",
+            lock: "FOR UPDATE",
+            preload: [:rank, :character, guild: :story]
+        )
+
+      with %{rank: %{salary: salary} = rank, guild: %{story: story} = guild} when salary > 0 <-
+             membership,
+           true <- due?(membership, story, now) do
+        credit!(membership.character, salary)
+
+        Repo.insert!(%Transaction{
+          story_id: story.id,
+          to_character_id: membership.character_id,
+          amount: salary,
+          kind: "pay",
+          note: clean_note("Guild salary: #{guild.name} (#{rank.name})")
+        })
+
+        membership |> Ecto.Changeset.change(last_paid_at: now) |> Repo.update!()
         :paid
       else
         _ -> Repo.rollback(:not_due)

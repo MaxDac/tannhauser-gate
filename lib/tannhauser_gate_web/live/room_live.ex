@@ -14,6 +14,7 @@ defmodule TannhauserGateWeb.RoomLive do
     Characters,
     Chat,
     Dice,
+    Guilds,
     Items,
     PeriodicActions,
     Sheet,
@@ -57,6 +58,7 @@ defmodule TannhauserGateWeb.RoomLive do
     |> assign(:page_title, location.name)
     |> assign(:location, location)
     |> assign(:shops, Items.list_location_shops(location))
+    |> assign(:room_guild, room_guild(user, story, location))
     |> assign(:characters, characters)
     |> assign(:speakers, speakers)
     |> assign(:own_character, own)
@@ -68,6 +70,7 @@ defmodule TannhauserGateWeb.RoomLive do
     |> assign(:recheck_ref, nil)
     |> stream(:messages, [])
     |> assign(:access?, nil)
+    |> assign(:guild_locked?, false)
     |> GdrPresence.enter_location(location)
     |> load_zone()
     |> assign(:periodic_actions, PeriodicActions.list_actions(story))
@@ -146,6 +149,19 @@ defmodule TannhauserGateWeb.RoomLive do
 
   defp load_bookings(socket), do: assign(socket, :bookings, [])
 
+  # The guild a room is reserved to (guilds module): `{name, guild}` where
+  # the name is hidden for secret guilds the user cannot see.
+  defp room_guild(_user, _story, %{guild_id: nil}), do: nil
+
+  defp room_guild(user, story, location) do
+    with true <- Guilds.enabled?(story),
+         %{} = guild <- Guilds.get_guild(story, location.guild_id) do
+      if Guilds.visible?(user, story, guild), do: guild.name, else: "Guild members"
+    else
+      _ -> nil
+    end
+  end
+
   # Shows or hides the conversation when the access to a private location
   # changes, and schedules the next check at the next booking boundary.
   defp refresh_access(socket) do
@@ -161,6 +177,7 @@ defmodule TannhauserGateWeb.RoomLive do
 
     socket
     |> assign(:access?, access?)
+    |> assign(:guild_locked?, Bookings.guild_locked?(user, location))
     |> assign(:active_booking, location.private && Bookings.active_booking(location))
     |> schedule_recheck()
   end
@@ -457,6 +474,13 @@ defmodule TannhauserGateWeb.RoomLive do
         >
           <.icon name="hero-lock-closed" class="size-3" /> Private
         </span>
+        <span
+          :if={@room_guild}
+          id="guild-badge"
+          class="ml-2 inline-flex items-center gap-1 rounded bg-primary/15 px-2 py-0.5 align-middle text-xs font-bold uppercase tracking-widest text-primary"
+        >
+          <.icon name="hero-flag" class="size-3" /> {@room_guild}
+        </span>
 
         <:subtitle>{@location.description}</:subtitle>
         <:actions :if={@shops != []}>
@@ -509,11 +533,20 @@ defmodule TannhauserGateWeb.RoomLive do
         class="mt-6 rounded-xl border border-error/30 bg-ink/80 p-8 text-center"
       >
         <.icon name="hero-lock-closed" class="size-8 text-error" />
-        <p class="mt-3 font-semibold text-fog-100">This private location is not booked for you.</p>
+        <%= if @guild_locked? do %>
+          <p id="guild-locked" class="mt-3 font-semibold text-fog-100">
+            This location is reserved to the members of a guild.
+          </p>
+          <p class="mt-1 text-sm text-fog-400">
+            Only the players of its active members and the masters can be here.
+          </p>
+        <% else %>
+          <p class="mt-3 font-semibold text-fog-100">This private location is not booked for you.</p>
 
-        <p class="mt-1 text-sm text-fog-400">
-          Only whoever booked it, the invited characters and the masters can be here during a booking.
-        </p>
+          <p class="mt-1 text-sm text-fog-400">
+            Only whoever booked it, the invited characters and the masters can be here during a booking.
+          </p>
+        <% end %>
       </section>
 
       <section

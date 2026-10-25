@@ -110,6 +110,9 @@ defmodule TannhauserGateWeb.Router do
 
       live "/g/:story_id/market", MarketLive, :index
       live "/g/:story_id/market/:shop_id", MarketLive, :show
+
+      live "/g/:story_id/guilds", GuildLive.Index, :index
+      live "/g/:story_id/guilds/:id", GuildLive.Show, :show
     end
 
     live_session :gdr_admin,
@@ -147,6 +150,7 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/zones", MasterLive.Zones, :index
       live "/g/:story_id/master/actions", MasterLive.Actions, :index
       live "/g/:story_id/master/items", MasterLive.Items, :index
+      live "/g/:story_id/master/guilds", MasterLive.Guilds, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

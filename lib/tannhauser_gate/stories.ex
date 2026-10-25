@@ -268,6 +268,7 @@ defmodule TannhauserGate.Stories do
     %Location{story_id: story.id}
     |> Location.changeset(attrs)
     |> validate_zone()
+    |> validate_guild()
     |> Repo.insert()
   end
 
@@ -275,6 +276,7 @@ defmodule TannhauserGate.Stories do
     location
     |> Location.changeset(attrs)
     |> validate_zone()
+    |> validate_guild()
     |> Repo.update()
   end
 
@@ -289,6 +291,20 @@ defmodule TannhauserGate.Stories do
          ),
          do: [],
          else: [zone_id: "is not a zone of this story"]
+    end)
+  end
+
+  # A location may only be restricted to a guild of its own story.
+  defp validate_guild(changeset) do
+    story_id = Ecto.Changeset.get_field(changeset, :story_id)
+
+    Ecto.Changeset.validate_change(changeset, :guild_id, fn :guild_id, guild_id ->
+      if Repo.exists?(
+           from g in TannhauserGate.Guilds.Guild,
+             where: g.id == ^guild_id and g.story_id == ^story_id
+         ),
+         do: [],
+         else: [guild_id: "is not a guild of this story"]
     end)
   end
 

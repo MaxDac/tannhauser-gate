@@ -11,7 +11,19 @@ defmodule TannhauserGateWeb.GmLive do
   import TannhauserGateWeb.GmNav
   alias TannhauserGateWeb.GmNav
 
-  alias TannhauserGate.{Bank, Characters, Dice, Forum, Modules, Sheet, Stories, Trackers, Zones}
+  alias TannhauserGate.{
+    Bank,
+    Characters,
+    Dice,
+    Forum,
+    Guilds,
+    Modules,
+    Sheet,
+    Stories,
+    Trackers,
+    Zones
+  }
+
   alias TannhauserGate.Bank.Job
   alias TannhauserGate.Characters.State
   alias TannhauserGate.Forum.Section
@@ -42,7 +54,9 @@ defmodule TannhauserGateWeb.GmLive do
   defp load(socket, "general"), do: assign_story_form(socket, story(socket))
   defp load(socket, "theme"), do: assign_story_form(socket, story(socket))
   defp load(socket, "modules"), do: assign(socket, :modules, Modules.all())
-  defp load(socket, "map"), do: socket |> assign_story_form(story(socket)) |> reload_locations()
+
+  defp load(socket, "map"),
+    do: socket |> assign_story_form(story(socket)) |> assign_guilds() |> reload_locations()
 
   defp load(socket, "chat") do
     story = story(socket)
@@ -101,6 +115,7 @@ defmodule TannhauserGateWeb.GmLive do
 
   defp load(socket, "forum") do
     socket
+    |> assign_guilds()
     |> assign(:sections, Forum.list_sections(story(socket)))
     |> assign_section_form(%Section{})
   end
@@ -112,6 +127,29 @@ defmodule TannhauserGateWeb.GmLive do
     |> assign(:masters_empty?, masters == [])
     |> assign(:master_form, to_form(%{"username" => ""}, as: :master))
     |> stream(:masters, masters, reset: true)
+  end
+
+  # The guilds for guild forum sections and guild rooms (guilds module).
+  defp assign_guilds(socket) do
+    story = story(socket)
+    on? = Guilds.enabled?(story)
+
+    socket
+    |> assign(:guilds_on?, on?)
+    |> assign(:guilds, if(on?, do: Guilds.list_guilds(story), else: []))
+  end
+
+  defp guild_name(guilds, guild_id) do
+    case Enum.find(guilds, &(&1.id == guild_id)) do
+      nil -> nil
+      guild -> guild.name
+    end
+  end
+
+  defp section_visibilities(guilds_on?, section) do
+    Section.visibilities()
+    |> Enum.filter(&(&1 != "guild" or guilds_on? or section.visibility == "guild"))
+    |> Enum.map(&{Forum.visibility_label(&1), &1})
   end
 
   defp assign_story_form(socket, story) do
@@ -530,6 +568,14 @@ defmodule TannhauserGateWeb.GmLive do
           type="number"
           label="Pay interval (hours)"
           min="1"
+        />
+        <.input
+          :if={Stories.module_enabled?(@current_story, :guilds)}
+          field={@story_form[:max_guilds_per_character]}
+          type="number"
+          label="Maximum guilds per character"
+          min="1"
+          max="20"
         />
         <.input
           field={@story_form[:status]}
@@ -1099,6 +1145,14 @@ defmodule TannhauserGateWeb.GmLive do
               prompt="No zone"
               options={Enum.map(@zones, &{&1.name, &1.id})}
             />
+            <.input
+              :if={@guilds_on?}
+              field={@location_form[:guild_id]}
+              type="select"
+              label="Reserved to guild"
+              prompt="Open to everyone"
+              options={Enum.map(@guilds, &{&1.name, &1.id})}
+            />
             <div class="flex gap-3">
               <.button phx-disable-with="Saving...">Save room</.button>
               <.link
@@ -1132,6 +1186,13 @@ defmodule TannhauserGateWeb.GmLive do
                 class="badge badge-xs badge-soft ml-1"
               >
                 {zone.name}
+              </span>
+              <span
+                :if={@guilds_on? && guild_name(@guilds, l.guild_id)}
+                id={"location-guild-#{l.id}"}
+                class="badge badge-xs badge-info badge-soft ml-1"
+              >
+                <.icon name="hero-flag-micro" class="size-3" /> {guild_name(@guilds, l.guild_id)}
               </span>
             </span>
             <span class="flex gap-3">
@@ -1285,7 +1346,15 @@ defmodule TannhauserGateWeb.GmLive do
             field={@section_form[:visibility]}
             type="select"
             label="Visible to"
-            options={Enum.map(Section.visibilities(), &{Forum.visibility_label(&1), &1})}
+            options={section_visibilities(@guilds_on?, @section)}
+          />
+          <.input
+            :if={@guilds_on?}
+            field={@section_form[:guild_id]}
+            type="select"
+            label="Guild (for guild sections)"
+            prompt="Choose a guild"
+            options={Enum.map(@guilds, &{&1.name, &1.id})}
           />
           <div class="flex gap-3">
             <.button phx-disable-with="Saving...">
@@ -1322,6 +1391,13 @@ defmodule TannhauserGateWeb.GmLive do
               </span>
               <span :if={s.visibility != "all"} class="badge badge-xs badge-warning badge-soft">
                 {Forum.visibility_label(s.visibility)}
+              </span>
+              <span
+                :if={s.visibility == "guild" && guild_name(@guilds, s.guild_id)}
+                id={"section-guild-#{s.id}"}
+                class="badge badge-xs badge-info badge-soft"
+              >
+                <.icon name="hero-flag-micro" class="size-3" /> {guild_name(@guilds, s.guild_id)}
               </span>
               <span class="text-base-content/50">{count} topics</span>
             </span>
