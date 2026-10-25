@@ -73,6 +73,8 @@ defmodule TannhauserGateWeb.Router do
 
       live "/gdrs", GdrLive.Index, :index
       live "/gdrs/request", GdrLive.Request, :new
+      live "/gdrs/ranking", GdrLive.Ranking, :index
+      live "/gdrs/:id", GdrLive.Profile, :show
     end
 
     live_session :gdr,
@@ -192,6 +194,7 @@ defmodule TannhauserGateWeb.Router do
       live "/rooms/:id", RoomsLive, :show
       live "/users", UsersLive, :index
       live "/forum", ForumLive, :index
+      live "/reviews", ReviewsLive, :index
     end
   end
 

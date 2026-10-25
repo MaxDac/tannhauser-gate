@@ -14,6 +14,7 @@ defmodule TannhauserGateWeb.Admin.Components do
     {"Rooms", "/admin/rooms"},
     {"Users", "/admin/users"},
     {"Requests", "/admin/requests"},
+    {"Reviews", "/admin/reviews"},
     {"Forum", "/admin/forum"}
   ]
 
@@ -162,7 +163,7 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
 
   import TannhauserGateWeb.Admin.Components
 
-  alias TannhauserGate.Stories
+  alias TannhauserGate.{Directory, Stories}
   alias TannhauserGate.Stories.{Location, Story}
 
   @impl true
@@ -276,6 +277,32 @@ defmodule TannhauserGateWeb.Admin.StoryLive.Form do
         <.form for={@form} id="story-form" phx-change="validate" phx-submit="save">
           <.input field={@form[:name]} type="text" label="Name" required />
           <.input field={@form[:summary]} type="textarea" label="Summary" rows="2" />
+          <fieldset id="story-listing" class="mt-2 border-t border-mint/20 pt-4">
+            <legend class="text-sm font-semibold text-fog-300">Directory listing</legend>
+            <.input field={@form[:pitch]} type="text" label="Pitch" maxlength="160" />
+            <input type="hidden" name="story[genres][]" value="" />
+            <.input
+              field={@form[:genres]}
+              type="select"
+              label="Genres (up to 3)"
+              multiple
+              options={for {value, label} <- Directory.genres(), do: {label, value}}
+            />
+            <div class="grid gap-x-4 sm:grid-cols-2">
+              <.input
+                field={@form[:lifecycle]}
+                type="select"
+                label="Lifecycle"
+                options={for {value, label} <- Directory.lifecycles(), do: {label, value}}
+              />
+              <.input
+                field={@form[:content_rating]}
+                type="select"
+                label="Content rating"
+                options={for {value, label} <- Directory.content_ratings(), do: {label, value}}
+              />
+            </div>
+          </fieldset>
           <div class="grid gap-4 sm:grid-cols-3">
             <.input field={@form[:map_width]} type="number" label="Map width" />
             <.input field={@form[:map_height]} type="number" label="Map height" />

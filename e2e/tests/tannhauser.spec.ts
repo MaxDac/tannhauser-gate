@@ -76,7 +76,10 @@ test("plays: character, map, room chat, forum", async ({ page, browser }) => {
   await logIn(page, username, password);
 
   // Enter the GDR and create a character with avatar
-  await page.locator("#gdrs").getByRole("link", { name: /Tannhauser Gate/ }).click();
+  await page
+    .locator("#gdrs article", { hasText: "Tannhauser Gate" })
+    .getByRole("link", { name: /Enter/ })
+    .click();
   await expect(page).toHaveURL(new RegExp(`${GDR}$`));
   await page.locator("#drawer").getByRole("link", { name: "Characters", exact: true }).click();
   await page.locator("#new-character").click();
