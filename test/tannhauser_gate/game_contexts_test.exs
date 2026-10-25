@@ -214,7 +214,8 @@ defmodule TannhauserGate.GameContextsTest do
       assert story.id == again.id
       assert story.name == "Tannhauser Gate"
       assert story.is_default
-      assert length(again.locations) == length(TannhauserGate.Seeds.locations())
+      # The seeded rooms plus the guild briefing room.
+      assert length(again.locations) == length(TannhauserGate.Seeds.locations()) + 1
       assert length(again.locations) >= 8
       assert length(Forum.list_sections()) >= 3
 
@@ -223,6 +224,16 @@ defmodule TannhauserGate.GameContextsTest do
 
       assert [%{name: "Black market", location: %{name: "Neon Bazaar"}}] =
                TannhauserGate.Items.list_shops(again)
+
+      assert TannhauserGate.Stories.module_enabled?(again, :guilds)
+
+      assert [
+               %{name: "Meridian Police Department", secret: false} = police,
+               %{name: "Echo Underground", secret: true}
+             ] =
+               TannhauserGate.Guilds.list_guilds(again)
+
+      assert Enum.any?(again.locations, &(&1.guild_id == police.id))
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do

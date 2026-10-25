@@ -14,6 +14,7 @@ defmodule TannhauserGate.Seeds do
     Bank,
     Forum,
     Guide,
+    Guilds,
     Items,
     Origins,
     Repo,
@@ -45,6 +46,7 @@ defmodule TannhauserGate.Seeds do
     seed_zones(story)
     story = seed_origins(story)
     story = seed_items(story)
+    story = seed_guilds(story)
     %{admin: admin, story: story}
   end
 
@@ -265,6 +267,97 @@ defmodule TannhauserGate.Seeds do
         })
 
       story
+    else
+      story
+    end
+  end
+
+  ## Guilds
+
+  @doc """
+  Enables the guilds module with two factions: the Meridian Police
+  Department (open to requests) and the secret, invitation-only Echo
+  Underground, with a guild forum section and a briefing room reserved to
+  the police.
+  """
+  def seed_guilds(story) do
+    if Guilds.list_guilds(story) == [] do
+      {:ok, story} = Stories.set_module_enabled(story, :guilds, true)
+
+      {:ok, police} =
+        Guilds.create_guild(story, %{
+          name: "Meridian Police Department",
+          description:
+            "Precinct 9 and its Retirement Unit keep what passes for order in " <>
+              "Neo-Meridian. **Badge, gun and a pension nobody lives to collect.**",
+          open_join: true,
+          position: 0
+        })
+
+      for {name, salary, leader, position} <- [
+            {"Cadet", 20, false, 0},
+            {"Detective", 40, false, 1},
+            {"Captain", 80, true, 2}
+          ] do
+        {:ok, _} =
+          Guilds.create_rank(police, %{
+            name: name,
+            salary: salary,
+            leader: leader,
+            position: position
+          })
+      end
+
+      {:ok, underground} =
+        Guilds.create_guild(story, %{
+          name: "Echo Underground",
+          description:
+            "A whispered network smuggling runaway Echoes out of the city. " <>
+              "*Nobody joins: you are found.*",
+          secret: true,
+          open_join: false,
+          position: 1
+        })
+
+      for {name, salary, leader, position} <- [
+            {"Sympathizer", 0, false, 0},
+            {"Runner", 15, false, 1},
+            {"Voice", 30, true, 2}
+          ] do
+        {:ok, _} =
+          Guilds.create_rank(underground, %{
+            name: name,
+            salary: salary,
+            leader: leader,
+            position: position
+          })
+      end
+
+      if is_nil(Repo.get_by(Section, story_id: story.id, name: "The Safehouse")) do
+        {:ok, _} =
+          Forum.create_section(story, %{
+            name: "The Safehouse",
+            description: "Coded messages between the members of the Echo Underground.",
+            visibility: "guild",
+            guild_id: underground.id,
+            position: 10
+          })
+      end
+
+      if is_nil(Repo.get_by(Location, story_id: story.id, name: "Precinct 9 Briefing Room")) do
+        {:ok, _} =
+          Stories.create_location(story, %{
+            name: "Precinct 9 Briefing Room",
+            description:
+              "Cold coffee, a flickering holo-board and the case files of the week. " <>
+                "Badges only.",
+            area: "270,90 360,90 360,170 270,170",
+            color: "#7aa2ff",
+            guild_id: police.id
+          })
+      end
+
+      Stories.get_story!(story.id)
     else
       story
     end

@@ -1,7 +1,7 @@
 defmodule TannhauserGateWeb.MapLive do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bookings, Chat, Stories}
+  alias TannhauserGate.{Bookings, Chat, Guilds, Stories}
   alias TannhauserGate.Stories.Location
 
   @impl true
@@ -13,12 +13,26 @@ defmodule TannhauserGateWeb.MapLive do
      |> assign(:story, story)
      |> assign(:counts, Chat.count_messages_by_location())
      |> assign(:bookings, Bookings.upcoming_by_location(story.id))
+     |> assign(:guild_names, guild_names(socket.assigns.current_user, story))
      |> assign(:page_title, "#{story.name} · Map")}
   end
 
   @impl true
   def handle_event("enter_room", %{"id" => id}, socket) do
     {:noreply, push_navigate(socket, to: ~p"/g/#{socket.assigns.current_story}/rooms/#{id}")}
+  end
+
+  # Names of the guilds rooms are reserved to, hidden for secret guilds the
+  # user cannot see (guilds module).
+  defp guild_names(user, story) do
+    if Guilds.enabled?(story) do
+      Map.new(Guilds.list_guilds(story), fn guild ->
+        {guild.id,
+         if(Guilds.visible?(user, story, guild), do: guild.name, else: "Guild members only")}
+      end)
+    else
+      %{}
+    end
   end
 
   defp booking_line([]), do: "Private: free to book."
@@ -113,6 +127,13 @@ defmodule TannhauserGateWeb.MapLive do
                 </span>
                 <span class="text-xs text-fog-500">{Map.get(@counts, location.id, 0)} msg</span>
               </.link>
+              <p
+                :if={@guild_names[location.guild_id]}
+                id={"room-guild-#{location.id}"}
+                class="mt-1 flex items-center gap-1 px-3 text-xs text-primary/80"
+              >
+                <.icon name="hero-flag" class="size-3" /> {@guild_names[location.guild_id]}
+              </p>
               <p
                 :if={location.private}
                 id={"room-bookings-#{location.id}"}

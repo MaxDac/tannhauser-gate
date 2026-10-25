@@ -9,7 +9,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience, Items, Origins, Sheet, Trackers}
+  alias TannhauserGate.{Characters, Experience, Guilds, Items, Origins, Sheet, Trackers}
   alias TannhauserGate.Items.Item
 
   @impl true
@@ -40,6 +40,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:owner?, not character.is_npc and character.user_id == user.id)
     |> assign(:sheet, if(full?, do: Characters.sheet(character), else: %{}))
     |> assign(:origins, Origins.character_origins(character))
+    |> assign(:guilds, Guilds.character_guilds(character, user))
     |> assign(:bonuses, if(full?, do: bonuses(character), else: %{}))
     |> assign(:can_edit?, Characters.can_edit?(user, character))
     |> assign(
@@ -521,6 +522,29 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                 </div>
               </div>
             </div>
+          </div>
+
+          <div :if={@guilds != []} id="character-guilds" class="mt-8">
+            <p class="notepad-label">Guilds</p>
+            <ul class="mt-2 flex flex-wrap gap-3">
+              <li
+                :for={membership <- @guilds}
+                id={"character-guild-#{membership.guild_id}"}
+              >
+                <.link
+                  navigate={~p"/g/#{@current_story}/guilds/#{membership.guild_id}"}
+                  class="flex items-center gap-3 rounded-lg px-2 py-1 transition hover:bg-base-content/5"
+                >
+                  <.guild_emblem guild={membership.guild} class="size-10" />
+                  <span class="notepad-text leading-tight">
+                    <strong>{membership.guild.name}</strong>
+                    <span :if={membership.rank} class="block text-sm opacity-70">
+                      {membership.rank.name}
+                    </span>
+                  </span>
+                </.link>
+              </li>
+            </ul>
           </div>
 
           <div :if={@character.off_game_info} id="character-off-game" class="mt-8">

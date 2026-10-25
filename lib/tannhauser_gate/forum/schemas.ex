@@ -2,7 +2,7 @@ defmodule TannhauserGate.Forum.Section do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @visibilities ~w(all approved masters)
+  @visibilities ~w(all approved masters guild)
 
   schema "forum_sections" do
     field :name, :string
@@ -11,10 +11,12 @@ defmodule TannhauserGate.Forum.Section do
     # On-game sections are written in character; off-game ones as the user.
     field :on_game, :boolean, default: false
     # Who can see the section: everyone, only users with an approved
-    # character, or only the masters.
+    # character, only the masters, or only the members of `guild` (guilds
+    # module).
     field :visibility, :string, default: "all"
 
     belongs_to :story, TannhauserGate.Stories.Story
+    belongs_to :guild, TannhauserGate.Guilds.Guild
     has_many :topics, TannhauserGate.Forum.Topic
 
     timestamps(type: :utc_datetime)
@@ -25,11 +27,22 @@ defmodule TannhauserGate.Forum.Section do
   @doc false
   def changeset(section, attrs) do
     section
-    |> cast(attrs, [:name, :description, :position, :on_game, :visibility])
+    |> cast(attrs, [:name, :description, :position, :on_game, :visibility, :guild_id])
     |> validate_required([:name, :visibility])
     |> validate_length(:name, max: 120)
     |> validate_inclusion(:visibility, @visibilities)
+    |> validate_guild()
+    |> foreign_key_constraint(:guild_id)
     |> unique_constraint(:name, name: :forum_sections_story_id_name_index)
+  end
+
+  # Guild sections need a guild; the other visibilities drop it.
+  defp validate_guild(changeset) do
+    if get_field(changeset, :visibility) == "guild" do
+      validate_required(changeset, [:guild_id], message: "choose the guild")
+    else
+      put_change(changeset, :guild_id, nil)
+    end
   end
 end
 
