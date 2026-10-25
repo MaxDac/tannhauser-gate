@@ -41,7 +41,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
   defp apply_action(socket, :new_npc, _params) do
     story = socket.assigns.current_story
-    character = %Character{story_id: story.id, is_npc: true}
+    character = %Character{story_id: story.id, is_npc: true, background: story.sheet_template}
 
     socket
     |> assign(:page_title, "New NPC")
@@ -56,7 +56,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
     case Characters.get_user_story_character(socket.assigns.current_user, story.id) do
       nil ->
-        character = %Character{story_id: story.id}
+        character = %Character{story_id: story.id, background: story.sheet_template}
 
         origins_step = if socket.assigns.origin_groups != [], do: ["origins"], else: []
 
@@ -419,6 +419,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <.header>
         {@page_title}
@@ -503,6 +504,9 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                 <.error :for={error <- @avatar_errors}>{error}</.error>
               </div>
             </div>
+            <p id="markdown-hint" class="mb-1 text-xs text-base-content/60">
+              Description, background and off-game info support Markdown (**bold**, *italic*, lists, headings).
+            </p>
             <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
             <.input field={@form[:background]} type="textarea" label="Background" rows="10" />
             <.input
