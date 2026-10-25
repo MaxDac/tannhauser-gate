@@ -115,6 +115,9 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
             <span :if={entry.username}>({entry.username})</span>
             in <span class="font-semibold">{entry.location.name}</span>
             <.kind_badge kind={entry.kind} />
+            <span :if={entry.kind == "whisper"} class="whisper-recipient text-secondary">
+              → {entry.recipient || "a vanished character"}
+            </span>
             <span
               :if={entry.archived?}
               class="archived-badge rounded bg-fog-700/60 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-fog-300"
@@ -128,9 +131,13 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
             id={"log-dice-#{entry.id}"}
             result={entry.data}
           />
-          <p :if={entry.kind != "dice"} class="mt-1 whitespace-pre-line break-words text-sm">
-            {entry.body}
-          </p>
+          <.chat_body
+            :if={entry.kind != "dice"}
+            body={entry.body}
+            kind={entry.kind}
+            tag={entry.tag}
+            class="mt-1 text-sm"
+          />
         </li>
       </ol>
     </Layouts.app>

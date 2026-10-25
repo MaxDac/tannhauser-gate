@@ -7,6 +7,7 @@ defmodule TannhauserGateWeb.ChatComponents do
 
   import TannhauserGateWeb.CoreComponents, only: [icon: 1]
 
+  alias TannhauserGate.Chat.{Message, Speech}
   alias TannhauserGate.Dice
 
   @doc "A small badge naming an entry kind (nothing for in-character speech)."
@@ -21,7 +22,8 @@ defmodule TannhauserGateWeb.ChatComponents do
       @kind == "ooc" && "bg-fog-700/60 text-fog-300",
       @kind == "narration" && "bg-warning/15 text-warning",
       @kind == "status" && "bg-info/15 text-info",
-      @kind == "dice" && "bg-mint/15 text-mint"
+      @kind == "dice" && "bg-mint/15 text-mint",
+      @kind == "whisper" && "bg-secondary/15 text-secondary"
     ]}>
       {kind_label(@kind)}
     </span>
@@ -34,7 +36,49 @@ defmodule TannhauserGateWeb.ChatComponents do
   def kind_label("narration"), do: "Narration"
   def kind_label("status"), do: "Room status"
   def kind_label("dice"), do: "Dice"
+  def kind_label("whisper"), do: "Whisper"
   def kind_label(kind), do: kind
+
+  @doc """
+  The text of a chat entry, with its action tag (e.g. "[at the bar]") and,
+  when `highlight` is on (chat roleplay module), the quoted speech of
+  in-character entries highlighted against the action (see
+  `TannhauserGate.Chat.Speech`). Everything is rendered as escaped text.
+  """
+  attr :id, :string, default: nil
+  attr :body, :string, required: true
+  attr :kind, :string, default: "speech"
+  attr :tag, :string, default: nil
+  attr :highlight, :boolean, default: false
+  attr :class, :any, default: nil
+
+  def chat_body(assigns) do
+    assigns =
+      assign(
+        assigns,
+        :segments,
+        if(assigns.highlight and Message.in_character_kind?(assigns.kind),
+          do: Speech.segments(assigns.body),
+          else: [{:plain, assigns.body}]
+        )
+      )
+
+    ~H"""
+    <p id={@id} class={["chat-body break-words", @class]}>
+      <span
+        :if={@tag}
+        class="chat-tag mr-1.5 rounded bg-secondary/10 px-1.5 py-0.5 font-mono text-[0.7rem] uppercase tracking-wider text-secondary not-italic"
+      >[{@tag}]</span><span class="whitespace-pre-line"><span
+        :for={{type, text} <- @segments}
+        class={segment_class(type)}
+      >{text}</span></span>
+    </p>
+    """
+  end
+
+  defp segment_class(:speech), do: "chat-speech font-semibold not-italic text-phosphor"
+  defp segment_class(:action), do: "chat-action italic text-fog-400"
+  defp segment_class(:plain), do: nil
 
   @doc "The full breakdown of a dice result (see `TannhauserGate.Dice`)."
   attr :id, :string, required: true

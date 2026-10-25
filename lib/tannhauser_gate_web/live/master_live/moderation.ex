@@ -5,6 +5,8 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
   """
   use TannhauserGateWeb, :live_view
 
+  import TannhauserGateWeb.ChatComponents, only: [chat_body: 1]
+
   alias TannhauserGate.{Chat, Forum}
 
   @impl true
@@ -87,9 +89,22 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
                   <span class="font-semibold text-primary">
                     {(message.character && message.character.name) || message.user.username}
                   </span>
+                  <span
+                    :if={message.kind == "whisper"}
+                    id={"moderation-whisper-#{message.id}"}
+                    class="text-secondary"
+                  >
+                    whispers to {(message.recipient_character && message.recipient_character.name) ||
+                      "a vanished character"}
+                  </span>
                   in {message.location.name}
                 </p>
-                <p class="mt-1 whitespace-pre-line break-words text-sm">{message.body}</p>
+                <.chat_body
+                  body={message.body}
+                  kind={message.kind}
+                  tag={message.tag}
+                  class="mt-1 text-sm"
+                />
               </div>
               <button
                 type="button"

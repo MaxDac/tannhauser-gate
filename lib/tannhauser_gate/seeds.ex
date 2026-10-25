@@ -47,6 +47,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_origins(story)
     story = seed_items(story)
     story = seed_guilds(story)
+    story = seed_chat_rp(story)
     %{admin: admin, story: story}
   end
 
@@ -268,6 +269,35 @@ defmodule TannhauserGate.Seeds do
 
       story
     else
+      story
+    end
+  end
+
+  ## Chat roleplay and automatic XP
+
+  @doc """
+  Enables the chat roleplay (whispers, action tags, speech highlighting,
+  entries up to 2000 characters) and automatic XP (1 XP per in-character
+  entry of at least 300 characters, at most 10 a day, every 10 minutes)
+  modules. Only the first time: later GM changes are kept.
+  """
+  def seed_chat_rp(story) do
+    if Stories.module_enabled?(story, :chat_rp) or Stories.module_enabled?(story, :auto_xp) do
+      story
+    else
+      {:ok, story} = Stories.set_module_enabled(story, :chat_rp, true)
+      {:ok, story} = Stories.set_module_enabled(story, :auto_xp, true)
+
+      {:ok, story} =
+        Stories.update_story(story, %{
+          chat_min_length: 0,
+          chat_max_length: 2000,
+          auto_xp_amount: 1,
+          auto_xp_min_length: 300,
+          auto_xp_daily_cap: 10,
+          auto_xp_cooldown_minutes: 10
+        })
+
       story
     end
   end

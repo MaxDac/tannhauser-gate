@@ -21,6 +21,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
      |> assign(:page_title, "Character dashboard")
      |> assign(:states, Characters.list_states(story))
      |> assign(:filters, Map.new(@filter_keys, &{&1, ""}))
+     |> assign(:xp_source, "all")
      |> assign(
        :award_form,
        to_form(%{"character_id" => "", "amount" => "", "reason" => ""}, as: :award)
@@ -35,7 +36,8 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
 
     socket
     |> assign(:xp_totals, Experience.totals_by_character(story.id))
-    |> assign(:xp_log, Experience.list_story_entries(story.id))
+    |> assign(:xp_log, Experience.list_story_entries(story.id, source: socket.assigns.xp_source))
+    |> assign(:xp_source_form, to_form(%{"source" => socket.assigns.xp_source}, as: :xp_log))
     |> assign(:award_options, award_options(story.id))
   end
 
@@ -74,6 +76,11 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
   end
 
   @impl true
+  def handle_event("filter_xp", %{"xp_log" => %{"source" => source}}, socket) do
+    source = if source in ["manual", "auto"], do: source, else: "all"
+    {:noreply, socket |> assign(:xp_source, source) |> load_xp()}
+  end
+
   def handle_event("filter", %{"filters" => params}, socket) do
     filters = Map.new(@filter_keys, &{&1, Map.get(params, &1, "")})
     {:noreply, socket |> assign(:filters, filters) |> load_characters()}
@@ -423,13 +430,40 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
         </div>
 
         <div>
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">XP log</h2>
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">XP log</h2>
+            <.form
+              for={@xp_source_form}
+              id="xp-log-filter"
+              phx-change="filter_xp"
+              class="w-44 [&_.fieldset]:mb-0"
+            >
+              <.input
+                field={@xp_source_form[:source]}
+                type="select"
+                aria-label="Show"
+                options={[
+                  {"All entries", "all"},
+                  {"Manual only", "manual"},
+                  {"Automatic only", "auto"}
+                ]}
+                class="select select-sm w-full"
+              />
+            </.form>
+          </div>
           <ul id="story-xp-log" class="mt-3 space-y-1 text-sm">
             <li :if={@xp_log == []} class="text-base-content/60">No XP recorded yet.</li>
             <li :for={entry <- @xp_log} id={"story-xp-#{entry.id}"} class="flex gap-3">
               <span class="w-12 shrink-0 text-right font-bold tabular-nums">{xp_amount(entry)}</span>
               <span class="min-w-0 flex-1">
-                <span class="font-semibold">{entry.character.name}</span> · {xp_description(entry)}
+                <span class="font-semibold">{entry.character.name}</span>
+                · {xp_description(entry)}
+                <span
+                  :if={entry.source == "auto"}
+                  class="ml-1 rounded bg-info/15 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-info"
+                >
+                  Auto
+                </span>
               </span>
               <time
                 class="shrink-0 text-xs text-base-content/60"

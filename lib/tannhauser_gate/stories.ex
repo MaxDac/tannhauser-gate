@@ -11,7 +11,7 @@ defmodule TannhauserGate.Stories do
   alias TannhauserGate.Characters
   alias TannhauserGate.Modules
   alias TannhauserGate.Repo
-  alias TannhauserGate.Stories.{LastLocation, Location, Story, StoryMaster}
+  alias TannhauserGate.Stories.{LastLocation, Location, PresenceStatus, Story, StoryMaster}
 
   ## Stories
 
@@ -350,4 +350,49 @@ defmodule TannhauserGate.Stories do
   end
 
   def last_location(_, _), do: nil
+
+  ## Presence status
+
+  @doc "The presence statuses a user can show in a GDR."
+  def presence_statuses, do: PresenceStatus.statuses()
+
+  @doc "The presence status the user picked in the GDR (`\"available\"` by default)."
+  def presence_status(%User{id: user_id}, story_id) do
+    Repo.one(
+      from p in PresenceStatus,
+        where: p.user_id == ^user_id and p.story_id == ^story_id,
+        select: p.status
+    ) || "available"
+  end
+
+  def presence_status(_, _), do: "available"
+
+  @doc """
+  Saves the presence status of the user in the GDR. Returns `{:ok, status}`
+  or `{:error, :invalid_status}`.
+  """
+  def set_presence_status(%User{id: user_id}, story_id, status) when is_integer(story_id) do
+    if status in PresenceStatus.statuses() do
+      now = DateTime.utc_now(:second)
+
+      Repo.insert_all(
+        PresenceStatus,
+        [
+          %{
+            user_id: user_id,
+            story_id: story_id,
+            status: status,
+            inserted_at: now,
+            updated_at: now
+          }
+        ],
+        on_conflict: [set: [status: status, updated_at: now]],
+        conflict_target: [:user_id, :story_id]
+      )
+
+      {:ok, status}
+    else
+      {:error, :invalid_status}
+    end
+  end
 end

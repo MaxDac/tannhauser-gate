@@ -31,6 +31,10 @@ defmodule TannhauserGateWeb.CharacterComponents do
     default: nil,
     doc: "the `%{id, name}` location the character is in, when the viewer may follow them"
 
+  attr :status, :string,
+    default: nil,
+    doc: "the presence status of the character's player when online (shown in the menu)"
+
   attr :class, :any, default: nil, doc: "classes for the trigger"
   attr :align, :string, default: "start", values: ~w(start end)
   slot :inner_block
@@ -60,6 +64,11 @@ defmodule TannhauserGateWeb.CharacterComponents do
         role="menu"
         class="dropdown-content menu menu-sm z-50 mt-1 w-52 rounded-box border border-secondary/30 bg-base-200 p-1 text-xs font-normal normal-case tracking-normal shadow-phosphor"
       >
+        <li :if={@status} id={"#{@id}-status"} role="none" class="menu-title px-3 py-1.5">
+          <span class="flex items-center gap-2 normal-case tracking-normal">
+            <.presence_dot status={@status} /> {presence_label(@status)}
+          </span>
+        </li>
         <li role="none">
           <.link
             id={"#{@id}-sheet"}
@@ -92,4 +101,38 @@ defmodule TannhauserGateWeb.CharacterComponents do
     </div>
     """
   end
+
+  @doc "A small colored dot showing a presence status (see `presence_label/1`)."
+  attr :status, :string, required: true
+  attr :id, :string, default: nil
+
+  def presence_dot(assigns) do
+    ~H"""
+    <span
+      id={@id}
+      class={[
+        "presence-dot inline-block size-2 shrink-0 rounded-full transition-colors",
+        "presence-#{@status}",
+        presence_color(@status)
+      ]}
+      title={presence_label(@status)}
+      aria-label={presence_label(@status)}
+    ></span>
+    """
+  end
+
+  @doc "Human readable label of a presence status."
+  def presence_label("available"), do: "Available"
+  def presence_label("busy"), do: "Busy"
+  def presence_label("away"), do: "Away"
+  def presence_label("looking_for_play"), do: "Looking for play"
+  def presence_label(_), do: "Available"
+
+  defp presence_color("busy"), do: "bg-error shadow-[0_0_6px] shadow-error/70"
+  defp presence_color("away"), do: "bg-warning/80"
+
+  defp presence_color("looking_for_play"),
+    do: "bg-info shadow-[0_0_6px] shadow-info/70 animate-pulse"
+
+  defp presence_color(_), do: "bg-mint shadow-[0_0_6px] shadow-mint/70"
 end

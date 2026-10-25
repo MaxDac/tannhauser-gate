@@ -16,16 +16,52 @@ defmodule TannhauserGate.Chat do
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Chat.{ArchivedMessage, Message}
   alias TannhauserGate.Dice
+  alias TannhauserGate.Experience
   alias TannhauserGate.Repo
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Location
 
   @pubsub TannhauserGate.PubSub
   @narrator "Narrator"
+  @preloads [:character, :user, :recipient_character]
 
   def topic(location_id), do: "room:#{location_id}"
 
+  @doc "The topic of the whispers of a room sent by or to a user."
+  def whisper_topic(location_id, user_id), do: "room:#{location_id}:whispers:#{user_id}"
+
+  @doc "The topic carrying every whisper of a room (masters)."
+  def masters_whisper_topic(location_id), do: "room:#{location_id}:whispers:masters"
+
+  @doc """
+  Subscribes to the public entries of a room. Whispers are never broadcast
+  there: see `subscribe_whispers/2`.
+  """
   def subscribe(location_id), do: Phoenix.PubSub.subscribe(@pubsub, topic(location_id))
+
+  @doc """
+  Subscribes to the whispers of a room a viewer may read: `:all` (masters)
+  or a user (those they sent or that were sent to their characters).
+  """
+  def subscribe_whispers(location_id, :all),
+    do: Phoenix.PubSub.subscribe(@pubsub, masters_whisper_topic(location_id))
+
+  def subscribe_whispers(location_id, %User{id: user_id}),
+    do: Phoenix.PubSub.subscribe(@pubsub, whisper_topic(location_id, user_id))
+
+  @doc """
+  Whether a viewer (`:all` for masters, a user, or nil) may read an entry:
+  whispers only for their sender, the owner of their recipient and masters.
+  """
+  def visible?(%{kind: "whisper"}, :all), do: true
+
+  def visible?(%{kind: "whisper"} = message, %User{id: user_id}) do
+    message.user_id == user_id or
+      match?(%Character{user_id: ^user_id}, message.recipient_character)
+  end
+
+  def visible?(%{kind: "whisper"}, _viewer), do: false
+  def visible?(_message, _viewer), do: true
 
   @doc "The name shown for entries without a character."
   def narrator, do: @narrator
@@ -40,8 +76,10 @@ defmodule TannhauserGate.Chat do
   @doc """
   Returns the latest messages of a location, oldest first.
 
-  Accepts a limit (default 100) or options: `:limit` and `:before` (a message,
-  to page back to older entries).
+  Accepts a limit (default 100) or options: `:limit`, `:before` (a message,
+  to page back to older entries) and `:viewer` (see `visible?/2`: `:all`
+  includes every whisper, a user those they may read; by default whispers
+  are excluded).
   """
   def list_messages(location_id, opts \\ [])
 
@@ -55,9 +93,10 @@ defmodule TannhauserGate.Chat do
       where: m.location_id == ^location_id,
       order_by: [desc: m.inserted_at, desc: m.id],
       limit: ^limit,
-      preload: [:character, :user]
+      preload: ^@preloads
     )
     |> before(opts[:before])
+    |> visible_to(opts[:viewer])
     |> Repo.all()
     |> Enum.reverse()
   end
@@ -75,20 +114,31 @@ defmodule TannhauserGate.Chat do
       else: {messages, false}
   end
 
+  defp visible_to(query, :all), do: query
+
+  defp visible_to(query, %User{id: user_id}) do
+    from m in query,
+      left_join: r in Character,
+      on: r.id == m.recipient_character_id,
+      where: m.kind != "whisper" or m.user_id == ^user_id or r.user_id == ^user_id
+  end
+
+  defp visible_to(query, _viewer), do: where(query, [m], m.kind != "whisper")
+
   defp before(query, nil), do: query
 
   defp before(query, %{id: id, inserted_at: at}) do
     from m in query, where: m.inserted_at < ^at or (m.inserted_at == ^at and m.id < ^id)
   end
 
-  def get_message!(id), do: Message |> Repo.get!(id) |> Repo.preload([:character, :user])
+  def get_message!(id), do: Message |> Repo.get!(id) |> Repo.preload(@preloads)
 
   @doc "Gets a message of a location, or nil."
   def get_location_message(location_id, id) do
     Repo.one(
       from m in Message,
         where: m.id == ^id and m.location_id == ^location_id,
-        preload: [:character, :user]
+        preload: ^@preloads
     )
   end
 
@@ -97,23 +147,69 @@ defmodule TannhauserGate.Chat do
   @doc """
   Posts a message in a location speaking as `character_id`.
 
-  `"kind"` is `"speech"` (default, in character) or `"ooc"` (OFF game). In
-  character the user must be able to act as the character
-  (`Characters.can_act_as?/2`); OFF game it is enough to control it (own it,
-  or master its GDR for NPCs), whatever its approval. The character must
-  belong to the location's story and the user must be allowed in the location
-  (`Bookings.can_access?/3`).
+  `"kind"` is `"speech"` (default, in character), `"ooc"` (OFF game) or,
+  with the chat roleplay module, `"whisper"` (in character, to the approved
+  character `"recipient_character_id"` of the GDR). In character the user
+  must be able to act as the character (`Characters.can_act_as?/2`); OFF
+  game it is enough to control it (own it, or master its GDR for NPCs),
+  whatever its approval. The character must belong to the location's story
+  and the user must be allowed in the location (`Bookings.can_access?/3`).
+
+  With the chat roleplay module in-character entries take an optional
+  `"tag"` and must respect the GDR length limits (`chat_min_length`,
+  `chat_max_length`). With the automatic XP module an in-character speech
+  of a player character may award XP (`Experience.award_chat_activity/4`).
   """
   def create_message(%User{} = user, %Location{} = location, attrs) do
     character_id = attrs["character_id"] || attrs[:character_id]
     body = attrs["body"] || attrs[:body]
     kind = attrs["kind"] || attrs[:kind] || "speech"
+    story = Stories.get_story(location.story_id)
+    rp? = Stories.module_enabled?(story, :chat_rp)
+    kinds = if rp?, do: ["speech", "ooc", "whisper"], else: ["speech", "ooc"]
 
-    with true <- kind in ["speech", "ooc"] || {:error, :invalid_kind},
-         {:ok, character} <- acting_character(user, location, character_id, kind) do
-      insert(location, user, character, kind, %{body: body})
+    with true <- kind in kinds || {:error, :invalid_kind},
+         {:ok, character} <- acting_character(user, location, character_id, kind),
+         {:ok, recipient} <- whisper_recipient(kind, location, character, attrs),
+         {:ok, message} <-
+           insert(location, user, character, kind, entry_attrs(rp?, kind, body, attrs),
+             recipient: recipient,
+             limits: rp? && {story.chat_min_length, story.chat_max_length}
+           ) do
+      maybe_award_xp(story, character, message)
+      {:ok, message}
     end
   end
+
+  defp entry_attrs(rp?, kind, body, attrs) do
+    tag = attrs["tag"] || attrs[:tag]
+
+    if rp? and Message.in_character_kind?(kind),
+      do: %{body: body, tag: tag},
+      else: %{body: body}
+  end
+
+  defp whisper_recipient("whisper", location, character, attrs) do
+    case fetch_character(attrs["recipient_character_id"] || attrs[:recipient_character_id]) do
+      %Character{story_id: story_id, approval_status: "approved"} = recipient
+      when story_id == location.story_id ->
+        if recipient.id == character.id,
+          do: {:error, :whisper_self},
+          else: {:ok, recipient}
+
+      _ ->
+        {:error, :no_recipient}
+    end
+  end
+
+  defp whisper_recipient(_kind, _location, _character, _attrs), do: {:ok, nil}
+
+  defp maybe_award_xp(story, %Character{is_npc: false} = character, %Message{kind: "speech"} = m) do
+    _ = Experience.award_chat_activity(story, character, String.length(m.body))
+    :ok
+  end
+
+  defp maybe_award_xp(_story, _character, _message), do: :ok
 
   @doc "Posts a master narration (shown as the Narrator). Masters only."
   def narrate(%User{} = user, %Location{} = location, body) do
@@ -153,7 +249,7 @@ defmodule TannhauserGate.Chat do
 
     with {:ok, character} <- acting_character(user, location, character_id, "dice"),
          {:ok, result} <- Dice.roll(character, attrs, opts) do
-      insert(location, user, character, "dice", %{body: dice_body(result)}, result)
+      insert(location, user, character, "dice", %{body: dice_body(result)}, data: result)
     end
   end
 
@@ -170,7 +266,7 @@ defmodule TannhauserGate.Chat do
       |> where([m], m.id == ^message.id)
       |> lock("FOR UPDATE")
       |> Repo.one!()
-      |> Repo.preload([:character, :user])
+      |> Repo.preload(@preloads)
       |> do_reroll(user, indexes, opts)
     end)
     |> case do
@@ -229,26 +325,45 @@ defmodule TannhauserGate.Chat do
       else: {:error, :not_master}
   end
 
-  defp insert(location, user, character, kind, attrs, data \\ nil) do
+  defp insert(location, user, character, kind, attrs, opts \\ []) do
+    recipient = opts[:recipient]
+    {min, max} = opts[:limits] || {nil, nil}
+
     %Message{
       location_id: location.id,
       character_id: character && character.id,
+      recipient_character_id: recipient && recipient.id,
       user_id: user.id,
       kind: kind,
-      data: data
+      data: opts[:data]
     }
     |> Message.changeset(attrs)
+    |> Message.validate_limits(min, max)
     |> Repo.insert()
     |> case do
       {:ok, message} ->
-        message = %{message | character: character, user: user}
-        broadcast(location.id, {:new_message, message})
+        message = %{message | character: character, user: user, recipient_character: recipient}
+        broadcast_message(message, {:new_message, message})
         {:ok, message}
 
       error ->
         error
     end
   end
+
+  # Whispers only go to the topics of their sender, of the owner of their
+  # recipient and of the masters, never to the public room topic.
+  defp broadcast_message(%Message{kind: "whisper"} = message, payload) do
+    owner = message.recipient_character && message.recipient_character.user_id
+
+    for user_id <- Enum.uniq(Enum.reject([message.user_id, owner], &is_nil/1)) do
+      Phoenix.PubSub.broadcast(@pubsub, whisper_topic(message.location_id, user_id), payload)
+    end
+
+    Phoenix.PubSub.broadcast(@pubsub, masters_whisper_topic(message.location_id), payload)
+  end
+
+  defp broadcast_message(message, payload), do: broadcast(message.location_id, payload)
 
   ## Moderation
 
@@ -264,7 +379,7 @@ defmodule TannhauserGate.Chat do
         where: l.story_id == ^story_id,
         order_by: [desc: m.inserted_at, desc: m.id],
         limit: ^limit,
-        preload: [:character, :user, :location]
+        preload: [:character, :user, :location, :recipient_character]
     )
   end
 
@@ -295,6 +410,8 @@ defmodule TannhauserGate.Chat do
 
   def error_message(:private), do: "This private location is not booked for you right now."
   def error_message(:invalid_kind), do: "That kind of message does not exist."
+  def error_message(:no_recipient), do: "Choose an approved character of this GDR to whisper to."
+  def error_message(:whisper_self), do: "You cannot whisper to yourself."
   def error_message(:not_master), do: "Only the GDR masters can do that."
   def error_message(%Ecto.Changeset{}), do: "The message could not be posted."
   def error_message(reason) when reason in @dice_errors, do: Dice.error_message(reason)
@@ -303,7 +420,12 @@ defmodule TannhauserGate.Chat do
 
   def delete_message(%Message{} = message) do
     with {:ok, message} <- Repo.delete(message) do
-      broadcast(message.location_id, {:deleted_message, message})
+      # Only the id travels: a deleted whisper must not leak its content.
+      broadcast(
+        message.location_id,
+        {:deleted_message, %Message{id: message.id, location_id: message.location_id}}
+      )
+
       {:ok, message}
     end
   end
@@ -337,14 +459,17 @@ defmodule TannhauserGate.Chat do
             AND s.archive_after_days IS NOT NULL
             AND m.inserted_at < $1::timestamp - make_interval(days => s.archive_after_days)
           RETURNING m.location_id, m.character_id, m.user_id, m.kind, m.body, m.data,
-                    m.inserted_at
+                    m.tag, m.recipient_character_id, m.inserted_at
         )
         INSERT INTO archived_messages
-          (location_id, character_id, user_id, kind, body, data, speaker_name, inserted_at,
-           archived_at)
+          (location_id, character_id, user_id, kind, body, data, tag, recipient_character_id,
+           recipient_name, speaker_name, inserted_at, archived_at)
         SELECT moved.location_id, moved.character_id, moved.user_id, moved.kind, moved.body,
-               moved.data, COALESCE(c.name, $2), moved.inserted_at, $1::timestamp
-        FROM moved LEFT JOIN characters c ON c.id = moved.character_id
+               moved.data, moved.tag, moved.recipient_character_id, rc.name,
+               COALESCE(c.name, $2), moved.inserted_at, $1::timestamp
+        FROM moved
+        LEFT JOIN characters c ON c.id = moved.character_id
+        LEFT JOIN characters rc ON rc.id = moved.recipient_character_id
         """,
         [now, @narrator]
       )
@@ -365,7 +490,7 @@ defmodule TannhauserGate.Chat do
         where: l.story_id == ^story_id,
         order_by: [desc: m.inserted_at, desc: m.id],
         limit: ^limit,
-        preload: [:character, :user, :location]
+        preload: [:character, :user, :location, :recipient_character]
       )
       |> log_filters(filters)
       |> Repo.all()
@@ -396,12 +521,18 @@ defmodule TannhauserGate.Chat do
       kind: message.kind,
       body: message.body,
       data: message.data,
+      tag: message.tag,
+      recipient: recipient_name(message),
       speaker: speaker_name(message),
       username: message.user && message.user.username,
       location: message.location,
       inserted_at: message.inserted_at
     }
   end
+
+  defp recipient_name(%ArchivedMessage{recipient_name: name}), do: name
+  defp recipient_name(%Message{recipient_character: %Character{name: name}}), do: name
+  defp recipient_name(_), do: nil
 
   defp log_filters(query, filters) do
     Enum.reduce(filters, query, &log_filter/2)

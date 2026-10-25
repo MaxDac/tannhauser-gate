@@ -22,6 +22,7 @@ defmodule TannhauserGateWeb.RoomLive do
     Zones
   }
 
+  alias TannhauserGate.Chat.Message
   alias TannhauserGateWeb.GdrPresence
 
   @page_size 50
@@ -49,8 +50,12 @@ defmodule TannhauserGateWeb.RoomLive do
     own = Characters.get_user_story_character(user, story.id)
     speakers = if own && own not in characters, do: characters ++ [own], else: characters
 
+    viewer = if socket.assigns.master?, do: :all, else: user
+    rp? = Stories.module_enabled?(story, :chat_rp)
+
     if connected?(socket) do
       Chat.subscribe(location.id)
+      if rp?, do: Chat.subscribe_whispers(location.id, viewer)
       Bookings.subscribe(location.id)
     end
 
@@ -62,6 +67,11 @@ defmodule TannhauserGateWeb.RoomLive do
     |> assign(:characters, characters)
     |> assign(:speakers, speakers)
     |> assign(:own_character, own)
+    |> assign(:viewer, viewer)
+    |> assign(:rp?, rp?)
+    |> assign(:chat_limits, {story.chat_min_length, story.chat_max_length})
+    |> assign(:recipient_options, recipient_options(story, speakers, rp?))
+    |> assign(:body_length, 0)
     |> assign(:dice_config, Dice.config(story))
     |> assign(:sheet_items, Sheet.list_items(story))
     |> assign(:form_id, 0)
@@ -113,7 +123,30 @@ defmodule TannhauserGateWeb.RoomLive do
   defp new_form(speakers, params \\ %{}) do
     character_id = params["character_id"] || (List.first(speakers) || %{id: nil}).id
     kind = params["kind"] || "speech"
-    to_form(%{"character_id" => character_id, "kind" => kind, "body" => ""}, as: "message")
+
+    to_form(
+      %{
+        "character_id" => character_id,
+        "kind" => kind,
+        "body" => "",
+        "tag" => params["tag"] || "",
+        "recipient_character_id" => params["recipient_character_id"] || ""
+      },
+      as: "message"
+    )
+  end
+
+  # The characters one can whisper to (chat roleplay module): the approved
+  # characters of the GDR but one's own.
+  defp recipient_options(_story, _speakers, false), do: []
+
+  defp recipient_options(story, speakers, true) do
+    own = MapSet.new(speakers, & &1.id)
+
+    story.id
+    |> Characters.list_story_characters(%{"approval_status" => "approved"})
+    |> Enum.reject(&MapSet.member?(own, &1.id))
+    |> Enum.map(&{&1.name, &1.id})
   end
 
   defp new_dice_form(characters, params \\ %{}) do
@@ -183,7 +216,11 @@ defmodule TannhauserGateWeb.RoomLive do
   end
 
   defp load_messages(socket) do
-    {messages, more?} = Chat.page_messages(socket.assigns.location.id, limit: @page_size)
+    {messages, more?} =
+      Chat.page_messages(socket.assigns.location.id,
+        limit: @page_size,
+        viewer: socket.assigns.viewer
+      )
 
     socket
     |> assign(:more?, more?)
@@ -228,19 +265,34 @@ defmodule TannhauserGateWeb.RoomLive do
     case result do
       {:ok, _message} ->
         # The new message arrives through PubSub; reset the form by giving it
-        # a new id while keeping the selected character and kind.
+        # a new id while keeping the selected character, kind, tag and recipient.
         {:noreply,
          socket
          |> update(:form_id, &(&1 + 1))
+         |> assign(:body_length, 0)
          |> assign(:form, new_form(socket.assigns.speakers, params))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
-         assign(socket, :form, to_form(params, as: "message", errors: changeset.errors))}
+         socket
+         |> assign(:body_length, body_length(params))
+         |> assign(
+           :form,
+           to_form(params, as: "message", errors: changeset.errors, action: :insert)
+         )}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Chat.error_message(reason))}
     end
+  end
+
+  # Keeps the composer in sync while typing: the selected kind (whisper
+  # recipient field) and the length counter.
+  def handle_event("change_message", %{"message" => params}, socket) do
+    {:noreply,
+     socket
+     |> assign(:body_length, body_length(params))
+     |> assign(:form, to_form(params, as: "message"))}
   end
 
   def handle_event("clear_status", _params, socket) do
@@ -305,7 +357,8 @@ defmodule TannhauserGateWeb.RoomLive do
     {messages, more?} =
       Chat.page_messages(socket.assigns.location.id,
         limit: @page_size,
-        before: socket.assigns.oldest
+        before: socket.assigns.oldest,
+        viewer: socket.assigns.viewer
       )
 
     socket =
@@ -391,12 +444,11 @@ defmodule TannhauserGateWeb.RoomLive do
   ## PubSub
 
   @impl true
-  def handle_info({:new_message, message}, %{assigns: %{access?: true}} = socket) do
-    {:noreply, stream_insert(socket, :messages, message)}
-  end
-
-  def handle_info({:updated_message, message}, %{assigns: %{access?: true}} = socket) do
-    {:noreply, stream_insert(socket, :messages, message)}
+  def handle_info({event, message}, %{assigns: %{access?: true}} = socket)
+      when event in [:new_message, :updated_message] do
+    if Chat.visible?(message, socket.assigns.viewer),
+      do: {:noreply, stream_insert(socket, :messages, message)},
+      else: {:noreply, socket}
   end
 
   def handle_info({:deleted_message, message}, socket) do
@@ -427,10 +479,23 @@ defmodule TannhauserGateWeb.RoomLive do
   defp speaker_label(%{is_npc: true, name: name}), do: "#{name} (NPC)"
   defp speaker_label(%{name: name}), do: name
 
-  defp kind_options(master?) do
+  defp kind_options(master?, rp?) do
     base = [{"In character", "speech"}, {"OFF (out of character)", "ooc"}]
+    base = if rp?, do: base ++ [{"Whisper", "whisper"}], else: base
     if master?, do: base ++ [{"Narration", "narration"}, {"Room status", "status"}], else: base
   end
+
+  defp body_length(params),
+    do: params |> Map.get("body", "") |> to_string() |> String.trim() |> String.length()
+
+  # The length counter of the composer applies to in-character entries.
+  defp counter?(form, rp?), do: rp? and form[:kind].value in [nil, "", "speech", "whisper"]
+
+  defp counter_ok?(length, {min, max}),
+    do: (is_nil(min) or length >= min) and (is_nil(max) or length <= max)
+
+  defp counter_text(length, {_min, max}) when is_integer(max), do: "#{length} / #{max}"
+  defp counter_text(length, _limits), do: "#{length}"
 
   defp can_reroll?(message, user, master?, config) do
     message.kind == "dice" and (master? or message.user_id == user.id) and
@@ -614,6 +679,7 @@ defmodule TannhauserGateWeb.RoomLive do
                   story={@current_story}
                   character={message.character}
                   location={GdrPresence.character_location(@online, message.character.id, @master?)}
+                  status={GdrPresence.character_status(@online, message.character.id)}
                   class={[
                     "chat-name font-bold",
                     if(message.kind == "ooc", do: "text-fog-300", else: "text-phosphor")
@@ -630,6 +696,15 @@ defmodule TannhauserGateWeb.RoomLive do
                   {Chat.speaker_name(message)}
                 </span>
                 <.kind_badge kind={message.kind} />
+                <span
+                  :if={message.kind == "whisper"}
+                  id={"message-#{message.id}-recipient"}
+                  class="inline-flex items-center gap-1 text-xs text-secondary"
+                >
+                  <.icon name="hero-arrow-long-right-micro" class="size-3" />
+                  {(message.recipient_character && message.recipient_character.name) ||
+                    "a vanished character"}
+                </span>
                 <time class="text-xs text-fog-500" datetime={DateTime.to_iso8601(message.inserted_at)}>
                   {format_time(message.inserted_at)}
                 </time>
@@ -665,18 +740,22 @@ defmodule TannhauserGateWeb.RoomLive do
                 id={"dice-result-#{message.id}"}
                 result={message.data}
               />
-              <p
+              <.chat_body
                 :if={message.kind != "dice"}
+                id={"message-#{message.id}-body"}
+                body={message.body}
+                kind={message.kind}
+                tag={@rp? && message.tag}
+                highlight={@rp?}
                 class={[
-                  "chat-body whitespace-pre-line break-words",
                   message.kind == "speech" && "text-fog-200",
+                  message.kind == "whisper" &&
+                    "rounded-md border-l-2 border-secondary/50 bg-secondary/5 px-2 py-1 text-fog-200",
                   message.kind == "ooc" && "text-sm italic text-fog-400",
                   message.kind == "narration" && "font-serif italic text-warning/90",
                   message.kind == "status" && "text-sm text-info/90"
                 ]}
-              >
-                {message.body}
-              </p>
+              />
             </div>
           </li>
         </ol>
@@ -705,6 +784,7 @@ defmodule TannhauserGateWeb.RoomLive do
             :if={@speakers != [] or @master?}
             for={@form}
             id={"message-form-#{@form_id}"}
+            phx-change="change_message"
             phx-submit="send"
             class="flex flex-col gap-3 sm:flex-row sm:items-end"
           >
@@ -724,21 +804,59 @@ defmodule TannhauserGateWeb.RoomLive do
                 label="Type"
                 options={
                   if @speakers == [],
-                    do: tl(tl(kind_options(true))),
-                    else: kind_options(@master?)
+                    do: [{"Narration", "narration"}, {"Room status", "status"}],
+                    else: kind_options(@master?, @rp?)
                 }
               />
             </div>
 
-            <div class="flex-1">
+            <div :if={@rp? && @form[:kind].value == "whisper"} class="sm:w-48">
+              <.input
+                field={@form[:recipient_character_id]}
+                type="select"
+                label="Whisper to"
+                prompt="Choose a character"
+                options={@recipient_options}
+              />
+            </div>
+
+            <div
+              :if={@rp? && @speakers != [] && counter?(@form, @rp?)}
+              class="sm:w-40"
+            >
+              <.input
+                field={@form[:tag]}
+                type="text"
+                label="Action tag"
+                maxlength={Message.tag_max()}
+                placeholder="at the bar"
+              />
+            </div>
+
+            <div class="relative min-w-0 flex-1 sm:min-w-[12rem]">
               <.input
                 field={@form[:body]}
                 type="textarea"
                 label="Message"
                 rows="2"
                 placeholder="Say something..."
+                phx-debounce="250"
                 required
               />
+              <p
+                :if={@speakers != [] && counter?(@form, @rp?)}
+                id="message-counter"
+                class={[
+                  "absolute right-0 top-1 font-mono text-[0.7rem] tabular-nums transition-colors",
+                  if(counter_ok?(@body_length, @chat_limits),
+                    do: "text-fog-500",
+                    else: "text-error"
+                  )
+                ]}
+              >
+                <span :if={(elem(@chat_limits, 0) || 0) > 0} class="mr-2">min {elem(@chat_limits, 0)}</span>
+                {counter_text(@body_length, @chat_limits)}
+              </p>
             </div>
 
             <.button
