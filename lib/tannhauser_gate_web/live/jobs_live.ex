@@ -1,13 +1,13 @@
 defmodule TannhauserGateWeb.JobsLive do
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Bank, Characters}
+  alias TannhauserGate.Bank
 
   @impl true
   def mount(_params, _session, socket) do
     story = socket.assigns.current_story
 
-    case Characters.get_user_story_character(socket.assigns.current_user, story.id) do
+    case socket.assigns.active_character do
       nil ->
         {:ok,
          socket
@@ -51,6 +51,8 @@ defmodule TannhauserGateWeb.JobsLive do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

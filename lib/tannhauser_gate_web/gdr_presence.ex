@@ -11,10 +11,16 @@ defmodule TannhauserGateWeb.GdrPresence do
   play), saved per GDR (`Stories.set_presence_status/3`) and changed from the
   drawer with the `"set_presence_status"` event, handled here for every
   LiveView of the GDR.
+
+  It also assigns the user's player characters in the GDR (`:my_characters`)
+  and the one they are playing (`:active_character`, see
+  `TannhauserGate.Characters.active_character/2`), which presence shows. The
+  drawer switches it with the `"set_active_character"` event, which reloads
+  the page so everything acting as the character follows.
   """
 
   import Phoenix.Component, only: [assign: 3]
-  import Phoenix.LiveView, only: [attach_hook: 4, connected?: 1]
+  import Phoenix.LiveView, only: [attach_hook: 4, connected?: 1, push_navigate: 2, put_flash: 3]
 
   alias TannhauserGate.{Characters, Guilds, Stories}
   alias TannhauserGateWeb.Presence
@@ -24,11 +30,16 @@ defmodule TannhauserGateWeb.GdrPresence do
   def on_mount(:track, _params, _session, socket) do
     story = socket.assigns.current_story
     user = socket.assigns.current_user
-    socket = assign(socket, :last_location, Stories.last_location(user, story.id))
+    {characters, character} = Characters.user_characters_with_active(user, story.id)
+
+    socket =
+      socket
+      |> assign(:last_location, Stories.last_location(user, story.id))
+      |> assign(:my_characters, characters)
+      |> assign(:active_character, character)
 
     if connected?(socket) do
       topic = topic(story.id)
-      character = Characters.get_user_story_character(user, story.id)
 
       {:ok, _} =
         Presence.track(self(), topic, to_string(user.id), %{
@@ -76,6 +87,20 @@ defmodule TannhauserGateWeb.GdrPresence do
 
       {:error, _} ->
         {:halt, socket}
+    end
+  end
+
+  defp handle_event("set_active_character", %{"active" => %{"character_id" => id}}, socket) do
+    %{current_user: user, current_story: story, my_characters: characters} = socket.assigns
+
+    with %{} = character <- Enum.find(characters, &(to_string(&1.id) == to_string(id))),
+         {:ok, character} <- Characters.set_active_character(user, character) do
+      {:halt,
+       socket
+       |> put_flash(:info, "You are now playing #{character.name}.")
+       |> push_navigate(to: socket.assigns[:current_path] || "/g/#{story.id}")}
+    else
+      _ -> {:halt, put_flash(socket, :error, "That character is not yours.")}
     end
   end
 

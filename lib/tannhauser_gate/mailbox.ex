@@ -261,6 +261,7 @@ defmodule TannhauserGate.Mailbox do
     |> put_sender(user, story, master?)
     |> put_recipient(story, master?)
     |> validate_not_to_self()
+    |> validate_not_to_alt()
     |> put_reply_to(story, attrs)
     |> Repo.insert()
     |> case do
@@ -340,6 +341,25 @@ defmodule TannhauserGate.Mailbox do
          Changeset.get_change(changeset, :recipient) == @masters,
        do: Changeset.add_error(changeset, :recipient, "the masters cannot write to themselves"),
        else: changeset
+  end
+
+  # Letters between characters of the same player (alts), when the GDR blocks them.
+  defp validate_not_to_alt(changeset) do
+    with sender_id when is_integer(sender_id) <-
+           Changeset.get_change(changeset, :sender_character_id),
+         recipient_id when is_integer(recipient_id) <-
+           Changeset.get_change(changeset, :recipient_character_id),
+         %Character{} = sender <- Repo.get(Character, sender_id),
+         %Character{} = recipient <- Repo.get(Character, recipient_id),
+         true <- Characters.alts_blocked?(:block_alt_mail, sender, recipient) do
+      Changeset.add_error(
+        changeset,
+        :recipient,
+        "is another of your characters: this GDR does not allow letters between them"
+      )
+    else
+      _ -> changeset
+    end
   end
 
   defp put_reply_to(changeset, story, attrs) do

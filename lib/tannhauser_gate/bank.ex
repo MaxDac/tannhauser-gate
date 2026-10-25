@@ -10,6 +10,7 @@ defmodule TannhauserGate.Bank do
 
   alias Ecto.Multi
   alias TannhauserGate.Bank.{Job, Transaction}
+  alias TannhauserGate.Characters
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Guilds.Membership
   alias TannhauserGate.Repo
@@ -188,7 +189,9 @@ defmodule TannhauserGate.Bank do
   def transfer(%Character{} = from, to_id, amount, note \\ nil) do
     with {:ok, amount} <- parse_amount(amount),
          %Character{} = to <- find_character(from.story_id, to_id),
-         true <- to.id != from.id || {:error, :same_character} do
+         true <- to.id != from.id || {:error, :same_character},
+         false <-
+           Characters.alts_blocked?(:block_alt_transfers, from, to) && {:error, :alt_blocked} do
       Multi.new()
       |> Multi.run(:lock, fn repo, _ -> lock_in_order(repo, [from.id, to.id]) end)
       |> Multi.run(:debit, fn repo, _ -> debit(repo, from.id, amount) end)
@@ -295,19 +298,27 @@ defmodule TannhauserGate.Bank do
     )
   end
 
-  @doc "Recipients a character can send money to: the other characters of its GDR."
-  def list_recipients(%Character{id: id, story_id: story_id}) do
+  @doc """
+  Recipients a character can send money to: the other characters of its GDR
+  (but its alts, when the GDR blocks transfers between them).
+  """
+  def list_recipients(%Character{id: id, story_id: story_id} = character) do
     Repo.all(
       from c in Character,
         where: c.story_id == ^story_id and c.id != ^id,
         order_by: [asc: c.name]
     )
+    |> Characters.reject_blocked_alts(:block_alt_transfers, character)
   end
 
   def error_message(:insufficient_funds), do: "Not enough funds."
   def error_message(:invalid_amount), do: "Enter a whole amount greater than zero."
   def error_message(:recipient_not_found), do: "That character does not exist in this GDR."
   def error_message(:same_character), do: "You can't send money to yourself."
+
+  def error_message(:alt_blocked),
+    do: "This GDR does not allow transfers between characters of the same player."
+
   def error_message(:job_not_found), do: "That job does not exist."
   def error_message(_), do: "Something went wrong."
 

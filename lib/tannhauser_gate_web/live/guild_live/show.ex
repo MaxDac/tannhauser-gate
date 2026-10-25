@@ -29,7 +29,7 @@ defmodule TannhauserGateWeb.GuildLive.Show do
 
   defp load(socket, guild) do
     %{current_user: user, current_story: story, master?: master?} = socket.assigns
-    character = Characters.get_user_story_character(user, story.id)
+    character = Characters.active_character(user, story)
     manager? = Guilds.manager?(user, story, guild)
     members_visible? = Guilds.members_visible?(user, story, guild)
 
@@ -187,6 +187,8 @@ defmodule TannhauserGateWeb.GuildLive.Show do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

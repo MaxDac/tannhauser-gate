@@ -44,6 +44,10 @@ defmodule TannhauserGate.Stories.Story do
     field :esiti_min_xp, :integer
     field :sheet_template, :string
     field :weather_interval_hours, :integer, default: 6
+    field :max_characters_per_user, :integer, default: 1
+    field :block_alt_transfers, :boolean, default: true
+    field :block_alt_mail, :boolean, default: true
+    field :block_alt_whispers, :boolean, default: true
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -84,7 +88,11 @@ defmodule TannhauserGate.Stories.Story do
     :esiti_max_open,
     :esiti_min_xp,
     :sheet_template,
-    :weather_interval_hours
+    :weather_interval_hours,
+    :max_characters_per_user,
+    :block_alt_transfers,
+    :block_alt_mail,
+    :block_alt_whispers
   ]
 
   @doc """
@@ -137,7 +145,8 @@ defmodule TannhauserGate.Stories.Story do
       :map_height,
       :currency_name,
       :max_guilds_per_character,
-      :weather_interval_hours
+      :weather_interval_hours,
+      :max_characters_per_user
     ])
     |> validate_length(:name, max: 120)
     |> validate_length(:currency_name, max: 30)
@@ -148,6 +157,10 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_number(:max_guilds_per_character,
       greater_than: 0,
       less_than_or_equal_to: 20
+    )
+    |> validate_number(:max_characters_per_user,
+      greater_than: 0,
+      less_than_or_equal_to: 10
     )
     |> validate_number(:chat_min_length, greater_than_or_equal_to: 0, less_than_or_equal_to: 4000)
     |> validate_number(:chat_max_length, greater_than: 0, less_than_or_equal_to: 4000)

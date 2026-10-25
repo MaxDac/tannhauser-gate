@@ -64,10 +64,6 @@ defmodule TannhauserGate.Characters.Character do
     |> validate_length(:off_game_info, max: 5_000)
     |> validate_length(:master_notes, max: 20_000)
     |> foreign_key_constraint(:story_id)
-    |> unique_constraint(:story_id,
-      name: :characters_user_id_story_id_index,
-      message: "you already have a character in this GDR"
-    )
   end
 
   @doc "Moves the character to another approval status (never from user params)."
