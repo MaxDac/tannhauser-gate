@@ -42,6 +42,7 @@ defmodule TannhauserGate.Stories.Story do
     field :auto_xp_cooldown_minutes, :integer
     field :esiti_max_open, :integer, default: 2
     field :esiti_min_xp, :integer
+    field :sheet_template, :string
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -79,7 +80,8 @@ defmodule TannhauserGate.Stories.Story do
     :auto_xp_daily_cap,
     :auto_xp_cooldown_minutes,
     :esiti_max_open,
-    :esiti_min_xp
+    :esiti_min_xp,
+    :sheet_template
   ]
 
   @doc """
@@ -161,6 +163,7 @@ defmodule TannhauserGate.Stories.Story do
       greater_than_or_equal_to: 0,
       less_than_or_equal_to: 1_000_000
     )
+    |> validate_length(:sheet_template, max: 20_000)
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)

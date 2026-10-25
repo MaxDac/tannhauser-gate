@@ -519,6 +519,7 @@ defmodule TannhauserGateWeb.GmLive do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <.gm_header story={@current_story} />
       <.gm_tabs story={@current_story} tab={@tab} />
@@ -585,6 +586,19 @@ defmodule TannhauserGateWeb.GmLive do
           label="Status"
           options={[{"Draft (only you and your masters)", "draft"}, {"Published", "published"}]}
         />
+        <fieldset id="sheet-template-settings" class="mt-2 border-t border-secondary/20 pt-4">
+          <legend class="text-sm font-semibold text-base-content/80">Character sheet template</legend>
+          <p class="mb-2 text-xs text-base-content/60">
+            Markdown prefilled in the background of new characters (e.g. headings for appearance,
+            past and goals). Players edit it freely.
+          </p>
+          <.input
+            field={@story_form[:sheet_template]}
+            type="textarea"
+            label="Sheet template (Markdown)"
+            rows="6"
+          />
+        </fieldset>
         <fieldset id="community-link-settings" class="mt-2 border-t border-secondary/20 pt-4">
           <legend class="text-sm font-semibold text-base-content/80">Community link</legend>
           <p class="mb-2 text-xs text-base-content/60">

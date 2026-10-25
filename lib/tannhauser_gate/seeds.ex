@@ -26,6 +26,8 @@ defmodule TannhauserGate.Seeds do
   }
 
   alias TannhauserGate.Accounts.User
+  alias TannhauserGate.Boards.{Announcement, Board, Notice}
+  alias TannhauserGate.Diary.Entry
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Esiti.{Esito, Message}
   alias TannhauserGate.Quests.Quest
@@ -53,6 +55,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_guilds(story)
     story = seed_chat_rp(story)
     story = seed_esiti_and_quests(story, admin)
+    story = seed_diary_and_boards(story, admin)
     %{admin: admin, story: story}
   end
 
@@ -497,6 +500,100 @@ defmodule TannhauserGate.Seeds do
         })
 
       {:ok, _} = Quests.apply_rewards(admin, story, Quests.get_quest(story, quest.id))
+    end
+  end
+
+  ## Diary and boards
+
+  @sample_announcement "Welcome to Neo-Meridian"
+
+  @sheet_template """
+  ## Origins
+  Where were you born, and who raised you?
+
+  ## The scar
+  What went wrong, once, and still follows you?
+
+  ## Why Neo-Meridian
+  What keeps you in the city when everyone else wants to leave?
+  """
+
+  @doc """
+  Enables the diary and boards modules the first time: a sheet template for
+  new characters (when none is set), a pinned welcome announcement, a notice
+  board across the Undercity zone with a notice by the sample NPC, and a
+  public diary entry of hers. Later runs leave everything as it is.
+  """
+  def seed_diary_and_boards(story, admin) do
+    if Repo.exists?(
+         from a in Announcement,
+           where: a.story_id == ^story.id and a.title == @sample_announcement
+       ) do
+      story
+    else
+      {:ok, story} = Stories.set_module_enabled(story, :diary, true)
+      {:ok, story} = Stories.set_module_enabled(story, :boards, true)
+
+      story =
+        if is_nil(story.sheet_template) do
+          story |> Ecto.Changeset.change(sheet_template: @sheet_template) |> Repo.update!()
+        else
+          story
+        end
+
+      Repo.insert!(%Announcement{
+        story_id: story.id,
+        user_id: admin.id,
+        title: @sample_announcement,
+        pinned: true,
+        body:
+          "The rain never stops in **Neo-Meridian**, and neither do we. Read the " <>
+            "*Guide*, create your character and meet the others on the Undercity Docks.\n\n" <>
+            "Notice boards hang in the Undercity: pin your in-character notices there."
+      })
+
+      seed_sample_board(story, admin)
+      Stories.get_story!(story.id)
+    end
+  end
+
+  defp seed_sample_board(story, admin) do
+    zone = Repo.get_by(Zones.Zone, story_id: story.id, name: "Undercity")
+    room = Repo.get_by(Location, story_id: story.id, name: "Undercity Docks")
+    npc = Repo.get_by(Character, story_id: story.id, name: @sample_npc)
+
+    if zone || room do
+      board =
+        Repo.insert!(%Board{
+          story_id: story.id,
+          name: "Undercity wall",
+          description: "Flyers, wanted posters and favours, glued over each other.",
+          zone_id: zone && zone.id,
+          location_id: if(zone, do: nil, else: room.id)
+        })
+
+      if npc do
+        Repo.insert!(%Notice{
+          board_id: board.id,
+          story_id: story.id,
+          character_id: npc.id,
+          user_id: admin.id,
+          title: "Information for sale",
+          body: "Lost something on the docks? *I know who took it.* Ask at the noodle bar."
+        })
+
+        Repo.insert!(%Entry{
+          story_id: story.id,
+          character_id: npc.id,
+          user_id: admin.id,
+          title: "Rain shadows",
+          game_date_label: "The night of the blackout",
+          visibility: "public",
+          body:
+            "Followed the Gutter Saint again. He thinks the rain hides him; " <>
+              "it only hides **me**."
+        })
+      end
     end
   end
 

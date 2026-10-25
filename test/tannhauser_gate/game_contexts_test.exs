@@ -245,6 +245,19 @@ defmodule TannhauserGate.GameContextsTest do
 
       assert [%{visibility: "public", rewards_applied_at: %DateTime{}, participants: [_]}] =
                TannhauserGate.Quests.list_quests(again, admin)
+
+      assert TannhauserGate.Stories.module_enabled?(again, :diary)
+      assert TannhauserGate.Stories.module_enabled?(again, :boards)
+      assert again.sheet_template =~ "## Origins"
+
+      assert [%{title: "Welcome to Neo-Meridian", pinned: true}] =
+               TannhauserGate.Boards.list_announcements(again)
+
+      assert [%{name: "Undercity wall", zone: %{name: "Undercity"}} = board] =
+               TannhauserGate.Boards.list_all_boards(again)
+
+      assert %{} = notices = TannhauserGate.Boards.notices_by_board([board])
+      assert [%{character: %{name: "Mara Quill"}}] = notices[board.id]
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do

@@ -30,6 +30,7 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <.header>
         Characters
@@ -98,7 +99,11 @@ defmodule TannhauserGateWeb.CharacterLive.Index do
                 else: character.user.username}
             </p>
 
-            <p class="mt-1 line-clamp-2 text-sm text-base-content/60">{character.description}</p>
+            <.markdown
+              :if={character.description}
+              content={character.description}
+              class="mt-1 line-clamp-2 text-sm text-base-content/60"
+            />
           </div>
         </article>
       </div>

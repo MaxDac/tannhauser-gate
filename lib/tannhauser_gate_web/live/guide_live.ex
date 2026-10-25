@@ -39,6 +39,7 @@ defmodule TannhauserGateWeb.GuideLive do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <.header>
         Guide

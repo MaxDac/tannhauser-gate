@@ -10,6 +10,7 @@ defmodule TannhauserGateWeb.RoomLive do
   import TannhauserGateWeb.ZoneComponents
 
   alias TannhauserGate.{
+    Boards,
     Bookings,
     Characters,
     Chat,
@@ -87,7 +88,16 @@ defmodule TannhauserGateWeb.RoomLive do
     |> assign(:action_result, nil)
     |> load_cooldowns()
     |> load_bookings()
+    |> load_boards()
     |> refresh_access()
+  end
+
+  defp load_boards(socket) do
+    boards = Boards.boards_for_location(socket.assigns.location, socket.assigns.current_user)
+
+    socket
+    |> assign(:room_boards, boards)
+    |> assign(:room_notices, Boards.notices_by_board(boards))
   end
 
   ## Zone and periodic actions
@@ -468,6 +478,10 @@ defmodule TannhauserGateWeb.RoomLive do
     {:noreply, socket |> load_bookings() |> refresh_access()}
   end
 
+  def handle_info({:boards, event, _payload}, socket) when event in [:board, :notice] do
+    {:noreply, load_boards(socket)}
+  end
+
   def handle_info(:recheck_access, socket) do
     {:noreply, socket |> assign(:recheck_ref, nil) |> load_bookings() |> refresh_access()}
   end
@@ -520,6 +534,7 @@ defmodule TannhauserGateWeb.RoomLive do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <div class="mb-4">
         <.link
@@ -592,6 +607,12 @@ defmodule TannhauserGateWeb.RoomLive do
         master?={@master?}
       />
       <.zone_panel :if={@zone} zone={@zone} values={@zone_values} events={@zone_events} />
+      <.boards_panel
+        :if={@room_boards != []}
+        boards={@room_boards}
+        notices={@room_notices}
+        story={@current_story}
+      />
       <section
         :if={!@access?}
         id="private-locked"
@@ -1072,6 +1093,59 @@ defmodule TannhauserGateWeb.RoomLive do
         </.form>
       </details>
     </section>
+    """
+  end
+
+  attr :boards, :list, required: true
+  attr :notices, :map, required: true
+  attr :story, :map, required: true
+
+  defp boards_panel(assigns) do
+    ~H"""
+    <details
+      id="room-boards-panel"
+      class="group/boards mt-6 rounded-xl border border-secondary/25 bg-base-200/60 shadow-lg transition open:border-secondary/50"
+    >
+      <summary class="flex cursor-pointer select-none items-center gap-2 px-5 py-3 text-sm font-bold uppercase tracking-[0.2em] text-secondary transition hover:text-primary">
+        <.icon name="hero-clipboard-document-list" class="size-4" /> Notice boards
+        <span class="rounded-full bg-secondary/15 px-2 text-xs tabular-nums">
+          {@notices |> Map.values() |> Enum.map(&length/1) |> Enum.sum()}
+        </span>
+        <.icon
+          name="hero-chevron-down-micro"
+          class="ml-auto size-4 transition group-open/boards:rotate-180"
+        />
+      </summary>
+      <div class="grid gap-4 px-5 pb-5 md:grid-cols-2">
+        <section :for={board <- @boards} id={"room-board-#{board.id}"}>
+          <header class="flex items-baseline justify-between gap-2">
+            <h3 class="font-semibold text-primary">{board.name}</h3>
+            <.link
+              navigate={~p"/g/#{@story}/boards?board=#{board.id}"}
+              class="text-xs text-secondary hover:text-primary"
+            >
+              Pin a notice <.icon name="hero-arrow-right-micro" class="size-3" />
+            </.link>
+          </header>
+          <p class="text-xs text-base-content/50">{Boards.place_label(board)}</p>
+          <p
+            :if={Map.get(@notices, board.id, []) == []}
+            class="mt-2 text-sm text-base-content/50"
+          >
+            Nothing pinned here.
+          </p>
+          <ul class="mt-2 space-y-2">
+            <li
+              :for={notice <- Map.get(@notices, board.id, [])}
+              id={"room-notice-#{notice.id}"}
+              class="board-notice"
+            >
+              <TannhauserGateWeb.BoardLive.Index.notice_card notice={notice} />
+            </li>
+          </ul>
+        </section>
+      </div>
+    </details>
     """
   end
 end

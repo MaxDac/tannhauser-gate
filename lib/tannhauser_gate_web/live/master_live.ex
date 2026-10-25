@@ -51,6 +51,7 @@ defmodule TannhauserGateWeb.MasterLive do
       online={@online}
       last_location={@last_location}
       mail_unread={@mail_unread}
+      announcements_unread={@announcements_unread}
     >
       <.header>
         Master tools
@@ -172,6 +173,16 @@ defmodule TannhauserGateWeb.MasterLive do
           title="Quests"
         >
           Record the quests you ran, their participants and rewards.
+        </.entry_point>
+
+        <.entry_point
+          :if={Stories.module_enabled?(@current_story, :boards)}
+          id="master-boards"
+          navigate={~p"/g/#{@current_story}/master/boards"}
+          icon="hero-megaphone"
+          title="Announcements and boards"
+        >
+          Post GDR announcements and put up in-game notice boards.
         </.entry_point>
 
         <.entry_point

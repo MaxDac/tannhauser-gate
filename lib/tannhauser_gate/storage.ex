@@ -32,4 +32,18 @@ defmodule TannhauserGate.Storage do
 
     "/uploads/" <> filename
   end
+
+  @doc """
+  Sniffs the image type of a file from its first bytes: `:png`, `:jpeg`,
+  `:webp`, `:gif` or `nil` for anything else (SVG included).
+  """
+  def image_type(path) do
+    case File.open(path, [:read, :binary], &IO.binread(&1, 12)) do
+      {:ok, <<0x89, "PNG", 0x0D, 0x0A, 0x1A, 0x0A, _::binary>>} -> :png
+      {:ok, <<0xFF, 0xD8, 0xFF, _::binary>>} -> :jpeg
+      {:ok, <<"RIFF", _size::binary-size(4), "WEBP">>} -> :webp
+      {:ok, <<"GIF8", _::binary>>} -> :gif
+      _ -> nil
+    end
+  end
 end
