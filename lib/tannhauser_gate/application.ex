@@ -17,6 +17,7 @@ defmodule TannhauserGate.Application do
       ] ++
         payer_children() ++
         archiver_children() ++
+        weather_children() ++
         [
           # Start to serve requests, typically the last entry
           TannhauserGateWeb.Endpoint
@@ -37,6 +38,12 @@ defmodule TannhauserGate.Application do
   defp archiver_children do
     if Application.get_env(:tannhauser_gate, :start_archiver, true),
       do: [TannhauserGate.Chat.Archiver],
+      else: []
+  end
+
+  defp weather_children do
+    if Application.get_env(:tannhauser_gate, :start_weather_roller, true),
+      do: [TannhauserGate.Weather.Roller],
       else: []
   end
 

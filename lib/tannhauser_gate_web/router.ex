@@ -139,6 +139,8 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/gm/origins", GmLive.Origins, :index
       live "/g/:story_id/gm/items", GmLive.Items, :index
       live "/g/:story_id/gm/shops", GmLive.Shops, :index
+      live "/g/:story_id/gm/calendar", GmLive.Calendar, :index
+      live "/g/:story_id/gm/weather", GmLive.Weather, :index
       live "/g/:story_id/gm/:tab", GmLive, :show
     end
 
@@ -163,6 +165,8 @@ defmodule TannhauserGateWeb.Router do
       live "/g/:story_id/master/esiti", MasterLive.Esiti, :index
       live "/g/:story_id/master/quests", MasterLive.Quests, :index
       live "/g/:story_id/master/boards", MasterLive.Boards, :index
+      live "/g/:story_id/master/calendar", MasterLive.Calendar, :index
+      live "/g/:story_id/master/weather", MasterLive.Weather, :index
       live "/g/:story_id/master/npcs/new", CharacterLive.Form, :new_npc
     end
   end

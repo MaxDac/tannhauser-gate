@@ -8,7 +8,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Items, Quests, Stories}
+  alias TannhauserGate.{Calendars, Items, Quests, Stories}
   alias TannhauserGate.Quests.{Participant, Quest}
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :quests}}
@@ -23,12 +23,19 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
      |> assign(:locations, Stories.list_locations(story))
      |> assign(:items, if(Items.enabled?(story), do: Items.list_items(story), else: []))
      |> reload()
-     |> edit_quest(new_quest())}
+     |> edit_quest(new_quest(socket))}
   end
 
   defp story(socket), do: socket.assigns.current_story
 
-  defp new_quest, do: %Quest{participants: [], held_on: Date.utc_today(), visibility: "public"}
+  defp new_quest(socket) do
+    %Quest{
+      participants: [],
+      held_on: Date.utc_today(),
+      game_date_label: Calendars.current_label(story(socket)),
+      visibility: "public"
+    }
+  end
 
   defp reload(socket) do
     assign(socket, :quests, Quests.list_quests(story(socket), socket.assigns.current_user))
@@ -55,7 +62,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
     socket = reload(socket)
 
     case Quests.get_quest(story(socket), socket.assigns.quest.id) do
-      nil -> edit_quest(socket, new_quest())
+      nil -> edit_quest(socket, new_quest(socket))
       quest -> edit_quest(socket, quest)
     end
   end
@@ -98,7 +105,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
     end
   end
 
-  def handle_event("new", _, socket), do: {:noreply, edit_quest(socket, new_quest())}
+  def handle_event("new", _, socket), do: {:noreply, edit_quest(socket, new_quest(socket))}
 
   def handle_event("delete", %{"id" => id}, socket) do
     with %Quest{} = quest <- Quests.get_quest(story(socket), id),
@@ -106,7 +113,10 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
       socket = socket |> put_flash(:info, "Quest deleted.") |> reload()
 
       {:noreply,
-       if(socket.assigns.quest.id == quest.id, do: edit_quest(socket, new_quest()), else: socket)}
+       if(socket.assigns.quest.id == quest.id,
+         do: edit_quest(socket, new_quest(socket)),
+         else: socket
+       )}
     else
       nil -> {:noreply, put_flash(socket, :error, Quests.error_message(:quest_not_found))}
       {:error, reason} -> {:noreply, put_flash(socket, :error, Quests.error_message(reason))}
@@ -261,7 +271,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                 <div class="min-w-0">
                   <p class="truncate font-semibold text-primary">{quest.title}</p>
                   <p class="text-xs text-base-content/60">
-                    {Calendar.strftime(quest.held_on, "%d/%m/%Y")}
+                    {quest.game_date_label || Calendar.strftime(quest.held_on, "%d/%m/%Y")}
                     <span :if={quest.location}>· {quest.location.name}</span>
                     · {(quest.master && quest.master.username) || "—"} · {length(quest.participants)} participants
                   </p>
@@ -323,6 +333,12 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                   options={Enum.map(Quest.visibilities(), &{Quests.visibility_label(&1), &1})}
                 />
               </div>
+              <.input
+                :if={Calendars.enabled?(@current_story)}
+                field={@form[:game_date_label]}
+                type="text"
+                label="In-game date"
+              />
               <.input
                 field={@form[:location_id]}
                 type="select"

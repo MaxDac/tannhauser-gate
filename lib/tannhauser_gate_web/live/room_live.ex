@@ -20,6 +20,7 @@ defmodule TannhauserGateWeb.RoomLive do
     PeriodicActions,
     Sheet,
     Stories,
+    Weather,
     Zones
   }
 
@@ -58,6 +59,7 @@ defmodule TannhauserGateWeb.RoomLive do
       Chat.subscribe(location.id)
       if rp?, do: Chat.subscribe_whispers(location.id, viewer)
       Bookings.subscribe(location.id)
+      if Weather.enabled?(story), do: Weather.subscribe(story.id)
     end
 
     socket
@@ -105,15 +107,22 @@ defmodule TannhauserGateWeb.RoomLive do
   defp load_zone(socket) do
     case Zones.zone_of(socket.assigns.location) do
       nil ->
-        assign(socket, zone: nil, zone_values: [], zone_events: [])
+        assign(socket, zone: nil, zone_values: [], zone_events: [], zone_weather: nil)
 
       zone ->
-        assign(socket,
+        socket
+        |> assign(
           zone: zone,
           zone_values: Zones.zone_values(zone, public_only: !socket.assigns.master?),
           zone_events: Zones.list_events(zone, 5)
         )
+        |> load_weather()
     end
+  end
+
+  defp load_weather(%{assigns: %{zone: zone, current_story: story}} = socket) do
+    weather = if zone && Weather.enabled?(story), do: Weather.zone_weather(zone)
+    assign(socket, :zone_weather, weather)
   end
 
   defp load_cooldowns(socket) do
@@ -482,6 +491,8 @@ defmodule TannhauserGateWeb.RoomLive do
     {:noreply, load_boards(socket)}
   end
 
+  def handle_info({:weather_changed, _story_id}, socket), do: {:noreply, load_weather(socket)}
+
   def handle_info(:recheck_access, socket) do
     {:noreply, socket |> assign(:recheck_ref, nil) |> load_bookings() |> refresh_access()}
   end
@@ -489,6 +500,11 @@ defmodule TannhauserGateWeb.RoomLive do
   def handle_info(_message, socket), do: {:noreply, socket}
 
   ## Rendering helpers
+
+  defp room_calendar(%{calendar: %TannhauserGate.Calendar.Config{} = calendar} = story),
+    do: if(Stories.module_enabled?(story, :calendar), do: calendar)
+
+  defp room_calendar(_story), do: nil
 
   defp speaker_label(%{is_npc: true, name: name}), do: "#{name} (NPC)"
   defp speaker_label(%{name: name}), do: name
@@ -562,7 +578,21 @@ defmodule TannhauserGateWeb.RoomLive do
           <.icon name="hero-flag" class="size-3" /> {@room_guild}
         </span>
 
-        <:subtitle>{@location.description}</:subtitle>
+        <:subtitle>
+          <span
+            :if={@zone_weather || room_calendar(@current_story)}
+            id="room-conditions"
+            class="mb-1 flex flex-wrap items-center gap-2 text-xs"
+          >
+            <.game_clock
+              id="room-game-clock"
+              calendar={room_calendar(@current_story)}
+              class="rounded border border-secondary/30 bg-secondary/5 px-2 py-0.5 font-semibold text-secondary"
+            />
+            <.weather_badge id="room-weather" weather={@zone_weather} />
+          </span>
+          {@location.description}
+        </:subtitle>
         <:actions :if={@shops != []}>
           <div id="room-shops" class="flex flex-wrap justify-end gap-2">
             <.link

@@ -9,6 +9,9 @@ config :tannhauser_gate, :start_payer, false
 # The chat archiver too
 config :tannhauser_gate, :start_archiver, false
 
+# And the weather roller
+config :tannhauser_gate, :start_weather_roller, false
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

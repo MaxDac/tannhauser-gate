@@ -31,7 +31,9 @@ defmodule TannhauserGateWeb.GmNav do
     {"origins", "Origins", :page, :origins},
     {"items", "Items", :page, :items},
     {"shops", "Shops", :page, :items},
-    {"esiti", "Esiti", :core, :esiti}
+    {"esiti", "Esiti", :core, :esiti},
+    {"calendar", "Calendar", :page, :calendar},
+    {"weather", "Weather", :page, :weather}
   ]
 
   @doc "The keys of the tabs rendered by `GmLive` itself."

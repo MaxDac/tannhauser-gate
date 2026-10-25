@@ -12,6 +12,7 @@ defmodule TannhauserGate.Seeds do
   alias TannhauserGate.{
     Accounts,
     Bank,
+    Calendars,
     Forum,
     Guide,
     Guilds,
@@ -22,6 +23,7 @@ defmodule TannhauserGate.Seeds do
     Sheet,
     Stories,
     Trackers,
+    Weather,
     Zones
   }
 
@@ -56,6 +58,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_chat_rp(story)
     story = seed_esiti_and_quests(story, admin)
     story = seed_diary_and_boards(story, admin)
+    story = seed_calendar_and_weather(story)
     %{admin: admin, story: story}
   end
 
@@ -553,6 +556,105 @@ defmodule TannhauserGate.Seeds do
       })
 
       seed_sample_board(story, admin)
+      Stories.get_story!(story.id)
+    end
+  end
+
+  @calendar_months """
+  Ashfall | 31 | Winter
+  Coldwire | 28 | Winter
+  Thawrain | 31 | Spring
+  Greensmog | 30 | Spring
+  Neonbloom | 31 | Spring
+  Highglare | 30 | Summer
+  Blackheat | 31 | Summer
+  Stillair | 31 | Summer
+  Rustwind | 30 | Autumn
+  Longdark | 31 | Autumn
+  Floodtide | 30 | Autumn
+  Deadsignal | 31 | Winter
+  """
+
+  # {name, icon, description, weights and temperature ranges per season}
+  @weather_table [
+    {"Acid rain", "hero-beaker", "Yellow rain that eats paint and skin. Keep your hood up.",
+     %{
+       "Winter" => {30, 1, 7},
+       "Spring" => {35, 8, 14},
+       "Summer" => {15, 18, 25},
+       "Autumn" => {40, 7, 13}
+     }},
+    {"Smog", "hero-eye-slash", "A brown haze swallows the towers; the neon glows through it.",
+     %{
+       "Winter" => {20, 0, 6},
+       "Spring" => {20, 10, 16},
+       "Summer" => {35, 24, 33},
+       "Autumn" => {20, 8, 14}
+     }},
+    {"Neon drizzle", "hero-cloud-arrow-down",
+     "Fine, endless rain glittering with the signs' colours.",
+     %{
+       "Winter" => {25, 2, 8},
+       "Spring" => {25, 9, 15},
+       "Summer" => {15, 19, 26},
+       "Autumn" => {25, 8, 14}
+     }},
+    {"Electric storm", "hero-bolt",
+     "Lightning over the bay; the grid flickers district by district.",
+     %{
+       "Winter" => {10, 3, 9},
+       "Spring" => {10, 12, 18},
+       "Summer" => {25, 22, 30},
+       "Autumn" => {10, 10, 16}
+     }},
+    {"Clear night", "hero-moon", "For once the sky is clean: cold stars above the spires.",
+     %{
+       "Winter" => {15, -4, 3},
+       "Spring" => {10, 6, 12},
+       "Summer" => {10, 16, 22},
+       "Autumn" => {5, 4, 10}
+     }}
+  ]
+
+  @doc """
+  Enables the calendar and weather modules the first time: a noir calendar
+  running in real time in 2121 (from today's date), a rain-heavy seasonal
+  weather table and a first weather for every zone. Later runs leave
+  everything as it is.
+  """
+  def seed_calendar_and_weather(story) do
+    if Calendars.get_calendar(story) do
+      story
+    else
+      {:ok, story} = Stories.set_module_enabled(story, :calendar, true)
+      {:ok, story} = Stories.set_module_enabled(story, :weather, true)
+      now = DateTime.utc_now()
+
+      {:ok, _} =
+        Calendars.save_calendar(story, %{
+          "months_text" => @calendar_months,
+          "weekdays_text" => "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
+          "ratio" => 1,
+          "epoch_year" => 2121,
+          "epoch_month" => now.month,
+          "epoch_day" => min(now.day, 28),
+          "epoch_hour" => now.hour,
+          "epoch_minute" => now.minute
+        })
+
+      for {name, icon, description, seasons} <- @weather_table do
+        {:ok, _} =
+          Weather.create_condition(story, %{
+            name: name,
+            icon: icon,
+            description: description,
+            weights: Map.new(seasons, fn {season, {weight, _, _}} -> {season, weight} end),
+            temp_min: Map.new(seasons, fn {season, {_, min, _}} -> {season, min} end),
+            temp_max: Map.new(seasons, fn {season, {_, _, max}} -> {season, max} end)
+          })
+      end
+
+      Weather.roll_story_due(story)
       Stories.get_story!(story.id)
     end
   end

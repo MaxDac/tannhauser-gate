@@ -192,6 +192,9 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
               <.icon name="hero-map-pin-micro" class="size-3" /> {place(@esito)}
             </span>
             <span>· filed {when_label(@esito.inserted_at)}</span>
+            <span :if={@esito.game_date_label} id="esito-game-date">
+              · <.icon name="hero-calendar-days-micro" class="size-3" /> {@esito.game_date_label}
+            </span>
             <span :if={@esito.claimed_by}>· handled by {@esito.claimed_by.username}</span>
           </span>
         </:subtitle>
