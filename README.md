@@ -341,7 +341,9 @@ VISUAL_PORT=4220 npm run test:visual   # default port 4002
 
 **Updating baselines.** The baselines are Linux-only and must come from CI's container. After an
 intentional UI change, open **Actions → Update screenshots → Run workflow** and pick your PR branch.
-The workflow regenerates the PNGs, commits them to the branch and re-runs CI. Review the image diff
+The workflow regenerates the PNGs, commits them to the branch and re-runs CI. By default it only
+rewrites screenshots that fail the comparison. Pick `all` for **update_mode** when a subtle change
+(e.g. dark artwork on a dark background) stays within the tolerance. Review the image diff
 in the PR. Locally, `npm run test:visual:update` is useful for iterating, but don't commit
 the PNGs it writes. When a check fails, the diffs are uploaded as the
 `playwright-screenshots-report` artifact. Its `test-results-visual/**/*-actual.png` files are also
