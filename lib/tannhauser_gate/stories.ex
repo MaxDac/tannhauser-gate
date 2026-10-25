@@ -24,23 +24,27 @@ defmodule TannhauserGate.Stories do
   they run as GDR admin or master. Platform admins see everything.
   """
   def list_visible_stories(user) do
-    query =
-      from s in Story, order_by: [desc: s.is_default, asc: s.name], preload: [:owner, :masters]
+    Repo.all(
+      from s in visible_stories_query(user),
+        order_by: [desc: s.is_default, asc: s.name],
+        preload: [:owner, :masters]
+    )
+  end
 
+  @doc "The query behind `list_visible_stories/1`, for further filtering."
+  def visible_stories_query(user) do
     cond do
       Accounts.admin?(user) ->
-        Repo.all(query)
+        from(s in Story)
 
       user ->
         mastered = from m in StoryMaster, where: m.user_id == ^user.id, select: m.story_id
 
-        Repo.all(
-          from s in query,
-            where: s.status == "published" or s.owner_id == ^user.id or s.id in subquery(mastered)
-        )
+        from s in Story,
+          where: s.status == "published" or s.owner_id == ^user.id or s.id in subquery(mastered)
 
       true ->
-        Repo.all(from s in query, where: s.status == "published")
+        from s in Story, where: s.status == "published"
     end
   end
 
@@ -244,6 +248,14 @@ defmodule TannhauserGate.Stories do
   """
   def update_story_as_gm(%Story{} = story, attrs) do
     story |> Story.gm_changeset(attrs) |> Repo.update()
+  end
+
+  @doc """
+  Sets the directory banner of the story to an uploaded image path (see
+  `TannhauserGate.Storage`), or removes it with `nil`.
+  """
+  def set_banner(%Story{} = story, path) when is_binary(path) or is_nil(path) do
+    story |> Story.banner_changeset(path) |> Repo.update()
   end
 
   def change_story_as_gm(%Story{} = story, attrs \\ %{}), do: Story.gm_changeset(story, attrs)

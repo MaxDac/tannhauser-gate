@@ -60,6 +60,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_diary_and_boards(story, admin)
     story = seed_calendar_and_weather(story)
     story = seed_reports(story)
+    story = seed_listing(story)
     %{admin: admin, story: story}
   end
 
@@ -313,6 +314,28 @@ defmodule TannhauserGate.Seeds do
           auto_xp_cooldown_minutes: 10
         })
 
+      story
+    end
+  end
+
+  ## Portal
+
+  @doc """
+  Lists the GDR in the portal directory (cyberpunk, mystery/noir, open,
+  16+), only while it has no pitch: later runs keep the GDR admin's edits.
+  """
+  def seed_listing(story) do
+    if story.pitch in [nil, ""] do
+      {:ok, story} =
+        Stories.update_story(story, %{
+          genres: ["cyberpunk", "mystery_noir"],
+          lifecycle: "open",
+          content_rating: "16",
+          pitch: "Neo-Meridian, 2121: rain, neon and Echoes who dream of being human."
+        })
+
+      story
+    else
       story
     end
   end

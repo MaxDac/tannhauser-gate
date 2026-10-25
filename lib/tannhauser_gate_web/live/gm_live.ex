@@ -15,6 +15,7 @@ defmodule TannhauserGateWeb.GmLive do
     Bank,
     Characters,
     Dice,
+    Directory,
     Forum,
     Guilds,
     Modules,
@@ -34,7 +35,14 @@ defmodule TannhauserGateWeb.GmLive do
   @impl true
   def mount(_params, _session, socket) do
     # Master rows are keyed by user, like the users they used to be.
-    {:ok, stream_configure(socket, :masters, dom_id: &"masters-#{&1.user_id}")}
+    {:ok,
+     socket
+     |> stream_configure(:masters, dom_id: &"masters-#{&1.user_id}")
+     |> allow_upload(:banner,
+       accept: Directory.banner_extensions(),
+       max_entries: 1,
+       max_file_size: 5_000_000
+     )}
   end
 
   @impl true
@@ -154,6 +162,9 @@ defmodule TannhauserGateWeb.GmLive do
     |> Enum.map(&{Forum.visibility_label(&1), &1})
   end
 
+  defp apply_banner(story, nil), do: {:ok, story}
+  defp apply_banner(story, path), do: Stories.set_banner(story, path)
+
   defp assign_story_form(socket, story) do
     socket
     |> assign(:story_form, to_form(Stories.change_story_as_gm(story), as: :story))
@@ -207,18 +218,46 @@ defmodule TannhauserGateWeb.GmLive do
   ## Story (general / theme / map)
 
   @impl true
+  def handle_event("validate_story", %{"story" => params}, socket) do
+    changeset = Stories.change_story_as_gm(story(socket), params)
+    {:noreply, assign(socket, :story_form, to_form(changeset, as: :story, action: :validate))}
+  end
+
   def handle_event("save_story", %{"story" => params}, socket) do
-    case Stories.update_story_as_gm(story(socket), params) do
-      {:ok, updated} ->
-        {:noreply,
-         socket
-         |> assign(:current_story, updated)
-         |> put_flash(:info, "GDR updated")
-         |> assign_story_form(updated)}
+    banner =
+      socket
+      |> consume_uploaded_entries(:banner, fn %{path: path}, entry ->
+        {:ok, Directory.store_banner(path, entry.client_name)}
+      end)
+      |> List.first()
+
+    with {:ok, banner_path} <- banner || {:ok, nil},
+         {:ok, updated} <- Stories.update_story_as_gm(story(socket), params),
+         {:ok, updated} <- apply_banner(updated, banner_path) do
+      {:noreply,
+       socket
+       |> assign(:current_story, updated)
+       |> put_flash(:info, "GDR updated")
+       |> assign_story_form(updated)}
+    else
+      {:error, :invalid_image} ->
+        {:noreply, put_flash(socket, :error, "The banner must be a PNG, JPEG or WebP image.")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :story_form, to_form(changeset, as: :story))}
     end
+  end
+
+  def handle_event("cancel_banner", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :banner, ref)}
+
+  def handle_event("remove_banner", _, socket) do
+    {:ok, updated} = Stories.set_banner(story(socket), nil)
+
+    {:noreply,
+     socket
+     |> assign(:current_story, updated)
+     |> put_flash(:info, "Banner removed")}
   end
 
   ## Modules
@@ -576,7 +615,12 @@ defmodule TannhauserGateWeb.GmLive do
   defp general_tab(assigns) do
     ~H"""
     <.panel>
-      <.form for={@story_form} id="general-form" phx-submit="save_story">
+      <.form
+        for={@story_form}
+        id="general-form"
+        phx-change="validate_story"
+        phx-submit="save_story"
+      >
         <.input field={@story_form[:name]} type="text" label="Name" required />
         <.input field={@story_form[:summary]} type="textarea" label="Summary" rows="3" />
         <p class="mb-2 text-sm text-base-content/70">
@@ -639,6 +683,11 @@ defmodule TannhauserGateWeb.GmLive do
           label="Status"
           options={[{"Draft (only you and your masters)", "draft"}, {"Published", "published"}]}
         />
+        <.listing_fieldset
+          story_form={@story_form}
+          current_story={@current_story}
+          uploads={@uploads}
+        />
         <fieldset id="sheet-template-settings" class="mt-2 border-t border-secondary/20 pt-4">
           <legend class="text-sm font-semibold text-base-content/80">Character sheet template</legend>
           <p class="mb-2 text-xs text-base-content/60">
@@ -675,6 +724,115 @@ defmodule TannhauserGateWeb.GmLive do
     </.panel>
     """
   end
+
+  defp listing_fieldset(assigns) do
+    banner_errors =
+      upload_errors(assigns.uploads.banner) ++
+        Enum.flat_map(assigns.uploads.banner.entries, &upload_errors(assigns.uploads.banner, &1))
+
+    assigns =
+      assigns
+      |> assign(:genres, List.wrap(assigns.story_form[:genres].value))
+      |> assign(:banner_errors, Enum.map(banner_errors, &banner_error/1))
+
+    ~H"""
+    <fieldset id="directory-listing-settings" class="mt-2 border-t border-secondary/20 pt-4">
+      <legend class="text-sm font-semibold text-base-content/80">Directory listing</legend>
+      <p class="mb-2 text-xs text-base-content/60">
+        How the GDR appears in the portal directory. The lifecycle is shown as a badge and does
+        not change who can enter: use the status below for that.
+      </p>
+      <.input
+        field={@story_form[:pitch]}
+        type="text"
+        label="Pitch (a one-line tagline)"
+        maxlength="160"
+        placeholder="Rain, neon and the ghosts in the machine."
+      />
+      <div class="mb-3">
+        <span class="label console-label mb-1">Genres (up to 3)</span>
+        <input type="hidden" name={@story_form[:genres].name <> "[]"} value="" />
+        <div id="listing-genres" class="flex flex-wrap gap-2">
+          <label
+            :for={{value, label} <- Directory.genres()}
+            id={"listing-genre-#{value}"}
+            class="cursor-pointer select-none rounded-full border border-secondary/30 px-3 py-1 text-xs text-base-content/70 transition hover:border-primary/60 hover:text-base-content has-checked:border-primary has-checked:bg-primary/15 has-checked:text-primary has-focus-visible:ring-2 has-focus-visible:ring-primary/50"
+          >
+            <input
+              type="checkbox"
+              name={@story_form[:genres].name <> "[]"}
+              value={value}
+              checked={value in @genres}
+              class="sr-only"
+            />
+            {label}
+          </label>
+        </div>
+        <.error :for={msg <- Enum.map(@story_form[:genres].errors, &translate_error/1)}>
+          {msg}
+        </.error>
+      </div>
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <.input
+          field={@story_form[:lifecycle]}
+          type="select"
+          label="Lifecycle"
+          options={for {value, label} <- Directory.lifecycles(), do: {label, value}}
+        />
+        <.input
+          field={@story_form[:content_rating]}
+          type="select"
+          label="Content rating"
+          options={for {value, label} <- Directory.content_ratings(), do: {label, value}}
+        />
+      </div>
+      <div id="listing-banner" phx-drop-target={@uploads.banner.ref} class="mb-3 space-y-2">
+        <label for={@uploads.banner.ref} class="label console-label">
+          Banner (PNG, JPEG or WebP, about 1200×400)
+        </label>
+        <div class="flex flex-wrap items-center gap-3">
+          <img
+            :if={@current_story.banner_path && @uploads.banner.entries == []}
+            id="listing-banner-image"
+            src={@current_story.banner_path}
+            alt=""
+            class="h-16 w-48 rounded-lg object-cover"
+          />
+          <button
+            :if={@current_story.banner_path && @uploads.banner.entries == []}
+            type="button"
+            id="remove-listing-banner"
+            phx-click="remove_banner"
+            class="text-xs text-error hover:underline"
+          >
+            Remove
+          </button>
+          <div :for={entry <- @uploads.banner.entries} class="flex items-center gap-2">
+            <.live_img_preview entry={entry} class="h-16 w-48 rounded-lg object-cover" />
+            <button
+              type="button"
+              phx-click="cancel_banner"
+              phx-value-ref={entry.ref}
+              class="text-xs text-error hover:underline"
+            >
+              Remove
+            </button>
+          </div>
+          <.live_file_input
+            upload={@uploads.banner}
+            class="file-input file-input-secondary console-field w-full max-w-xs"
+          />
+        </div>
+        <.error :for={error <- @banner_errors}>{error}</.error>
+      </div>
+    </fieldset>
+    """
+  end
+
+  defp banner_error(:too_large), do: "The banner is too large (max 5 MB)"
+  defp banner_error(:not_accepted), do: "The banner must be a PNG, JPEG or WebP image"
+  defp banner_error(:too_many_files), do: "Only one banner is allowed"
+  defp banner_error(other), do: "Upload error: #{inspect(other)}"
 
   defp modules_tab(assigns) do
     ~H"""

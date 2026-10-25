@@ -122,7 +122,7 @@ test("the GDR picker preserves story switching", async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/stories\/\d+\/edit$/);
   await page.goto("/gdrs");
   await connected(page);
-  await page.locator("#gdrs").getByRole("link", { name: new RegExp(name) }).click();
+  await page.locator("#gdrs article", { hasText: name }).getByRole("link", { name: /Enter/ }).click();
   await expect(page).toHaveURL(/\/g\/\d+$/);
   await expect(page.locator("#current-gdr-name")).toHaveText(name);
 });

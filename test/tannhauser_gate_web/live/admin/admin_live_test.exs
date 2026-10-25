@@ -15,7 +15,8 @@ defmodule TannhauserGateWeb.AdminLiveTest do
     "/admin/rooms",
     "/admin/users",
     "/admin/requests",
-    "/admin/forum"
+    "/admin/forum",
+    "/admin/reviews"
   ]
 
   describe "authorization" do
