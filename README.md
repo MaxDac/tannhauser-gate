@@ -229,18 +229,29 @@ email is sent, the email stays unverified and login is by username. Password res
 the "forgot password" link are disabled. Turning it on restores the confirmation, reset and email-change flows,
 and login accepts the username or the email. See the "Enable email" GitHub issue for the re-enable steps.
 
-### Default admin account
+### Seeded GDRs and accounts
 
-The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) create an admin. They are safe to re-run.
+The seeds (`mix run priv/repo/seeds.exs`, also run by `mix setup`) are safe to re-run: they only create
+what is missing and never overwrite edits. They create two GDRs:
 
-| | Default | Override with |
-| --- | --- | --- |
-| Username | `admin` | `ADMIN_USERNAME` |
-| Email | `admin@tannhauser.gate` | `ADMIN_EMAIL` |
-| Password | `change-me-tannhauser-2121` | `ADMIN_PASSWORD` |
+- **Tannhauser Gate** — the default GDR (Neo-Meridian, 2121), with every module, trackers (Health,
+  Stress), a d10 dice pool and the "Work the streets" periodic action.
+- **Neon Republic** — a second, Sprawl-style cyberpunk GDR (Halcyon Bay, 2093): console riders on the
+  Lattice, rogue constructs, combines and orbital clans. It ships with full placeholder content (map
+  and rooms, zones, guide, forum, sheet, jobs, origins, items and shop, guilds, NPC, esito, quest,
+  calendar, weather, trackers, a d6 dice pool and periodic actions).
 
-**Change the password before deploying anywhere public.** Admins can promote other users from
-**Admin → Users**.
+They also create a platform admin and one GM owner per GDR:
+
+| Account | Username | Email | Password | Override with |
+| --- | --- | --- | --- | --- |
+| Platform admin | `admin` | `admin@tannhauser.gate` | `change-me-tannhauser-2121` | `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` |
+| Tannhauser Gate GM | `tannhauser_gm` | `gm@tannhauser.gate` | `change-me-tannhauser-gm-2121` | `TG_GM_USERNAME`, `TG_GM_EMAIL`, `TG_GM_PASSWORD` |
+| Neon Republic GM | `neon_gm` | `gm@neon.republic` | `change-me-neon-republic-2093` | `NR_GM_USERNAME`, `NR_GM_EMAIL`, `NR_GM_PASSWORD` |
+
+Every seeded account must **change its password at the first login**: until then, every page
+redirects to **Settings**. Re-running the seeds never resets a changed password. Admins can promote
+other users from **Admin → Users**.
 
 ## Tests
 
@@ -286,6 +297,9 @@ npm install
 npx playwright install --with-deps chromium
 npx playwright test
 ```
+
+The suite changes the seeded admin password at its first login to `ADMIN_E2E_PASSWORD` (default:
+the admin password with an `-e2e` suffix) and reuses it afterwards.
 
 Set `E2E_PORT` to use a port other than 4000 (the suite also uses the next port), and `DEV_DATABASE` to point at another dev database. Locally, if a server is already running on either port, the suite reuses it, so pick free ports when another server is running. For example:
 

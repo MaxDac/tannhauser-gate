@@ -2,11 +2,16 @@ import { expect, Browser, Page } from "@playwright/test";
 import path from "node:path";
 
 // The specs run against a dev database prepared with `mix setup` (seeds the
-// Tannhauser Gate story, its rooms, jobs, forum sections and the default
-// admin). The database persists across runs, so every created record gets a
-// unique suffix.
+// Tannhauser Gate and Neon Republic GDRs, their rooms, jobs, forum sections,
+// GM owners and the default admin). The database persists across runs, so
+// every created record gets a unique suffix.
+//
+// The seeded admin must change its initial password at the first access: the
+// suite changes it once to ADMIN_E2E_PASSWORD and logs in with that from then
+// on, so it also works on a database where an earlier run already changed it.
 export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121";
+export const ADMIN_INITIAL_PASSWORD = process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121";
+export const ADMIN_PASSWORD = process.env.ADMIN_E2E_PASSWORD || `${ADMIN_INITIAL_PASSWORD}-e2e`;
 export const SEEDED_GDR = "Tannhauser Gate";
 export const PASSWORD = "more-human-than-human";
 
@@ -44,8 +49,42 @@ export async function logIn(page: Page, user: string, pass: string) {
   await dismissFlashes(page);
 }
 
+async function submitLogIn(page: Page, user: string, pass: string) {
+  await page.goto("/users/log_in");
+  await connected(page);
+  await page.getByLabel("Username").fill(user);
+  await page.getByLabel("Password").fill(pass);
+  await page.getByRole("button", { name: /log in/i }).click();
+  // Every outcome (welcome, wrong password, forced change) shows a flash.
+  await expect(page.locator("#flash-group [role=alert]:visible").first()).toBeVisible({ timeout: 30_000 });
+}
+
+async function changeInitialAdminPassword(page: Page) {
+  await expect(page).toHaveURL(/\/users\/settings$/);
+  await connected(page);
+  await expect(page.locator("#must-change-password-notice")).toBeVisible();
+  const form = page.locator("#password_form");
+  await form.getByLabel("New password", { exact: true }).fill(ADMIN_PASSWORD);
+  await form.getByLabel("Confirm new password").fill(ADMIN_PASSWORD);
+  await form.getByLabel("Current password").fill(ADMIN_INITIAL_PASSWORD);
+  await form.getByRole("button", { name: "Change Password" }).click();
+  await expect(page.locator("#flash-group")).toContainText("Password updated successfully!");
+  await expect(page.locator("#must-change-password-notice")).toHaveCount(0);
+}
+
+// Logs the seeded admin in and lands on /gdrs, changing the initial password
+// first when needed.
 export async function logInAsAdmin(page: Page) {
-  await logIn(page, ADMIN_USERNAME, ADMIN_PASSWORD);
+  await submitLogIn(page, ADMIN_USERNAME, ADMIN_PASSWORD);
+
+  if (/\/users\/log_in$/.test(page.url())) {
+    await submitLogIn(page, ADMIN_USERNAME, ADMIN_INITIAL_PASSWORD);
+    await changeInitialAdminPassword(page);
+  }
+
+  await page.goto("/gdrs");
+  await expect(page).toHaveURL(/\/gdrs$/);
+  await connected(page);
 }
 
 export interface Account {

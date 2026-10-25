@@ -1,14 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { connected, gdrPath } from "./helpers";
-
-async function adminLogin(page: Page) {
-  await page.goto("/users/log_in");
-  await connected(page);
-  await page.getByLabel("Username").fill(process.env.ADMIN_USERNAME || "admin");
-  await page.getByLabel("Password").fill(process.env.ADMIN_PASSWORD || "change-me-tannhauser-2121");
-  await page.getByRole("button", { name: /log in/i }).click();
-  await expect(page).toHaveURL(/\/gdrs$/, { timeout: 30_000 });
-}
+import { connected, gdrPath, logInAsAdmin as adminLogin } from "./helpers";
 
 // Computed colors may be oklab()/color-mix() values; normalise them to rgb().
 async function toRgb(page: Page, color: string) {

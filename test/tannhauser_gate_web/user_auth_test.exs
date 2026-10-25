@@ -185,6 +185,34 @@ defmodule TannhauserGateWeb.UserAuthTest do
     end
   end
 
+  describe "on_mount :ensure_authenticated with must_change_password" do
+    setup %{conn: conn, user: user} do
+      {:ok, user} = Accounts.set_must_change_password(user, true)
+      user_token = Accounts.generate_user_session_token(user)
+      session = conn |> put_session(:user_token, user_token) |> get_session()
+
+      socket = %LiveView.Socket{
+        endpoint: TannhauserGateWeb.Endpoint,
+        assigns: %{__changed__: %{}, flash: %{}}
+      }
+
+      %{session: session, socket: socket}
+    end
+
+    test "sends the user to the settings page", %{session: session, socket: socket} do
+      {:halt, updated_socket} = UserAuth.on_mount(:ensure_authenticated, %{}, session, socket)
+
+      assert {:redirect, %{to: "/users/settings"}} = updated_socket.redirected
+      assert updated_socket.assigns.flash["error"] =~ "choose a new password"
+    end
+
+    test "lets the settings page mount", %{session: session, socket: socket} do
+      socket = %{socket | view: TannhauserGateWeb.UserSettingsLive}
+
+      assert {:cont, _socket} = UserAuth.on_mount(:ensure_authenticated, %{}, session, socket)
+    end
+  end
+
   describe "on_mount :redirect_if_user_is_authenticated" do
     test "redirects if there is an authenticated  user ", %{conn: conn, user: user} do
       user_token = Accounts.generate_user_session_token(user)
@@ -267,6 +295,27 @@ defmodule TannhauserGateWeb.UserAuthTest do
       conn = conn |> assign(:current_user, user) |> UserAuth.require_authenticated_user([])
       refute conn.halted
       refute conn.status
+    end
+
+    test "sends users who must change their password to the settings", %{conn: conn, user: user} do
+      {:ok, user} = Accounts.set_must_change_password(user, true)
+
+      halted_conn =
+        %{conn | request_path: "/gdrs"}
+        |> fetch_flash()
+        |> assign(:current_user, user)
+        |> UserAuth.require_authenticated_user([])
+
+      assert halted_conn.halted
+      assert redirected_to(halted_conn) == ~p"/users/settings"
+
+      conn =
+        %{conn | request_path: "/users/settings"}
+        |> fetch_flash()
+        |> assign(:current_user, user)
+        |> UserAuth.require_authenticated_user([])
+
+      refute conn.halted
     end
   end
 end
