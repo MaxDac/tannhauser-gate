@@ -6,13 +6,13 @@ defmodule TannhauserGateWeb.UserLoginLive do
     <Layouts.app flash={@flash} current_user={@current_user}>
       <div class="mx-auto max-w-sm">
         <.header class="text-center">
-          Log in
+          {dgettext("player", "Log in")}
           <:subtitle>
-            Don't have an account?
+            {dgettext("player", "Don't have an account?")}
             <.link navigate={~p"/users/register"} class="font-semibold text-mint hover:underline">
-              Register
+              {dgettext("player", "Register")}
             </.link>
-            for an account now.
+            {dgettext("player", "for an account now.")}
           </:subtitle>
         </.header>
 
@@ -20,25 +20,42 @@ defmodule TannhauserGateWeb.UserLoginLive do
           <.input
             field={@form[:login]}
             type="text"
-            label={if(@email_auth?, do: "Username or email", else: "Username")}
+            label={
+              if(@email_auth?,
+                do: dgettext("player", "Username or email"),
+                else: dgettext("player", "Username")
+              )
+            }
             autocomplete="username"
             required
           />
-          <.input field={@form[:password]} type="password" label="Password" required />
-
+          <.input
+            field={@form[:password]}
+            type="password"
+            label={dgettext("player", "Password")}
+            required
+          />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
+            <.input
+              field={@form[:remember_me]}
+              type="checkbox"
+              label={dgettext("player", "Keep me logged in")}
+            />
             <.link
               :if={@email_auth?}
               href={~p"/users/reset_password"}
               class="text-sm font-semibold"
             >
-              Forgot your password?
+              {dgettext("player", "Forgot your password?")}
             </.link>
           </div>
+
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Logging in..." class="btn btn-primary console-action w-full">
-              Log in <span aria-hidden="true">→</span>
+            <.button
+              phx-disable-with={dgettext("player", "Logging in...")}
+              class="btn btn-primary console-action w-full"
+            >
+              {dgettext("player", "Log in")} <span aria-hidden="true">→</span>
             </.button>
           </div>
         </.form>

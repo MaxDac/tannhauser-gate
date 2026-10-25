@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.GmLive.Actions do
 
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> assign(:items, Sheet.list_items(story))
      |> assign(:trackers, trackers)
      |> assign(:damage_types, trackers |> Enum.flat_map(& &1.damage_types) |> Enum.uniq())
@@ -57,7 +57,7 @@ defmodule TannhauserGateWeb.GmLive.Actions do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Periodic action saved.")
+         |> put_flash(:info, dgettext("management", "Periodic action saved."))
          |> reload()
          |> edit_action(new_action(story(socket)))}
 
@@ -77,13 +77,13 @@ defmodule TannhauserGateWeb.GmLive.Actions do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Periodic action deleted.")
+     |> put_flash(:info, dgettext("management", "Periodic action deleted."))
      |> reload()
      |> edit_action(new_action(story(socket)))}
   end
 
-  defp effect_label(nil, _type, _delta), do: "nothing"
-  defp effect_label(_tracker, _type, 0), do: "nothing"
+  defp effect_label(nil, _type, _delta), do: dgettext("management", "nothing")
+  defp effect_label(_tracker, _type, 0), do: dgettext("management", "nothing")
 
   defp effect_label(tracker, type, delta) do
     sign = if delta > 0, do: "+", else: ""
@@ -91,9 +91,19 @@ defmodule TannhauserGateWeb.GmLive.Actions do
   end
 
   defp difficulty_label(%Action{difficulty_source: "zone"} = action),
-    do: "zone #{action.zone_property} (default #{action.default_difficulty})"
+    do:
+      dgettext(
+        "management",
+        "zone %{action_zone_property} (default %{action_default_difficulty})",
+        action_zone_property: action.zone_property,
+        action_default_difficulty: action.default_difficulty
+      )
 
-  defp difficulty_label(action), do: "per character (default #{action.default_difficulty})"
+  defp difficulty_label(action),
+    do:
+      dgettext("management", "per character (default %{action_default_difficulty})",
+        action_default_difficulty: action.default_difficulty
+      )
 
   @impl true
   def render(assigns) do
@@ -111,17 +121,20 @@ defmodule TannhauserGateWeb.GmLive.Actions do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="actions" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="actions" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_24rem]">
         <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-            {if @action.id, do: "Edit periodic action", else: "New periodic action"}
+            {if @action.id,
+              do: dgettext("management", "Edit periodic action"),
+              else: dgettext("management", "New periodic action")}
           </h2>
+
           <p class="mt-1 text-sm text-base-content/70">
-            Characters perform periodic actions (e.g. a hunt) from a location: the dice pool is
-            rolled against the difficulty and the tracker effect is applied. Masters see the log.
+            {dgettext(
+              "management",
+              "Characters perform periodic actions (e.g. a hunt) from a location: the dice pool is rolled against the difficulty and the tracker effect is applied. Masters see the log."
+            )}
           </p>
 
           <.form
@@ -132,86 +145,128 @@ defmodule TannhauserGateWeb.GmLive.Actions do
             class="mt-4"
           >
             <div class="grid gap-3 sm:grid-cols-2">
-              <.input field={@form[:name]} type="text" label="Name" required />
+              <.input
+                field={@form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@form[:cooldown_hours]}
                 type="number"
-                label="Cooldown (hours)"
+                label={dgettext("management", "Cooldown (hours)")}
                 min="0"
               />
             </div>
-            <.input field={@form[:description]} type="textarea" label="Description" rows="2" />
-            <input type="hidden" name="action[items][]" value="" />
+
+            <.input
+              field={@form[:description]}
+              type="textarea"
+              label={dgettext("management", "Description")}
+              rows="2"
+            /> <input type="hidden" name="action[items][]" value="" />
             <.input
               field={@form[:items]}
               type="select"
               multiple
-              label="Dice pool (sheet items)"
+              label={dgettext("management", "Dice pool (sheet items)")}
               options={Enum.map(@items, &{&1.name, &1.slug})}
               size="6"
             />
-
             <fieldset class="mt-2 rounded-lg border border-secondary/20 p-3">
               <legend class="px-1 text-xs font-bold uppercase tracking-wider text-secondary">
-                Difficulty
+                {dgettext("management", "Difficulty")}
               </legend>
+
               <div class="grid gap-3 sm:grid-cols-3">
                 <.input
                   field={@form[:difficulty_source]}
                   type="select"
-                  label="Source"
-                  options={[{"Zone property", "zone"}, {"Per character (masters)", "character"}]}
+                  label={dgettext("management", "Source")}
+                  options={[
+                    {dgettext("management", "Zone property"), "zone"},
+                    {dgettext("management", "Per character (masters)"), "character"}
+                  ]}
                 />
                 <.input
                   :if={@form[:difficulty_source].value in ["zone", nil]}
                   field={@form[:zone_property]}
                   type="select"
-                  label="Zone property"
-                  prompt="Choose a property"
+                  label={dgettext("management", "Zone property")}
+                  prompt={dgettext("management", "Choose a property")}
                   options={Enum.map(@properties, &{&1.name, &1.slug})}
                 />
-                <.input field={@form[:default_difficulty]} type="number" label="Default" min="0" />
+                <.input
+                  field={@form[:default_difficulty]}
+                  type="number"
+                  label={dgettext("management", "Default")}
+                  min="0"
+                />
               </div>
+
               <p :if={@properties == []} class="text-xs text-warning">
-                Define zone properties in the Zones tab to use them as difficulty.
+                {dgettext(
+                  "management",
+                  "Define zone properties in the Zones tab to use them as difficulty."
+                )}
               </p>
             </fieldset>
 
             <fieldset
-              :for={{kind, label} <- [{"success", "On success"}, {"failure", "On failure"}]}
+              :for={
+                {kind, label} <- [
+                  {"success", dgettext("management", "On success")},
+                  {"failure", dgettext("management", "On failure")}
+                ]
+              }
               id={"#{kind}-effect"}
               class="mt-3 rounded-lg border border-secondary/20 p-3"
             >
               <legend class="px-1 text-xs font-bold uppercase tracking-wider text-secondary">
                 {label}
               </legend>
+
               <div class="grid gap-3 sm:grid-cols-3">
                 <.input
                   field={@form[:"#{kind}_tracker"]}
                   type="select"
-                  label="Tracker"
-                  prompt="No effect"
+                  label={dgettext("management", "Tracker")}
+                  prompt={dgettext("management", "No effect")}
                   options={Enum.map(@trackers, &{&1.name, &1.slug})}
                 />
                 <.input
                   field={@form[:"#{kind}_damage_type"]}
                   type="select"
-                  label="Damage type"
-                  prompt="—"
+                  label={dgettext("management", "Damage type")}
+                  prompt={dgettext("management", "—")}
                   options={@damage_types}
                 />
-                <.input field={@form[:"#{kind}_delta"]} type="number" label="Change" />
+                <.input
+                  field={@form[:"#{kind}_delta"]}
+                  type="number"
+                  label={dgettext("management", "Change")}
+                />
               </div>
             </fieldset>
 
-            <.input field={@form[:position]} type="number" label="Position" min="0" />
-
+            <.input
+              field={@form[:position]}
+              type="number"
+              label={dgettext("management", "Position")}
+              min="0"
+            />
             <div class="flex gap-2">
-              <.button id="save-periodic-action" phx-disable-with="Saving...">
-                {if @action.id, do: "Update action", else: "Add action"}
+              <.button
+                id="save-periodic-action"
+                phx-disable-with={dgettext("management", "Saving...")}
+              >
+                {if @action.id,
+                  do: dgettext("management", "Update action"),
+                  else: dgettext("management", "Add action")}
               </.button>
+
               <.button :if={@action.id} type="button" id="cancel-periodic-action" phx-click="cancel">
-                Cancel
+                {dgettext("management", "Cancel")}
               </.button>
             </div>
           </.form>
@@ -219,8 +274,9 @@ defmodule TannhauserGateWeb.GmLive.Actions do
 
         <section id="periodic-actions" class="space-y-3">
           <p :if={@actions == []} id="periodic-actions-empty" class="text-sm text-base-content/60">
-            No periodic actions yet.
+            {dgettext("management", "No periodic actions yet.")}
           </p>
+
           <div
             :for={action <- @actions}
             id={"periodic-action-#{action.id}"}
@@ -228,34 +284,42 @@ defmodule TannhauserGateWeb.GmLive.Actions do
           >
             <div class="flex items-center justify-between">
               <h3 class="font-semibold text-primary">{action.name}</h3>
+
               <div class="flex gap-1">
                 <button
                   id={"edit-periodic-action-#{action.id}"}
                   phx-click="edit"
                   phx-value-id={action.id}
                   class="rounded p-1 text-base-content/60 hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-periodic-action-#{action.id}"}
                   phx-click="delete"
                   phx-value-id={action.id}
-                  data-confirm="Delete this action and its log?"
+                  data-confirm={dgettext("management", "Delete this action and its log?")}
                   class="rounded p-1 text-base-content/60 hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
               </div>
             </div>
+
             <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-              <dt class="text-base-content/60">Pool</dt>
+              <dt class="text-base-content/60">{dgettext("management", "Pool")}</dt>
+
               <dd>{Enum.join(action.items, " + ")}</dd>
-              <dt class="text-base-content/60">Difficulty</dt>
+
+              <dt class="text-base-content/60">{dgettext("management", "Difficulty")}</dt>
+
               <dd>{difficulty_label(action)}</dd>
-              <dt class="text-base-content/60">Success</dt>
+
+              <dt class="text-base-content/60">{dgettext("management", "Success")}</dt>
+
               <dd>
                 {effect_label(
                   action.success_tracker,
@@ -263,7 +327,9 @@ defmodule TannhauserGateWeb.GmLive.Actions do
                   action.success_delta
                 )}
               </dd>
-              <dt class="text-base-content/60">Failure</dt>
+
+              <dt class="text-base-content/60">{dgettext("management", "Failure")}</dt>
+
               <dd>
                 {effect_label(
                   action.failure_tracker,
@@ -271,8 +337,14 @@ defmodule TannhauserGateWeb.GmLive.Actions do
                   action.failure_delta
                 )}
               </dd>
-              <dt class="text-base-content/60">Cooldown</dt>
-              <dd>{action.cooldown_hours} h</dd>
+
+              <dt class="text-base-content/60">{dgettext("management", "Cooldown")}</dt>
+
+              <dd>
+                {dgettext("management", "%{action_cooldown_hours} h",
+                  action_cooldown_hours: action.cooldown_hours
+                )}
+              </dd>
             </dl>
           </div>
         </section>

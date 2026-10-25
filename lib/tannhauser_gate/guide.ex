@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Guide do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The per-GDR guide: ordered sections, each holding ordered Markdown pages.
   The GDR admin authors it in GM config; members (and visitors of a public
@@ -72,7 +74,12 @@ defmodule TannhauserGate.Guide do
     if is_nil(section_id) or
          Repo.exists?(from s in Section, where: s.id == ^section_id and s.story_id == ^story_id),
        do: changeset,
-       else: Ecto.Changeset.add_error(changeset, :section_id, "is not a section of this guide")
+       else:
+         Ecto.Changeset.add_error(
+           changeset,
+           :section_id,
+           dgettext_noop("errors", "is not a section of this guide")
+         )
   end
 
   @doc "Renders Markdown to sanitized HTML (raw HTML and unsafe links are dropped)."

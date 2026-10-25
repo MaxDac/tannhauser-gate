@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Reports do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Reports, part of the `:reports` optional module. Any member of a GDR can
   report a chat entry (`"chat"`), a forum post (`"forum_post"`), a letter they
@@ -41,11 +43,11 @@ defmodule TannhauserGate.Reports do
   @doc "The report categories, as `{label, value}` select options."
   def category_options do
     [
-      {"Harassment", "harassment"},
-      {"Spam", "spam"},
-      {"Metagame", "metagame"},
-      {"Rules violation", "rules"},
-      {"Other", "other"}
+      {dgettext("domain", "Harassment"), "harassment"},
+      {dgettext("domain", "Spam"), "spam"},
+      {dgettext("domain", "Metagame"), "metagame"},
+      {dgettext("domain", "Rules violation"), "rules"},
+      {dgettext("domain", "Other"), "other"}
     ]
   end
 
@@ -56,16 +58,16 @@ defmodule TannhauserGate.Reports do
     end
   end
 
-  def target_type_label("chat"), do: "Chat entry"
-  def target_type_label("forum_post"), do: "Forum post"
-  def target_type_label("mail"), do: "Letter"
-  def target_type_label("notice"), do: "Notice"
-  def target_type_label("character"), do: "Character"
+  def target_type_label("chat"), do: dgettext("domain", "Chat entry")
+  def target_type_label("forum_post"), do: dgettext("domain", "Forum post")
+  def target_type_label("mail"), do: dgettext("domain", "Letter")
+  def target_type_label("notice"), do: dgettext("domain", "Notice")
+  def target_type_label("character"), do: dgettext("domain", "Character")
   def target_type_label(other), do: other
 
-  def status_label("open"), do: "Open"
-  def status_label("resolved"), do: "Resolved"
-  def status_label("dismissed"), do: "Dismissed"
+  def status_label("open"), do: dgettext("domain", "Open")
+  def status_label("resolved"), do: dgettext("domain", "Resolved")
+  def status_label("dismissed"), do: dgettext("domain", "Dismissed")
   def status_label(other), do: other
 
   @doc "Whether the reported content of the report can be deleted from the queue."
@@ -358,20 +360,27 @@ defmodule TannhauserGate.Reports do
 
   defp delete_content(_user, _story, _report), do: false
 
-  def error_message(:module_disabled), do: "Reports are not enabled in this GDR."
-  def error_message(:unauthorized), do: "You can't do that."
-  def error_message(:invalid_target), do: "That can't be reported."
-  def error_message(:target_not_found), do: "That content does not exist or you can't see it."
-  def error_message(:own_content), do: "You can't report your own content."
-  def error_message(:rate_limited), do: "You filed too many reports: try again later."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Reports are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "You can't do that.")
+  def error_message(:invalid_target), do: dgettext("domain", "That can't be reported.")
+
+  def error_message(:target_not_found),
+    do: dgettext("domain", "That content does not exist or you can't see it.")
+
+  def error_message(:own_content), do: dgettext("domain", "You can't report your own content.")
+
+  def error_message(:rate_limited),
+    do: dgettext("domain", "You filed too many reports: try again later.")
 
   def error_message(:duplicate),
-    do: "You already reported this: the masters will look into it."
+    do: dgettext("domain", "You already reported this: the masters will look into it.")
 
-  def error_message(:not_found), do: "That report does not exist in this GDR."
-  def error_message(:not_open), do: "That report was already handled."
-  def error_message(%Ecto.Changeset{}), do: "Check the report form."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:not_found), do: dgettext("domain", "That report does not exist in this GDR.")
+  def error_message(:not_open), do: dgettext("domain", "That report was already handled.")
+  def error_message(%Ecto.Changeset{}), do: dgettext("domain", "Check the report form.")
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   defp check_enabled(story),
     do: if(enabled?(story), do: :ok, else: {:error, :module_disabled})

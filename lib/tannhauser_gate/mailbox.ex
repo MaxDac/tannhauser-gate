@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Mailbox do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The per-GDR mailbox: messages between characters.
 
@@ -33,7 +35,7 @@ defmodule TannhauserGate.Mailbox do
 
   @pubsub TannhauserGate.PubSub
   @masters "masters"
-  @masters_name "The masters"
+  @masters_name dgettext_noop("domain", "The masters")
 
   def topic(story_id), do: "mailbox:story:#{story_id}"
 
@@ -155,8 +157,10 @@ defmodule TannhauserGate.Mailbox do
 
   @doc "The display name of the recipient."
   def recipient_name(%Message{recipient_character: %Character{name: name}}), do: name
-  def recipient_name(%Message{recipient_character_id: nil}), do: @masters_name
-  def recipient_name(_), do: "unknown"
+  def recipient_name(%Message{recipient_character_id: nil}), do: masters_name()
+  def recipient_name(_), do: dgettext("domain", "unknown")
+
+  defp masters_name, do: Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", @masters_name)
 
   ## Reading and deleting
 
@@ -214,7 +218,7 @@ defmodule TannhauserGate.Mailbox do
       |> Enum.map(&{character_label(&1), to_string(&1.id)})
 
     if Stories.master?(user, story),
-      do: characters ++ [{@masters_name, @masters}],
+      do: characters ++ [{masters_name(), @masters}],
       else: characters
   end
 
@@ -228,7 +232,7 @@ defmodule TannhauserGate.Mailbox do
       |> recipient_characters(Stories.master?(user, story))
       |> Enum.map(&{character_label(&1), to_string(&1.id)})
 
-    [{@masters_name, @masters} | characters]
+    [{masters_name(), @masters} | characters]
   end
 
   defp recipient_characters(story, true), do: Characters.list_story_characters(story.id)
@@ -236,7 +240,9 @@ defmodule TannhauserGate.Mailbox do
   defp recipient_characters(story, false),
     do: Characters.list_story_characters(story.id, %{"approval_status" => "approved"})
 
-  defp character_label(%Character{is_npc: true, name: name}), do: "#{name} (NPC)"
+  defp character_label(%Character{is_npc: true, name: name}),
+    do: dgettext("domain", "%{name} (NPC)", name: name)
+
   defp character_label(%Character{name: name}), do: name
 
   def change_message(attrs \\ %{}), do: Message.changeset(%Message{}, attrs)
@@ -315,7 +321,11 @@ defmodule TannhauserGate.Mailbox do
             Changeset.change(changeset, sender_character_id: c.id, sender_name: c.name)
 
           nil ->
-            Changeset.add_error(changeset, :sender, "is not a character you can play")
+            Changeset.add_error(
+              changeset,
+              :sender,
+              dgettext_noop("errors", "is not a character you can play")
+            )
         end
     end
   end
@@ -330,8 +340,15 @@ defmodule TannhauserGate.Mailbox do
 
       value ->
         case find_character(recipient_characters(story, master?), value) do
-          %Character{} = c -> Changeset.put_change(changeset, :recipient_character_id, c.id)
-          nil -> Changeset.add_error(changeset, :recipient, "is not a character you can write to")
+          %Character{} = c ->
+            Changeset.put_change(changeset, :recipient_character_id, c.id)
+
+          nil ->
+            Changeset.add_error(
+              changeset,
+              :recipient,
+              dgettext_noop("errors", "is not a character you can write to")
+            )
         end
     end
   end
@@ -339,7 +356,12 @@ defmodule TannhauserGate.Mailbox do
   defp validate_not_to_self(changeset) do
     if Changeset.get_field(changeset, :from_masters) and
          Changeset.get_change(changeset, :recipient) == @masters,
-       do: Changeset.add_error(changeset, :recipient, "the masters cannot write to themselves"),
+       do:
+         Changeset.add_error(
+           changeset,
+           :recipient,
+           dgettext_noop("errors", "the masters cannot write to themselves")
+         ),
        else: changeset
   end
 
@@ -355,7 +377,10 @@ defmodule TannhauserGate.Mailbox do
       Changeset.add_error(
         changeset,
         :recipient,
-        "is another of your characters: this GDR does not allow letters between them"
+        dgettext_noop(
+          "errors",
+          "is another of your characters: this GDR does not allow letters between them"
+        )
       )
     else
       _ -> changeset

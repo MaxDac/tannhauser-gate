@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Boards do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Bulletin boards ("bacheche"), the `:boards` optional module.
 
@@ -291,9 +293,24 @@ defmodule TannhauserGate.Boards do
 
   defp validate_refs(changeset, %Story{id: story_id}) do
     changeset
-    |> validate_ref(:location_id, Location, story_id, "is not a room of this GDR")
-    |> validate_ref(:zone_id, TannhauserGate.Zones.Zone, story_id, "is not a zone of this GDR")
-    |> validate_ref(:guild_id, Guilds.Guild, story_id, "is not a guild of this GDR")
+    |> validate_ref(
+      :location_id,
+      Location,
+      story_id,
+      dgettext_noop("errors", "is not a room of this GDR")
+    )
+    |> validate_ref(
+      :zone_id,
+      TannhauserGate.Zones.Zone,
+      story_id,
+      dgettext_noop("errors", "is not a zone of this GDR")
+    )
+    |> validate_ref(
+      :guild_id,
+      Guilds.Guild,
+      story_id,
+      dgettext_noop("errors", "is not a guild of this GDR")
+    )
   end
 
   defp validate_ref(changeset, field, schema, story_id, message) do
@@ -407,13 +424,24 @@ defmodule TannhauserGate.Boards do
 
   @doc "Where a board hangs: its room or zone name."
   def place_label(%Board{location: %Location{name: name}}), do: name
-  def place_label(%Board{zone: %{name: name}}), do: "#{name} (zone)"
+
+  def place_label(%Board{zone: %{name: name}}),
+    do: dgettext("domain", "%{name} (zone)", name: name)
+
   def place_label(_), do: "—"
 
-  def error_message(:module_disabled), do: "Bulletin boards are not enabled in this GDR."
-  def error_message(:unauthorized), do: "You can't do that on this board."
-  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
-  def error_message(:not_found), do: "That item does not exist in this GDR."
-  def error_message(:character_not_found), do: "Pick one of your playable characters."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Bulletin boards are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "You can't do that on this board.")
+
+  def error_message(:muted),
+    do: dgettext("domain", "You are muted in this GDR: you cannot post right now.")
+
+  def error_message(:not_found), do: dgettext("domain", "That item does not exist in this GDR.")
+
+  def error_message(:character_not_found),
+    do: dgettext("domain", "Pick one of your playable characters.")
+
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 end

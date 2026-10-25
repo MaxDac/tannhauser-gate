@@ -44,7 +44,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     character = %Character{story_id: story.id, is_npc: true, background: story.sheet_template}
 
     socket
-    |> assign(:page_title, "New NPC")
+    |> assign(:page_title, dgettext("player", "New NPC"))
     |> assign(:character, character)
     |> assign(:master_notes?, true)
     |> assign(:trait_values, default_traits(socket, %{}))
@@ -68,7 +68,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             Enum.filter(Sheet.kinds(), &(socket.assigns.items[&1] != [])) ++ ["review"]
 
         socket
-        |> assign(:page_title, "New character")
+        |> assign(:page_title, dgettext("player", "New character"))
         |> assign(:character, character)
         |> assign(:master_notes?, false)
         |> assign(:wizard?, true)
@@ -80,8 +80,9 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       false ->
         flash =
           if story.max_characters_per_user > 1,
-            do: "You already have the maximum number of characters in this GDR.",
-            else: "You already have a character in this GDR."
+            do:
+              dgettext("player", "You already have the maximum number of characters in this GDR."),
+            else: dgettext("player", "You already have a character in this GDR.")
 
         to =
           case Characters.active_character(user, story) do
@@ -100,7 +101,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     cond do
       character.story_id != story.id ->
         socket
-        |> put_flash(:error, "That character does not exist in this GDR.")
+        |> put_flash(:error, dgettext("player", "That character does not exist in this GDR."))
         |> push_navigate(to: ~p"/g/#{story}/characters")
 
       Characters.can_edit?(socket.assigns.current_user, character) ->
@@ -108,7 +109,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         master? = Characters.can_view_master_notes?(socket.assigns.current_user, character)
 
         socket
-        |> assign(:page_title, "Edit #{character.name}")
+        |> assign(:page_title, dgettext("player", "Edit %{name}", name: character.name))
         |> assign(:character, character)
         |> assign(:master_notes?, master?)
         |> assign(
@@ -121,7 +122,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
       true ->
         socket
-        |> put_flash(:error, "You can't edit this character.")
+        |> put_flash(:error, dgettext("player", "You can't edit this character."))
         |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")
     end
   end
@@ -238,7 +239,10 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       |> Characters.change_character(Map.delete(params, "traits"))
       |> Map.put(:action, :validate)
 
-    {if(changeset.valid?, do: [], else: ["Fix the errors above to continue."]), changeset}
+    {if(changeset.valid?,
+       do: [],
+       else: [dgettext("player", "Fix the errors above to continue.")]
+     ), changeset}
   end
 
   defp step_errors(socket, "origins", params) do
@@ -253,7 +257,8 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     errors =
       case Origins.normalize_choices(groups, socket.assigns.origin_choices) do
         {:ok, choices} ->
-          for group <- Origins.missing_required(groups, choices), do: "Choose your #{group.name}."
+          for group <- Origins.missing_required(groups, choices),
+              do: dgettext("player", "Choose your %{name}.", name: group.name)
 
         {:error, message} ->
           [message]
@@ -293,10 +298,14 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         nil
 
       {_, ""} ->
-        "#{item.name} must be between #{item.min_value} and #{item.max_value}"
+        dgettext("player", "%{name} must be between %{min_value} and %{max_value}",
+          name: item.name,
+          min_value: item.min_value,
+          max_value: item.max_value
+        )
 
       _ ->
-        "#{item.name} must be a whole number"
+        dgettext("player", "%{name} must be a whole number", name: item.name)
     end
   end
 
@@ -329,7 +338,10 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       {:ok, character} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Character created as a draft: submit it for approval when ready.")
+         |> put_flash(
+           :info,
+           dgettext("player", "Character created as a draft: submit it for approval when ready.")
+         )
          |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")}
 
       {:error, changeset} ->
@@ -347,14 +359,15 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       {:ok, character} ->
         {:noreply,
          socket
-         |> put_flash(:info, "NPC created")
+         |> put_flash(:info, dgettext("player", "NPC created"))
          |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
 
       {:error, _reason} ->
-        {:noreply, put_flash(socket, :error, "Only the GDR masters can create NPCs.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "Only the GDR masters can create NPCs."))}
     end
   end
 
@@ -366,7 +379,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       {:ok, character} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Character updated")
+         |> put_flash(:info, dgettext("player", "Character updated"))
          |> push_navigate(to: ~p"/g/#{story}/characters/#{character}")}
 
       {:error, changeset} ->
@@ -378,20 +391,32 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     Enum.map(changeset.errors, fn
       {:traits, error} -> translate_error(error)
       {:origins, error} -> translate_error(error)
-      {field, error} -> "#{Phoenix.Naming.humanize(field)} #{translate_error(error)}"
+      {field, error} -> "#{field_label(field)} #{translate_error(error)}"
     end)
   end
 
+  defp field_label(:name), do: dgettext("player", "Name")
+  defp field_label(:description), do: dgettext("player", "Description")
+  defp field_label(:background), do: dgettext("player", "Background")
+  defp field_label(:off_game_info), do: dgettext("player", "Off game info")
+  defp field_label(:story_id), do: dgettext("player", "Story")
+  defp field_label(:player_notes), do: dgettext("player", "Player notes")
+  defp field_label(:master_notes), do: dgettext("player", "Master notes")
+  defp field_label(:avatar_path), do: dgettext("player", "Avatar path")
+  defp field_label(field), do: Phoenix.Naming.humanize(field)
+
   defp assign_form(socket, changeset), do: assign(socket, :form, to_form(changeset))
 
-  defp upload_error(:too_large), do: "The image is too large (max 5 MB)"
-  defp upload_error(:not_accepted), do: "Unsupported file type"
-  defp upload_error(:too_many_files), do: "Only one image is allowed"
-  defp upload_error(other), do: "Upload error: #{inspect(other)}"
+  defp upload_error(:too_large), do: dgettext("player", "The image is too large (max 5 MB)")
+  defp upload_error(:not_accepted), do: dgettext("player", "Unsupported file type")
+  defp upload_error(:too_many_files), do: dgettext("player", "Only one image is allowed")
 
-  defp step_label("identity"), do: "Identity"
-  defp step_label("origins"), do: "Origins"
-  defp step_label("review"), do: "Review"
+  defp upload_error(other),
+    do: dgettext("player", "Upload error: %{value}", value: inspect(other))
+
+  defp step_label("identity"), do: dgettext("player", "Identity")
+  defp step_label("origins"), do: dgettext("player", "Origins")
+  defp step_label("review"), do: dgettext("player", "Review")
   defp step_label(kind), do: Sheet.kind_label(kind)
 
   # Whether a section is visible: always in single-page forms, only on its
@@ -436,9 +461,14 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
     >
       <.header>
         {@page_title}
-        <:subtitle :if={!@character.is_npc}>Who are you in {@current_story.name}?</:subtitle>
+        <:subtitle :if={!@character.is_npc}>
+          {dgettext("player", "Who are you in %{name}?", name: @current_story.name)}
+        </:subtitle>
+
         <:subtitle :if={@character.is_npc}>
-          A non-player character of {@current_story.name}, played by its masters.
+          {dgettext("player", "A non-player character of %{name}, played by its masters.",
+            name: @current_story.name
+          )}
         </:subtitle>
       </.header>
 
@@ -446,7 +476,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         :if={@wizard?}
         id="wizard-steps"
         class="mt-6 flex max-w-2xl flex-wrap gap-2 text-xs font-bold uppercase tracking-wider"
-        aria-label="Character creation steps"
+        aria-label={dgettext("player", "Character creation steps")}
       >
         <li
           :for={{step, index} <- Enum.with_index(@steps, 1)}
@@ -467,14 +497,19 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       <div class="mt-6 max-w-2xl rounded-xl border border-secondary/20 bg-base-200/80 p-6">
         <.form for={@form} id="character-form" phx-change="validate" phx-submit="save">
           <div id="identity-step" class={[!shown?(assigns, "identity") && "hidden"]}>
-            <.input field={@form[:name]} type="text" label="Character name" required />
+            <.input
+              field={@form[:name]}
+              type="text"
+              label={dgettext("player", "Character name")}
+              required
+            />
             <.error :for={msg <- Enum.map(@form[:story_id].errors, &translate_error/1)}>
               {msg}
             </.error>
 
             <div phx-drop-target={@uploads.avatar.ref} class="space-y-2">
               <label for={@uploads.avatar.ref} class="console-label">
-                Avatar (photo)
+                {dgettext("player", "Avatar (photo)")}
               </label>
 
               <div class="flex flex-wrap items-center gap-4">
@@ -493,9 +528,9 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                     phx-click="cancel-upload"
                     phx-value-ref={entry.ref}
                     class="console-link-action text-xs text-error hover:underline"
-                    aria-label="Remove image"
+                    aria-label={dgettext("player", "Remove image")}
                   >
-                    Remove
+                    {dgettext("player", "Remove")}
                   </button>
                 </div>
 
@@ -510,35 +545,50 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
               </div>
 
               <p id="avatar-hint" class="text-xs text-base-content/60">
-                JPG, PNG, WebP or GIF. Maximum 5 MB.
+                {dgettext("player", "JPG, PNG, WebP or GIF. Maximum 5 MB.")}
               </p>
 
               <div :if={@avatar_errors != []} id="avatar-errors">
                 <.error :for={error <- @avatar_errors}>{error}</.error>
               </div>
             </div>
+
             <p id="markdown-hint" class="mb-1 text-xs text-base-content/60">
-              Description, background and off-game info support Markdown (**bold**, *italic*, lists, headings).
+              {dgettext(
+                "player",
+                "Description, background and off-game info support Markdown (**bold**, *italic*, lists, headings)."
+              )}
             </p>
-            <.input field={@form[:description]} type="textarea" label="Description" rows="4" />
-            <.input field={@form[:background]} type="textarea" label="Background" rows="10" />
+
+            <.input
+              field={@form[:description]}
+              type="textarea"
+              label={dgettext("player", "Description")}
+              rows="4"
+            />
+            <.input
+              field={@form[:background]}
+              type="textarea"
+              label={dgettext("player", "Background")}
+              rows="10"
+            />
             <.input
               field={@form[:off_game_info]}
               type="textarea"
-              label="Off-game info (public)"
+              label={dgettext("player", "Off-game info (public)")}
               rows="3"
             />
             <.input
               field={@form[:player_notes]}
               type="textarea"
-              label="Player notes (only you and the masters)"
+              label={dgettext("player", "Player notes (only you and the masters)")}
               rows="4"
             />
             <.input
               :if={@master_notes?}
               field={@form[:master_notes]}
               type="textarea"
-              label="Master notes (hidden from the player)"
+              label={dgettext("player", "Master notes (hidden from the player)")}
               rows="4"
             />
           </div>
@@ -555,12 +605,14 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                   :if={group.required}
                   class="text-[0.65rem] text-warning normal-case tracking-normal"
                 >
-                  required
+                  {dgettext("player", "required")}
                 </span>
               </h2>
+
               <p :if={group.description} class="mt-1 text-sm text-base-content/70">
                 {group.description}
               </p>
+
               <div class="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={group.name}>
                 <label
                   :if={!group.required}
@@ -580,9 +632,9 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                     value=""
                     checked={@origin_choices[to_string(group.id)] in [nil, ""]}
                     class="radio radio-primary radio-sm"
-                  />
-                  <span class="text-sm text-base-content/70">None</span>
+                  /> <span class="text-sm text-base-content/70">{dgettext("player", "None")}</span>
                 </label>
+
                 <label
                   :for={option <- group.options}
                   for={"origin-option-#{option.id}"}
@@ -616,14 +668,18 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                     >
                       {Origins.bonus_label(option.bonuses)}
                     </span>
+
                     <span
                       :if={option.requires_approval}
                       id={"origin-option-approval-#{option.id}"}
                       class="mt-1 flex items-center gap-1 text-xs text-warning"
                     >
-                      <.icon name="hero-shield-exclamation-micro" class="size-3.5" />
-                      The masters review this choice
+                      <.icon name="hero-shield-exclamation-micro" class="size-3.5" /> {dgettext(
+                        "player",
+                        "The masters review this choice"
+                      )}
                     </span>
+
                     <.markdown
                       :if={option.description}
                       content={option.description}
@@ -633,6 +689,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                 </label>
               </div>
             </div>
+
             <.error :for={msg <- Enum.map(@form[:origins].errors, &translate_error/1)}>
               {msg}
             </.error>
@@ -645,14 +702,15 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
             name={"character[origins][#{group_id}]"}
             value={option_id}
           />
-
           <p
             :if={@traits_locked?}
             id="traits-locked"
             class="mt-6 border-t border-secondary/20 pt-4 text-sm text-base-content/70"
           >
-            The sheet of an approved character grows with experience: raise its attributes,
-            skills and powers by spending XP from the character page.
+            {dgettext(
+              "player",
+              "The sheet of an approved character grows with experience: raise its attributes, skills and powers by spending XP from the character page."
+            )}
           </p>
 
           <%= for {kind, items} <- @items, items != [], not @traits_locked? do %>
@@ -664,9 +722,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
               <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
                 {Sheet.kind_label(kind)}
               </h2>
-
               <.budget :if={@budgets[kind]} kind={kind} status={@budgets[kind]} />
-
               <div class="mt-3 grid gap-x-6 sm:grid-cols-2">
                 <div :for={item <- items}>
                   <.input
@@ -696,25 +752,34 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
 
           <section :if={@wizard? and @step == "review"} id="review-step" class="space-y-4">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              Review {@form[:name].value}
+              {dgettext("player", "Review")} {@form[:name].value}
             </h2>
+
             <p class="text-sm text-base-content/70">
-              The character is saved as a draft: you can still change it, then submit it to the
-              masters for approval from its page.
+              {dgettext(
+                "player",
+                "The character is saved as a draft: you can still change it, then submit it to the masters for approval from its page."
+              )}
             </p>
+
             <div
               :if={@origin_groups != []}
               id="review-origins"
               class="rounded-lg border border-secondary/15 p-3"
             >
-              <h3 class="text-xs font-bold uppercase tracking-wider text-secondary">Origins</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-secondary">
+                {dgettext("player", "Origins")}
+              </h3>
+
               <dl class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                 <div :for={group <- @origin_groups} class="flex justify-between gap-2">
                   <dt class="text-base-content/70">{group.name}</dt>
+
                   <dd class="font-semibold">{chosen_name(group, @origin_choices)}</dd>
                 </div>
               </dl>
             </div>
+
             <div
               :for={{kind, items} <- @items}
               :if={items != []}
@@ -724,9 +789,11 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
               <h3 class="text-xs font-bold uppercase tracking-wider text-secondary">
                 {Sheet.kind_label(kind)}
               </h3>
+
               <dl class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                 <div :for={item <- items} class="flex justify-between gap-2">
                   <dt class="text-base-content/70">{item.name}</dt>
+
                   <dd class="font-semibold tabular-nums">{@trait_values[to_string(item.id)]}</dd>
                 </div>
               </dl>
@@ -736,6 +803,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
           <div :if={@step_errors != []} id="step-errors" class="mt-4">
             <.error :for={msg <- @step_errors}>{msg}</.error>
           </div>
+
           <.error :for={msg <- @trait_errors}>{msg}</.error>
 
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
@@ -746,25 +814,28 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
                 id="wizard-back"
                 phx-click="back"
               >
-                <.icon name="hero-arrow-left" class="size-4" /> Back
+                <.icon name="hero-arrow-left" class="size-4" /> {dgettext("player", "Back")}
               </.button>
+
               <.button
                 :if={@wizard? and @step != "review"}
                 id="wizard-next"
                 variant="primary"
-                phx-disable-with="Checking..."
+                phx-disable-with={dgettext("player", "Checking...")}
               >
-                Next <.icon name="hero-arrow-right" class="size-4" />
+                {dgettext("player", "Next")} <.icon name="hero-arrow-right" class="size-4" />
               </.button>
+
               <.button
                 :if={!@wizard? or @step == "review"}
                 id="save-character"
                 variant="primary"
-                phx-disable-with="Saving..."
+                phx-disable-with={dgettext("player", "Saving...")}
               >
-                Save character
+                {dgettext("player", "Save character")}
               </.button>
             </div>
+
             <.link
               navigate={
                 if @character.id,
@@ -773,7 +844,7 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
               }
               class="console-link-action text-sm font-semibold text-base-content/60 hover:text-secondary"
             >
-              Cancel
+              {dgettext("player", "Cancel")}
             </.link>
           </div>
         </.form>
@@ -812,8 +883,10 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         if(@status.ok?, do: "bg-success/10 text-success", else: "bg-error/10 text-error")
       ]}
     >
-      <span class="font-semibold tabular-nums">{@status.remaining}</span>
-      of {@status.total} points left to spend above the starting value.
+      <span class="font-semibold tabular-nums">{@status.remaining}</span> {dgettext("player", "of")} {@status.total} {dgettext(
+        "player",
+        "points left to spend above the starting value."
+      )}
     </p>
     """
   end
@@ -828,12 +901,17 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       ]}
     >
       <p>
-        Assign these values:
+        {dgettext("player", "Assign these values:")}
         <span class="font-semibold tabular-nums">{Enum.join(@status.distribution, ", ")}</span>
-        <span class="text-base-content/60">(the other items keep the starting value).</span>
+        <span class="text-base-content/60">{dgettext(
+          "player",
+          "(the other items keep the starting value)."
+        )}</span>
       </p>
+
       <p :if={@status.missing != []} class="mt-1 text-xs">
-        Still to assign: <span class="tabular-nums">{Enum.join(@status.missing, ", ")}</span>
+        {dgettext("player", "Still to assign:")}
+        <span class="tabular-nums">{Enum.join(@status.missing, ", ")}</span>
       </p>
     </div>
     """

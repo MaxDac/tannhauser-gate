@@ -128,12 +128,16 @@ test("forms remain within the mobile viewport", async ({ page }) => {
       viewport: window.innerWidth,
     }));
     expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport);
-    for (const control of await page.locator("form .console-field").all()) {
+    for (const control of await page.locator("main form .console-field").all()) {
       const bounds = await control.boundingBox();
       expect(bounds).not.toBeNull();
       expect(bounds!.x).toBeGreaterThanOrEqual(0);
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(dimensions.viewport);
     }
+
+    await page.locator('label[for="drawer-toggle"][aria-label="Open navigation"]').click();
+    await page.locator("#language-select").scrollIntoViewIfNeeded();
+    await expect(page.locator("#language-select")).toBeInViewport({ ratio: 1 });
   }
 });
 

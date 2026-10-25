@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
 
     {:ok,
      socket
-     |> assign(:page_title, "Chat log")
+     |> assign(:page_title, dgettext("management", "Chat log"))
      |> assign(:locations, Stories.list_locations(story))}
   end
 
@@ -62,14 +62,21 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Chat log
+        {dgettext("management", "Chat log")}
         <:subtitle>
-          Every room of {@current_story.name}, including archived messages (newest first, up to 200).
+          {dgettext(
+            "management",
+            "Every room of %{current_story_name}, including archived messages (newest first, up to 200).",
+            current_story_name: @current_story.name
+          )}
         </:subtitle>
       </.header>
 
@@ -82,26 +89,28 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
         <.input
           field={@filter_form[:location_id]}
           type="select"
-          label="Room"
-          prompt="All rooms"
+          label={dgettext("management", "Room")}
+          prompt={dgettext("management", "All rooms")}
           options={Enum.map(@locations, &{&1.name, &1.id})}
-        /> <.input field={@filter_form[:from]} type="date" label="From" />
-        <.input field={@filter_form[:to]} type="date" label="To" />
+        /> <.input field={@filter_form[:from]} type="date" label={dgettext("management", "From")} />
+        <.input field={@filter_form[:to]} type="date" label={dgettext("management", "To")} />
         <div class="flex items-end">
           <.button id="chat-log-search" class="btn btn-primary console-action mb-2 w-full">
-            <.icon name="hero-magnifying-glass" class="size-4" /> Search
+            <.icon name="hero-magnifying-glass" class="size-4" /> {dgettext("management", "Search")}
           </.button>
         </div>
       </.form>
 
-      <p id="chat-log-count" class="mt-4 text-xs text-base-content/60">{@count} entries</p>
+      <p id="chat-log-count" class="mt-4 text-xs text-base-content/60">
+        {dgettext("management", "%{count} entries", count: @count)}
+      </p>
 
       <ol id="chat-log" phx-update="stream" class="mt-2 space-y-2">
         <li
           id="chat-log-empty"
           class="hidden py-8 text-center text-sm text-base-content/60 only:block"
         >
-          No messages match these filters.
+          {dgettext("management", "No messages match these filters.")}
         </li>
 
         <li
@@ -117,17 +126,17 @@ defmodule TannhauserGateWeb.MasterLive.ChatLog do
               {Calendar.strftime(entry.inserted_at, "%Y-%m-%d %H:%M")}
             </time>
             <span class="font-semibold text-primary">{entry.speaker}</span>
-            <span :if={entry.username}>({entry.username})</span>
-            in <span class="font-semibold">{entry.location.name}</span>
-            <.kind_badge kind={entry.kind} />
+            <span :if={entry.username}>({entry.username})</span> {dgettext("management", "in")}
+            <span class="font-semibold">{entry.location.name}</span> <.kind_badge kind={entry.kind} />
             <span :if={entry.kind == "whisper"} class="whisper-recipient text-secondary">
-              → {entry.recipient || "a vanished character"}
+              → {entry.recipient || dgettext("management", "a vanished character")}
             </span>
+
             <span
               :if={entry.archived?}
               class="archived-badge rounded bg-fog-700/60 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-fog-300"
             >
-              Archived
+              {dgettext("management", "Archived")}
             </span>
           </p>
 

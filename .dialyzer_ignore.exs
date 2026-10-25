@@ -2,6 +2,8 @@
 # Ecto.Multi pipeline as call_without_opaque.
 # This is a false positive.
 [
+  # Gettext embeds Expo's opaque plural-rule AST in generated backend code.
+  {"lib/tannhauser_gate_web/gettext.ex", :call_without_opaque},
   {"lib/tannhauser_gate/accounts.ex", :call_without_opaque},
   {"lib/tannhauser_gate/forum.ex", :call_without_opaque},
   {"lib/tannhauser_gate/bank.ex", :call_without_opaque},

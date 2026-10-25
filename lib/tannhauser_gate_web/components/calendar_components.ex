@@ -9,6 +9,7 @@ defmodule TannhauserGateWeb.CalendarComponents do
   hero-sparkles hero-globe-alt hero-signal-slash hero-exclamation-triangle.
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   import TannhauserGateWeb.CoreComponents, only: [icon: 1]
 
@@ -35,7 +36,10 @@ defmodule TannhauserGateWeb.CalendarComponents do
       )
 
     ~H"""
-    <span class={["inline-flex items-center gap-1.5", @class]} title="In-game date and time">
+    <span
+      class={["inline-flex items-center gap-1.5", @class]}
+      title={dgettext("player", "In-game date and time")}
+    >
       <.icon name="hero-calendar-days" class="size-3.5 shrink-0 opacity-80" />
       <time
         id={@id}
@@ -52,6 +56,7 @@ defmodule TannhauserGateWeb.CalendarComponents do
         class="tabular-nums"
       >{@text}</time>
     </span>
+
     <script :type={Phoenix.LiveView.ColocatedHook} name=".GameClock">
       // Advances the game clock locally: same math as TannhauserGate.Calendar.
       const mod = (a, n) => ((a % n) + n) % n
@@ -123,8 +128,7 @@ defmodule TannhauserGateWeb.CalendarComponents do
         @class
       ]}
     >
-      <.icon name={@weather.icon} class="size-3.5 shrink-0" />
-      <span>{@weather.condition}</span>
+      <.icon name={@weather.icon} class="size-3.5 shrink-0" /> <span>{@weather.condition}</span>
       <span :if={@weather.temperature} class="tabular-nums opacity-80">
         {@weather.temperature}°C
       </span>

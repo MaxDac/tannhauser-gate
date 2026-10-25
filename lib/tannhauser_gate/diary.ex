@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Diary do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Character diaries and galleries, the `:diary` optional module.
 
@@ -232,24 +234,35 @@ defmodule TannhauserGate.Diary do
 
   ## Labels
 
-  def visibility_label("public"), do: "Public"
-  def visibility_label("masters"), do: "Masters only"
-  def visibility_label("private"), do: "Private"
+  def visibility_label("public"), do: dgettext("domain", "Public")
+  def visibility_label("masters"), do: dgettext("domain", "Masters only")
+  def visibility_label("private"), do: dgettext("domain", "Private")
 
   def visibility_options,
     do: [
-      {"Public — everyone in the GDR", "public"},
-      {"Masters — you and the masters", "masters"},
-      {"Private — only you (masters may moderate)", "private"}
+      {dgettext("domain", "Public — everyone in the GDR"), "public"},
+      {dgettext("domain", "Masters — you and the masters"), "masters"},
+      {dgettext("domain", "Private — only you (masters may moderate)"), "private"}
     ]
 
-  def error_message(:module_disabled), do: "Diaries are not enabled in this GDR."
-  def error_message(:muted), do: "You cannot write in this GDR right now."
-  def error_message(:unauthorized), do: "You can't do that on this character."
-  def error_message(:not_found), do: "That item does not exist."
-  def error_message(:gallery_full), do: "The gallery is full (#{@max_images} pictures)."
-  def error_message(:too_large), do: "The image is too large (max 5 MB)."
-  def error_message(:invalid_image), do: "Only PNG, JPEG and WebP images are allowed."
-  def error_message(%Ecto.Changeset{}), do: "Check the caption (max 140 characters)."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Diaries are not enabled in this GDR.")
+
+  def error_message(:muted), do: dgettext("domain", "You cannot write in this GDR right now.")
+  def error_message(:unauthorized), do: dgettext("domain", "You can't do that on this character.")
+  def error_message(:not_found), do: dgettext("domain", "That item does not exist.")
+
+  def error_message(:gallery_full),
+    do:
+      dgettext("domain", "The gallery is full (%{max_images} pictures).", max_images: @max_images)
+
+  def error_message(:too_large), do: dgettext("domain", "The image is too large (max 5 MB).")
+
+  def error_message(:invalid_image),
+    do: dgettext("domain", "Only PNG, JPEG and WebP images are allowed.")
+
+  def error_message(%Ecto.Changeset{}),
+    do: dgettext("domain", "Check the caption (max 140 characters).")
+
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 end

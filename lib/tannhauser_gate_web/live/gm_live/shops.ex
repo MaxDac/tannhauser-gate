@@ -18,7 +18,7 @@ defmodule TannhauserGateWeb.GmLive.Shops do
 
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> assign(:locations, Stories.list_locations(story))
      |> assign(:items, Items.list_items(story))
      |> reload()
@@ -53,7 +53,11 @@ defmodule TannhauserGateWeb.GmLive.Shops do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Shop saved.") |> reload() |> edit_shop(%Shop{})}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Shop saved."))
+         |> reload()
+         |> edit_shop(%Shop{})}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :shop_form, to_form(changeset))}
@@ -70,7 +74,7 @@ defmodule TannhauserGateWeb.GmLive.Shops do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Shop deleted.")
+     |> put_flash(:info, dgettext("management", "Shop deleted."))
      |> reload()
      |> edit_shop(%Shop{})
      |> edit_listing(nil)}
@@ -108,7 +112,11 @@ defmodule TannhauserGateWeb.GmLive.Shops do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Listing saved.") |> reload() |> edit_listing(nil)}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Listing saved."))
+         |> reload()
+         |> edit_listing(nil)}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :listing_form, to_form(changeset))}
@@ -124,7 +132,10 @@ defmodule TannhauserGateWeb.GmLive.Shops do
         {:ok, _} = Items.delete_listing(listing)
 
         {:noreply,
-         socket |> put_flash(:info, "Listing removed.") |> reload() |> edit_listing(nil)}
+         socket
+         |> put_flash(:info, dgettext("management", "Listing removed."))
+         |> reload()
+         |> edit_listing(nil)}
     end
   end
 
@@ -144,14 +155,14 @@ defmodule TannhauserGateWeb.GmLive.Shops do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="shops" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="shops" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_26rem]">
         <section id="shops" class="space-y-4">
           <p :if={@shops == []} id="shops-empty" class="text-sm text-base-content/60">
-            No shops yet. Shops appear on the Market page; place one in a room to open it from
-            there too.
+            {dgettext(
+              "management",
+              "No shops yet. Shops appear on the Market page; place one in a room to open it from there too."
+            )}
           </p>
 
           <article
@@ -162,37 +173,42 @@ defmodule TannhauserGateWeb.GmLive.Shops do
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <h3 class="font-semibold text-primary">{shop.name}</h3>
+
                 <p class="text-xs text-base-content/60">
-                  <.icon name="hero-map-pin-micro" class="size-3" />
-                  {if shop.location, do: shop.location.name, else: "Market only"}
+                  <.icon name="hero-map-pin-micro" class="size-3" /> {if shop.location,
+                    do: shop.location.name,
+                    else: dgettext("management", "Market only")}
                 </p>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   id={"new-listing-#{shop.id}"}
                   phx-click="new_listing"
                   phx-value-shop={shop.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-primary"
-                  title="Sell an item"
+                  title={dgettext("management", "Sell an item")}
                 >
                   <.icon name="hero-plus-circle" class="size-4" />
                 </button>
+
                 <button
                   id={"edit-shop-#{shop.id}"}
                   phx-click="edit_shop"
                   phx-value-id={shop.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-shop-#{shop.id}"}
                   phx-click="delete_shop"
                   phx-value-id={shop.id}
-                  data-confirm="Delete this shop and its listings?"
+                  data-confirm={dgettext("management", "Delete this shop and its listings?")}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
@@ -200,17 +216,22 @@ defmodule TannhauserGateWeb.GmLive.Shops do
             </div>
 
             <p :if={shop.listings == []} class="mt-3 text-xs italic text-base-content/50">
-              Nothing for sale yet.
+              {dgettext("management", "Nothing for sale yet.")}
             </p>
+
             <table :if={shop.listings != []} class="mt-3 w-full text-sm">
               <thead class="text-left text-xs uppercase tracking-wider text-base-content/50">
                 <tr>
-                  <th class="py-1 font-semibold">Item</th>
-                  <th class="py-1 text-right font-semibold">Price</th>
-                  <th class="py-1 text-right font-semibold">Stock</th>
+                  <th class="py-1 font-semibold">{dgettext("management", "Item")}</th>
+
+                  <th class="py-1 text-right font-semibold">{dgettext("management", "Price")}</th>
+
+                  <th class="py-1 text-right font-semibold">{dgettext("management", "Stock")}</th>
+
                   <th></th>
                 </tr>
               </thead>
+
               <tbody>
                 <tr
                   :for={listing <- shop.listings}
@@ -218,29 +239,36 @@ defmodule TannhauserGateWeb.GmLive.Shops do
                   class="border-t border-secondary/10 transition-colors hover:bg-base-100/40"
                 >
                   <td class="py-1.5">{listing.item.name}</td>
+
                   <td class="py-1.5 text-right tabular-nums">
                     {Listing.unit_price(listing)}
-                    <span :if={is_nil(listing.price)} class="text-xs opacity-50">(base)</span>
+                    <span :if={is_nil(listing.price)} class="text-xs opacity-50">{dgettext(
+                      "management",
+                      "(base)"
+                    )}</span>
                   </td>
+
                   <td id={"listing-stock-#{listing.id}"} class="py-1.5 text-right tabular-nums">
                     {listing.stock || "∞"}
                   </td>
+
                   <td class="py-1.5 text-right">
                     <button
                       id={"edit-listing-#{listing.id}"}
                       phx-click="edit_listing"
                       phx-value-id={listing.id}
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                      title="Edit"
+                      title={dgettext("management", "Edit")}
                     >
                       <.icon name="hero-pencil" class="size-3.5" />
                     </button>
+
                     <button
                       id={"delete-listing-#{listing.id}"}
                       phx-click="delete_listing"
                       phx-value-id={listing.id}
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                      title="Remove"
+                      title={dgettext("management", "Remove")}
                     >
                       <.icon name="hero-trash" class="size-3.5" />
                     </button>
@@ -257,11 +285,15 @@ defmodule TannhauserGateWeb.GmLive.Shops do
             class="rounded-xl border border-primary/30 bg-base-200/80 p-5"
           >
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @listing.id, do: "Edit listing", else: "Sell an item"} · {@listing.shop.name}
+              {if @listing.id,
+                do: dgettext("management", "Edit listing"),
+                else: dgettext("management", "Sell an item")} · {@listing.shop.name}
             </h2>
+
             <p :if={@items == []} class="mt-2 text-xs text-warning">
-              Create items in the Items tab first.
+              {dgettext("management", "Create items in the Items tab first.")}
             </p>
+
             <.form
               for={@listing_form}
               id="listing-form"
@@ -272,30 +304,34 @@ defmodule TannhauserGateWeb.GmLive.Shops do
               <.input
                 field={@listing_form[:item_id]}
                 type="select"
-                label="Item"
-                prompt="Choose an item"
+                label={dgettext("management", "Item")}
+                prompt={dgettext("management", "Choose an item")}
                 options={Enum.map(@items, &{"#{&1.name} (#{&1.price})", &1.id})}
               />
               <div class="grid grid-cols-2 gap-3">
                 <.input
                   field={@listing_form[:price]}
                   type="number"
-                  label="Price (blank = base)"
+                  label={dgettext("management", "Price (blank = base)")}
                   min="0"
                 />
                 <.input
                   field={@listing_form[:stock]}
                   type="number"
-                  label="Stock (blank = ∞)"
+                  label={dgettext("management", "Stock (blank = ∞)")}
                   min="0"
                 />
               </div>
+
               <div class="flex gap-2">
-                <.button id="save-listing" phx-disable-with="Saving...">
-                  {if @listing.id, do: "Update listing", else: "Add listing"}
+                <.button id="save-listing" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @listing.id,
+                    do: dgettext("management", "Update listing"),
+                    else: dgettext("management", "Add listing")}
                 </.button>
+
                 <.button type="button" id="cancel-listing" phx-click="cancel_listing">
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
@@ -303,8 +339,11 @@ defmodule TannhauserGateWeb.GmLive.Shops do
 
           <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @shop.id, do: "Edit shop", else: "New shop"}
+              {if @shop.id,
+                do: dgettext("management", "Edit shop"),
+                else: dgettext("management", "New shop")}
             </h2>
+
             <.form
               for={@shop_form}
               id="shop-form"
@@ -312,26 +351,34 @@ defmodule TannhauserGateWeb.GmLive.Shops do
               phx-submit="save_shop"
               class="mt-4"
             >
-              <.input field={@shop_form[:name]} type="text" label="Name" required />
+              <.input
+                field={@shop_form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@shop_form[:location_id]}
                 type="select"
-                label="Room (optional)"
-                prompt="Market only"
+                label={dgettext("management", "Room (optional)")}
+                prompt={dgettext("management", "Market only")}
                 options={Enum.map(@locations, &{&1.name, &1.id})}
               />
               <.input
                 field={@shop_form[:description]}
                 type="textarea"
-                label="Description (Markdown)"
+                label={dgettext("management", "Description (Markdown)")}
                 rows="3"
               />
               <div class="flex gap-2">
-                <.button id="save-shop" phx-disable-with="Saving...">
-                  {if @shop.id, do: "Update shop", else: "Add shop"}
+                <.button id="save-shop" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @shop.id,
+                    do: dgettext("management", "Update shop"),
+                    else: dgettext("management", "Add shop")}
                 </.button>
+
                 <.button :if={@shop.id} type="button" id="cancel-shop" phx-click="cancel_shop">
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>

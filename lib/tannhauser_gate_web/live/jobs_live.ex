@@ -11,13 +11,13 @@ defmodule TannhauserGateWeb.JobsLive do
       nil ->
         {:ok,
          socket
-         |> put_flash(:info, "Create a character to take a job.")
+         |> put_flash(:info, dgettext("player", "Create a character to take a job."))
          |> push_navigate(to: ~p"/g/#{story}/characters/new")}
 
       character ->
         {:ok,
          socket
-         |> assign(:page_title, "Jobs · #{story.name}")
+         |> assign(:page_title, dgettext("player", "Jobs · %{name}", name: story.name))
          |> assign(:character, character)
          |> assign(:jobs, Bank.list_jobs(story))}
     end
@@ -32,7 +32,13 @@ defmodule TannhauserGateWeb.JobsLive do
       {:ok, character} ->
         {:noreply,
          socket
-         |> put_flash(:info, if(job_id, do: "Job taken.", else: "You quit your job."))
+         |> put_flash(
+           :info,
+           if(job_id,
+             do: dgettext("player", "Job taken."),
+             else: dgettext("player", "You quit your job.")
+           )
+         )
          |> assign(:character, character)}
 
       {:error, reason} ->
@@ -57,18 +63,24 @@ defmodule TannhauserGateWeb.JobsLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Jobs
+        {dgettext("player", "Jobs")}
         <:subtitle>
-          Paid every {@current_story.pay_interval_hours}h in {@current_story.currency_name}.
+          {dgettext("player", "Paid every %{hours}h in %{currency}.",
+            hours: @current_story.pay_interval_hours,
+            currency: @current_story.currency_name
+          )}
         </:subtitle>
 
         <:actions>
-          <.button :if={@character.job_id} id="quit-job" phx-click="quit">Quit current job</.button>
+          <.button :if={@character.job_id} id="quit-job" phx-click="quit">{dgettext(
+            "player",
+            "Quit current job"
+          )}</.button>
         </:actions>
       </.header>
 
       <p :if={@jobs == []} id="no-jobs" class="mt-10 text-center text-base-content/60">
-        The game master hasn't defined any jobs yet.
+        {dgettext("player", "The game master hasn't defined any jobs yet.")}
       </p>
 
       <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -94,9 +106,13 @@ defmodule TannhauserGateWeb.JobsLive do
             phx-click="take"
             phx-value-id={job.id}
           >
-            Take this job
+            {dgettext("player", "Take this job")}
           </.button>
-          <span :if={@character.job_id == job.id} class="badge badge-primary">Current job</span>
+
+          <span :if={@character.job_id == job.id} class="badge badge-primary">{dgettext(
+            "player",
+            "Current job"
+          )}</span>
         </div>
       </div>
     </Layouts.app>

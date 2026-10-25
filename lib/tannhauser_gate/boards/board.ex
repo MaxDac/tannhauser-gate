@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Boards.Board do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   An in-game notice board, hung in a room (location) or in a whole zone (shown
   in every room of the zone). It may be restricted to a guild (guilds
@@ -30,15 +32,29 @@ defmodule TannhauserGate.Boards.Board do
     |> validate_length(:name, max: 80)
     |> validate_length(:description, max: 2_000)
     |> validate_place()
-    |> check_constraint(:location_id, name: :boards_place_check, message: "pick a room or a zone")
+    |> check_constraint(:location_id,
+      name: :boards_place_check,
+      message: dgettext_noop("errors", "pick a room or a zone")
+    )
   end
 
   defp validate_place(changeset) do
     case {get_field(changeset, :location_id), get_field(changeset, :zone_id)} do
-      {nil, nil} -> add_error(changeset, :location_id, "pick a room or a zone")
-      {_, nil} -> changeset
-      {nil, _} -> changeset
-      _ -> add_error(changeset, :zone_id, "pick either a room or a zone, not both")
+      {nil, nil} ->
+        add_error(changeset, :location_id, dgettext_noop("errors", "pick a room or a zone"))
+
+      {_, nil} ->
+        changeset
+
+      {nil, _} ->
+        changeset
+
+      _ ->
+        add_error(
+          changeset,
+          :zone_id,
+          dgettext_noop("errors", "pick either a room or a zone, not both")
+        )
     end
   end
 end

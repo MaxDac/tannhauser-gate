@@ -1,4 +1,6 @@
 defmodule TannhauserGate.PeriodicActions do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Periodic (hunt-like) actions configured by the GDR admin.
 
@@ -237,8 +239,8 @@ defmodule TannhauserGate.PeriodicActions do
   end
 
   @doc "A human readable message for the `perform/4` errors."
-  def error_message(:cooldown), do: "This action is still on cooldown."
-  def error_message(:wrong_story), do: "This action belongs to another GDR."
+  def error_message(:cooldown), do: dgettext("domain", "This action is still on cooldown.")
+  def error_message(:wrong_story), do: dgettext("domain", "This action belongs to another GDR.")
   def error_message(reason), do: Dice.error_message(reason)
 
   ## Log (masters)

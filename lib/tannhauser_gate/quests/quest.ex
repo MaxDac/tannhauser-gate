@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Quests.Quest do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A quest (or scene) recorded by a master: title, Markdown summary, the date
   it was held, the room, the master who ran it and its visibility (`public`
@@ -63,7 +65,7 @@ defmodule TannhauserGate.Quests.Quest do
     to = get_field(changeset, :log_to)
 
     if from && to && DateTime.compare(from, to) == :gt,
-      do: add_error(changeset, :log_to, "must be after the start"),
+      do: add_error(changeset, :log_to, dgettext_noop("errors", "must be after the start")),
       else: changeset
   end
 

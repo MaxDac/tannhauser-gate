@@ -5,17 +5,17 @@ defmodule TannhauserGateWeb.UserSessionController do
   alias TannhauserGateWeb.UserAuth
 
   def create(conn, %{"_action" => "registered"} = params) do
-    create(conn, params, "Account created successfully!")
+    create(conn, params, dgettext("shared", "Account created successfully!"))
   end
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
     |> put_session(:user_return_to, ~p"/users/settings")
-    |> create(params, "Password updated successfully!")
+    |> create(params, dgettext("shared", "Password updated successfully!"))
   end
 
   def create(conn, params) do
-    create(conn, params, "Welcome back!")
+    create(conn, params, dgettext("shared", "Welcome back!"))
   end
 
   defp create(conn, %{"user" => user_params}, info) do
@@ -30,7 +30,7 @@ defmodule TannhauserGateWeb.UserSessionController do
     else
       # In order to prevent user enumeration attacks, don't disclose whether the account exists.
       conn
-      |> put_flash(:error, "Invalid username or password")
+      |> put_flash(:error, dgettext("shared", "Invalid username or password"))
       |> put_flash(:login, String.slice(login, 0, 160))
       |> redirect(to: ~p"/users/log_in")
     end
@@ -38,7 +38,7 @@ defmodule TannhauserGateWeb.UserSessionController do
 
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, "Logged out successfully.")
+    |> put_flash(:info, dgettext("shared", "Logged out successfully."))
     |> UserAuth.log_out_user()
   end
 end

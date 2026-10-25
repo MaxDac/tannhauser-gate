@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Boards.Notice do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A short in-character notice pinned on a board by a character (Markdown),
   with an optional expiry after which it is no longer shown.
@@ -29,7 +31,7 @@ defmodule TannhauserGate.Boards.Notice do
     |> validate_change(:expires_at, fn :expires_at, at ->
       if DateTime.compare(at, DateTime.utc_now()) == :gt,
         do: [],
-        else: [expires_at: "must be in the future"]
+        else: [expires_at: dgettext_noop("errors", "must be in the future")]
     end)
   end
 end

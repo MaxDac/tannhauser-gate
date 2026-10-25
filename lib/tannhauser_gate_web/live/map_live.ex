@@ -22,7 +22,7 @@ defmodule TannhauserGateWeb.MapLive do
      |> assign(:counts, Chat.count_messages_by_location())
      |> assign(:bookings, Bookings.upcoming_by_location(story.id))
      |> assign(:guild_names, guild_names(socket.assigns.current_user, story))
-     |> assign(:page_title, "#{story.name} · Map")}
+     |> assign(:page_title, dgettext("player", "%{name} · Map", name: story.name))}
   end
 
   defp load_weather(%{assigns: %{weather?: true, story: story}} = socket),
@@ -45,24 +45,38 @@ defmodule TannhauserGateWeb.MapLive do
     if Guilds.enabled?(story) do
       Map.new(Guilds.list_guilds(story), fn guild ->
         {guild.id,
-         if(Guilds.visible?(user, story, guild), do: guild.name, else: "Guild members only")}
+         if(Guilds.visible?(user, story, guild),
+           do: guild.name,
+           else: dgettext("player", "Guild members only")
+         )}
       end)
     else
       %{}
     end
   end
 
-  defp booking_line([]), do: "Private: free to book."
+  defp booking_line([]), do: dgettext("player", "Private: free to book.")
 
   defp booking_line([booking | rest]) do
     now = DateTime.utc_now()
     who = booking.character.name
-    more = if rest == [], do: "", else: " (+#{length(rest)} more)"
+
+    more =
+      if rest == [], do: "", else: dgettext("player", " (+%{value} more)", value: length(rest))
 
     if DateTime.compare(booking.starts_at, now) == :gt,
       do:
-        "Next booking: #{who}, #{Calendar.strftime(booking.starts_at, "%d %b %H:%M")} UTC#{more}",
-      else: "Booked by #{who} until #{Calendar.strftime(booking.ends_at, "%H:%M")} UTC#{more}"
+        dgettext("player", "Next booking: %{who}, %{value} UTC%{more}",
+          who: who,
+          value: format_local_date(booking.starts_at, "%d %b %H:%M"),
+          more: more
+        ),
+      else:
+        dgettext("player", "Booked by %{who} until %{value} UTC%{more}",
+          who: who,
+          value: Calendar.strftime(booking.ends_at, "%H:%M"),
+          more: more
+        )
   end
 
   @impl true
@@ -96,7 +110,7 @@ defmodule TannhauserGateWeb.MapLive do
             viewBox={"0 0 #{@story.map_width} #{@story.map_height}"}
             class="block h-auto w-full"
             role="img"
-            aria-label={"Map of #{@story.name}"}
+            aria-label={dgettext("player", "Map of %{name}", name: @story.name)}
           >
             <image
               :if={@story.map_svg not in [nil, ""]}
@@ -120,7 +134,11 @@ defmodule TannhauserGateWeb.MapLive do
             </g>
           </svg>
 
-          <nav id="map-pins" aria-label={"Locations of #{@story.name}"} class="absolute inset-0">
+          <nav
+            id="map-pins"
+            aria-label={dgettext("player", "Locations of %{name}", name: @story.name)}
+            class="absolute inset-0"
+          >
             <.link
               :for={%{location: location, index: index} = pin <- @pins}
               id={"room-pin-#{location.id}"}
@@ -155,7 +173,7 @@ defmodule TannhauserGateWeb.MapLive do
 
         <aside class="map-legend self-start rounded-xl border border-mint/20 bg-ink/70 p-4 backdrop-blur">
           <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-mint">
-            <.icon name="hero-map-pin" class="size-4" /> Locations
+            <.icon name="hero-map-pin" class="size-4" /> {dgettext("player", "Locations")}
           </h2>
           <ul id="room-list" class="mt-3 space-y-2">
             <li :for={{location, index} <- Enum.with_index(@story.locations, 1)}>
@@ -187,8 +205,13 @@ defmodule TannhauserGateWeb.MapLive do
                     <.icon name={@weathers[location.zone_id].icon} class="size-3.5" />
                   </span>
                 </span>
-                <span class="text-xs text-fog-500">{Map.get(@counts, location.id, 0)} msg</span>
+
+                <span class="text-xs text-fog-500">{Map.get(@counts, location.id, 0)} {dgettext(
+                  "player",
+                  "msg"
+                )}</span>
               </.link>
+
               <p
                 :if={@guild_names[location.guild_id]}
                 id={"room-guild-#{location.id}"}
@@ -196,6 +219,7 @@ defmodule TannhauserGateWeb.MapLive do
               >
                 <.icon name="hero-flag" class="size-3" /> {@guild_names[location.guild_id]}
               </p>
+
               <p
                 :if={location.private}
                 id={"room-bookings-#{location.id}"}
@@ -207,7 +231,10 @@ defmodule TannhauserGateWeb.MapLive do
           </ul>
 
           <section :if={@weather? and @zones != []} id="map-weather" class="mt-6">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">Weather</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-mint">
+              {dgettext("player", "Weather")}
+            </h2>
+
             <ul class="mt-3 space-y-2">
               <li
                 :for={zone <- @zones}
@@ -220,7 +247,10 @@ defmodule TannhauserGateWeb.MapLive do
                   id={"map-weather-badge-#{zone.id}"}
                   weather={@weathers[zone.id]}
                 />
-                <span :if={!@weathers[zone.id]} class="text-xs text-fog-500">Unknown</span>
+                <span :if={!@weathers[zone.id]} class="text-xs text-fog-500">{dgettext(
+                  "player",
+                  "Unknown"
+                )}</span>
               </li>
             </ul>
           </section>
@@ -230,7 +260,10 @@ defmodule TannhauserGateWeb.MapLive do
             navigate={~p"/g/#{@story}/guide"}
             class="mt-6 flex items-center gap-2 rounded-md border border-mint/20 bg-ink/80 p-3 text-sm font-semibold text-mint transition-colors hover:border-mint/50"
           >
-            <.icon name="hero-book-open" class="size-4" /> World guide: background, rules, customs
+            <.icon name="hero-book-open" class="size-4" /> {dgettext(
+              "player",
+              "World guide: background, rules, customs"
+            )}
           </.link>
         </aside>
       </div>

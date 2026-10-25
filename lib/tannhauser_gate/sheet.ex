@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Sheet do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The character sheet definition of a GDR: attributes, skills and powers, all
   fully editable by the game master.
@@ -12,9 +14,9 @@ defmodule TannhauserGate.Sheet do
 
   def kinds, do: Item.kinds()
 
-  def kind_label("attribute"), do: "Attributes"
-  def kind_label("skill"), do: "Skills"
-  def kind_label("power"), do: "Powers"
+  def kind_label("attribute"), do: dgettext("domain", "Attributes")
+  def kind_label("skill"), do: dgettext("domain", "Skills")
+  def kind_label("power"), do: dgettext("domain", "Powers")
 
   @doc "All the sheet items of a story, ordered by position then name."
   def list_items(%Story{id: story_id}) do
@@ -218,9 +220,16 @@ defmodule TannhauserGate.Sheet do
     label = String.downcase(kind_label(kind))
 
     if status.below_start? do
-      [{kind, "#{label} cannot go below their starting value"}]
+      [{kind, dgettext("domain", "%{label} cannot go below their starting value", label: label)}]
     else
-      [{kind, "#{label} use #{status.spent} points but only #{status.total} are available"}]
+      [
+        {kind,
+         dgettext("domain", "%{label} use %{spent} points but only %{total} are available",
+           label: label,
+           spent: status.spent,
+           total: status.total
+         )}
+      ]
     end
   end
 
@@ -228,9 +237,20 @@ defmodule TannhauserGate.Sheet do
     label = String.downcase(kind_label(kind))
 
     if status.too_many? do
-      [{kind, "#{label} distribution has more values than there are items"}]
+      [
+        {kind,
+         dgettext("domain", "%{label} distribution has more values than there are items",
+           label: label
+         )}
+      ]
     else
-      [{kind, "#{label} must use exactly the values #{Enum.join(status.expected, ", ")}"}]
+      [
+        {kind,
+         dgettext("domain", "%{label} must use exactly the values %{values}",
+           label: label,
+           values: Enum.join(status.expected, ", ")
+         )}
+      ]
     end
   end
 

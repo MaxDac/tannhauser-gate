@@ -15,7 +15,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
     else
       {:ok,
        socket
-       |> put_flash(:error, "That section does not exist in this GDR.")
+       |> put_flash(:error, dgettext("player", "That section does not exist in this GDR."))
        |> push_navigate(to: ~p"/g/#{story}/forum")}
     end
   end
@@ -42,7 +42,11 @@ defmodule TannhauserGateWeb.ForumLive.Section do
 
   @doc false
   def character_option(character),
-    do: {if(character.is_npc, do: "#{character.name} (NPC)", else: character.name), character.id}
+    do:
+      {if(character.is_npc,
+         do: dgettext("player", "%{name} (NPC)", name: character.name),
+         else: character.name
+       ), character.id}
 
   @doc false
   def default_character([{_, id} | _]), do: to_string(id)
@@ -54,7 +58,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
       {:ok, topic} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Topic created")
+         |> put_flash(:info, dgettext("player", "Topic created"))
          |> push_navigate(to: ~p"/g/#{socket.assigns.current_story}/forum/topics/#{topic}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -77,7 +81,8 @@ defmodule TannhauserGateWeb.ForumLive.Section do
          )}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "You cannot write in this section.")}
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "You cannot write in this section."))}
     end
   end
 
@@ -102,7 +107,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
           navigate={~p"/g/#{@current_story}/forum"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> Forum
+          <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> {dgettext("player", "Forum")}
         </.link>
       </div>
 
@@ -110,6 +115,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
         <span class="flex flex-wrap items-center gap-2">
           {@section.name} <Index.section_badges section={@section} />
         </span>
+
         <:subtitle>{@section.description}</:subtitle>
       </.header>
 
@@ -118,8 +124,9 @@ defmodule TannhauserGateWeb.ForumLive.Section do
         class="mt-8 divide-y divide-secondary/10 overflow-hidden rounded-xl border border-secondary/20 bg-base-200/80"
       >
         <li :if={@topics == []} class="p-4 text-sm text-base-content/60">
-          No topics yet. Start the first one.
+          {dgettext("player", "No topics yet. Start the first one.")}
         </li>
+
         <li :for={topic <- @topics} id={"forum-topic-#{topic.id}"}>
           <.link
             navigate={~p"/g/#{@current_story}/forum/topics/#{topic}"}
@@ -130,7 +137,7 @@ defmodule TannhauserGateWeb.ForumLive.Section do
                 :if={topic.unread}
                 id={"topic-unread-#{topic.id}"}
                 class="size-2 shrink-0 rounded-full bg-secondary shadow-[0_0_8px] shadow-secondary/70"
-                title="New posts"
+                title={dgettext("player", "New posts")}
               ></span>
               <div class="min-w-0">
                 <p class={[
@@ -146,30 +153,40 @@ defmodule TannhauserGateWeb.ForumLive.Section do
                     :if={topic.locked}
                     name="hero-lock-closed-solid"
                     class="size-4 shrink-0 text-warning"
-                  />
-                  <span class="truncate">{topic.title}</span>
+                  /> <span class="truncate">{topic.title}</span>
                 </p>
+
                 <p class="text-xs text-base-content/50">
-                  by {Forum.author_name(topic)} · {format_time(topic.inserted_at)}
+                  {dgettext("player", "by")} {Forum.author_name(topic)} · {format_time(
+                    topic.inserted_at
+                  )}
                 </p>
               </div>
             </div>
+
             <span class="shrink-0 text-xs uppercase tracking-wider text-secondary">
-              {topic.post_count} {if topic.post_count == 1, do: "post", else: "posts"}
+              {dngettext("player", "%{count} post", "%{count} posts", topic.post_count)}
             </span>
           </.link>
         </li>
       </ul>
 
       <div class="mt-10 max-w-2xl rounded-xl border border-secondary/20 bg-base-200/80 p-6">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">New topic</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("player", "New topic")}
+        </h2>
+
         <p
           :if={@section.on_game and @characters == []}
           id="forum-no-character"
           class="mt-3 text-sm text-base-content/70"
         >
-          This section is on game: you need a character that can play to write here.
+          {dgettext(
+            "player",
+            "This section is on game: you need a character that can play to write here."
+          )}
         </p>
+
         <.form
           :if={!@section.on_game or @characters != []}
           for={@form}
@@ -180,16 +197,28 @@ defmodule TannhauserGateWeb.ForumLive.Section do
             :if={@section.on_game}
             field={@form[:character_id]}
             type="select"
-            label="Write as"
+            label={dgettext("player", "Write as")}
             options={@characters}
           />
           <p :if={!@section.on_game} class="mt-2 text-xs text-base-content/60">
-            Writing as {User.handle(@current_user)} (off game).
+            {dgettext("player", "Writing as")} {User.handle(@current_user)} {dgettext(
+              "player",
+              "(off game)."
+            )}
           </p>
-          <.input field={@form[:title]} type="text" label="Title" required />
-          <.input field={@form[:body]} type="textarea" label="First post" rows="5" required />
+          <.input field={@form[:title]} type="text" label={dgettext("player", "Title")} required />
+          <.input
+            field={@form[:body]}
+            type="textarea"
+            label={dgettext("player", "First post")}
+            rows="5"
+            required
+          />
           <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <.button phx-disable-with="Posting...">Create topic</.button>
+            <.button phx-disable-with={dgettext("player", "Posting...")}>{dgettext(
+              "player",
+              "Create topic"
+            )}</.button>
           </div>
         </.form>
       </div>

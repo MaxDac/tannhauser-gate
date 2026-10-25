@@ -52,7 +52,11 @@ defmodule TannhauserGateWeb.GmLive do
     visible = for {key, _, :core} <- GmNav.visible_tabs(socket.assigns.current_story), do: key
 
     if tab in visible do
-      {:noreply, socket |> assign(:tab, tab) |> assign(:page_title, "GM dashboard") |> load(tab)}
+      {:noreply,
+       socket
+       |> assign(:tab, tab)
+       |> assign(:page_title, dgettext("management", "GM dashboard"))
+       |> load(tab)}
     else
       {:noreply, push_patch(socket, to: ~p"/g/#{socket.assigns.current_story}/gm")}
     end
@@ -248,11 +252,16 @@ defmodule TannhauserGateWeb.GmLive do
       {:noreply,
        socket
        |> assign(:current_story, updated)
-       |> put_flash(:info, "GDR updated")
+       |> put_flash(:info, dgettext("management", "GDR updated"))
        |> assign_story_form(updated)}
     else
       {:error, :invalid_image} ->
-        {:noreply, put_flash(socket, :error, "The banner must be a PNG, JPEG or WebP image.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "The banner must be a PNG, JPEG or WebP image.")
+         )}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :story_form, to_form(changeset, as: :story))}
@@ -268,7 +277,7 @@ defmodule TannhauserGateWeb.GmLive do
     {:noreply,
      socket
      |> assign(:current_story, updated)
-     |> put_flash(:info, "Banner removed")}
+     |> put_flash(:info, dgettext("management", "Banner removed"))}
   end
 
   ## Modules
@@ -284,10 +293,20 @@ defmodule TannhauserGateWeb.GmLive do
         {:noreply,
          socket
          |> assign(:current_story, updated)
-         |> put_flash(:info, "#{name} #{if enabled?, do: "enabled", else: "disabled"}")}
+         |> put_flash(
+           :info,
+           dgettext("management", "%{name} %{value}",
+             name: name,
+             value:
+               if(enabled?,
+                 do: dgettext("management", "enabled"),
+                 else: dgettext("management", "disabled")
+               )
+           )
+         )}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Unknown module.")}
+        {:noreply, put_flash(socket, :error, dgettext("management", "Unknown module."))}
     end
   end
 
@@ -303,7 +322,7 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Saved") |> load("sheet")}
+        {:noreply, socket |> put_flash(:info, dgettext("management", "Saved")) |> load("sheet")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :item_form, to_form(changeset, as: :item))}
@@ -328,7 +347,14 @@ defmodule TannhauserGateWeb.GmLive do
       case Sheet.save_category(story(socket), kind, params) do
         {:ok, _} ->
           {:noreply,
-           socket |> put_flash(:info, "#{Sheet.kind_label(kind)} saved") |> load("creation")}
+           socket
+           |> put_flash(
+             :info,
+             dgettext("management", "%{sheet_kind_label_kind} saved",
+               sheet_kind_label_kind: Sheet.kind_label(kind)
+             )
+           )
+           |> load("creation")}
 
         {:error, changeset} ->
           {:noreply,
@@ -355,7 +381,8 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Tracker saved") |> load("trackers")}
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Tracker saved")) |> load("trackers")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :tracker_form, to_form(changeset, as: :tracker))}
@@ -386,7 +413,7 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Saved") |> load("states")}
+        {:noreply, socket |> put_flash(:info, dgettext("management", "Saved")) |> load("states")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :state_form, to_form(changeset, as: :state))}
@@ -415,7 +442,7 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Saved") |> load("jobs")}
+        {:noreply, socket |> put_flash(:info, dgettext("management", "Saved")) |> load("jobs")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :job_form, to_form(changeset, as: :job))}
@@ -441,13 +468,17 @@ defmodule TannhauserGateWeb.GmLive do
     if character.story_id == story(socket).id do
       case Bank.adjust(character, params["amount"], params["note"]) do
         {:ok, _} ->
-          {:noreply, socket |> put_flash(:info, "Balance updated") |> load("balances")}
+          {:noreply,
+           socket
+           |> put_flash(:info, dgettext("management", "Balance updated"))
+           |> load("balances")}
 
         {:error, reason} ->
           {:noreply, put_flash(socket, :error, Bank.error_message(reason))}
       end
     else
-      {:noreply, put_flash(socket, :error, "That character is not in this GDR.")}
+      {:noreply,
+       put_flash(socket, :error, dgettext("management", "That character is not in this GDR."))}
     end
   end
 
@@ -463,7 +494,8 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Saved") |> reload_locations()}
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Saved")) |> reload_locations()}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :location_form, to_form(changeset, as: :location))}
@@ -494,7 +526,11 @@ defmodule TannhauserGateWeb.GmLive do
 
     case result do
       {:ok, _} ->
-        message = if section.id, do: "Section updated", else: "Section created"
+        message =
+          if section.id,
+            do: dgettext("management", "Section updated"),
+            else: dgettext("management", "Section created")
+
         {:noreply, socket |> put_flash(:info, message) |> load("forum")}
 
       {:error, changeset} ->
@@ -507,7 +543,9 @@ defmodule TannhauserGateWeb.GmLive do
 
     if section.story_id == story(socket).id,
       do: {:noreply, assign_section_form(socket, section)},
-      else: {:noreply, put_flash(socket, :error, "That section is not in this GDR.")}
+      else:
+        {:noreply,
+         put_flash(socket, :error, dgettext("management", "That section is not in this GDR."))}
   end
 
   def handle_event("cancel_section", _, socket),
@@ -520,7 +558,8 @@ defmodule TannhauserGateWeb.GmLive do
       {:ok, _} = Forum.delete_section(section)
       {:noreply, load(socket, "forum")}
     else
-      {:noreply, put_flash(socket, :error, "That section is not in this GDR.")}
+      {:noreply,
+       put_flash(socket, :error, dgettext("management", "That section is not in this GDR."))}
     end
   end
 
@@ -530,7 +569,14 @@ defmodule TannhauserGateWeb.GmLive do
     case Stories.add_master(story(socket), username) do
       {:ok, user} ->
         {:noreply,
-         socket |> put_flash(:info, "#{user.username} is now a master") |> load("masters")}
+         socket
+         |> put_flash(
+           :info,
+           dgettext("management", "%{user_username} is now a master",
+             user_username: user.username
+           )
+         )
+         |> load("masters")}
 
       {:error, reason} ->
         {:noreply,
@@ -556,14 +602,21 @@ defmodule TannhauserGateWeb.GmLive do
       row = TannhauserGate.Repo.preload(row, :user)
       {:noreply, stream_insert(socket, :masters, row)}
     else
-      _ -> {:noreply, put_flash(socket, :error, "That master does not exist in this GDR.")}
+      _ ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("management", "That master does not exist in this GDR.")
+         )}
     end
   end
 
   def handle_event("remove_master", %{"id" => id}, socket) do
     case Stories.remove_master(story(socket), id) do
       :ok ->
-        {:noreply, socket |> put_flash(:info, "Master removed") |> load("masters")}
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Master removed")) |> load("masters")}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Stories.master_error_message(reason))}
@@ -594,17 +647,14 @@ defmodule TannhauserGateWeb.GmLive do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab={@tab} />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab={@tab} />
       <div class="mt-6">
         <.general_tab :if={@tab == "general"} {assigns} />
         <.modules_tab :if={@tab == "modules"} {assigns} />
         <.theme_tab :if={@tab == "theme"} {assigns} /> <.sheet_tab :if={@tab == "sheet"} {assigns} />
         <.creation_tab :if={@tab == "creation"} {assigns} />
         <.trackers_tab :if={@tab == "trackers"} {assigns} />
-        <.states_tab :if={@tab == "states"} {assigns} />
-        <.jobs_tab :if={@tab == "jobs"} {assigns} />
+        <.states_tab :if={@tab == "states"} {assigns} /> <.jobs_tab :if={@tab == "jobs"} {assigns} />
         <.balances_tab :if={@tab == "balances"} {assigns} />
         <.map_tab :if={@tab == "map"} {assigns} /> <.chat_tab :if={@tab == "chat"} {assigns} />
         <.forum_tab :if={@tab == "forum"} {assigns} />
@@ -632,67 +682,97 @@ defmodule TannhauserGateWeb.GmLive do
         phx-change="validate_story"
         phx-submit="save_story"
       >
-        <.input field={@story_form[:name]} type="text" label="Name" required />
-        <.input field={@story_form[:summary]} type="textarea" label="Summary" rows="3" />
+        <.input
+          field={@story_form[:name]}
+          type="text"
+          label={dgettext("management", "Name")}
+          required
+        />
+        <.input
+          field={@story_form[:summary]}
+          type="textarea"
+          label={dgettext("management", "Summary")}
+          rows="3"
+        />
         <p class="mb-2 text-sm text-base-content/70">
-          The background, rules and customs of the world are written in the <.link
+          {dgettext("management", "The background, rules and customs of the world are written in the")} <.link
             id="general-guide-link"
             navigate={~p"/g/#{@current_story}/gm/guide"}
             class="link link-primary"
           >
-            guide
+            {dgettext("management", "guide")}
           </.link>.
         </p>
-        <.input field={@story_form[:currency_name]} type="text" label="Currency name" />
+
+        <.input
+          field={@story_form[:currency_name]}
+          type="text"
+          label={dgettext("management", "Currency name")}
+        />
         <.input
           field={@story_form[:pay_interval_hours]}
           type="number"
-          label="Pay interval (hours)"
+          label={dgettext("management", "Pay interval (hours)")}
           min="1"
         />
         <.input
           :if={Stories.module_enabled?(@current_story, :guilds)}
           field={@story_form[:max_guilds_per_character]}
           type="number"
-          label="Maximum guilds per character"
+          label={dgettext("management", "Maximum guilds per character")}
           min="1"
           max="20"
         />
         <fieldset id="character-limit-settings" class="mt-2 border-t border-secondary/20 pt-4">
-          <legend class="text-sm font-semibold text-base-content/80">Characters per player</legend>
+          <legend class="text-sm font-semibold text-base-content/80">
+            {dgettext("management", "Characters per player")}
+          </legend>
+
           <p class="mb-2 text-xs text-base-content/60">
-            How many characters each player can create (drafts and rejected ones count; NPCs never do).
-            With more than one, players switch the character they are playing from the navigation.
+            {dgettext(
+              "management",
+              "How many characters each player can create (drafts and rejected ones count; NPCs never do). With more than one, players switch the character they are playing from the navigation."
+            )}
           </p>
+
           <.input
             field={@story_form[:max_characters_per_user]}
             type="number"
-            label="Maximum characters per player"
+            label={dgettext("management", "Maximum characters per player")}
             min="1"
             max="10"
           />
           <.input
             field={@story_form[:block_alt_transfers]}
             type="checkbox"
-            label="Block money transfers and item gifts between characters of the same player"
+            label={
+              dgettext(
+                "management",
+                "Block money transfers and item gifts between characters of the same player"
+              )
+            }
           />
           <.input
             field={@story_form[:block_alt_mail]}
             type="checkbox"
-            label="Block letters between characters of the same player"
+            label={dgettext("management", "Block letters between characters of the same player")}
           />
           <.input
             :if={Stories.module_enabled?(@current_story, :chat_rp)}
             field={@story_form[:block_alt_whispers]}
             type="checkbox"
-            label="Block whispers between characters of the same player"
+            label={dgettext("management", "Block whispers between characters of the same player")}
           />
         </fieldset>
+
         <.input
           field={@story_form[:status]}
           type="select"
-          label="Status"
-          options={[{"Draft (only you and your masters)", "draft"}, {"Published", "published"}]}
+          label={dgettext("management", "Status")}
+          options={[
+            {dgettext("management", "Draft (only you and your masters)"), "draft"},
+            {dgettext("management", "Published"), "published"}
+          ]}
         />
         <.listing_fieldset
           story_form={@story_form}
@@ -700,37 +780,55 @@ defmodule TannhauserGateWeb.GmLive do
           uploads={@uploads}
         />
         <fieldset id="sheet-template-settings" class="mt-2 border-t border-secondary/20 pt-4">
-          <legend class="text-sm font-semibold text-base-content/80">Character sheet template</legend>
+          <legend class="text-sm font-semibold text-base-content/80">
+            {dgettext("management", "Character sheet template")}
+          </legend>
+
           <p class="mb-2 text-xs text-base-content/60">
-            Markdown prefilled in the background of new characters (e.g. headings for appearance,
-            past and goals). Players edit it freely.
+            {dgettext(
+              "management",
+              "Markdown prefilled in the background of new characters (e.g. headings for appearance, past and goals). Players edit it freely."
+            )}
           </p>
+
           <.input
             field={@story_form[:sheet_template]}
             type="textarea"
-            label="Sheet template (Markdown)"
+            label={dgettext("management", "Sheet template (Markdown)")}
             rows="6"
           />
         </fieldset>
+
         <fieldset id="community-link-settings" class="mt-2 border-t border-secondary/20 pt-4">
-          <legend class="text-sm font-semibold text-base-content/80">Community link</legend>
+          <legend class="text-sm font-semibold text-base-content/80">
+            {dgettext("management", "Community link")}
+          </legend>
+
           <p class="mb-2 text-xs text-base-content/60">
-            An external community for the players (e.g. a Discord server), shown in the GDR navigation.
+            {dgettext(
+              "management",
+              "An external community for the players (e.g. a Discord server), shown in the GDR navigation."
+            )}
           </p>
+
           <.input
             field={@story_form[:community_url]}
             type="url"
-            label="Community URL"
-            placeholder="https://discord.gg/..."
+            label={dgettext("management", "Community URL")}
+            placeholder={dgettext("management", "https://discord.gg/...")}
           />
           <.input
             field={@story_form[:community_label]}
             type="text"
-            label="Community label"
-            placeholder="Community"
+            label={dgettext("management", "Community label")}
+            placeholder={dgettext("management", "Community")}
           />
         </fieldset>
-        <.button phx-disable-with="Saving...">Save</.button>
+
+        <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+          "management",
+          "Save"
+        )}</.button>
       </.form>
     </.panel>
     """
@@ -748,20 +846,26 @@ defmodule TannhauserGateWeb.GmLive do
 
     ~H"""
     <fieldset id="directory-listing-settings" class="mt-2 border-t border-secondary/20 pt-4">
-      <legend class="text-sm font-semibold text-base-content/80">Directory listing</legend>
+      <legend class="text-sm font-semibold text-base-content/80">
+        {dgettext("management", "Directory listing")}
+      </legend>
+
       <p class="mb-2 text-xs text-base-content/60">
-        How the GDR appears in the portal directory. The lifecycle is shown as a badge and does
-        not change who can enter: use the status below for that.
+        {dgettext(
+          "management",
+          "How the GDR appears in the portal directory. The lifecycle is shown as a badge and does not change who can enter: use the status below for that."
+        )}
       </p>
+
       <.input
         field={@story_form[:pitch]}
         type="text"
-        label="Pitch (a one-line tagline)"
+        label={dgettext("management", "Pitch (a one-line tagline)")}
         maxlength="160"
-        placeholder="Rain, neon and the ghosts in the machine."
+        placeholder={dgettext("management", "Rain, neon and the ghosts in the machine.")}
       />
       <div class="mb-3">
-        <span class="label console-label mb-1">Genres (up to 3)</span>
+        <span class="label console-label mb-1">{dgettext("management", "Genres (up to 3)")}</span>
         <input type="hidden" name={@story_form[:genres].name <> "[]"} value="" />
         <div id="listing-genres" class="flex flex-wrap gap-2">
           <label
@@ -775,32 +879,35 @@ defmodule TannhauserGateWeb.GmLive do
               value={value}
               checked={value in @genres}
               class="sr-only"
-            />
-            {label}
+            /> {label}
           </label>
         </div>
+
         <.error :for={msg <- Enum.map(@story_form[:genres].errors, &translate_error/1)}>
           {msg}
         </.error>
       </div>
+
       <div class="grid gap-x-4 sm:grid-cols-2">
         <.input
           field={@story_form[:lifecycle]}
           type="select"
-          label="Lifecycle"
+          label={dgettext("management", "Lifecycle")}
           options={for {value, label} <- Directory.lifecycles(), do: {label, value}}
         />
         <.input
           field={@story_form[:content_rating]}
           type="select"
-          label="Content rating"
+          label={dgettext("management", "Content rating")}
           options={for {value, label} <- Directory.content_ratings(), do: {label, value}}
         />
       </div>
+
       <div id="listing-banner" phx-drop-target={@uploads.banner.ref} class="mb-3 space-y-2">
         <label for={@uploads.banner.ref} class="label console-label">
-          Banner (PNG, JPEG or WebP, about 1200×400)
+          {dgettext("management", "Banner (PNG, JPEG or WebP, about 1200×400)")}
         </label>
+
         <div class="flex flex-wrap items-center gap-3">
           <img
             :if={@current_story.banner_path && @uploads.banner.entries == []}
@@ -816,8 +923,9 @@ defmodule TannhauserGateWeb.GmLive do
             phx-click="remove_banner"
             class="text-xs text-error hover:underline"
           >
-            Remove
+            {dgettext("management", "Remove")}
           </button>
+
           <div :for={entry <- @uploads.banner.entries} class="flex items-center gap-2">
             <.live_img_preview entry={entry} class="h-16 w-48 rounded-lg object-cover" />
             <button
@@ -826,32 +934,42 @@ defmodule TannhauserGateWeb.GmLive do
               phx-value-ref={entry.ref}
               class="text-xs text-error hover:underline"
             >
-              Remove
+              {dgettext("management", "Remove")}
             </button>
           </div>
+
           <.live_file_input
             upload={@uploads.banner}
             class="file-input file-input-secondary console-field w-full max-w-xs"
           />
         </div>
+
         <.error :for={error <- @banner_errors}>{error}</.error>
       </div>
     </fieldset>
     """
   end
 
-  defp banner_error(:too_large), do: "The banner is too large (max 5 MB)"
-  defp banner_error(:not_accepted), do: "The banner must be a PNG, JPEG or WebP image"
-  defp banner_error(:too_many_files), do: "Only one banner is allowed"
-  defp banner_error(other), do: "Upload error: #{inspect(other)}"
+  defp banner_error(:too_large), do: dgettext("management", "The banner is too large (max 5 MB)")
+
+  defp banner_error(:not_accepted),
+    do: dgettext("management", "The banner must be a PNG, JPEG or WebP image")
+
+  defp banner_error(:too_many_files), do: dgettext("management", "Only one banner is allowed")
+
+  defp banner_error(other),
+    do: dgettext("management", "Upload error: %{inspect_other}", inspect_other: inspect(other))
 
   defp modules_tab(assigns) do
     ~H"""
     <.panel>
       <p class="mb-4 text-sm text-base-content/70">
-        Turn on the optional features your GDR uses. Disabled modules are hidden from the players
-        and their data is kept, so you can turn them back on at any time.
+        {dgettext(
+          "management",
+          "Turn on the optional features your GDR uses. Disabled modules are hidden from the players and their data is kept, so you can turn them back on at any time."
+        )}
       </p>
+
       <ul id="modules-list" class="divide-y divide-secondary/15">
         <li
           :for={module <- @modules}
@@ -861,14 +979,16 @@ defmodule TannhauserGateWeb.GmLive do
           <.icon name={module.icon} class="mt-0.5 size-5 shrink-0 text-secondary" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold">{module.name}</p>
+
             <p class="text-xs text-base-content/60">{module.description}</p>
           </div>
+
           <button
             type="button"
             id={"module-toggle-#{module.key}"}
             role="switch"
             aria-checked={to_string(Stories.module_enabled?(@current_story, module.key))}
-            aria-label={"Enable #{module.name}"}
+            aria-label={dgettext("management", "Enable %{module_name}", module_name: module.name)}
             phx-click="toggle_module"
             phx-value-key={module.key}
             class={[
@@ -904,33 +1024,65 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @item.id, do: "Edit item", else: "New item"}
+          {if @item.id,
+            do: dgettext("management", "Edit item"),
+            else: dgettext("management", "New item")}
         </h2>
 
         <.form for={@item_form} id="item-form" phx-submit="save_item">
           <.input
             field={@item_form[:kind]}
             type="select"
-            label="Kind"
-            options={Enum.map(Sheet.kinds(), &{String.capitalize(&1), &1})}
-          /> <.input field={@item_form[:name]} type="text" label="Name" required />
+            label={dgettext("management", "Kind")}
+            options={[
+              {dgettext("management", "Attribute"), "attribute"},
+              {dgettext("management", "Skill"), "skill"},
+              {dgettext("management", "Power"), "power"}
+            ]}
+          />
+          <.input
+            field={@item_form[:name]}
+            type="text"
+            label={dgettext("management", "Name")}
+            required
+          />
           <.input
             field={@item_form[:slug]}
             type="text"
-            label="Key for formulas"
-            placeholder="Derived from the name, e.g. blood_potency"
+            label={dgettext("management", "Key for formulas")}
+            placeholder={dgettext("management", "Derived from the name, e.g. blood_potency")}
           />
-          <.input field={@item_form[:description]} type="textarea" label="Description" rows="2" />
+          <.input
+            field={@item_form[:description]}
+            type="textarea"
+            label={dgettext("management", "Description")}
+            rows="2"
+          />
           <div class="grid grid-cols-3 gap-3">
-            <.input field={@item_form[:min_value]} type="number" label="Min" />
-            <.input field={@item_form[:max_value]} type="number" label="Max" />
-            <.input field={@item_form[:position]} type="number" label="Order" />
+            <.input
+              field={@item_form[:min_value]}
+              type="number"
+              label={dgettext("management", "Min")}
+            />
+            <.input
+              field={@item_form[:max_value]}
+              type="number"
+              label={dgettext("management", "Max")}
+            />
+            <.input
+              field={@item_form[:position]}
+              type="number"
+              label={dgettext("management", "Order")}
+            />
           </div>
 
           <div class="flex gap-3">
-            <.button phx-disable-with="Saving...">Save item</.button>
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save item"
+            )}</.button>
             <.link :if={@item.id} id="cancel-item" phx-click="cancel_item" class="self-center">
-              Cancel
+              {dgettext("management", "Cancel")}
             </.link>
           </div>
         </.form>
@@ -952,14 +1104,17 @@ defmodule TannhauserGateWeb.GmLive do
                 {i.name} <span class="text-base-content/50">{i.min_value}–{i.max_value}</span>
                 <code class="ml-1 text-xs text-secondary/70">{i.slug}</code>
               </span>
+
               <span class="flex gap-3">
-                <.link phx-click="edit_item" phx-value-id={i.id}>Edit</.link>
+                <.link phx-click="edit_item" phx-value-id={i.id}>{dgettext("management", "Edit")}</.link>
                 <.link
                   phx-click="delete_item"
                   phx-value-id={i.id}
-                  data-confirm="Delete this item? Character values for it are removed."
+                  data-confirm={
+                    dgettext("management", "Delete this item? Character values for it are removed.")
+                  }
                 >
-                  Delete
+                  {dgettext("management", "Delete")}
                 </.link>
               </span>
             </li>
@@ -975,21 +1130,41 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="space-y-6">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          Character creation and XP
+          {dgettext("management", "Character creation and XP")}
         </h2>
+
         <p class="mt-1 text-sm text-base-content/70">
-          For each category choose how players build a new character: <strong>free</strong>
-          (any value within each item range), a <strong>points pool</strong>
-          to spend above the starting value, or a <strong>distribution</strong>
-          of values to assign (e.g. <code>4,3,3,2,2,2,1</code>; the other items keep the
-          starting value). Masters creating NPCs or editing characters are never limited.
+          {dgettext("management", "For each category choose how players build a new character:")}
+          <strong>{dgettext("management", "free")}</strong> {dgettext(
+            "management",
+            "(any value within each item range), a"
+          )}
+          <strong>{dgettext("management", "points pool")}</strong> {dgettext(
+            "management",
+            "to spend above the starting value, or a"
+          )}
+          <strong>{dgettext("management", "distribution")}</strong> {dgettext(
+            "management",
+            "of values to assign (e.g."
+          )} <code>4,3,3,2,2,2,1</code>{dgettext(
+            "management",
+            "; the other items keep the starting value). Masters creating NPCs or editing characters are never limited."
+          )}
         </p>
+
         <p class="mt-2 text-sm text-base-content/70">
-          The XP cost formula gives the price to raise an item by one point. It can use <code>current</code>, <code>next</code>, whole numbers, <code>+ - * /</code>, <code>min(a, b)</code>, <code>max(a, b)</code>, parentheses and the item keys. Leave it
-          empty to forbid raising that category with XP.
+          {dgettext(
+            "management",
+            "The XP cost formula gives the price to raise an item by one point. It can use"
+          )} <code>current</code>, <code>next</code>{dgettext("management", ", whole numbers,")} <code>+ - * /</code>, <code>min(a, b)</code>, <code>max(a, b)</code>{dgettext(
+            "management",
+            ", parentheses and the item keys. Leave it empty to forbid raising that category with XP."
+          )}
         </p>
+
         <p :if={@slugs != []} id="formula-keys" class="mt-2 text-xs text-base-content/60">
-          Item keys: <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
+          {dgettext("management", "Item keys:")}
+          <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
         </p>
       </.panel>
 
@@ -998,7 +1173,9 @@ defmodule TannhauserGateWeb.GmLive do
           <h3 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
             {Sheet.kind_label(kind)}
             <span class="ml-1 text-xs font-normal normal-case tracking-normal text-base-content/50">
-              {length(@items_by_kind[kind])} items
+              {dgettext("management", "%{length__items_by_kind_kind} items",
+                length__items_by_kind_kind: length(@items_by_kind[kind])
+              )}
             </span>
           </h3>
 
@@ -1011,37 +1188,41 @@ defmodule TannhauserGateWeb.GmLive do
             <.input
               field={@category_forms[kind][:creation_mode]}
               type="select"
-              label="Creation"
+              label={dgettext("management", "Creation")}
               options={[
-                {"Free", "free"},
-                {"Points pool", "points"},
-                {"Distribution", "distribution"}
+                {dgettext("management", "Free"), "free"},
+                {dgettext("management", "Points pool"), "points"},
+                {dgettext("management", "Distribution"), "distribution"}
               ]}
             />
             <.input
               field={@category_forms[kind][:starting_value]}
               type="number"
-              label="Starting value"
+              label={dgettext("management", "Starting value")}
             />
             <.input
               field={@category_forms[kind][:creation_points]}
               type="number"
-              label="Points pool (points mode)"
+              label={dgettext("management", "Points pool (points mode)")}
               min="0"
             />
             <.input
               field={@category_forms[kind][:creation_distribution]}
               type="text"
-              label="Values to assign (distribution mode)"
-              placeholder="4,3,3,2,2,2,1"
+              label={dgettext("management", "Values to assign (distribution mode)")}
+              placeholder={dgettext("management", "4,3,3,2,2,2,1")}
             />
             <.input
               field={@category_forms[kind][:xp_cost_formula]}
               type="text"
-              label="XP cost formula"
-              placeholder="next * 5"
+              label={dgettext("management", "XP cost formula")}
+              placeholder={dgettext("management", "next * 5")}
             />
-            <.button phx-disable-with="Saving...">Save {String.downcase(Sheet.kind_label(kind))}</.button>
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save %{string_downcase_sheet_kind_label_kind}",
+              string_downcase_sheet_kind_label_kind: String.downcase(Sheet.kind_label(kind))
+            )}</.button>
           </.form>
         </.panel>
       </div>
@@ -1054,70 +1235,96 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @tracker.id, do: "Edit tracker", else: "New tracker"}
+          {if @tracker.id,
+            do: dgettext("management", "Edit tracker"),
+            else: dgettext("management", "New tracker")}
         </h2>
+
         <p class="mt-1 text-sm text-base-content/60">
-          Trackers are resources every character has, like health, willpower or hunger.
-          The maximum is a number or a formula over the item keys (e.g. <code>stamina + 3</code>). With damage types (e.g. <code>superficial, aggravated</code>)
-          the tracker counts damage of each type instead of a single value.
+          {dgettext(
+            "management",
+            "Trackers are resources every character has, like health, willpower or hunger. The maximum is a number or a formula over the item keys (e.g."
+          )} <code>stamina + 3</code>{dgettext("management", "). With damage types (e.g.")} <code>superficial, aggravated</code>{dgettext(
+            "management",
+            ") the tracker counts damage of each type instead of a single value."
+          )}
         </p>
 
         <.form for={@tracker_form} id="tracker-form" phx-submit="save_tracker">
-          <.input field={@tracker_form[:name]} type="text" label="Name" required />
+          <.input
+            field={@tracker_form[:name]}
+            type="text"
+            label={dgettext("management", "Name")}
+            required
+          />
           <.input
             field={@tracker_form[:slug]}
             type="text"
-            label="Key"
-            placeholder="Derived from the name, e.g. willpower"
+            label={dgettext("management", "Key")}
+            placeholder={dgettext("management", "Derived from the name, e.g. willpower")}
           />
           <.input
             field={@tracker_form[:max_formula]}
             type="text"
-            label="Maximum (number or formula)"
-            placeholder="composure + resolve"
+            label={dgettext("management", "Maximum (number or formula)")}
+            placeholder={dgettext("management", "composure + resolve")}
             required
           />
           <.input
             field={@tracker_form[:damage_types]}
             type="text"
-            label="Damage types (optional, comma separated)"
+            label={dgettext("management", "Damage types (optional, comma separated)")}
             value={Enum.join(List.wrap(@tracker_form[:damage_types].value), ", ")}
-            placeholder="superficial, aggravated"
+            placeholder={dgettext("management", "superficial, aggravated")}
           />
           <div class="grid grid-cols-2 gap-3">
-            <.input field={@tracker_form[:position]} type="number" label="Order" />
+            <.input
+              field={@tracker_form[:position]}
+              type="number"
+              label={dgettext("management", "Order")}
+            />
           </div>
+
           <.input
             field={@tracker_form[:starts_full]}
             type="checkbox"
-            label="Starts full (otherwise starts at 0)"
+            label={dgettext("management", "Starts full (otherwise starts at 0)")}
           />
           <.input
             field={@tracker_form[:public]}
             type="checkbox"
-            label="Visible to everyone on the public sheet"
+            label={dgettext("management", "Visible to everyone on the public sheet")}
           />
           <p :if={@slugs != []} class="mb-3 text-xs text-base-content/60">
-            Item keys: <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
+            {dgettext("management", "Item keys:")}
+            <code :for={slug <- @slugs} class="mr-2 text-secondary">{slug}</code>
           </p>
+
           <div class="flex gap-3">
-            <.button phx-disable-with="Saving...">Save tracker</.button>
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save tracker"
+            )}</.button>
             <.link
               :if={@tracker.id}
               id="cancel-tracker"
               phx-click="cancel_tracker"
               class="self-center"
             >
-              Cancel
+              {dgettext("management", "Cancel")}
             </.link>
           </div>
         </.form>
       </.panel>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Trackers</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Trackers")}
+        </h2>
 
-        <p :if={@trackers == []} class="mt-2 text-sm text-base-content/60">No trackers yet.</p>
+        <p :if={@trackers == []} class="mt-2 text-sm text-base-content/60">
+          {dgettext("management", "No trackers yet.")}
+        </p>
 
         <ul id="trackers" class="mt-1 divide-y divide-secondary/10">
           <li
@@ -1128,24 +1335,30 @@ defmodule TannhauserGateWeb.GmLive do
             <span>
               {t.name} <code class="ml-1 text-xs text-secondary/70">{t.slug}</code>
               <span class="block text-xs text-base-content/60">
-                max <code>{t.max_formula}</code>
+                {dgettext("management", "max")} <code>{t.max_formula}</code>
                 <span :if={t.damage_types != []}>· {Enum.join(t.damage_types, " / ")}</span>
                 <span class="badge badge-xs badge-soft ml-1">
-                  {if t.public, do: "public", else: "private"}
+                  {if t.public,
+                    do: dgettext("management", "public"),
+                    else: dgettext("management", "private")}
                 </span>
               </span>
             </span>
+
             <span class="flex gap-3">
               <.link id={"edit-tracker-#{t.id}"} phx-click="edit_tracker" phx-value-id={t.id}>
-                Edit
+                {dgettext("management", "Edit")}
               </.link>
+
               <.link
                 id={"delete-tracker-#{t.id}"}
                 phx-click="delete_tracker"
                 phx-value-id={t.id}
-                data-confirm="Delete this tracker? Every character loses its value."
+                data-confirm={
+                  dgettext("management", "Delete this tracker? Every character loses its value.")
+                }
               >
-                Delete
+                {dgettext("management", "Delete")}
               </.link>
             </span>
           </li>
@@ -1160,32 +1373,54 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @state.id, do: "Edit state", else: "New state"}
+          {if @state.id,
+            do: dgettext("management", "Edit state"),
+            else: dgettext("management", "New state")}
         </h2>
+
         <p class="mt-1 text-sm text-base-content/60">
-          Masters move characters between states. Characters in a state that cannot play
-          (e.g. dead or in torpor) cannot speak in the chat rooms. New characters get the
-          first state.
+          {dgettext(
+            "management",
+            "Masters move characters between states. Characters in a state that cannot play (e.g. dead or in torpor) cannot speak in the chat rooms. New characters get the first state."
+          )}
         </p>
 
         <.form for={@state_form} id="state-form" phx-submit="save_state">
-          <.input field={@state_form[:name]} type="text" label="Name" required />
-          <.input field={@state_form[:can_play]} type="checkbox" label="Can play" />
-          <.input field={@state_form[:position]} type="number" label="Order" />
+          <.input
+            field={@state_form[:name]}
+            type="text"
+            label={dgettext("management", "Name")}
+            required
+          />
+          <.input
+            field={@state_form[:can_play]}
+            type="checkbox"
+            label={dgettext("management", "Can play")}
+          />
+          <.input
+            field={@state_form[:position]}
+            type="number"
+            label={dgettext("management", "Order")}
+          />
           <div class="flex gap-3">
-            <.button phx-disable-with="Saving...">Save state</.button>
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save state"
+            )}</.button>
             <.link :if={@state.id} id="cancel-state" phx-click="cancel_state" class="self-center">
-              Cancel
+              {dgettext("management", "Cancel")}
             </.link>
           </div>
         </.form>
       </.panel>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">States</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "States")}
+        </h2>
 
         <p :if={@states == []} class="mt-2 text-sm text-base-content/60">
-          No states: every approved character can play.
+          {dgettext("management", "No states: every approved character can play.")}
         </p>
 
         <ul id="states" class="mt-1 divide-y divide-secondary/10">
@@ -1200,20 +1435,29 @@ defmodule TannhauserGateWeb.GmLive do
                 "badge badge-sm badge-soft ml-2",
                 if(s.can_play, do: "badge-success", else: "badge-error")
               ]}>
-                {if s.can_play, do: "plays", else: "cannot play"}
+                {if s.can_play,
+                  do: dgettext("management", "plays"),
+                  else: dgettext("management", "cannot play")}
               </span>
             </span>
+
             <span class="flex gap-3">
               <.link id={"edit-state-#{s.id}"} phx-click="edit_state" phx-value-id={s.id}>
-                Edit
+                {dgettext("management", "Edit")}
               </.link>
+
               <.link
                 id={"delete-state-#{s.id}"}
                 phx-click="delete_state"
                 phx-value-id={s.id}
-                data-confirm="Delete this state? Its characters are left without a state."
+                data-confirm={
+                  dgettext(
+                    "management",
+                    "Delete this state? Its characters are left without a state."
+                  )
+                }
               >
-                Delete
+                {dgettext("management", "Delete")}
               </.link>
             </span>
           </li>
@@ -1228,31 +1472,52 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @job.id, do: "Edit job", else: "New job"}
+          {if @job.id, do: dgettext("management", "Edit job"), else: dgettext("management", "New job")}
         </h2>
 
         <.form for={@job_form} id="job-form" phx-submit="save_job">
-          <.input field={@job_form[:name]} type="text" label="Name" required />
-          <.input field={@job_form[:description]} type="textarea" label="Description" rows="2" />
+          <.input
+            field={@job_form[:name]}
+            type="text"
+            label={dgettext("management", "Name")}
+            required
+          />
+          <.input
+            field={@job_form[:description]}
+            type="textarea"
+            label={dgettext("management", "Description")}
+            rows="2"
+          />
           <.input
             field={@job_form[:pay]}
             type="number"
-            label={"Pay (#{@current_story.currency_name} per interval)"}
+            label={
+              dgettext("management", "Pay (%{current_story_currency_name} per interval)",
+                current_story_currency_name: @current_story.currency_name
+              )
+            }
             min="0"
           />
           <div class="flex gap-3">
-            <.button phx-disable-with="Saving...">Save job</.button>
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save job"
+            )}</.button>
             <.link :if={@job.id} id="cancel-job" phx-click="cancel_job" class="self-center">
-              Cancel
+              {dgettext("management", "Cancel")}
             </.link>
           </div>
         </.form>
       </.panel>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Jobs</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Jobs")}
+        </h2>
 
-        <p :if={@jobs == []} class="mt-2 text-sm text-base-content/60">No jobs yet.</p>
+        <p :if={@jobs == []} class="mt-2 text-sm text-base-content/60">
+          {dgettext("management", "No jobs yet.")}
+        </p>
 
         <ul class="mt-1 divide-y divide-secondary/10">
           <li
@@ -1262,13 +1527,15 @@ defmodule TannhauserGateWeb.GmLive do
           >
             <span>{j.name} <span class="text-base-content/50">{j.pay}</span></span>
             <span class="flex gap-3">
-              <.link phx-click="edit_job" phx-value-id={j.id}>Edit</.link>
+              <.link phx-click="edit_job" phx-value-id={j.id}>{dgettext("management", "Edit")}</.link>
               <.link
                 phx-click="delete_job"
                 phx-value-id={j.id}
-                data-confirm="Delete this job? Characters holding it become unemployed."
+                data-confirm={
+                  dgettext("management", "Delete this job? Characters holding it become unemployed.")
+                }
               >
-                Delete
+                {dgettext("management", "Delete")}
               </.link>
             </span>
           </li>
@@ -1281,9 +1548,13 @@ defmodule TannhauserGateWeb.GmLive do
   defp balances_tab(assigns) do
     ~H"""
     <.panel>
-      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Balances</h2>
+      <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+        {dgettext("management", "Balances")}
+      </h2>
 
-      <p :if={@characters == []} class="mt-2 text-sm text-base-content/60">No characters yet.</p>
+      <p :if={@characters == []} class="mt-2 text-sm text-base-content/60">
+        {dgettext("management", "No characters yet.")}
+      </p>
 
       <div :for={c <- @characters} id={"balance-#{c.id}"} class="border-b border-secondary/10 py-3">
         <p class="font-semibold text-primary">
@@ -1300,17 +1571,17 @@ defmodule TannhauserGateWeb.GmLive do
           <input
             type="number"
             name="adjust[amount]"
-            placeholder="+/- amount"
+            placeholder={dgettext("management", "+/- amount")}
             class="input input-sm console-field w-32"
-            aria-label={"Amount for #{c.name}"}
+            aria-label={dgettext("management", "Amount for %{c_name}", c_name: c.name)}
           />
           <input
             type="text"
             name="adjust[note]"
-            placeholder="Note"
+            placeholder={dgettext("management", "Note")}
             class="input input-sm console-field w-48"
-            aria-label={"Note for #{c.name}"}
-          /> <.button class="btn btn-sm">Apply</.button>
+            aria-label={dgettext("management", "Note for %{c_name}", c_name: c.name)}
+          /> <.button class="btn btn-sm">{dgettext("management", "Apply")}</.button>
         </form>
       </div>
     </.panel>
@@ -1323,54 +1594,99 @@ defmodule TannhauserGateWeb.GmLive do
       <div class="space-y-6">
         <.panel>
           <.form for={@story_form} id="map-form" phx-submit="save_story">
-            <.input field={@story_form[:map_svg]} type="textarea" label="Map SVG" rows="6" />
+            <.input
+              field={@story_form[:map_svg]}
+              type="textarea"
+              label={dgettext("management", "Map SVG")}
+              rows="6"
+            />
             <div class="grid grid-cols-2 gap-3">
-              <.input field={@story_form[:map_width]} type="number" label="Width" />
-              <.input field={@story_form[:map_height]} type="number" label="Height" />
+              <.input
+                field={@story_form[:map_width]}
+                type="number"
+                label={dgettext("management", "Width")}
+              />
+              <.input
+                field={@story_form[:map_height]}
+                type="number"
+                label={dgettext("management", "Height")}
+              />
             </div>
-            <.button phx-disable-with="Saving...">Save map</.button>
+
+            <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save map"
+            )}</.button>
           </.form>
         </.panel>
 
         <.panel>
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-            {if @location.id, do: "Edit room", else: "New room"}
+            {if @location.id,
+              do: dgettext("management", "Edit room"),
+              else: dgettext("management", "New room")}
           </h2>
 
           <.form for={@location_form} id="location-form" phx-submit="save_location">
-            <.input field={@location_form[:name]} type="text" label="Name" required />
-            <.input field={@location_form[:description]} type="textarea" label="Description" rows="2" />
-            <.input field={@location_form[:area]} type="text" label="Map area (SVG path)" />
-            <.input field={@location_form[:color]} type="text" label="Color" />
+            <.input
+              field={@location_form[:name]}
+              type="text"
+              label={dgettext("management", "Name")}
+              required
+            />
+            <.input
+              field={@location_form[:description]}
+              type="textarea"
+              label={dgettext("management", "Description")}
+              rows="2"
+            />
+            <.input
+              field={@location_form[:area]}
+              type="text"
+              label={dgettext("management", "Map area (SVG path)")}
+            />
+            <.input
+              field={@location_form[:color]}
+              type="text"
+              label={dgettext("management", "Color")}
+            />
             <.input
               field={@location_form[:private]}
               type="checkbox"
-              label="Private (players book it for a time slot and invite characters)"
+              label={
+                dgettext(
+                  "management",
+                  "Private (players book it for a time slot and invite characters)"
+                )
+              }
             />
             <.input
               field={@location_form[:zone_id]}
               type="select"
-              label="Zone"
-              prompt="No zone"
+              label={dgettext("management", "Zone")}
+              prompt={dgettext("management", "No zone")}
               options={Enum.map(@zones, &{&1.name, &1.id})}
             />
             <.input
               :if={@guilds_on?}
               field={@location_form[:guild_id]}
               type="select"
-              label="Reserved to guild"
-              prompt="Open to everyone"
+              label={dgettext("management", "Reserved to guild")}
+              prompt={dgettext("management", "Open to everyone")}
               options={Enum.map(@guilds, &{&1.name, &1.id})}
             />
             <div class="flex gap-3">
-              <.button phx-disable-with="Saving...">Save room</.button>
+              <.button phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+                "management",
+                "Save room"
+              )}</.button>
               <.link
                 :if={@location.id}
                 id="cancel-location"
                 phx-click="cancel_location"
                 class="self-center"
               >
-                Cancel
+                {dgettext("management", "Cancel")}
               </.link>
             </div>
           </.form>
@@ -1378,7 +1694,9 @@ defmodule TannhauserGateWeb.GmLive do
       </div>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Rooms</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Rooms")}
+        </h2>
 
         <ul class="mt-1 divide-y divide-secondary/10">
           <li
@@ -1388,7 +1706,10 @@ defmodule TannhauserGateWeb.GmLive do
           >
             <span>
               {l.name}
-              <span :if={l.private} class="badge badge-xs badge-error badge-soft ml-1">private</span>
+              <span :if={l.private} class="badge badge-xs badge-error badge-soft ml-1">{dgettext(
+                "management",
+                "private"
+              )}</span>
               <span
                 :if={zone = Enum.find(@zones, &(&1.id == l.zone_id))}
                 id={"location-zone-#{l.id}"}
@@ -1396,6 +1717,7 @@ defmodule TannhauserGateWeb.GmLive do
               >
                 {zone.name}
               </span>
+
               <span
                 :if={@guilds_on? && guild_name(@guilds, l.guild_id)}
                 id={"location-guild-#{l.id}"}
@@ -1404,14 +1726,15 @@ defmodule TannhauserGateWeb.GmLive do
                 <.icon name="hero-flag-micro" class="size-3" /> {guild_name(@guilds, l.guild_id)}
               </span>
             </span>
+
             <span class="flex gap-3">
-              <.link phx-click="edit_location" phx-value-id={l.id}>Edit</.link>
+              <.link phx-click="edit_location" phx-value-id={l.id}>{dgettext("management", "Edit")}</.link>
               <.link
                 phx-click="delete_location"
                 phx-value-id={l.id}
-                data-confirm="Delete this room and its messages?"
+                data-confirm={dgettext("management", "Delete this room and its messages?")}
               >
-                Delete
+                {dgettext("management", "Delete")}
               </.link>
             </span>
           </li>
@@ -1425,27 +1748,37 @@ defmodule TannhauserGateWeb.GmLive do
     ~H"""
     <.panel>
       <.form for={@story_form} id="esiti-settings-form" phx-submit="save_story">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Esiti limits</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Esiti limits")}
+        </h2>
+
         <p class="mb-3 text-xs text-base-content/60">
-          Players file esiti (action requests) for the masters to resolve. Leave a field empty
-          for no limit.
+          {dgettext(
+            "management",
+            "Players file esiti (action requests) for the masters to resolve. Leave a field empty for no limit."
+          )}
         </p>
+
         <div class="grid gap-x-4 sm:grid-cols-2">
           <.input
             field={@story_form[:esiti_max_open]}
             type="number"
-            label="Open requests per character"
+            label={dgettext("management", "Open requests per character")}
             min="1"
             max="50"
           />
           <.input
             field={@story_form[:esiti_min_xp]}
             type="number"
-            label="Earned XP needed to file"
+            label={dgettext("management", "Earned XP needed to file")}
             min="0"
           />
         </div>
-        <.button id="save-esiti-settings" phx-disable-with="Saving...">Save</.button>
+
+        <.button id="save-esiti-settings" phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+          "management",
+          "Save"
+        )}</.button>
       </.form>
     </.panel>
     """
@@ -1461,36 +1794,43 @@ defmodule TannhauserGateWeb.GmLive do
     ~H"""
     <.panel>
       <.form for={@story_form} id="dice-config-form" phx-submit="save_story">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Chat history</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Chat history")}
+        </h2>
+
         <.input
           field={@story_form[:archive_after_days]}
           type="number"
-          label="Archive messages older than (days, empty = never)"
+          label={dgettext("management", "Archive messages older than (days, empty = never)")}
           min="1"
         />
-
         <fieldset
           :if={Stories.module_enabled?(@current_story, :chat_rp)}
           id="chat-rp-settings"
           class="mt-4 rounded-lg border border-secondary/20 p-4"
         >
           <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
-            Chat roleplay: entry length
+            {dgettext("management", "Chat roleplay: entry length")}
           </legend>
+
           <p class="mb-2 text-xs text-base-content/60">
-            Characters per in-character entry (speech and whispers). Leave empty for no limit.
+            {dgettext(
+              "management",
+              "Characters per in-character entry (speech and whispers). Leave empty for no limit."
+            )}
           </p>
+
           <div class="grid gap-x-4 sm:grid-cols-2">
             <.input
               field={@story_form[:chat_min_length]}
               type="number"
-              label="Minimum length"
+              label={dgettext("management", "Minimum length")}
               min="0"
             />
             <.input
               field={@story_form[:chat_max_length]}
               type="number"
-              label="Maximum length"
+              label={dgettext("management", "Maximum length")}
               min="1"
               max="4000"
             />
@@ -1503,130 +1843,177 @@ defmodule TannhauserGateWeb.GmLive do
           class="mt-4 rounded-lg border border-secondary/20 p-4"
         >
           <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
-            Automatic XP
+            {dgettext("management", "Automatic XP")}
           </legend>
+
           <p class="mb-2 text-xs text-base-content/60">
-            XP for each in-character speech of a player character (no OFF, whispers, dice or NPCs).
-            Leave the amount empty to pause the awards.
+            {dgettext(
+              "management",
+              "XP for each in-character speech of a player character (no OFF, whispers, dice or NPCs). Leave the amount empty to pause the awards."
+            )}
           </p>
+
           <div class="grid gap-x-4 sm:grid-cols-2">
             <.input
               field={@story_form[:auto_xp_amount]}
               type="number"
-              label="XP per entry"
+              label={dgettext("management", "XP per entry")}
               min="1"
             />
             <.input
               field={@story_form[:auto_xp_min_length]}
               type="number"
-              label="Minimum entry length"
+              label={dgettext("management", "Minimum entry length")}
               min="0"
             />
             <.input
               field={@story_form[:auto_xp_daily_cap]}
               type="number"
-              label="Daily cap per character (UTC day)"
+              label={dgettext("management", "Daily cap per character (UTC day)")}
               min="1"
             />
             <.input
               field={@story_form[:auto_xp_cooldown_minutes]}
               type="number"
-              label="Cooldown (minutes)"
+              label={dgettext("management", "Cooldown (minutes)")}
               min="0"
             />
           </div>
         </fieldset>
 
         <h2 class="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          Dice system
+          {dgettext("management", "Dice system")}
         </h2>
+
         <.inputs_for :let={dice} field={@story_form[:dice_config]}>
           <.input
             field={dice[:system]}
             type="select"
-            label="System"
+            label={dgettext("management", "System")}
             options={[
-              {"Dice expression (NdX+modifier)", "expression"},
-              {"d20 + modifier", "d20"},
-              {"Success pool", "pool"}
+              {dgettext("management", "Dice expression (NdX+modifier)"), "expression"},
+              {dgettext("management", "d20 + modifier"), "d20"},
+              {dgettext("management", "Success pool"), "pool"}
             ]}
           />
-
           <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
             <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
-              Expression and d20
+              {dgettext("management", "Expression and d20")}
             </legend>
-            <.input field={dice[:default_expression]} type="text" label="Default expression" />
+
+            <.input
+              field={dice[:default_expression]}
+              type="text"
+              label={dgettext("management", "Default expression")}
+            />
             <.input
               field={dice[:natural_crits]}
               type="checkbox"
-              label="Natural 20/1 are criticals (d20)"
+              label={dgettext("management", "Natural 20/1 are criticals (d20)")}
             />
           </fieldset>
 
           <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
             <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
-              Success pool
+              {dgettext("management", "Success pool")}
             </legend>
+
             <div class="grid gap-x-4 sm:grid-cols-3">
-              <.input field={dice[:die_size]} type="number" label="Die size" min="2" />
-              <.input field={dice[:success_threshold]} type="number" label="Success on" min="1" />
-              <.input field={dice[:default_difficulty]} type="number" label="Default difficulty" />
+              <.input
+                field={dice[:die_size]}
+                type="number"
+                label={dgettext("management", "Die size")}
+                min="2"
+              />
+              <.input
+                field={dice[:success_threshold]}
+                type="number"
+                label={dgettext("management", "Success on")}
+                min="1"
+              />
+              <.input
+                field={dice[:default_difficulty]}
+                type="number"
+                label={dgettext("management", "Default difficulty")}
+              />
             </div>
+
             <div class="grid gap-x-4 sm:grid-cols-2">
               <.input
                 field={dice[:crit_rule]}
                 type="select"
-                label="Criticals"
-                options={[{"Each pair of max results", "pairs"}, {"None", "none"}]}
+                label={dgettext("management", "Criticals")}
+                options={[
+                  {dgettext("management", "Each pair of max results"), "pairs"},
+                  {dgettext("management", "None"), "none"}
+                ]}
               />
-              <.input field={dice[:crit_bonus]} type="number" label="Extra successes per pair" />
+              <.input
+                field={dice[:crit_bonus]}
+                type="number"
+                label={dgettext("management", "Extra successes per pair")}
+              />
             </div>
+
             <.input
               field={dice[:special_tracker]}
               type="select"
-              label="Special dice count (tracker, e.g. hunger)"
-              prompt="No special dice"
+              label={dgettext("management", "Special dice count (tracker, e.g. hunger)")}
+              prompt={dgettext("management", "No special dice")}
               options={@tracker_options}
             />
             <.input
               field={dice[:messy_crit]}
               type="checkbox"
-              label="Messy critical: a critical with a special max result"
+              label={dgettext("management", "Messy critical: a critical with a special max result")}
             />
             <.input
               field={dice[:bestial_failure]}
               type="checkbox"
-              label="Bestial failure: a failure with a special 1"
+              label={dgettext("management", "Bestial failure: a failure with a special 1")}
             />
           </fieldset>
 
           <fieldset class="mt-4 rounded-lg border border-secondary/20 p-4">
             <legend class="px-1 text-xs font-bold uppercase tracking-widest text-base-content/70">
-              Rerolls (pool only)
+              {dgettext("management", "Rerolls (pool only)")}
             </legend>
+
             <.input
               field={dice[:reroll_tracker]}
               type="select"
-              label="Spend tracker (e.g. willpower)"
-              prompt="No rerolls"
+              label={dgettext("management", "Spend tracker (e.g. willpower)")}
+              prompt={dgettext("management", "No rerolls")}
               options={@tracker_options}
             />
             <div class="grid gap-x-4 sm:grid-cols-3">
               <.input
                 field={dice[:reroll_damage_type]}
                 type="select"
-                label="As damage of type"
-                prompt="Lower the value"
+                label={dgettext("management", "As damage of type")}
+                prompt={dgettext("management", "Lower the value")}
                 options={@damage_types}
               />
-              <.input field={dice[:reroll_cost]} type="number" label="Cost" min="1" />
-              <.input field={dice[:reroll_max_dice]} type="number" label="Max dice" min="0" />
+              <.input
+                field={dice[:reroll_cost]}
+                type="number"
+                label={dgettext("management", "Cost")}
+                min="1"
+              />
+              <.input
+                field={dice[:reroll_max_dice]}
+                type="number"
+                label={dgettext("management", "Max dice")}
+                min="0"
+              />
             </div>
           </fieldset>
         </.inputs_for>
 
-        <.button phx-disable-with="Saving..." class="mt-4">Save chat & dice</.button>
+        <.button phx-disable-with={dgettext("management", "Saving...")} class="mt-4">{dgettext(
+          "management",
+          "Save chat & dice"
+        )}</.button>
       </.form>
     </.panel>
     """
@@ -1637,50 +2024,77 @@ defmodule TannhauserGateWeb.GmLive do
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @section.id, do: "Edit section", else: "New section"}
+          {if @section.id,
+            do: dgettext("management", "Edit section"),
+            else: dgettext("management", "New section")}
         </h2>
+
         <p class="mt-1 text-sm text-base-content/60">
-          On-game sections are written in character (only characters that can play);
-          off-game ones as the player. Visibility limits who can read and write.
+          {dgettext(
+            "management",
+            "On-game sections are written in character (only characters that can play); off-game ones as the player. Visibility limits who can read and write."
+          )}
         </p>
 
         <.form for={@section_form} id="section-form" phx-submit="save_section">
-          <.input field={@section_form[:name]} type="text" label="Name" required />
-          <.input field={@section_form[:description]} type="text" label="Description" />
-          <.input field={@section_form[:position]} type="number" label="Position" />
-          <.input field={@section_form[:on_game]} type="checkbox" label="On game (in character)" />
+          <.input
+            field={@section_form[:name]}
+            type="text"
+            label={dgettext("management", "Name")}
+            required
+          />
+          <.input
+            field={@section_form[:description]}
+            type="text"
+            label={dgettext("management", "Description")}
+          />
+          <.input
+            field={@section_form[:position]}
+            type="number"
+            label={dgettext("management", "Position")}
+          />
+          <.input
+            field={@section_form[:on_game]}
+            type="checkbox"
+            label={dgettext("management", "On game (in character)")}
+          />
           <.input
             field={@section_form[:visibility]}
             type="select"
-            label="Visible to"
+            label={dgettext("management", "Visible to")}
             options={section_visibilities(@guilds_on?, @section)}
           />
           <.input
             :if={@guilds_on?}
             field={@section_form[:guild_id]}
             type="select"
-            label="Guild (for guild sections)"
-            prompt="Choose a guild"
+            label={dgettext("management", "Guild (for guild sections)")}
+            prompt={dgettext("management", "Choose a guild")}
             options={Enum.map(@guilds, &{&1.name, &1.id})}
           />
           <div class="flex gap-3">
-            <.button phx-disable-with="Saving...">
-              {if @section.id, do: "Save section", else: "Create section"}
+            <.button phx-disable-with={dgettext("management", "Saving...")}>
+              {if @section.id,
+                do: dgettext("management", "Save section"),
+                else: dgettext("management", "Create section")}
             </.button>
+
             <.link
               :if={@section.id}
               id="cancel-section"
               phx-click="cancel_section"
               class="self-center"
             >
-              Cancel
+              {dgettext("management", "Cancel")}
             </.link>
           </div>
         </.form>
       </.panel>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Sections</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Sections")}
+        </h2>
 
         <ul class="mt-1 divide-y divide-secondary/10">
           <li
@@ -1694,11 +2108,15 @@ defmodule TannhauserGateWeb.GmLive do
                 "badge badge-xs",
                 if(s.on_game, do: "badge-primary badge-soft", else: "badge-ghost")
               ]}>
-                {if s.on_game, do: "On game", else: "Off game"}
+                {if s.on_game,
+                  do: dgettext("management", "On game"),
+                  else: dgettext("management", "Off game")}
               </span>
+
               <span :if={s.visibility != "all"} class="badge badge-xs badge-warning badge-soft">
                 {Forum.visibility_label(s.visibility)}
               </span>
+
               <span
                 :if={s.visibility == "guild" && guild_name(@guilds, s.guild_id)}
                 id={"section-guild-#{s.id}"}
@@ -1706,19 +2124,24 @@ defmodule TannhauserGateWeb.GmLive do
               >
                 <.icon name="hero-flag-micro" class="size-3" /> {guild_name(@guilds, s.guild_id)}
               </span>
-              <span class="text-base-content/50">{count} topics</span>
+
+              <span class="text-base-content/50">{dgettext("management", "%{count} topics",
+                count: count
+              )}</span>
             </span>
+
             <span class="flex shrink-0 gap-3">
               <.link id={"edit-section-#{s.id}"} phx-click="edit_section" phx-value-id={s.id}>
-                Edit
+                {dgettext("management", "Edit")}
               </.link>
+
               <.link
                 id={"delete-section-#{s.id}"}
                 phx-click="delete_section"
                 phx-value-id={s.id}
-                data-confirm="Delete this section and all its topics?"
+                data-confirm={dgettext("management", "Delete this section and all its topics?")}
               >
-                Delete
+                {dgettext("management", "Delete")}
               </.link>
             </span>
           </li>
@@ -1732,33 +2155,46 @@ defmodule TannhauserGateWeb.GmLive do
     ~H"""
     <div class="grid gap-6 lg:grid-cols-2">
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Add a master</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Add a master")}
+        </h2>
+
         <p class="mt-1 text-sm text-base-content/60">
-          Masters narrate the GDR: they run chats, edit characters and moderate the forum,
-          but cannot change this configuration. Their permissions can be narrowed below.
+          {dgettext(
+            "management",
+            "Masters narrate the GDR: they run chats, edit characters and moderate the forum, but cannot change this configuration. Their permissions can be narrowed below."
+          )}
         </p>
 
         <.form for={@master_form} id="master-form" phx-submit="add_master">
           <.input
             field={@master_form[:username]}
             type="text"
-            label="Username"
+            label={dgettext("management", "Username")}
             autocomplete="off"
             required
           />
-          <.button phx-disable-with="Adding...">Add master</.button>
+          <.button phx-disable-with={dgettext("management", "Adding...")}>{dgettext(
+            "management",
+            "Add master"
+          )}</.button>
         </.form>
       </.panel>
 
       <.panel>
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Masters</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("management", "Masters")}
+        </h2>
 
         <p :if={@masters_empty?} id="no-masters" class="mt-2 text-sm text-base-content/60">
-          No masters yet.
+          {dgettext("management", "No masters yet.")}
         </p>
 
         <p class="mt-1 text-xs text-base-content/60">
-          Tick what each master may do. The GDR admin and platform admins can always do everything.
+          {dgettext(
+            "management",
+            "Tick what each master may do. The GDR admin and platform admins can always do everything."
+          )}
         </p>
 
         <ul id="masters" phx-update="stream" class="mt-1 divide-y divide-secondary/10">
@@ -1773,11 +2209,16 @@ defmodule TannhauserGateWeb.GmLive do
                 id={"remove-master-#{master.user_id}"}
                 phx-click="remove_master"
                 phx-value-id={master.user_id}
-                data-confirm={"Remove #{master.user.username} from the masters?"}
+                data-confirm={
+                  dgettext("management", "Remove %{master_user_username} from the masters?",
+                    master_user_username: master.user.username
+                  )
+                }
               >
-                Remove
+                {dgettext("management", "Remove")}
               </.link>
             </div>
+
             <div
               id={"master-permissions-#{master.user_id}"}
               class="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2"
@@ -1796,8 +2237,7 @@ defmodule TannhauserGateWeb.GmLive do
                   phx-value-user_id={master.user_id}
                   phx-value-perm={key}
                   phx-value-value={to_string(!Map.fetch!(master, key))}
-                />
-                {label}
+                /> {label}
               </label>
             </div>
           </li>

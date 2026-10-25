@@ -20,7 +20,7 @@ defmodule TannhauserGateWeb.QuestLive.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Quests · #{story.name}")
+     |> assign(:page_title, dgettext("player", "Quests · %{name}", name: story.name))
      |> assign(:quests, Quests.list_quests(story, user))}
   end
 
@@ -49,21 +49,24 @@ defmodule TannhauserGateWeb.QuestLive.Index do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Quests
-        <:subtitle>The chronicle of the quests run in {@current_story.name}.</:subtitle>
+        {dgettext("player", "Quests")}
+        <:subtitle>
+          {dgettext("player", "The chronicle of the quests run in")} {@current_story.name}.
+        </:subtitle>
+
         <:actions :if={MapSet.member?(@permissions, :can_manage_esiti_quests)}>
           <.link
             id="quests-manage"
             navigate={~p"/g/#{@current_story}/master/quests"}
             class="btn btn-sm btn-secondary btn-soft"
           >
-            <.icon name="hero-pencil-square" class="size-4" /> Manage
+            <.icon name="hero-pencil-square" class="size-4" /> {dgettext("player", "Manage")}
           </.link>
         </:actions>
       </.header>
 
       <p :if={@quests == []} id="quests-empty" class="mt-6 text-sm text-base-content/60">
-        No quests recorded yet.
+        {dgettext("player", "No quests recorded yet.")}
       </p>
 
       <ol id="quest-registry" class="relative mt-6 space-y-4 border-l border-secondary/30 pl-6">
@@ -73,32 +76,40 @@ defmodule TannhauserGateWeb.QuestLive.Index do
             <header class="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 class="text-lg font-semibold text-primary">{quest.title}</h2>
+
                 <p class="text-xs text-base-content/60">
                   {quest.game_date_label || Calendar.strftime(quest.held_on, "%d/%m/%Y")}
                   <span :if={quest.location}>
                     · <.icon name="hero-map-pin-micro" class="size-3" /> {quest.location.name}
                   </span>
-                  <span :if={quest.master}>· run by {quest.master.username}</span>
+
+                  <span :if={quest.master}>{dgettext("player", "· run by")} {quest.master.username}</span>
                 </p>
               </div>
+
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   :if={quest.visibility == "masters"}
                   id={"quest-#{quest.id}-masters-only"}
                   class="badge badge-soft badge-sm badge-warning"
                 >
-                  <.icon name="hero-eye-slash-micro" class="size-3" /> masters only
+                  <.icon name="hero-eye-slash-micro" class="size-3" /> {dgettext(
+                    "player",
+                    "masters only"
+                  )}
                 </span>
+
                 <.link
                   :if={MapSet.member?(@permissions, :can_moderate) && Quests.chat_log_params(quest)}
                   id={"quest-#{quest.id}-log"}
                   navigate={~p"/g/#{@current_story}/master/chat-log?#{Quests.chat_log_params(quest)}"}
                   class="btn btn-xs btn-ghost"
                 >
-                  <.icon name="hero-document-text" class="size-3" /> Chat log
+                  <.icon name="hero-document-text" class="size-3" /> {dgettext("player", "Chat log")}
                 </.link>
               </div>
             </header>
+
             <.markdown
               :if={quest.summary not in [nil, ""]}
               id={"quest-#{quest.id}-summary"}
@@ -115,11 +126,15 @@ defmodule TannhauserGateWeb.QuestLive.Index do
                 <.icon name="hero-user-micro" class="size-3" /> {p.character.name}
               </.link>
             </div>
+
             <p
               :if={@master? && Quest.rewarded?(quest)}
               class="mt-2 text-xs text-success"
             >
-              <.icon name="hero-check-badge-micro" class="size-3" /> rewards handed out
+              <.icon name="hero-check-badge-micro" class="size-3" /> {dgettext(
+                "player",
+                "rewards handed out"
+              )}
             </p>
           </article>
         </li>

@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Directory.Review do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A player's review of a GDR in the portal directory: a 1–5 score per rubric
   criterion (see `criteria/0`), free-text advice and a required conclusion.
@@ -49,7 +51,9 @@ defmodule TannhauserGate.Directory.Review do
     end)
     |> validate_length(:advice, max: 5000)
     |> validate_length(:conclusion, min: 10, max: 5000)
-    |> unique_constraint([:story_id, :user_id], message: "you already reviewed this GDR")
+    |> unique_constraint([:story_id, :user_id],
+      message: dgettext_noop("errors", "you already reviewed this GDR")
+    )
   end
 
   @doc "Changeset for the GDR admin's reply."

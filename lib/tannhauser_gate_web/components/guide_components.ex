@@ -1,6 +1,7 @@
 defmodule TannhauserGateWeb.GuideComponents do
   @moduledoc "Components to render the GDR guide."
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   use Phoenix.VerifiedRoutes,
     endpoint: TannhauserGateWeb.Endpoint,
@@ -31,6 +32,7 @@ defmodule TannhauserGateWeb.GuideComponents do
     <nav id={@id} class="space-y-4">
       <div :for={section <- @sections} id={"#{@id}-section-#{section.id}"}>
         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{section.title}</h3>
+
         <ul class="mt-1 space-y-0.5">
           <li :for={page <- section.pages}>
             <.link
@@ -47,8 +49,9 @@ defmodule TannhauserGateWeb.GuideComponents do
               {page.title}
             </.link>
           </li>
+
           <li :if={section.pages == []} class="px-2 text-xs italic text-base-content/50">
-            No pages yet.
+            {dgettext("player", "No pages yet.")}
           </li>
         </ul>
       </div>

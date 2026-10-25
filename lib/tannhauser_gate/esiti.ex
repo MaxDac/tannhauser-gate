@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Esiti do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Esiti ("outcomes"), the `:esiti` optional module: players file action
   requests that the masters resolve off the chat.
@@ -615,7 +617,9 @@ defmodule TannhauserGate.Esiti do
       "subject" => String.slice("Esito resolved: #{esito.title}", 0, 200),
       "body" =>
         String.slice(esito.outcome, 0, 15_000) <>
-          effects_text(esito.dice_result, esito.effects) <>
+          Gettext.with_locale(TannhauserGateWeb.Gettext, "en", fn ->
+            effects_text(esito.dice_result, esito.effects)
+          end) <>
           "\n\nRead it: /g/#{story.id}/esiti/#{esito.id}"
     })
   end
@@ -638,9 +642,15 @@ defmodule TannhauserGate.Esiti do
 
   def effect_lines(effects) do
     [
-      effects["xp"] not in [nil, 0] && "XP: #{signed(effects["xp"])}",
-      effects["money"] not in [nil, 0] && "Money: #{signed(effects["money"])}",
-      effects["item"] && "Item: #{effects["item"]["name"]} × #{effects["item"]["quantity"]}",
+      effects["xp"] not in [nil, 0] &&
+        dgettext("domain", "XP: %{amount}", amount: signed(effects["xp"])),
+      effects["money"] not in [nil, 0] &&
+        dgettext("domain", "Money: %{amount}", amount: signed(effects["money"])),
+      effects["item"] &&
+        dgettext("domain", "Item: %{name} × %{quantity}",
+          name: effects["item"]["name"],
+          quantity: effects["item"]["quantity"]
+        ),
       effects["tracker"] &&
         "#{effects["tracker"]["name"]}: #{signed(effects["tracker"]["delta"])}" <>
           if(effects["tracker"]["damage_type"],
@@ -650,8 +660,16 @@ defmodule TannhauserGate.Esiti do
     ]
     |> Enum.filter(&is_binary/1)
     |> then(fn
-      [] -> []
-      lines -> lines ++ ["Applied to: #{Enum.join(effects["targets"] || [], ", ")}"]
+      [] ->
+        []
+
+      lines ->
+        lines ++
+          [
+            dgettext("domain", "Applied to: %{targets}",
+              targets: Enum.join(effects["targets"] || [], ", ")
+            )
+          ]
     end)
   end
 
@@ -660,45 +678,76 @@ defmodule TannhauserGate.Esiti do
 
   ## Labels
 
-  def status_label("open"), do: "Open"
-  def status_label("claimed"), do: "In progress"
-  def status_label("resolved"), do: "Resolved"
-  def status_label("closed"), do: "Closed"
+  def status_label("open"), do: dgettext("domain", "Open")
+  def status_label("claimed"), do: dgettext("domain", "In progress")
+  def status_label("resolved"), do: dgettext("domain", "Resolved")
+  def status_label("closed"), do: dgettext("domain", "Closed")
   def status_label(other), do: other
 
-  def error_message(:module_disabled), do: "Esiti are not enabled in this GDR."
-  def error_message(:unauthorized), do: "You can't do that with this esito."
-  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
-  def error_message(:esito_not_found), do: "That esito does not exist in this GDR."
-  def error_message(:character_not_found), do: "That character can't take part in this esito."
-  def error_message(:location_not_found), do: "That room does not exist in this GDR."
-  def error_message(:zone_not_found), do: "That zone does not exist in this GDR."
-  def error_message(:too_many_related), do: "Pick at most #{@max_related} related characters."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Esiti are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "You can't do that with this esito.")
+
+  def error_message(:muted),
+    do: dgettext("domain", "You are muted in this GDR: you cannot post right now.")
+
+  def error_message(:esito_not_found),
+    do: dgettext("domain", "That esito does not exist in this GDR.")
+
+  def error_message(:character_not_found),
+    do: dgettext("domain", "That character can't take part in this esito.")
+
+  def error_message(:location_not_found),
+    do: dgettext("domain", "That room does not exist in this GDR.")
+
+  def error_message(:zone_not_found),
+    do: dgettext("domain", "That zone does not exist in this GDR.")
+
+  def error_message(:too_many_related),
+    do:
+      dgettext("domain", "Pick at most %{max_related} related characters.",
+        max_related: @max_related
+      )
 
   def error_message(:too_many_open),
-    do: "This character already has the maximum number of open esiti."
+    do: dgettext("domain", "This character already has the maximum number of open esiti.")
 
-  def error_message(:not_enough_xp), do: "This character does not have enough XP to file esiti."
-  def error_message(:invalid_status), do: "This esito has changed in the meantime."
-  def error_message(:not_active), do: "This esito is no longer open."
-  def error_message(:outcome_required), do: "Write the outcome."
-  def error_message(:outcome_too_long), do: "The outcome is too long."
-  def error_message(:invalid_xp), do: "The XP must be a whole number."
-  def error_message(:invalid_money), do: "The money must be a whole number."
-  def error_message(:invalid_quantity), do: "Enter a positive item quantity."
-  def error_message(:invalid_tracker_delta), do: "Enter a non-zero tracker change."
-  def error_message(:invalid_effect), do: "One of the effects could not be applied."
-  def error_message({:dice, reason}), do: "Dice: " <> Dice.error_message(reason)
+  def error_message(:not_enough_xp),
+    do: dgettext("domain", "This character does not have enough XP to file esiti.")
+
+  def error_message(:invalid_status),
+    do: dgettext("domain", "This esito has changed in the meantime.")
+
+  def error_message(:not_active), do: dgettext("domain", "This esito is no longer open.")
+  def error_message(:outcome_required), do: dgettext("domain", "Write the outcome.")
+  def error_message(:outcome_too_long), do: dgettext("domain", "The outcome is too long.")
+  def error_message(:invalid_xp), do: dgettext("domain", "The XP must be a whole number.")
+  def error_message(:invalid_money), do: dgettext("domain", "The money must be a whole number.")
+  def error_message(:invalid_quantity), do: dgettext("domain", "Enter a positive item quantity.")
+
+  def error_message(:invalid_tracker_delta),
+    do: dgettext("domain", "Enter a non-zero tracker change.")
+
+  def error_message(:invalid_effect),
+    do: dgettext("domain", "One of the effects could not be applied.")
+
+  def error_message({:dice, reason}),
+    do: dgettext("domain", "Dice: %{reason}", reason: Dice.error_message(reason))
 
   def error_message(:insufficient_funds),
-    do: "A character does not have enough money to take."
+    do: dgettext("domain", "A character does not have enough money to take.")
 
-  def error_message(:insufficient_xp), do: "A character does not have enough XP to take."
-  def error_message(:invalid_amount), do: "The XP must be between -1000 and 1000."
+  def error_message(:insufficient_xp),
+    do: dgettext("domain", "A character does not have enough XP to take.")
+
+  def error_message(:invalid_amount),
+    do: dgettext("domain", "The XP must be between -1000 and 1000.")
+
   def error_message(:item_not_found), do: Items.error_message(:item_not_found)
-  def error_message(:not_found), do: "That tracker does not exist."
+  def error_message(:not_found), do: dgettext("domain", "That tracker does not exist.")
   def error_message(reason) when is_atom(reason), do: Trackers.error_message(reason)
-  def error_message(_), do: "Something went wrong."
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   ## Helpers
 

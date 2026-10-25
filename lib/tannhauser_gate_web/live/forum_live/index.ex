@@ -9,7 +9,7 @@ defmodule TannhauserGateWeb.ForumLive.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Forum")
+     |> assign(:page_title, dgettext("player", "Forum"))
      |> assign(:sections, Forum.list_visible_sections(user, story))}
   end
 
@@ -30,11 +30,13 @@ defmodule TannhauserGateWeb.ForumLive.Index do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Forum
-        <:subtitle>Out of the rain: talk, plan and gossip.</:subtitle>
+        {dgettext("player", "Forum")}
+        <:subtitle>{dgettext("player", "Out of the rain: talk, plan and gossip.")}</:subtitle>
       </.header>
 
-      <p :if={@sections == []} class="mt-8 text-base-content/60">No sections yet.</p>
+      <p :if={@sections == []} class="mt-8 text-base-content/60">
+        {dgettext("player", "No sections yet.")}
+      </p>
 
       <ul id="forum-sections" class="mt-8 space-y-3">
         <li :for={%{section: section} = entry <- @sections} id={"forum-section-#{section.id}"}>
@@ -47,21 +49,23 @@ defmodule TannhauserGateWeb.ForumLive.Index do
           >
             <div class="min-w-0">
               <p class="flex flex-wrap items-center gap-2 text-lg font-bold group-hover:text-primary">
-                {section.name}
-                <.section_badges section={section} />
+                {section.name} <.section_badges section={section} />
               </p>
+
               <p class="text-sm text-base-content/60">{section.description}</p>
             </div>
+
             <div class="flex shrink-0 flex-col items-end gap-1">
               <span class="text-xs uppercase tracking-wider text-secondary">
-                {entry.topic_count} {if entry.topic_count == 1, do: "topic", else: "topics"}
+                {dngettext("player", "%{count} topic", "%{count} topics", entry.topic_count)}
               </span>
+
               <span
                 :if={entry.unread_count > 0}
                 id={"section-unread-#{section.id}"}
                 class="badge badge-sm badge-secondary"
               >
-                {entry.unread_count} new
+                {entry.unread_count} {dgettext("player", "new")}
               </span>
             </div>
           </.link>
@@ -79,16 +83,23 @@ defmodule TannhauserGateWeb.ForumLive.Index do
     <span
       :if={@section.on_game}
       class="badge badge-xs badge-primary badge-soft"
-      title="Written in character"
+      title={dgettext("player", "Written in character")}
     >
-      On game
+      {dgettext("player", "On game")}
     </span>
-    <span :if={!@section.on_game} class="badge badge-xs badge-ghost" title="Written as the player">
-      Off game
+
+    <span
+      :if={!@section.on_game}
+      class="badge badge-xs badge-ghost"
+      title={dgettext("player", "Written as the player")}
+    >
+      {dgettext("player", "Off game")}
     </span>
+
     <span :if={@section.visibility != "all"} class="badge badge-xs badge-warning badge-soft">
-      <.icon name="hero-lock-closed-mini" class="size-3" />
-      {Forum.visibility_label(@section.visibility)}
+      <.icon name="hero-lock-closed-mini" class="size-3" /> {Forum.visibility_label(
+        @section.visibility
+      )}
     </span>
     """
   end

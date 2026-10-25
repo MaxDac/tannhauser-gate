@@ -14,15 +14,16 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :esiti}}
   on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_esiti_quests}}
 
-  @filters [
-    {"active", "Active"},
-    {"open", "Open"},
-    {"mine", "Mine"},
-    {"claimed", "In progress"},
-    {"resolved", "Resolved"},
-    {"closed", "Closed"},
-    {"all", "All"}
-  ]
+  defp filters,
+    do: [
+      {"active", dgettext("management", "Active")},
+      {"open", Esiti.status_label("open")},
+      {"mine", dgettext("management", "Mine")},
+      {"claimed", dgettext("management", "In progress")},
+      {"resolved", dgettext("management", "Resolved")},
+      {"closed", dgettext("management", "Closed")},
+      {"all", dgettext("management", "All")}
+    ]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -31,15 +32,15 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
 
     {:ok,
      socket
-     |> assign(:page_title, "Esiti queue")
-     |> assign(:filters, @filters)
+     |> assign(:page_title, dgettext("management", "Esiti queue"))
+     |> assign(:filters, filters())
      |> assign(:status, "active")}
   end
 
   @impl true
   def handle_params(params, _uri, socket) do
     status =
-      if params["status"] in Enum.map(@filters, &elem(&1, 0)),
+      if params["status"] in Enum.map(filters(), &elem(&1, 0)),
         do: params["status"],
         else: "active"
 
@@ -58,10 +59,16 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
 
   @impl true
   def handle_event("claim", %{"id" => id}, socket),
-    do: transition(socket, id, &Esiti.claim/3, "You took the request.")
+    do: transition(socket, id, &Esiti.claim/3, dgettext("management", "You took the request."))
 
   def handle_event("release", %{"id" => id}, socket),
-    do: transition(socket, id, &Esiti.release/3, "Request back in the queue.")
+    do:
+      transition(
+        socket,
+        id,
+        &Esiti.release/3,
+        dgettext("management", "Request back in the queue.")
+      )
 
   defp transition(socket, id, fun, message) do
     %{current_story: story, current_user: user} = socket.assigns
@@ -111,15 +118,20 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Esiti queue
+        {dgettext("management", "Esiti queue")}
         <:subtitle>
-          Action requests filed by the players. Claim one to handle it, discuss it in its
-          thread and resolve it with an outcome, dice and rewards.
+          {dgettext(
+            "management",
+            "Action requests filed by the players. Claim one to handle it, discuss it in its thread and resolve it with an outcome, dice and rewards."
+          )}
         </:subtitle>
       </.header>
 
@@ -141,7 +153,7 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
       </nav>
 
       <p :if={@empty?} id="esiti-queue-empty" class="mt-6 text-sm text-base-content/60">
-        Nothing here.
+        {dgettext("management", "Nothing here.")}
       </p>
 
       <ul id="esiti-queue" phx-update="stream" class="mt-4 space-y-2">
@@ -160,12 +172,14 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
                 {esito.title}
               </.link>
             </div>
+
             <p class="mt-1 text-xs text-base-content/60">
-              {esito.character.name}
-              <span :if={place(esito)}>· {place(esito)}</span> · {when_label(esito.inserted_at)}
+              {esito.character.name} <span :if={place(esito)}>· {place(esito)}</span>
+              · {when_label(esito.inserted_at)}
               <span :if={esito.claimed_by}>· {esito.claimed_by.username}</span>
             </p>
           </div>
+
           <div class="flex gap-2">
             <button
               :if={esito.status == "open"}
@@ -174,8 +188,9 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
               phx-value-id={esito.id}
               class="btn btn-sm btn-secondary"
             >
-              <.icon name="hero-hand-raised" class="size-4" /> Claim
+              <.icon name="hero-hand-raised" class="size-4" /> {dgettext("management", "Claim")}
             </button>
+
             <button
               :if={esito.status == "claimed"}
               id={"release-#{esito.id}"}
@@ -183,15 +198,16 @@ defmodule TannhauserGateWeb.MasterLive.Esiti do
               phx-value-id={esito.id}
               class="btn btn-sm btn-ghost"
             >
-              Release
+              {dgettext("management", "Release")}
             </button>
+
             <.link
               :if={esito.status in ["open", "claimed"]}
               id={"resolve-#{esito.id}"}
               navigate={~p"/g/#{@current_story}/esiti/#{esito.id}"}
               class="btn btn-sm btn-primary btn-soft"
             >
-              Resolve →
+              {dgettext("management", "Resolve →")}
             </.link>
           </div>
         </li>

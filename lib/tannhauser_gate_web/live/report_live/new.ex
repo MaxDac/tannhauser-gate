@@ -21,7 +21,7 @@ defmodule TannhauserGateWeb.ReportLive.New do
       {:ok, target} ->
         {:ok,
          socket
-         |> assign(:page_title, "Report to the masters")
+         |> assign(:page_title, dgettext("player", "Report to the masters"))
          |> assign(:type, type)
          |> assign(:target_id, params["id"])
          |> assign(:target, target)
@@ -68,7 +68,10 @@ defmodule TannhauserGateWeb.ReportLive.New do
       {:ok, _report} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Report sent: the masters will look into it. Thank you.")
+         |> put_flash(
+           :info,
+           dgettext("player", "Report sent: the masters will look into it. Thank you.")
+         )
          |> push_navigate(to: socket.assigns.return_to)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -103,14 +106,22 @@ defmodule TannhauserGateWeb.ReportLive.New do
       <div class="mx-auto max-w-2xl">
         <.header>
           <span class="inline-flex items-center gap-2">
-            <.icon name="hero-flag" class="size-6 text-warning" /> Report to the masters
+            <.icon name="hero-flag" class="size-6 text-warning" /> {dgettext(
+              "player",
+              "Report to the masters"
+            )}
           </span>
+
           <:subtitle>
-            Reports are private: only the masters of {@current_story.name} read them.
+            {dgettext("player", "Reports are private: only the masters of")} {@current_story.name} {dgettext(
+              "player",
+              "read them."
+            )}
           </:subtitle>
+
           <:actions>
             <.link navigate={@return_to} class="btn btn-ghost btn-sm console-action">
-              <.icon name="hero-arrow-left" class="size-4" /> Back
+              <.icon name="hero-arrow-left" class="size-4" /> {dgettext("player", "Back")}
             </.link>
           </:actions>
         </.header>
@@ -125,6 +136,7 @@ defmodule TannhauserGateWeb.ReportLive.New do
               · {@target.label}
             </span>
           </figcaption>
+
           <blockquote class="mt-3 max-h-60 overflow-y-auto whitespace-pre-line border-l-2 border-warning/40 pl-3 text-sm text-base-content/80">
             {@target.snapshot}
           </blockquote>
@@ -140,8 +152,8 @@ defmodule TannhauserGateWeb.ReportLive.New do
           <.input
             field={@form[:category]}
             type="select"
-            label="Why are you reporting it?"
-            prompt="Pick a reason"
+            label={dgettext("player", "Why are you reporting it?")}
+            prompt={dgettext("player", "Pick a reason")}
             options={Reports.category_options()}
             required
           />
@@ -149,16 +161,16 @@ defmodule TannhauserGateWeb.ReportLive.New do
             field={@form[:reason]}
             type="textarea"
             rows="4"
-            label="Details (optional)"
-            placeholder="Tell the masters what happened."
+            label={dgettext("player", "Details (optional)")}
+            placeholder={dgettext("player", "Tell the masters what happened.")}
           />
           <div class="flex justify-end">
             <.button
               id="report-submit"
               class="btn btn-warning console-action"
-              phx-disable-with="Sending..."
+              phx-disable-with={dgettext("player", "Sending...")}
             >
-              <.icon name="hero-paper-airplane" class="size-4" /> Send report
+              <.icon name="hero-paper-airplane" class="size-4" /> {dgettext("player", "Send report")}
             </.button>
           </div>
         </.form>

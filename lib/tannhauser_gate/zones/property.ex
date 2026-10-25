@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Zones.Property do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A numeric property every zone of a GDR carries (e.g. danger, resonance).
   Non-public properties are only shown to masters.
@@ -31,7 +33,11 @@ defmodule TannhauserGate.Zones.Property do
     |> validate_required([:name, :slug, :default_value])
     |> validate_length(:name, max: 60)
     |> validate_format(:slug, ~r/^[a-z][a-z0-9_]{0,39}$/,
-      message: "must start with a letter and use only lowercase letters, digits and _"
+      message:
+        dgettext_noop(
+          "errors",
+          "must start with a letter and use only lowercase letters, digits and _"
+        )
     )
     |> validate_number(:default_value,
       greater_than_or_equal_to: -1_000,
@@ -41,7 +47,7 @@ defmodule TannhauserGate.Zones.Property do
     |> unique_constraint([:story_id, :slug],
       error_key: :slug,
       name: :zone_properties_story_id_slug_index,
-      message: "is already used by another property"
+      message: dgettext_noop("errors", "is already used by another property")
     )
   end
 

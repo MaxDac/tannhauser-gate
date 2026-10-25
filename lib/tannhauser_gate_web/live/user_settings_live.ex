@@ -7,8 +7,10 @@ defmodule TannhauserGateWeb.UserSettingsLive do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_path={@current_path}>
       <.header class="text-center">
-        Account Settings
-        <:subtitle>Manage your account email address and password settings</:subtitle>
+        {dgettext("player", "Account Settings")}
+        <:subtitle>
+          {dgettext("player", "Manage your account email address and password settings")}
+        </:subtitle>
       </.header>
 
       <div
@@ -18,8 +20,10 @@ defmodule TannhauserGateWeb.UserSettingsLive do
       >
         <.icon name="hero-key" class="mt-0.5 size-5 shrink-0 text-warning" />
         <p>
-          This account still uses its initial password. Choose a new one below to
-          continue using the site.
+          {dgettext(
+            "player",
+            "This account still uses its initial password. Choose a new one below to continue using the site."
+          )}
         </p>
       </div>
 
@@ -31,21 +35,30 @@ defmodule TannhauserGateWeb.UserSettingsLive do
             phx-submit="update_email"
             phx-change="validate_email"
           >
-            <.input field={@email_form[:email]} type="email" label="Email" required />
+            <.input
+              field={@email_form[:email]}
+              type="email"
+              label={dgettext("player", "Email")}
+              required
+            />
             <.input
               field={@email_form[:current_password]}
               name="current_password"
               id="current_password_for_email"
               type="password"
-              label="Current password"
+              label={dgettext("player", "Current password")}
               value={@email_form_current_password}
               required
             />
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-              <.button phx-disable-with="Changing...">Change Email</.button>
+              <.button phx-disable-with={dgettext("player", "Changing...")}>{dgettext(
+                "player",
+                "Change Email"
+              )}</.button>
             </div>
           </.form>
         </div>
+
         <div>
           <.form
             for={@password_form}
@@ -62,23 +75,31 @@ defmodule TannhauserGateWeb.UserSettingsLive do
               id="hidden_user_login"
               value={@current_username}
             />
-            <.input field={@password_form[:password]} type="password" label="New password" required />
+            <.input
+              field={@password_form[:password]}
+              type="password"
+              label={dgettext("player", "New password")}
+              required
+            />
             <.input
               field={@password_form[:password_confirmation]}
               type="password"
-              label="Confirm new password"
+              label={dgettext("player", "Confirm new password")}
             />
             <.input
               field={@password_form[:current_password]}
               name="current_password"
               type="password"
-              label="Current password"
+              label={dgettext("player", "Current password")}
               id="current_password_for_password"
               value={@current_password}
               required
             />
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-              <.button phx-disable-with="Changing...">Change Password</.button>
+              <.button phx-disable-with={dgettext("player", "Changing...")}>{dgettext(
+                "player",
+                "Change Password"
+              )}</.button>
             </div>
           </.form>
         </div>
@@ -91,10 +112,14 @@ defmodule TannhauserGateWeb.UserSettingsLive do
     socket =
       case Accounts.update_user_email(socket.assigns.current_user, token) do
         :ok ->
-          put_flash(socket, :info, "Email changed successfully.")
+          put_flash(socket, :info, dgettext("player", "Email changed successfully."))
 
         :error ->
-          put_flash(socket, :error, "Email change link is invalid or it has expired.")
+          put_flash(
+            socket,
+            :error,
+            dgettext("player", "Email change link is invalid or it has expired.")
+          )
       end
 
     {:ok, push_navigate(socket, to: ~p"/users/settings")}
@@ -179,7 +204,12 @@ defmodule TannhauserGateWeb.UserSettingsLive do
           &url(~p"/users/settings/confirm_email/#{&1}")
         )
 
-        info = "A link to confirm your email change has been sent to the new address."
+        info =
+          dgettext(
+            "player",
+            "A link to confirm your email change has been sent to the new address."
+          )
+
         {:noreply, socket |> put_flash(:info, info) |> assign(email_form_current_password: nil)}
 
       {:error, changeset} ->
@@ -192,7 +222,7 @@ defmodule TannhauserGateWeb.UserSettingsLive do
       {:ok, updated_user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Email updated.")
+         |> put_flash(:info, dgettext("player", "Email updated."))
          |> assign(
            current_user: updated_user,
            email_form: to_form(Accounts.change_user_email(updated_user)),

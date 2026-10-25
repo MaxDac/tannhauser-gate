@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.GmLive.Origins do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> assign(:items, Sheet.list_items(socket.assigns.current_story))
      |> allow_upload(:image,
        accept: Storage.allowed_extensions(),
@@ -63,7 +63,7 @@ defmodule TannhauserGateWeb.GmLive.Origins do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Origin group saved.")
+         |> put_flash(:info, dgettext("management", "Origin group saved."))
          |> reload()
          |> edit_group(%Group{})}
 
@@ -82,7 +82,7 @@ defmodule TannhauserGateWeb.GmLive.Origins do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Origin group deleted.")
+     |> put_flash(:info, dgettext("management", "Origin group deleted."))
      |> reload()
      |> edit_group(%Group{})
      |> edit_option(new_option(nil))}
@@ -120,7 +120,7 @@ defmodule TannhauserGateWeb.GmLive.Origins do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Origin option saved.")
+         |> put_flash(:info, dgettext("management", "Origin option saved."))
          |> reload()
          |> edit_option(new_option(nil))}
 
@@ -154,7 +154,7 @@ defmodule TannhauserGateWeb.GmLive.Origins do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Origin option deleted.")
+     |> put_flash(:info, dgettext("management", "Origin option deleted."))
      |> reload()
      |> edit_option(new_option(nil))}
   end
@@ -168,10 +168,12 @@ defmodule TannhauserGateWeb.GmLive.Origins do
     end
   end
 
-  defp upload_error(:too_large), do: "The image is too large (max 5 MB)"
-  defp upload_error(:not_accepted), do: "Unsupported file type"
-  defp upload_error(:too_many_files), do: "Only one image is allowed"
-  defp upload_error(other), do: "Upload error: #{inspect(other)}"
+  defp upload_error(:too_large), do: dgettext("management", "The image is too large (max 5 MB)")
+  defp upload_error(:not_accepted), do: dgettext("management", "Unsupported file type")
+  defp upload_error(:too_many_files), do: dgettext("management", "Only one image is allowed")
+
+  defp upload_error(other),
+    do: dgettext("management", "Upload error: %{inspect_other}", inspect_other: inspect(other))
 
   @impl true
   def render(assigns) do
@@ -195,14 +197,14 @@ defmodule TannhauserGateWeb.GmLive.Origins do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="origins" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="origins" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_26rem]">
         <section id="origin-groups" class="space-y-4">
           <p :if={@groups == []} id="origin-groups-empty" class="text-sm text-base-content/60">
-            No origin groups yet: add one (e.g. "Race" or "Class") to let players pick it at
-            character creation.
+            {dgettext(
+              "management",
+              "No origin groups yet: add one (e.g. \"Race\" or \"Class\") to let players pick it at character creation."
+            )}
           </p>
 
           <article
@@ -215,39 +217,48 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                 <h3 class="flex items-center gap-2 font-semibold text-primary">
                   {group.name}
                   <span :if={group.required} class="badge badge-soft badge-sm badge-warning">
-                    Required
+                    {dgettext("management", "Required")}
                   </span>
                 </h3>
+
                 <p :if={group.description} class="mt-1 text-sm text-base-content/70">
                   {group.description}
                 </p>
               </div>
+
               <div class="flex shrink-0 gap-1">
                 <button
                   id={"new-option-#{group.id}"}
                   phx-click="new_option"
                   phx-value-group={group.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-primary"
-                  title="Add option"
+                  title={dgettext("management", "Add option")}
                 >
                   <.icon name="hero-plus-circle" class="size-4" />
                 </button>
+
                 <button
                   id={"edit-origin-group-#{group.id}"}
                   phx-click="edit_group"
                   phx-value-id={group.id}
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-secondary"
-                  title="Edit"
+                  title={dgettext("management", "Edit")}
                 >
                   <.icon name="hero-pencil" class="size-4" />
                 </button>
+
                 <button
                   id={"delete-origin-group-#{group.id}"}
                   phx-click="delete_group"
                   phx-value-id={group.id}
-                  data-confirm="Delete this group, its options and the characters' choices?"
+                  data-confirm={
+                    dgettext(
+                      "management",
+                      "Delete this group, its options and the characters' choices?"
+                    )
+                  }
                   class="rounded p-1 text-base-content/60 transition-colors hover:text-error"
-                  title="Delete"
+                  title={dgettext("management", "Delete")}
                 >
                   <.icon name="hero-trash" class="size-4" />
                 </button>
@@ -255,8 +266,9 @@ defmodule TannhauserGateWeb.GmLive.Origins do
             </div>
 
             <p :if={group.options == []} class="mt-3 text-xs italic text-base-content/50">
-              No options yet.
+              {dgettext("management", "No options yet.")}
             </p>
+
             <ul class="mt-3 grid gap-2 sm:grid-cols-2">
               <li
                 :for={option <- group.options}
@@ -278,22 +290,26 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                         phx-click="edit_option"
                         phx-value-id={option.id}
                         class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                        title="Edit"
+                        title={dgettext("management", "Edit")}
                       >
                         <.icon name="hero-pencil" class="size-3.5" />
                       </button>
+
                       <button
                         id={"delete-origin-option-#{option.id}"}
                         phx-click="delete_option"
                         phx-value-id={option.id}
-                        data-confirm="Delete this option? Characters lose it."
+                        data-confirm={
+                          dgettext("management", "Delete this option? Characters lose it.")
+                        }
                         class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                        title="Delete"
+                        title={dgettext("management", "Delete")}
                       >
                         <.icon name="hero-trash" class="size-3.5" />
                       </button>
                     </span>
                   </div>
+
                   <p
                     :if={Origins.bonus_label(option.bonuses)}
                     id={"origin-option-bonuses-#{option.id}"}
@@ -301,12 +317,15 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                   >
                     {Origins.bonus_label(option.bonuses)}
                   </p>
+
                   <p
                     :if={option.requires_approval}
                     class="mt-1 flex items-center gap-1 text-xs text-warning"
                   >
-                    <.icon name="hero-shield-exclamation-micro" class="size-3.5" />
-                    Requires master approval
+                    <.icon name="hero-shield-exclamation-micro" class="size-3.5" /> {dgettext(
+                      "management",
+                      "Requires master approval"
+                    )}
                   </p>
                 </div>
               </li>
@@ -317,8 +336,11 @@ defmodule TannhauserGateWeb.GmLive.Origins do
         <div class="space-y-6">
           <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @group.id, do: "Edit origin group", else: "New origin group"}
+              {if @group.id,
+                do: dgettext("management", "Edit origin group"),
+                else: dgettext("management", "New origin group")}
             </h2>
+
             <.form
               for={@group_form}
               id="origin-group-form"
@@ -326,32 +348,46 @@ defmodule TannhauserGateWeb.GmLive.Origins do
               phx-submit="save_group"
               class="mt-4"
             >
-              <.input field={@group_form[:name]} type="text" label="Name" required />
+              <.input
+                field={@group_form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@group_form[:description]}
                 type="textarea"
-                label="Description"
+                label={dgettext("management", "Description")}
                 rows="2"
               />
               <div class="grid grid-cols-2 gap-3">
-                <.input field={@group_form[:position]} type="number" label="Position" min="0" />
+                <.input
+                  field={@group_form[:position]}
+                  type="number"
+                  label={dgettext("management", "Position")}
+                  min="0"
+                />
                 <.input
                   field={@group_form[:required]}
                   type="checkbox"
-                  label="Required at creation"
+                  label={dgettext("management", "Required at creation")}
                 />
               </div>
+
               <div class="flex gap-2">
-                <.button id="save-origin-group" phx-disable-with="Saving...">
-                  {if @group.id, do: "Update group", else: "Add group"}
+                <.button id="save-origin-group" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @group.id,
+                    do: dgettext("management", "Update group"),
+                    else: dgettext("management", "Add group")}
                 </.button>
+
                 <.button
                   :if={@group.id}
                   type="button"
                   id="cancel-origin-group"
                   phx-click="cancel_group"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
@@ -362,8 +398,11 @@ defmodule TannhauserGateWeb.GmLive.Origins do
             class="rounded-xl border border-secondary/20 bg-base-200/80 p-5"
           >
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @option.id, do: "Edit origin option", else: "New origin option"}
+              {if @option.id,
+                do: dgettext("management", "Edit origin option"),
+                else: dgettext("management", "New origin option")}
             </h2>
+
             <.form
               for={@option_form}
               id="origin-option-form"
@@ -374,20 +413,27 @@ defmodule TannhauserGateWeb.GmLive.Origins do
               <.input
                 field={@option_form[:group_id]}
                 type="select"
-                label="Group"
-                prompt="Choose a group"
+                label={dgettext("management", "Group")}
+                prompt={dgettext("management", "Choose a group")}
                 options={Enum.map(@groups, &{&1.name, &1.id})}
               />
-              <.input field={@option_form[:name]} type="text" label="Name" required />
+              <.input
+                field={@option_form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@option_form[:description]}
                 type="textarea"
-                label="Description (Markdown)"
+                label={dgettext("management", "Description (Markdown)")}
                 rows="5"
               />
-
               <div phx-drop-target={@uploads.image.ref} class="mb-2 space-y-2">
-                <label for={@uploads.image.ref} class="console-label">Image (optional)</label>
+                <label for={@uploads.image.ref} class="console-label">{dgettext(
+                  "management",
+                  "Image (optional)"
+                )}</label>
                 <div class="flex flex-wrap items-center gap-3">
                   <img
                     :if={@option.image_path && @uploads.image.entries == []}
@@ -403,8 +449,9 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                     phx-click="remove_image"
                     class="text-xs text-error hover:underline"
                   >
-                    Remove
+                    {dgettext("management", "Remove")}
                   </button>
+
                   <div :for={entry <- @uploads.image.entries} class="flex items-center gap-2">
                     <.live_img_preview entry={entry} class="size-14 rounded object-cover" />
                     <button
@@ -413,14 +460,16 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                       phx-value-ref={entry.ref}
                       class="text-xs text-error hover:underline"
                     >
-                      Remove
+                      {dgettext("management", "Remove")}
                     </button>
                   </div>
+
                   <.live_file_input
                     upload={@uploads.image}
                     class="file-input file-input-secondary console-field w-full max-w-xs"
                   />
                 </div>
+
                 <.error :for={error <- @image_errors}>{error}</.error>
               </div>
 
@@ -429,15 +478,20 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                 class="mt-2 rounded-lg border border-secondary/20 p-3"
               >
                 <legend class="px-1 text-xs font-bold uppercase tracking-wider text-secondary">
-                  Sheet bonuses
+                  {dgettext("management", "Sheet bonuses")}
                 </legend>
+
                 <p class="mb-2 text-xs text-base-content/60">
-                  Added to the character's values in formulas, trackers and dice (may exceed the
-                  item maximum). Leave blank for no bonus; negative values are allowed.
+                  {dgettext(
+                    "management",
+                    "Added to the character's values in formulas, trackers and dice (may exceed the item maximum). Leave blank for no bonus; negative values are allowed."
+                  )}
                 </p>
+
                 <p :if={@items == []} class="text-xs text-warning">
-                  Define sheet items in the Sheet tab to give bonuses.
+                  {dgettext("management", "Define sheet items in the Sheet tab to give bonuses.")}
                 </p>
+
                 <div class="grid grid-cols-2 gap-x-3">
                   <.input
                     :for={item <- @items}
@@ -448,31 +502,43 @@ defmodule TannhauserGateWeb.GmLive.Origins do
                     label={item.name}
                   />
                 </div>
+
                 <.error :for={error <- @option_form[:bonuses].errors}>
                   {translate_error(error)}
                 </.error>
               </fieldset>
 
               <div class="mt-3 grid grid-cols-2 gap-3">
-                <.input field={@option_form[:position]} type="number" label="Position" min="0" />
+                <.input
+                  field={@option_form[:position]}
+                  type="number"
+                  label={dgettext("management", "Position")}
+                  min="0"
+                />
                 <.input
                   field={@option_form[:requires_approval]}
                   type="checkbox"
-                  label="Requires master approval"
+                  label={dgettext("management", "Requires master approval")}
                 />
               </div>
 
               <div class="flex gap-2">
-                <.button id="save-origin-option" phx-disable-with="Saving...">
-                  {if @option.id, do: "Update option", else: "Add option"}
+                <.button
+                  id="save-origin-option"
+                  phx-disable-with={dgettext("management", "Saving...")}
+                >
+                  {if @option.id,
+                    do: dgettext("management", "Update option"),
+                    else: dgettext("management", "Add option")}
                 </.button>
+
                 <.button
                   :if={@option.id}
                   type="button"
                   id="cancel-origin-option"
                   phx-click="cancel_option"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>

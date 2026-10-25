@@ -6,6 +6,7 @@ defmodule TannhauserGateWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug TannhauserGateWeb.Locale
     plug :fetch_live_flash
     plug :put_root_layout, html: {TannhauserGateWeb.Layouts, :root}
     plug :protect_from_forgery
@@ -22,6 +23,7 @@ defmodule TannhauserGateWeb.Router do
 
     get "/", PageController, :home
     get "/terms", PageController, :terms
+    post "/locale", LocaleController, :update
   end
 
   scope "/", TannhauserGateWeb do
@@ -50,7 +52,10 @@ defmodule TannhauserGateWeb.Router do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
-      on_mount: [{TannhauserGateWeb.UserAuth, :redirect_if_user_is_authenticated}] do
+      on_mount: [
+        TannhauserGateWeb.Locale,
+        {TannhauserGateWeb.UserAuth, :redirect_if_user_is_authenticated}
+      ] do
       live "/users/register", UserRegistrationLive, :new
       live "/users/log_in", UserLoginLive, :new
       live "/users/reset_password", UserForgotPasswordLive, :new
@@ -65,6 +70,7 @@ defmodule TannhauserGateWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [
+        TannhauserGateWeb.Locale,
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path}
       ] do
@@ -79,6 +85,7 @@ defmodule TannhauserGateWeb.Router do
 
     live_session :gdr,
       on_mount: [
+        TannhauserGateWeb.Locale,
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
@@ -127,6 +134,7 @@ defmodule TannhauserGateWeb.Router do
 
     live_session :gdr_admin,
       on_mount: [
+        TannhauserGateWeb.Locale,
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
@@ -149,6 +157,7 @@ defmodule TannhauserGateWeb.Router do
 
     live_session :gdr_master,
       on_mount: [
+        TannhauserGateWeb.Locale,
         {TannhauserGateWeb.UserAuth, :ensure_authenticated},
         {TannhauserGateWeb.UserAuth, :assign_current_path},
         {TannhauserGateWeb.UserAuth, :load_story},
@@ -181,6 +190,7 @@ defmodule TannhauserGateWeb.Router do
 
     live_session :admin,
       on_mount: [
+        TannhauserGateWeb.Locale,
         {TannhauserGateWeb.UserAuth, :ensure_admin},
         {TannhauserGateWeb.UserAuth, :assign_current_path}
       ] do
@@ -204,7 +214,10 @@ defmodule TannhauserGateWeb.Router do
     delete "/users/log_out", UserSessionController, :delete
 
     live_session :current_user,
-      on_mount: [{TannhauserGateWeb.UserAuth, :mount_current_user}] do
+      on_mount: [
+        TannhauserGateWeb.Locale,
+        {TannhauserGateWeb.UserAuth, :mount_current_user}
+      ] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end

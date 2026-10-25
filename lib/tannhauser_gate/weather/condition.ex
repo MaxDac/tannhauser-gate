@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Weather.Condition do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A row of the GDR weather table (weather module): a condition with its icon,
   its weight per season (`weights`, season name => weight) and optional
@@ -11,24 +13,27 @@ defmodule TannhauserGate.Weather.Condition do
 
   # Literal class names so Tailwind generates them.
   @icons [
-    {"Clear (sun)", "hero-sun"},
-    {"Clear night (moon)", "hero-moon"},
-    {"Clouds", "hero-cloud"},
-    {"Rain", "hero-cloud-arrow-down"},
-    {"Storm", "hero-bolt"},
-    {"Fog / smog", "hero-eye-slash"},
-    {"Acid", "hero-beaker"},
-    {"Heat / fire", "hero-fire"},
-    {"Neon / glow", "hero-sparkles"},
-    {"Wind / dust", "hero-globe-alt"},
-    {"Interference", "hero-signal-slash"},
-    {"Hazard", "hero-exclamation-triangle"}
+    {dgettext_noop("domain", "Clear (sun)"), "hero-sun"},
+    {dgettext_noop("domain", "Clear night (moon)"), "hero-moon"},
+    {dgettext_noop("domain", "Clouds"), "hero-cloud"},
+    {dgettext_noop("domain", "Rain"), "hero-cloud-arrow-down"},
+    {dgettext_noop("domain", "Storm"), "hero-bolt"},
+    {dgettext_noop("domain", "Fog / smog"), "hero-eye-slash"},
+    {dgettext_noop("domain", "Acid"), "hero-beaker"},
+    {dgettext_noop("domain", "Heat / fire"), "hero-fire"},
+    {dgettext_noop("domain", "Neon / glow"), "hero-sparkles"},
+    {dgettext_noop("domain", "Wind / dust"), "hero-globe-alt"},
+    {dgettext_noop("domain", "Interference"), "hero-signal-slash"},
+    {dgettext_noop("domain", "Hazard"), "hero-exclamation-triangle"}
   ]
 
   @icon_names Enum.map(@icons, &elem(&1, 1))
 
   @doc "The selectable icons, as `{label, icon}` options."
-  def icons, do: @icons
+  def icons do
+    for {label, icon} <- @icons,
+        do: {Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label), icon}
+  end
 
   def icon_names, do: @icon_names
 
@@ -54,13 +59,25 @@ defmodule TannhauserGate.Weather.Condition do
     |> validate_length(:name, max: 60)
     |> validate_length(:description, max: 500)
     |> validate_inclusion(:icon, @icon_names)
-    |> normalize(:weights, 0..1000, "weights must be whole numbers between 0 and 1000")
-    |> normalize(:temp_min, -100..100, "temperatures must be between -100 and 100")
-    |> normalize(:temp_max, -100..100, "temperatures must be between -100 and 100")
+    |> normalize(
+      :weights,
+      0..1000,
+      dgettext_noop("errors", "weights must be whole numbers between 0 and 1000")
+    )
+    |> normalize(
+      :temp_min,
+      -100..100,
+      dgettext_noop("errors", "temperatures must be between -100 and 100")
+    )
+    |> normalize(
+      :temp_max,
+      -100..100,
+      dgettext_noop("errors", "temperatures must be between -100 and 100")
+    )
     |> unique_constraint([:story_id, :name],
       error_key: :name,
       name: :weather_conditions_story_id_name_index,
-      message: "is already in the table"
+      message: dgettext_noop("errors", "is already in the table")
     )
   end
 

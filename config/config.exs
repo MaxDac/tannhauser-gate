@@ -33,6 +33,10 @@ config :phoenix_live_view,
   # the attribute set on all root tags. Used for Phoenix.LiveView.ColocatedCSS.
   root_tag_attribute: "phx-r"
 
+config :tannhauser_gate, TannhauserGateWeb.Gettext,
+  default_locale: "en",
+  locales: ~w(en it es pt_PT)
+
 # Configure the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

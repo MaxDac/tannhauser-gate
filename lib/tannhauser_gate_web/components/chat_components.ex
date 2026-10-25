@@ -4,6 +4,7 @@ defmodule TannhauserGateWeb.ChatComponents do
   rooms and the master chat log).
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   import TannhauserGateWeb.CoreComponents, only: [icon: 1]
 
@@ -31,12 +32,12 @@ defmodule TannhauserGateWeb.ChatComponents do
   end
 
   @doc "Human readable label of an entry kind."
-  def kind_label("speech"), do: "In character"
-  def kind_label("ooc"), do: "OFF"
-  def kind_label("narration"), do: "Narration"
-  def kind_label("status"), do: "Room status"
-  def kind_label("dice"), do: "Dice"
-  def kind_label("whisper"), do: "Whisper"
+  def kind_label("speech"), do: dgettext("player", "In character")
+  def kind_label("ooc"), do: dgettext("player", "OFF")
+  def kind_label("narration"), do: dgettext("player", "Narration")
+  def kind_label("status"), do: dgettext("player", "Room status")
+  def kind_label("dice"), do: dgettext("player", "Dice")
+  def kind_label("whisper"), do: dgettext("player", "Whisper")
   def kind_label(kind), do: kind
 
   @doc """
@@ -105,7 +106,7 @@ defmodule TannhauserGateWeb.ChatComponents do
         </span>
       </p>
 
-      <ul class="mt-2 flex flex-wrap gap-1.5" aria-label="Dice">
+      <ul class="mt-2 flex flex-wrap gap-1.5" aria-label={dgettext("player", "Dice")}>
         <li
           :for={{die, index} <- Enum.with_index(@result["dice"] || group_dice(@result))}
           class={[
@@ -125,24 +126,28 @@ defmodule TannhauserGateWeb.ChatComponents do
         </span>
 
         <span :if={(@result["modifier"] || 0) != 0} class="mr-2">
-          modifier <span class="text-fog-200">{signed(@result["modifier"])}</span>
+          {dgettext("player", "modifier")}
+          <span class="text-fog-200">{signed(@result["modifier"])}</span>
         </span>
 
         <span :if={@result["special_count"] && @result["special_count"] > 0} class="mr-2">
-          special dice <span class="text-error">{@result["special_count"]}</span>
+          {dgettext("player", "special dice")}
+          <span class="text-error">{@result["special_count"]}</span>
         </span>
 
         <span :if={@result["rerolled"]} class="mr-2 text-warning">
-          rerolled ({@result["reroll_tracker"]})
+          {dgettext("player", "rerolled (")}{@result["reroll_tracker"]})
         </span>
       </p>
 
-      <p class="dice-summary mt-1 font-semibold text-fog-100">{@result["summary"]}</p>
+      <p class="dice-summary mt-1 font-semibold text-fog-100">{Dice.summary(@result)}</p>
     </div>
     """
   end
 
-  defp system_label(%{"system" => "pool", "pool" => pool}), do: "pool of #{pool}"
+  defp system_label(%{"system" => "pool", "pool" => pool}),
+    do: dgettext("player", "pool of %{pool}", pool: pool)
+
   defp system_label(%{"system" => "d20"}), do: "d20"
   defp system_label(%{"system" => "expression", "expression" => e}), do: e
   defp system_label(_), do: nil
@@ -161,9 +166,9 @@ defmodule TannhauserGateWeb.ChatComponents do
   defp die_class(%{"success" => false}), do: "border-fog-700 bg-ink text-fog-500"
   defp die_class(_), do: "border-mint/40 bg-ink text-fog-100"
 
-  defp die_title(%{"special" => true}), do: "Special die"
-  defp die_title(%{"success" => true}), do: "Success"
-  defp die_title(%{"success" => false}), do: "Failure"
+  defp die_title(%{"special" => true}), do: dgettext("player", "Special die")
+  defp die_title(%{"success" => true}), do: dgettext("player", "Success")
+  defp die_title(%{"success" => false}), do: dgettext("player", "Failure")
   defp die_title(_), do: nil
 
   defp outcome_class(outcome) when outcome in ["critical", "success"],

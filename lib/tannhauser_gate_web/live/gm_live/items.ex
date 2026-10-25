@@ -19,7 +19,7 @@ defmodule TannhauserGateWeb.GmLive.Items do
 
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> assign(:sheet_items, Sheet.list_items(story))
      |> assign(:trackers, Trackers.list_trackers(story))
      |> allow_upload(:image,
@@ -74,7 +74,7 @@ defmodule TannhauserGateWeb.GmLive.Items do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Item saved.")
+         |> put_flash(:info, dgettext("management", "Item saved."))
          |> reload()
          |> edit_item(%Item{})}
 
@@ -107,7 +107,7 @@ defmodule TannhauserGateWeb.GmLive.Items do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Item deleted.")
+     |> put_flash(:info, dgettext("management", "Item deleted."))
      |> reload()
      |> edit_item(%Item{})}
   end
@@ -129,10 +129,12 @@ defmodule TannhauserGateWeb.GmLive.Items do
     end
   end
 
-  defp upload_error(:too_large), do: "The image is too large (max 5 MB)"
-  defp upload_error(:not_accepted), do: "Unsupported file type"
-  defp upload_error(:too_many_files), do: "Only one image is allowed"
-  defp upload_error(other), do: "Upload error: #{inspect(other)}"
+  defp upload_error(:too_large), do: dgettext("management", "The image is too large (max 5 MB)")
+  defp upload_error(:not_accepted), do: dgettext("management", "Unsupported file type")
+  defp upload_error(:too_many_files), do: dgettext("management", "Only one image is allowed")
+
+  defp upload_error(other),
+    do: dgettext("management", "Upload error: %{inspect_other}", inspect_other: inspect(other))
 
   @impl true
   def render(assigns) do
@@ -159,13 +161,14 @@ defmodule TannhauserGateWeb.GmLive.Items do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="items" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="items" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_26rem]">
         <section id="item-catalog" class="space-y-3">
           <p :if={@items == []} id="items-empty" class="text-sm text-base-content/60">
-            No items yet: add weapons, clothes, medkits and anything your players can carry.
+            {dgettext(
+              "management",
+              "No items yet: add weapons, clothes, medkits and anything your players can carry."
+            )}
           </p>
 
           <ul class="grid gap-3 sm:grid-cols-2">
@@ -184,37 +187,47 @@ defmodule TannhauserGateWeb.GmLive.Items do
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
                     <p class="truncate font-semibold text-primary">{item.name}</p>
+
                     <p class="text-xs text-base-content/60">
-                      {item.category || "Uncategorised"} · {item.price} {@current_story.currency_name}
-                      <span :if={!item.stackable}>· unique</span>
+                      {item.category || dgettext("management", "Uncategorised")} · {item.price} {@current_story.currency_name}
+                      <span :if={!item.stackable}>{dgettext("management", "· unique")}</span>
                     </p>
                   </div>
+
                   <span class="flex shrink-0 gap-1">
                     <button
                       id={"edit-item-#{item.id}"}
                       phx-click="edit"
                       phx-value-id={item.id}
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                      title="Edit"
+                      title={dgettext("management", "Edit")}
                     >
                       <.icon name="hero-pencil" class="size-4" />
                     </button>
+
                     <button
                       id={"delete-item-#{item.id}"}
                       phx-click="delete"
                       phx-value-id={item.id}
-                      data-confirm="Delete this item? It disappears from every inventory and shop."
+                      data-confirm={
+                        dgettext(
+                          "management",
+                          "Delete this item? It disappears from every inventory and shop."
+                        )
+                      }
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                      title="Delete"
+                      title={dgettext("management", "Delete")}
                     >
                       <.icon name="hero-trash" class="size-4" />
                     </button>
                   </span>
                 </div>
+
                 <div class="mt-2 flex flex-wrap gap-1 text-xs">
                   <span :if={item.slot} class="badge badge-soft badge-sm badge-info">
                     <.icon name="hero-shield-check-micro" class="size-3" /> {item.slot}
                   </span>
+
                   <span
                     :if={Origins.bonus_label(item.modifiers)}
                     id={"catalog-item-modifiers-#{item.id}"}
@@ -222,12 +235,12 @@ defmodule TannhauserGateWeb.GmLive.Items do
                   >
                     {Origins.bonus_label(item.modifiers)}
                   </span>
+
                   <span
                     :if={Item.usable?(item) and item.tracker}
                     class="badge badge-soft badge-sm badge-success"
                   >
-                    <.icon name="hero-beaker-micro" class="size-3" />
-                    {item.tracker.name}{if item.effect_damage_type,
+                    <.icon name="hero-beaker-micro" class="size-3" /> {item.tracker.name}{if item.effect_damage_type,
                       do: " (#{item.effect_damage_type})"} {Origins.signed(item.effect_change)}
                   </span>
                 </div>
@@ -238,8 +251,11 @@ defmodule TannhauserGateWeb.GmLive.Items do
 
         <section class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5">
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-            {if @item.id, do: "Edit item", else: "New item"}
+            {if @item.id,
+              do: dgettext("management", "Edit item"),
+              else: dgettext("management", "New item")}
           </h2>
+
           <.form
             for={@form}
             id="item-form"
@@ -247,29 +263,38 @@ defmodule TannhauserGateWeb.GmLive.Items do
             phx-submit="save"
             class="mt-4"
           >
-            <.input field={@form[:name]} type="text" label="Name" required />
+            <.input field={@form[:name]} type="text" label={dgettext("management", "Name")} required />
             <div class="grid grid-cols-2 gap-3">
               <.input
                 field={@form[:category]}
                 type="text"
-                label="Category"
+                label={dgettext("management", "Category")}
                 list="item-categories"
-                placeholder="e.g. Weapons"
+                placeholder={dgettext("management", "e.g. Weapons")}
               />
-              <.input field={@form[:price]} type="number" label="Base price" min="0" />
+              <.input
+                field={@form[:price]}
+                type="number"
+                label={dgettext("management", "Base price")}
+                min="0"
+              />
             </div>
+
             <datalist id="item-categories">
               <option :for={category <- @categories} value={category} />
             </datalist>
+
             <.input
               field={@form[:description]}
               type="textarea"
-              label="Description (Markdown)"
+              label={dgettext("management", "Description (Markdown)")}
               rows="4"
             />
-
             <div phx-drop-target={@uploads.image.ref} class="mb-2 space-y-2">
-              <label for={@uploads.image.ref} class="console-label">Image (optional)</label>
+              <label for={@uploads.image.ref} class="console-label">{dgettext(
+                "management",
+                "Image (optional)"
+              )}</label>
               <div class="flex flex-wrap items-center gap-3">
                 <img
                   :if={@item.image_path && @uploads.image.entries == []}
@@ -285,8 +310,9 @@ defmodule TannhauserGateWeb.GmLive.Items do
                   phx-click="remove_image"
                   class="text-xs text-error hover:underline"
                 >
-                  Remove
+                  {dgettext("management", "Remove")}
                 </button>
+
                 <div :for={entry <- @uploads.image.entries} class="flex items-center gap-2">
                   <.live_img_preview entry={entry} class="size-14 rounded object-cover" />
                   <button
@@ -295,44 +321,51 @@ defmodule TannhauserGateWeb.GmLive.Items do
                     phx-value-ref={entry.ref}
                     class="text-xs text-error hover:underline"
                   >
-                    Remove
+                    {dgettext("management", "Remove")}
                   </button>
                 </div>
+
                 <.live_file_input
                   upload={@uploads.image}
                   class="file-input file-input-secondary console-field w-full max-w-xs"
                 />
               </div>
+
               <.error :for={error <- @image_errors}>{error}</.error>
             </div>
 
             <.input
               field={@form[:stackable]}
               type="checkbox"
-              label="Stackable (a character can hold more than one)"
+              label={dgettext("management", "Stackable (a character can hold more than one)")}
             />
-
             <fieldset id="item-equipment" class="mt-2 rounded-lg border border-secondary/20 p-3">
               <legend class="px-1 text-xs font-bold uppercase tracking-wider text-secondary">
-                Equipment
+                {dgettext("management", "Equipment")}
               </legend>
+
               <.input
                 field={@form[:slot]}
                 type="text"
-                label="Slot (blank = not equippable)"
+                label={dgettext("management", "Slot (blank = not equippable)")}
                 list="item-slots"
-                placeholder="e.g. weapon, body"
+                placeholder={dgettext("management", "e.g. weapon, body")}
               />
               <datalist id="item-slots">
                 <option :for={slot <- @slots} value={slot} />
               </datalist>
+
               <p class="mb-2 text-xs text-base-content/60">
-                One item per slot. While equipped, the modifiers are added to the character's
-                values in dice pools, periodic actions, formulas and tracker maximums.
+                {dgettext(
+                  "management",
+                  "One item per slot. While equipped, the modifiers are added to the character's values in dice pools, periodic actions, formulas and tracker maximums."
+                )}
               </p>
+
               <p :if={@sheet_items == []} class="text-xs text-warning">
-                Define sheet items in the Sheet tab to give modifiers.
+                {dgettext("management", "Define sheet items in the Sheet tab to give modifiers.")}
               </p>
+
               <div class="grid grid-cols-2 gap-x-3">
                 <.input
                   :for={sheet_item <- @sheet_items}
@@ -343,50 +376,63 @@ defmodule TannhauserGateWeb.GmLive.Items do
                   label={sheet_item.name}
                 />
               </div>
+
               <.error :for={error <- @form[:modifiers].errors}>{translate_error(error)}</.error>
             </fieldset>
 
             <fieldset id="item-effect" class="mt-3 rounded-lg border border-secondary/20 p-3">
               <legend class="px-1 text-xs font-bold uppercase tracking-wider text-secondary">
-                Consumable effect
+                {dgettext("management", "Consumable effect")}
               </legend>
+
               <.input
                 field={@form[:tracker_id]}
                 type="select"
-                label="Tracker"
-                prompt="No effect"
+                label={dgettext("management", "Tracker")}
+                prompt={dgettext("management", "No effect")}
                 options={Enum.map(@trackers, &{&1.name, &1.id})}
               />
               <div :if={@form[:tracker_id].value not in [nil, ""]}>
                 <div class="grid grid-cols-2 gap-3">
-                  <.input field={@form[:effect_change]} type="number" label="Change" />
+                  <.input
+                    field={@form[:effect_change]}
+                    type="number"
+                    label={dgettext("management", "Change")}
+                  />
                   <.input
                     :if={@damage_types != []}
                     field={@form[:effect_damage_type]}
                     type="select"
-                    label="Damage type"
-                    prompt="Choose"
+                    label={dgettext("management", "Damage type")}
+                    prompt={dgettext("management", "Choose")}
                     options={@damage_types}
                   />
                 </div>
+
                 <p class="mb-2 text-xs text-base-content/60">
-                  Added to the tracker value, or to the damage of the chosen type (negative
-                  heals).
+                  {dgettext(
+                    "management",
+                    "Added to the tracker value, or to the damage of the chosen type (negative heals)."
+                  )}
                 </p>
+
                 <.input
                   field={@form[:consumed_on_use]}
                   type="checkbox"
-                  label="Using it consumes one unit"
+                  label={dgettext("management", "Using it consumes one unit")}
                 />
               </div>
             </fieldset>
 
             <div class="mt-4 flex gap-2">
-              <.button id="save-item" phx-disable-with="Saving...">
-                {if @item.id, do: "Update item", else: "Add item"}
+              <.button id="save-item" phx-disable-with={dgettext("management", "Saving...")}>
+                {if @item.id,
+                  do: dgettext("management", "Update item"),
+                  else: dgettext("management", "Add item")}
               </.button>
+
               <.button :if={@item.id} type="button" id="cancel-item" phx-click="cancel">
-                Cancel
+                {dgettext("management", "Cancel")}
               </.button>
             </div>
           </.form>

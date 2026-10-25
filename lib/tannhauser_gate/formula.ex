@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Formula do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A small, safe arithmetic formula language used by GDR configuration
   (tracker maximums, XP costs).
@@ -47,23 +49,27 @@ defmodule TannhauserGate.Formula do
 
     cond do
       formula == "" ->
-        {:error, "is empty"}
+        {:error, dgettext("domain", "is empty")}
 
       String.length(formula) > @max_length ->
-        {:error, "is too long (max #{@max_length} characters)"}
+        {:error,
+         dgettext("domain", "is too long (max %{max_length} characters)", max_length: @max_length)}
 
       true ->
         with {:ok, tokens} <- tokenize(formula, []),
              {:ok, ast, []} <- parse_expr(tokens, 0) do
           {:ok, ast}
         else
-          {:ok, _ast, [token | _]} -> {:error, "unexpected #{describe(token)}"}
-          {:error, _} = error -> error
+          {:ok, _ast, [token | _]} ->
+            {:error, dgettext("domain", "unexpected %{token}", token: describe(token))}
+
+          {:error, _} = error ->
+            error
         end
     end
   end
 
-  def parse(_), do: {:error, "is not a formula"}
+  def parse(_), do: {:error, dgettext("domain", "is not a formula")}
 
   @doc "The identifiers a formula (or AST) references, deduplicated."
   def identifiers(formula) when is_binary(formula) do
@@ -82,8 +88,14 @@ defmodule TannhauserGate.Formula do
   def validate(formula, allowed) do
     with {:ok, ast} <- parse(formula) do
       case identifiers(ast) -- allowed do
-        [] -> :ok
-        unknown -> {:error, "references unknown names: #{Enum.join(unknown, ", ")}"}
+        [] ->
+          :ok
+
+        unknown ->
+          {:error,
+           dgettext("domain", "references unknown names: %{names}",
+             names: Enum.join(unknown, ", ")
+           )}
       end
     end
   end
@@ -132,7 +144,7 @@ defmodule TannhauserGate.Formula do
     {digits, rest} = take_while(input, &(&1 in ?0..?9))
 
     if byte_size(digits) > 9 do
-      {:error, "number #{digits} is too large"}
+      {:error, dgettext("domain", "number %{digits} is too large", digits: digits)}
     else
       tokenize(rest, [{:num, String.to_integer(digits)} | acc])
     end
@@ -147,9 +159,9 @@ defmodule TannhauserGate.Formula do
     do: tokenize(rest, [{:sym, <<c>>} | acc])
 
   defp tokenize(<<c::utf8, _::binary>>, _acc),
-    do: {:error, "invalid character \"#{<<c::utf8>>}\""}
+    do: {:error, dgettext("domain", "invalid character \"%{character}\"", character: <<c::utf8>>)}
 
-  defp tokenize(_, _acc), do: {:error, "contains invalid characters"}
+  defp tokenize(_, _acc), do: {:error, dgettext("domain", "contains invalid characters")}
 
   defp take_while(input, fun), do: take_while(input, fun, "")
 
@@ -164,7 +176,8 @@ defmodule TannhauserGate.Formula do
   # term   := factor (("*" | "/") factor)*
   # factor := "-" factor | number | ident | ident "(" args ")" | "(" expr ")"
 
-  defp parse_expr(_tokens, depth) when depth > @max_depth, do: {:error, "is nested too deeply"}
+  defp parse_expr(_tokens, depth) when depth > @max_depth,
+    do: {:error, dgettext("domain", "is nested too deeply")}
 
   defp parse_expr(tokens, depth) do
     with {:ok, left, rest} <- parse_term(tokens, depth), do: expr_loop(left, rest, depth)
@@ -190,7 +203,8 @@ defmodule TannhauserGate.Formula do
 
   defp term_loop(left, rest, _depth), do: {:ok, left, rest}
 
-  defp parse_factor(_tokens, depth) when depth > @max_depth, do: {:error, "is nested too deeply"}
+  defp parse_factor(_tokens, depth) when depth > @max_depth,
+    do: {:error, dgettext("domain", "is nested too deeply")}
 
   defp parse_factor([{:sym, "-"} | rest], depth) do
     with {:ok, inner, rest} <- parse_factor(rest, depth + 1), do: {:ok, {:neg, inner}, rest}
@@ -204,31 +218,33 @@ defmodule TannhauserGate.Formula do
         {:ok, {:call, name, args}, rest}
       end
     else
-      {:error, "unknown function #{name}"}
+      {:error, dgettext("domain", "unknown function %{name}", name: name)}
     end
   end
 
   defp parse_factor([{:ident, name} | _rest], _depth) when name in @functions,
-    do: {:error, "#{name} must be called like #{name}(a, b)"}
+    do: {:error, dgettext("domain", "%{name} must be called like %{name}(a, b)", name: name)}
 
   defp parse_factor([{:ident, name} | rest], _depth), do: {:ok, {:var, name}, rest}
 
   defp parse_factor([{:sym, "("} | rest], depth) do
     case parse_expr(rest, depth + 1) do
       {:ok, inner, [{:sym, ")"} | rest]} -> {:ok, inner, rest}
-      {:ok, _inner, _} -> {:error, "is missing a closing parenthesis"}
+      {:ok, _inner, _} -> {:error, dgettext("domain", "is missing a closing parenthesis")}
       error -> error
     end
   end
 
-  defp parse_factor([], _depth), do: {:error, "ends unexpectedly"}
-  defp parse_factor([token | _], _depth), do: {:error, "unexpected #{describe(token)}"}
+  defp parse_factor([], _depth), do: {:error, dgettext("domain", "ends unexpectedly")}
+
+  defp parse_factor([token | _], _depth),
+    do: {:error, dgettext("domain", "unexpected %{token}", token: describe(token))}
 
   defp parse_args(tokens, depth, acc) do
     case parse_expr(tokens, depth) do
       {:ok, arg, [{:sym, ","} | rest]} -> parse_args(rest, depth, [arg | acc])
       {:ok, arg, [{:sym, ")"} | rest]} -> {:ok, Enum.reverse([arg | acc]), rest}
-      {:ok, _arg, _} -> {:error, "is missing a closing parenthesis"}
+      {:ok, _arg, _} -> {:error, dgettext("domain", "is missing a closing parenthesis")}
       error -> error
     end
   end
@@ -239,8 +255,8 @@ defmodule TannhauserGate.Formula do
   defp op_name("/"), do: :div
 
   defp describe({:sym, s}), do: "\"#{s}\""
-  defp describe({:num, n}), do: "number #{n}"
-  defp describe({:ident, name}), do: "name #{name}"
+  defp describe({:num, n}), do: dgettext("domain", "number %{number}", number: n)
+  defp describe({:ident, name}), do: dgettext("domain", "name %{name}", name: name)
 
   # -- Evaluation ------------------------------------------------------------
 
@@ -249,7 +265,7 @@ defmodule TannhauserGate.Formula do
   defp eval({:var, name}, vars) do
     case Map.fetch(vars, name) do
       {:ok, value} when is_integer(value) -> value
-      _ -> throw({:formula_error, "unknown name #{name}"})
+      _ -> throw({:formula_error, dgettext("domain", "unknown name %{name}", name: name)})
     end
   end
 
@@ -260,7 +276,7 @@ defmodule TannhauserGate.Formula do
 
   defp eval({:op, :div, a, b}, vars) do
     case eval(b, vars) do
-      0 -> throw({:formula_error, "division by zero"})
+      0 -> throw({:formula_error, dgettext("domain", "division by zero")})
       divisor -> div(eval(a, vars), divisor)
     end
   end

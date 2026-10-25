@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Items.Listing do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   An item sold by a shop: the price overrides the item's base price when set,
   the stock is unlimited when nil.
@@ -27,7 +29,7 @@ defmodule TannhauserGate.Items.Listing do
     |> validate_number(:position, greater_than_or_equal_to: 0, less_than_or_equal_to: 1_000)
     |> unique_constraint(:item_id,
       name: :shop_listings_shop_id_item_id_index,
-      message: "is already sold by this shop"
+      message: dgettext_noop("errors", "is already sold by this shop")
     )
     |> check_constraint(:stock, name: :shop_listings_stock_non_negative)
     |> check_constraint(:price, name: :shop_listings_price_non_negative)

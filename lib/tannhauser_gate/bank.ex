@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Bank do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The economy of a GDR: jobs defined by the game master, periodic pay,
   transfers between characters and game master balance adjustments.
@@ -311,16 +313,25 @@ defmodule TannhauserGate.Bank do
     |> Characters.reject_blocked_alts(:block_alt_transfers, character)
   end
 
-  def error_message(:insufficient_funds), do: "Not enough funds."
-  def error_message(:invalid_amount), do: "Enter a whole amount greater than zero."
-  def error_message(:recipient_not_found), do: "That character does not exist in this GDR."
-  def error_message(:same_character), do: "You can't send money to yourself."
+  def error_message(:insufficient_funds), do: dgettext("domain", "Not enough funds.")
+
+  def error_message(:invalid_amount),
+    do: dgettext("domain", "Enter a whole amount greater than zero.")
+
+  def error_message(:recipient_not_found),
+    do: dgettext("domain", "That character does not exist in this GDR.")
+
+  def error_message(:same_character), do: dgettext("domain", "You can't send money to yourself.")
 
   def error_message(:alt_blocked),
-    do: "This GDR does not allow transfers between characters of the same player."
+    do:
+      dgettext(
+        "domain",
+        "This GDR does not allow transfers between characters of the same player."
+      )
 
-  def error_message(:job_not_found), do: "That job does not exist."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:job_not_found), do: dgettext("domain", "That job does not exist.")
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   ## Helpers
 

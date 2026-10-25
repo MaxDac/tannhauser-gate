@@ -11,13 +11,13 @@ defmodule TannhauserGateWeb.BankLive do
       nil ->
         {:ok,
          socket
-         |> put_flash(:info, "Create a character to open a bank account.")
+         |> put_flash(:info, dgettext("player", "Create a character to open a bank account."))
          |> push_navigate(to: ~p"/g/#{story}/characters/new")}
 
       character ->
         {:ok,
          socket
-         |> assign(:page_title, "Bank · #{story.name}")
+         |> assign(:page_title, dgettext("player", "Bank · %{name}", name: story.name))
          |> assign(:form, to_form(%{"to" => "", "amount" => "", "note" => ""}, as: :transfer))
          |> load(character)}
     end
@@ -38,7 +38,7 @@ defmodule TannhauserGateWeb.BankLive do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Transfer sent.")
+         |> put_flash(:info, dgettext("player", "Transfer sent."))
          |> assign(:form, to_form(%{"to" => "", "amount" => "", "note" => ""}, as: :transfer))
          |> load(socket.assigns.character)}
 
@@ -52,11 +52,20 @@ defmodule TannhauserGateWeb.BankLive do
 
   defp describe(t, character) do
     cond do
-      t.kind == "pay" -> "Pay"
-      t.kind == "adjustment" -> "GM adjustment"
-      t.kind == "purchase" -> "Purchase"
-      t.from_character_id == character.id -> "To #{t.to_character && t.to_character.name}"
-      true -> "From #{t.from_character && t.from_character.name}"
+      t.kind == "pay" ->
+        dgettext("player", "Pay")
+
+      t.kind == "adjustment" ->
+        dgettext("player", "GM adjustment")
+
+      t.kind == "purchase" ->
+        dgettext("player", "Purchase")
+
+      t.from_character_id == character.id ->
+        dgettext("player", "To %{value}", value: t.to_character && t.to_character.name)
+
+      true ->
+        dgettext("player", "From %{value}", value: t.from_character && t.from_character.name)
     end
   end
 
@@ -66,6 +75,13 @@ defmodule TannhauserGateWeb.BankLive do
 
   @impl true
   def render(assigns) do
+    # Keep the name as a DOM node while allowing translations to place it anywhere.
+    [account_prefix, account_suffix] =
+      dgettext("player", "%{name}'s account", name: "%{name}")
+      |> String.split("%{name}", parts: 2)
+
+    assigns = assign(assigns, account_prefix: account_prefix, account_suffix: account_suffix)
+
     ~H"""
     <Layouts.app
       flash={@flash}
@@ -81,13 +97,17 @@ defmodule TannhauserGateWeb.BankLive do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Bank
-        <:subtitle><span id="bank-character">{@character.name}</span>'s account</:subtitle>
+        {dgettext("player", "Bank")}
+        <:subtitle>
+          {@account_prefix}<span id="bank-character">{@character.name}</span>{@account_suffix}
+        </:subtitle>
       </.header>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-6">
-          <p class="text-xs uppercase tracking-[0.2em] text-secondary">Balance</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-secondary">
+            {dgettext("player", "Balance")}
+          </p>
 
           <p id="balance" class="mt-1 text-4xl font-bold text-primary">
             {@character.balance} <span class="text-lg">{@current_story.currency_name}</span>
@@ -95,10 +115,18 @@ defmodule TannhauserGateWeb.BankLive do
 
           <p id="bank-job" class="mt-2 text-sm text-base-content/70">
             <%= if @character.job do %>
-              {@character.job.name}: {@character.job.pay} {@current_story.currency_name} every {@current_story.pay_interval_hours}h
+              {dgettext("player", "%{job}: %{pay} %{currency} every %{hours}h",
+                job: @character.job.name,
+                pay: @character.job.pay,
+                currency: @current_story.currency_name,
+                hours: @current_story.pay_interval_hours
+              )}
             <% else %>
-              No job.
-              <.link navigate={~p"/g/#{@current_story}/jobs"} class="underline">Pick one</.link>
+              {dgettext("player", "No job.")}
+              <.link navigate={~p"/g/#{@current_story}/jobs"} class="underline">{dgettext(
+                "player",
+                "Pick one"
+              )}</.link>
             <% end %>
           </p>
 
@@ -106,21 +134,27 @@ defmodule TannhauserGateWeb.BankLive do
             <.input
               field={@form[:to]}
               type="select"
-              label="Send to"
-              prompt="Choose a character"
+              label={dgettext("player", "Send to")}
+              prompt={dgettext("player", "Choose a character")}
               options={Enum.map(@recipients, &{&1.name, &1.id})}
-            /> <.input field={@form[:amount]} type="number" label="Amount" min="1" />
-            <.input field={@form[:note]} type="text" label="Note" />
-            <.button phx-disable-with="Sending...">Send money</.button>
+            />
+            <.input field={@form[:amount]} type="number" label={dgettext("player", "Amount")} min="1" />
+            <.input field={@form[:note]} type="text" label={dgettext("player", "Note")} />
+            <.button phx-disable-with={dgettext("player", "Sending...")}>{dgettext(
+              "player",
+              "Send money"
+            )}</.button>
           </.form>
         </section>
 
         <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-6">
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">History</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("player", "History")}
+          </h2>
 
           <ul id="transactions" phx-update="stream" class="mt-3 divide-y divide-secondary/10">
             <li id="no-transactions" class="hidden only:block text-sm text-base-content/60">
-              No transactions yet.
+              {dgettext("player", "No transactions yet.")}
             </li>
 
             <li

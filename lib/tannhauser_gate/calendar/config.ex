@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Calendar.Config do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   The game calendar of a GDR (calendar module), 1:1 with the story.
 
@@ -77,10 +79,17 @@ defmodule TannhauserGate.Calendar.Config do
         changeset
 
       month < 1 or month > length(months) ->
-        add_error(changeset, :epoch_month, "must be between 1 and #{max(length(months), 1)}")
+        add_error(
+          changeset,
+          :epoch_month,
+          dgettext_noop("errors", "must be between 1 and %{max}"),
+          max: max(length(months), 1)
+        )
 
       day < 1 or day > Enum.at(months, month - 1) ->
-        add_error(changeset, :epoch_day, "must be between 1 and #{Enum.at(months, month - 1)}")
+        add_error(changeset, :epoch_day, dgettext_noop("errors", "must be between 1 and %{max}"),
+          max: Enum.at(months, month - 1)
+        )
 
       true ->
         changeset
@@ -91,7 +100,7 @@ defmodule TannhauserGate.Calendar.Config do
     case get_change(changeset, :months_text) do
       nil ->
         if get_field(changeset, :month_names) == [],
-          do: add_error(changeset, :months_text, "can't be blank"),
+          do: add_error(changeset, :months_text, dgettext_noop("errors", "can't be blank")),
           else: changeset
 
       text ->
@@ -99,18 +108,27 @@ defmodule TannhauserGate.Calendar.Config do
     end
   end
 
-  defp put_months([], changeset), do: add_error(changeset, :months_text, "can't be blank")
+  defp put_months([], changeset),
+    do: add_error(changeset, :months_text, dgettext_noop("errors", "can't be blank"))
 
   defp put_months(months, changeset) do
     cond do
       length(months) > @max_months ->
-        add_error(changeset, :months_text, "can have at most #{@max_months} months")
+        add_error(
+          changeset,
+          :months_text,
+          dgettext_noop("errors", "can have at most %{max_months} months"),
+          max_months: @max_months
+        )
 
       Enum.any?(months, &(&1 == :error)) ->
         add_error(
           changeset,
           :months_text,
-          "each line must be \"Name | days (1-100) | season\" (names up to 30 characters)"
+          dgettext_noop(
+            "errors",
+            "each line must be \"Name | days (1-100) | season\" (names up to 30 characters)"
+          )
         )
 
       true ->
@@ -161,7 +179,12 @@ defmodule TannhauserGate.Calendar.Config do
           |> Enum.reject(&(&1 == ""))
 
         if length(names) > 14 or Enum.any?(names, &(String.length(&1) > 30)),
-          do: add_error(changeset, :weekdays_text, "at most 14 names of up to 30 characters"),
+          do:
+            add_error(
+              changeset,
+              :weekdays_text,
+              dgettext_noop("errors", "at most 14 names of up to 30 characters")
+            ),
           else: put_change(changeset, :weekday_names, names)
     end
   end

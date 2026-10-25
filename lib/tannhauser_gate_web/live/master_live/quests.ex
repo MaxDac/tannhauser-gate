@@ -20,7 +20,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
 
     {:ok,
      socket
-     |> assign(:page_title, "Quests")
+     |> assign(:page_title, dgettext("management", "Quests"))
      |> assign(:locations, Stories.list_locations(story))
      |> assign(:items, if(Items.enabled?(story), do: Items.list_items(story), else: []))
      |> reload()
@@ -87,7 +87,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
       {:ok, quest} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Quest saved.")
+         |> put_flash(:info, dgettext("management", "Quest saved."))
          |> reload()
          |> edit_quest(quest)}
 
@@ -111,7 +111,7 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
   def handle_event("delete", %{"id" => id}, socket) do
     with %Quest{} = quest <- Quests.get_quest(story(socket), id),
          {:ok, _} <- Quests.delete_quest(socket.assigns.current_user, story(socket), quest) do
-      socket = socket |> put_flash(:info, "Quest deleted.") |> reload()
+      socket = socket |> put_flash(:info, dgettext("management", "Quest deleted.")) |> reload()
 
       {:noreply,
        if(socket.assigns.quest.id == quest.id,
@@ -137,7 +137,10 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
 
     case result do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Participant saved.") |> refresh_quest()}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Participant saved."))
+         |> refresh_quest()}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :participant_form, to_form(changeset))}
@@ -162,7 +165,10 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
 
     case Quests.remove_participant(user, story(socket), quest, id) do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Participant removed.") |> refresh_quest()}
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("management", "Participant removed."))
+         |> refresh_quest()}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Quests.error_message(reason))}
@@ -176,7 +182,10 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
       {:ok, quest} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Quest recorded: the rewards were handed out.")
+         |> put_flash(
+           :info,
+           dgettext("management", "Quest recorded: the rewards were handed out.")
+         )
          |> reload()
          |> edit_quest(quest)}
 
@@ -187,13 +196,14 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
 
   defp reward_summary(participant, currency) do
     [
-      participant.xp > 0 && "#{participant.xp} XP",
+      participant.xp > 0 &&
+        dgettext("management", "%{participant_xp} XP", participant_xp: participant.xp),
       participant.money > 0 && "#{participant.money} #{currency}",
       participant.item && "#{participant.item.name} × #{participant.item_quantity}"
     ]
     |> Enum.filter(&is_binary/1)
     |> case do
-      [] -> "no rewards"
+      [] -> dgettext("management", "no rewards")
       parts -> Enum.join(parts, " · ")
     end
   end
@@ -233,25 +243,33 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
+
         <.link
           navigate={~p"/g/#{@current_story}/quests"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          Public registry <.icon name="hero-arrow-right-solid" class="size-3" />
+          {dgettext("management", "Public registry")}
+          <.icon name="hero-arrow-right-solid" class="size-3" />
         </.link>
       </div>
 
       <.header>
-        Quests
+        {dgettext("management", "Quests")}
         <:subtitle>
-          Record the quests you ran, who took part and what they earned. "Record and award"
-          hands out every reward at once, and only once.
+          {dgettext(
+            "management",
+            "Record the quests you ran, who took part and what they earned. \"Record and award\" hands out every reward at once, and only once."
+          )}
         </:subtitle>
+
         <:actions>
           <.button :if={@quest.id} id="new-quest" phx-click="new" class="btn btn-sm btn-secondary">
-            <.icon name="hero-plus" class="size-4" /> New quest
+            <.icon name="hero-plus" class="size-4" /> {dgettext("management", "New quest")}
           </.button>
         </:actions>
       </.header>
@@ -259,8 +277,9 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_30rem]">
         <section id="master-quest-list">
           <p :if={@quests == []} id="quests-empty" class="text-sm text-base-content/60">
-            No quests recorded yet.
+            {dgettext("management", "No quests recorded yet.")}
           </p>
+
           <ul class="space-y-2">
             <li
               :for={quest <- @quests}
@@ -273,11 +292,18 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <p class="truncate font-semibold text-primary">{quest.title}</p>
+
                   <p class="text-xs text-base-content/60">
                     {quest.game_date_label || Calendar.strftime(quest.held_on, "%d/%m/%Y")}
-                    <span :if={quest.location}>· {quest.location.name}</span>
-                    · {(quest.master && quest.master.username) || "—"} · {length(quest.participants)} participants
+                    <span :if={quest.location}>· {quest.location.name}</span> {dgettext(
+                      "management",
+                      "· %{quest_master____quest_master_username} · %{length_quest_participants} participants",
+                      quest_master____quest_master_username:
+                        (quest.master && quest.master.username) || "—",
+                      length_quest_participants: length(quest.participants)
+                    )}
                   </p>
+
                   <div class="mt-1 flex flex-wrap gap-1">
                     <span class={[
                       "badge badge-soft badge-xs",
@@ -285,31 +311,39 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                     ]}>
                       {Quests.visibility_label(quest.visibility)}
                     </span>
+
                     <span
                       :if={Quest.rewarded?(quest)}
                       class="badge badge-soft badge-xs badge-success"
                     >
-                      rewards handed out
+                      {dgettext("management", "rewards handed out")}
                     </span>
                   </div>
                 </div>
+
                 <span class="flex shrink-0 gap-1">
                   <button
                     id={"edit-quest-#{quest.id}"}
                     phx-click="edit"
                     phx-value-id={quest.id}
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                    title="Edit"
+                    title={dgettext("management", "Edit")}
                   >
                     <.icon name="hero-pencil" class="size-4" />
                   </button>
+
                   <button
                     id={"delete-quest-#{quest.id}"}
                     phx-click="delete"
                     phx-value-id={quest.id}
-                    data-confirm="Delete this quest? Rewards already handed out are kept."
+                    data-confirm={
+                      dgettext(
+                        "management",
+                        "Delete this quest? Rewards already handed out are kept."
+                      )
+                    }
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                    title="Delete"
+                    title={dgettext("management", "Delete")}
                   >
                     <.icon name="hero-trash" class="size-4" />
                   </button>
@@ -322,31 +356,50 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
         <div class="space-y-6">
           <section class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @quest.id, do: "Edit quest", else: "New quest"}
+              {if @quest.id,
+                do: dgettext("management", "Edit quest"),
+                else: dgettext("management", "New quest")}
             </h2>
+
             <.form for={@form} id="quest-form" phx-change="validate" phx-submit="save" class="mt-4">
-              <.input field={@form[:title]} type="text" label="Title" required />
-              <.input field={@form[:summary]} type="textarea" label="Summary (Markdown)" rows="5" />
+              <.input
+                field={@form[:title]}
+                type="text"
+                label={dgettext("management", "Title")}
+                required
+              />
+              <.input
+                field={@form[:summary]}
+                type="textarea"
+                label={dgettext("management", "Summary (Markdown)")}
+                rows="5"
+              />
               <div class="grid gap-3 sm:grid-cols-2">
-                <.input field={@form[:held_on]} type="date" label="Held on" required />
+                <.input
+                  field={@form[:held_on]}
+                  type="date"
+                  label={dgettext("management", "Held on")}
+                  required
+                />
                 <.input
                   field={@form[:visibility]}
                   type="select"
-                  label="Visibility"
+                  label={dgettext("management", "Visibility")}
                   options={Enum.map(Quest.visibilities(), &{Quests.visibility_label(&1), &1})}
                 />
               </div>
+
               <.input
                 :if={Calendars.enabled?(@current_story)}
                 field={@form[:game_date_label]}
                 type="text"
-                label="In-game date"
+                label={dgettext("management", "In-game date")}
               />
               <.input
                 field={@form[:location_id]}
                 type="select"
-                label="Room (optional)"
-                prompt="—"
+                label={dgettext("management", "Room (optional)")}
+                prompt={dgettext("management", "—")}
                 options={Enum.map(@locations, &{&1.name, &1.id})}
               />
               <div class="grid gap-3 sm:grid-cols-2">
@@ -354,18 +407,21 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                   field={@form[:log_from]}
                   value={datetime_value(@form, :log_from)}
                   type="datetime-local"
-                  label="Chat log from (UTC)"
+                  label={dgettext("management", "Chat log from (UTC)")}
                 />
                 <.input
                   field={@form[:log_to]}
                   value={datetime_value(@form, :log_to)}
                   type="datetime-local"
-                  label="Chat log to (UTC)"
+                  label={dgettext("management", "Chat log to (UTC)")}
                 />
               </div>
+
               <div class="mt-2 flex gap-2">
-                <.button id="save-quest" phx-disable-with="Saving...">
-                  {if @quest.id, do: "Update quest", else: "Record quest"}
+                <.button id="save-quest" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @quest.id,
+                    do: dgettext("management", "Update quest"),
+                    else: dgettext("management", "Record quest")}
                 </.button>
               </div>
             </.form>
@@ -377,17 +433,22 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
             class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5"
           >
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              Participants
+              {dgettext("management", "Participants")}
             </h2>
+
             <p :if={Quest.rewarded?(@quest)} id="quest-rewarded" class="mt-1 text-xs text-success">
-              <.icon name="hero-check-badge-micro" class="size-3" />
-              Rewards handed out on {Calendar.strftime(@quest.rewards_applied_at, "%d/%m/%Y %H:%M")}
-              <span :if={@quest.rewards_applied_by}>by {@quest.rewards_applied_by.username}</span>.
+              <.icon name="hero-check-badge-micro" class="size-3" /> {dgettext(
+                "management",
+                "Rewards handed out on %{value}",
+                value: Calendar.strftime(@quest.rewards_applied_at, "%d/%m/%Y %H:%M")
+              )} <span :if={@quest.rewards_applied_by}>{dgettext("management", "by %{quest_rewards_applied_by_username}", quest_rewards_applied_by_username: (@quest.rewards_applied_by.username))}</span>.
             </p>
+
             <ul class="mt-3 divide-y divide-secondary/10 text-sm">
               <li :if={@quest.participants == []} class="py-2 text-base-content/60">
-                No participants yet.
+                {dgettext("management", "No participants yet.")}
               </li>
+
               <li
                 :for={p <- @quest.participants}
                 id={"participant-#{p.id}"}
@@ -400,22 +461,24 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                     <span :if={p.note}>· {p.note}</span>
                   </span>
                 </span>
+
                 <span :if={!Quest.rewarded?(@quest)} class="flex gap-1">
                   <button
                     id={"edit-participant-#{p.id}"}
                     phx-click="edit_participant"
                     phx-value-id={p.id}
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                    title="Edit"
+                    title={dgettext("management", "Edit")}
                   >
                     <.icon name="hero-pencil" class="size-4" />
                   </button>
+
                   <button
                     id={"remove-participant-#{p.id}"}
                     phx-click="remove_participant"
                     phx-value-id={p.id}
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                    title="Remove"
+                    title={dgettext("management", "Remove")}
                   >
                     <.icon name="hero-x-mark" class="size-4" />
                   </button>
@@ -434,52 +497,73 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
                 :if={is_nil(@participant.id)}
                 field={@participant_form[:character_id]}
                 type="select"
-                label="Character"
+                label={dgettext("management", "Character")}
                 options={Enum.map(@candidates, &{&1.name, &1.id})}
               />
               <p :if={@participant.id} class="mb-2 text-sm font-semibold">
-                Rewards of {@participant.character.name}
+                {dgettext("management", "Rewards of %{participant_character_name}",
+                  participant_character_name: @participant.character.name
+                )}
               </p>
+
               <div class="grid grid-cols-2 gap-3">
-                <.input field={@participant_form[:xp]} type="number" label="XP" min="0" />
+                <.input
+                  field={@participant_form[:xp]}
+                  type="number"
+                  label={dgettext("management", "XP")}
+                  min="0"
+                />
                 <.input
                   field={@participant_form[:money]}
                   type="number"
-                  label={"Money (#{@current_story.currency_name})"}
+                  label={
+                    dgettext("management", "Money (%{current_story_currency_name})",
+                      current_story_currency_name: @current_story.currency_name
+                    )
+                  }
                   min="0"
                 />
               </div>
+
               <div :if={@items != []} class="grid grid-cols-[1fr_6rem] gap-3">
                 <.input
                   field={@participant_form[:item_id]}
                   type="select"
-                  label="Item"
-                  prompt="—"
+                  label={dgettext("management", "Item")}
+                  prompt={dgettext("management", "—")}
                   options={Enum.map(@items, &{&1.name, &1.id})}
                 />
                 <.input
                   field={@participant_form[:item_quantity]}
                   type="number"
-                  label="Qty"
+                  label={dgettext("management", "Qty")}
                   min="0"
                 />
               </div>
-              <.input field={@participant_form[:note]} type="text" label="Note" />
+
+              <.input
+                field={@participant_form[:note]}
+                type="text"
+                label={dgettext("management", "Note")}
+              />
               <div class="flex gap-2">
                 <.button
                   id="save-participant"
-                  phx-disable-with="Saving..."
+                  phx-disable-with={dgettext("management", "Saving...")}
                   disabled={is_nil(@participant.id) && @candidates == []}
                 >
-                  {if @participant.id, do: "Update rewards", else: "Add participant"}
+                  {if @participant.id,
+                    do: dgettext("management", "Update rewards"),
+                    else: dgettext("management", "Add participant")}
                 </.button>
+
                 <.button
                   :if={@participant.id}
                   type="button"
                   id="cancel-participant"
                   phx-click="cancel_participant"
                 >
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>
@@ -488,10 +572,12 @@ defmodule TannhauserGateWeb.MasterLive.Quests do
               :if={!Quest.rewarded?(@quest) && @quest.participants != []}
               id="apply-quest-rewards"
               phx-click="apply_rewards"
-              data-confirm="Hand out every reward now? This can only be done once."
+              data-confirm={
+                dgettext("management", "Hand out every reward now? This can only be done once.")
+              }
               class="btn btn-primary mt-5 w-full"
             >
-              <.icon name="hero-gift" class="size-4" /> Record and award
+              <.icon name="hero-gift" class="size-4" /> {dgettext("management", "Record and award")}
             </button>
           </section>
         </div>

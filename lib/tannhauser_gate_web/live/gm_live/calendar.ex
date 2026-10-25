@@ -17,7 +17,7 @@ defmodule TannhauserGateWeb.GmLive.Calendar do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "GM dashboard")
+     |> assign(:page_title, dgettext("management", "GM dashboard"))
      |> load()}
   end
 
@@ -46,7 +46,10 @@ defmodule TannhauserGateWeb.GmLive.Calendar do
       {:ok, config} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Calendar saved: the clock now runs from the date you set.")
+         |> put_flash(
+           :info,
+           dgettext("management", "Calendar saved: the clock now runs from the date you set.")
+         )
          |> update(:current_story, &%{&1 | calendar: config})
          |> load()}
 
@@ -89,15 +92,17 @@ defmodule TannhauserGateWeb.GmLive.Calendar do
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
-      <.gm_header story={@current_story} />
-      <.gm_tabs story={@current_story} tab="calendar" />
-
+      <.gm_header story={@current_story} /> <.gm_tabs story={@current_story} tab="calendar" />
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_22rem]">
         <section class="rounded-xl border border-secondary/20 bg-base-200/80 p-5">
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Game calendar</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("management", "Game calendar")}
+          </h2>
+
           <p :if={!@saved} id="calendar-unsaved" class="mt-2 text-xs text-warning">
-            Not saved yet: the clock shows once you save a calendar.
+            {dgettext("management", "Not saved yet: the clock shows once you save a calendar.")}
           </p>
+
           <.form
             for={@form}
             id="calendar-form"
@@ -108,13 +113,13 @@ defmodule TannhauserGateWeb.GmLive.Calendar do
             <.input
               field={@form[:months_text]}
               type="textarea"
-              label="Months: one per line, “Name | days | season”"
+              label={dgettext("management", "Months: one per line, “Name | days | season”")}
               rows="12"
             />
             <.input
               field={@form[:weekdays_text]}
               type="text"
-              label="Weekdays (comma-separated, optional)"
+              label={dgettext("management", "Weekdays (comma-separated, optional)")}
             />
             <div class="grid gap-3 sm:grid-cols-2">
               <.input
@@ -122,53 +127,106 @@ defmodule TannhauserGateWeb.GmLive.Calendar do
                 type="number"
                 min="1"
                 max="1000"
-                label="Speed (game seconds per real second)"
+                label={dgettext("management", "Speed (game seconds per real second)")}
               />
-              <.input field={@form[:year_suffix]} type="text" label="Era label (e.g. AE)" />
+              <.input
+                field={@form[:year_suffix]}
+                type="text"
+                label={dgettext("management", "Era label (e.g. AE)")}
+              />
             </div>
 
             <h3 class="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-secondary">
-              Current game date
+              {dgettext("management", "Current game date")}
             </h3>
+
             <p class="mt-1 text-xs text-base-content/60">
-              Saving re-anchors the clock: right now it will be this date and time.
+              {dgettext(
+                "management",
+                "Saving re-anchors the clock: right now it will be this date and time."
+              )}
             </p>
+
             <div class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <.input field={@form[:epoch_year]} type="number" label="Year" />
+              <.input field={@form[:epoch_year]} type="number" label={dgettext("management", "Year")} />
               <.input
                 field={@form[:epoch_month]}
                 type="select"
-                label="Month"
+                label={dgettext("management", "Month")}
                 options={month_options(@form)}
               />
-              <.input field={@form[:epoch_day]} type="number" min="1" label="Day" />
-              <.input field={@form[:epoch_hour]} type="number" min="0" max="23" label="Hour" />
-              <.input field={@form[:epoch_minute]} type="number" min="0" max="59" label="Minute" />
+              <.input
+                field={@form[:epoch_day]}
+                type="number"
+                min="1"
+                label={dgettext("management", "Day")}
+              />
+              <.input
+                field={@form[:epoch_hour]}
+                type="number"
+                min="0"
+                max="23"
+                label={dgettext("management", "Hour")}
+              />
+              <.input
+                field={@form[:epoch_minute]}
+                type="number"
+                min="0"
+                max="59"
+                label={dgettext("management", "Minute")}
+              />
             </div>
 
-            <.button id="save-calendar" phx-disable-with="Saving...">Save calendar</.button>
+            <.button id="save-calendar" phx-disable-with={dgettext("management", "Saving...")}>{dgettext(
+              "management",
+              "Save calendar"
+            )}</.button>
           </.form>
         </section>
 
         <aside class="space-y-4">
           <section class="rounded-xl border border-primary/30 bg-base-200/80 p-5">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Now in game</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("management", "Now in game")}
+            </h2>
+
             <p id="calendar-current" class="mt-3 font-semibold text-primary">
               <.game_clock :if={@saved} id="gm-calendar-clock" calendar={@saved} />
               <span :if={!@saved}>—</span>
             </p>
-            <p class="mt-4 text-xs uppercase tracking-wider text-base-content/50">After saving</p>
+
+            <p class="mt-4 text-xs uppercase tracking-wider text-base-content/50">
+              {dgettext("management", "After saving")}
+            </p>
+
             <p id="calendar-preview" class="mt-1 text-sm">
-              {preview(@form) || "Fix the errors to see a preview."}
+              {preview(@form) || dgettext("management", "Fix the errors to see a preview.")}
             </p>
           </section>
+
           <section class="rounded-xl border border-secondary/20 bg-base-200/60 p-5 text-sm text-base-content/70">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">How it works</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("management", "How it works")}
+            </h2>
+
             <ul class="mt-2 list-disc space-y-1 pl-4">
-              <li>The number of lines sets the months in a year; days default to 30.</li>
-              <li>Seasons drive the weather table when the weather module is on.</li>
-              <li>A speed of 4 makes a game day last 6 real hours.</li>
-              <li>Masters can move the clock from the master tools.</li>
+              <li>
+                {dgettext(
+                  "management",
+                  "The number of lines sets the months in a year; days default to 30."
+                )}
+              </li>
+
+              <li>
+                {dgettext(
+                  "management",
+                  "Seasons drive the weather table when the weather module is on."
+                )}
+              </li>
+
+              <li>{dgettext("management", "A speed of 4 makes a game day last 6 real hours.")}</li>
+
+              <li>{dgettext("management", "Masters can move the clock from the master tools.")}</li>
             </ul>
           </section>
         </aside>

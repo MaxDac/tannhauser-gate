@@ -1,0 +1,1976 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TannhauserGate\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:90
+#, elixir-autogen
+msgid "\n==============================\n\nHi %{email},\n\nYou can change your email by visiting the URL below:\n\n%{url}\n\nIf you didn't request this change, please ignore this.\n\n==============================\n"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:32
+#, elixir-autogen
+msgid "\n==============================\n\nHi %{email},\n\nYou can confirm your account by visiting the URL below:\n\n%{url}\n\nIf you didn't create an account with us, please ignore this.\n\n==============================\n"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:61
+#, elixir-autogen
+msgid "\n==============================\n\nHi %{email},\n\nYou can reset your password by visiting the URL below:\n\n%{url}\n\nIf you didn't request this change, please ignore this.\n\n==============================\n"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:421
+#: lib/tannhauser_gate/dice.ex:435
+#: lib/tannhauser_gate/dice.ex:447
+#, elixir-autogen
+msgid " vs %{difficulty}"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:417
+#, elixir-autogen
+msgid "%{count} success"
+msgid_plural "%{count} successes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/tannhauser_gate/sheet.ex:223
+#, elixir-autogen
+msgid "%{label} cannot go below their starting value"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:242
+#, elixir-autogen
+msgid "%{label} distribution has more values than there are items"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:249
+#, elixir-autogen
+msgid "%{label} must use exactly the values %{values}"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:227
+#, elixir-autogen
+msgid "%{label} use %{spent} points but only %{total} are available"
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:244
+#, elixir-autogen
+msgid "%{name} (NPC)"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:429
+#, elixir-autogen
+msgid "%{name} (zone)"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:226
+#, elixir-autogen
+msgid "%{name} must be called like %{name}(a, b)"
+msgstr ""
+
+#: lib/tannhauser_gate/origins.ex:196
+#: lib/tannhauser_gate/origins.ex:202
+#, elixir-autogen
+msgid "%{name}: choose one of its options"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:41
+#, elixir-autogen
+msgid "1 day"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:40
+#, elixir-autogen
+msgid "1 hour"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:43
+#, elixir-autogen
+msgid "1 week"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:54
+#, elixir-autogen
+msgid "12+"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:55
+#, elixir-autogen
+msgid "16+"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:56
+#, elixir-autogen
+msgid "18+"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:42
+#, elixir-autogen
+msgid "3 days"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:44
+#, elixir-autogen
+msgid "30 days"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:742
+#, elixir-autogen
+msgid "A character does not have enough XP to take."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:739
+#, elixir-autogen
+msgid "A character does not have enough money to take."
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:22
+#, elixir-autogen
+msgid "Acid"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:396
+#, elixir-autogen
+msgid "Active"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:53
+#, elixir-autogen
+msgid "All ages"
+msgstr ""
+
+#: lib/tannhauser_gate/forum.ex:134
+#, elixir-autogen
+msgid "All members"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:46
+#, elixir-autogen
+msgid "Alpha test"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:108
+#, elixir-autogen
+msgid "An in-game date and clock running at a configurable speed."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:37
+#, elixir-autogen
+msgid "Anime / manga"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:669
+#, elixir-autogen
+msgid "Applied to: %{targets}"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:131
+#, elixir-autogen
+msgid "Approve characters"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:631
+#, elixir-autogen
+msgid "Approved"
+msgstr ""
+
+#: lib/tannhauser_gate/forum.ex:135
+#, elixir-autogen
+msgid "Approved characters"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:152
+#, elixir-autogen
+msgid "Apr"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:17
+#, elixir-autogen
+msgid "Attributes"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:156
+#, elixir-autogen
+msgid "Aug"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:58
+#, elixir-autogen
+msgid "Automatic XP"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:630
+#, elixir-autogen
+msgid "Awaiting approval"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:134
+#, elixir-autogen
+msgid "Award XP"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:124
+#, elixir-autogen
+msgid "Bestial failure"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:47
+#, elixir-autogen
+msgid "Beta test"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:499
+#, elixir-autogen
+msgid "Bought"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:98
+#, elixir-autogen
+msgid "Bulletin boards"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:434
+#, elixir-autogen
+msgid "Bulletin boards are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:65
+#, elixir-autogen
+msgid "Character"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:61
+#, elixir-autogen
+msgid "Chat entry"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:48
+#, elixir-autogen
+msgid "Chat roleplay"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:265
+#, elixir-autogen
+msgid "Check the caption (max 140 characters)."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:382
+#, elixir-autogen
+msgid "Check the report form."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:415
+#, elixir-autogen
+msgid "Check the sanction form."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:440
+#, elixir-autogen
+msgid "Choose an approved character of this GDR to whisper to."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:623
+#, elixir-autogen
+msgid "Choose every required origin before submitting the character."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:207
+#, elixir-autogen
+msgid "Choose one of your characters."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:138
+#, elixir-autogen
+msgid "Claim and resolve esiti, log quests."
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:16
+#, elixir-autogen
+msgid "Clear (sun)"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:17
+#, elixir-autogen
+msgid "Clear night (moon)"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:49
+#: lib/tannhauser_gate/esiti.ex:684
+#, elixir-autogen
+msgid "Closed"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:18
+#, elixir-autogen
+msgid "Clouds"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:63
+#, elixir-autogen
+msgid "Code & server"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:31
+#, elixir-autogen
+msgid "Confirmation instructions"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:120
+#, elixir-autogen
+msgid "Critical"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:125
+#, elixir-autogen
+msgid "Critical failure"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:29
+#, elixir-autogen
+msgid "Cyberpunk"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:31
+#, elixir-autogen
+msgid "Dark fantasy"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:160
+#, elixir-autogen
+msgid "Dec"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:129
+#, elixir-autogen
+msgid "Delete chat entries and posts, handle reports and sanctions."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:88
+#, elixir-autogen
+msgid "Diaries"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:249
+#, elixir-autogen
+msgid "Diaries are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:736
+#, elixir-autogen
+msgid "Dice: %{reason}"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:70
+#, elixir-autogen
+msgid "Dismissed"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:65
+#, elixir-autogen
+msgid "Documentation"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:629
+#, elixir-autogen
+msgid "Draft"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:360
+#, elixir-autogen
+msgid "Draft GDRs cannot be reviewed."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:140
+#, elixir-autogen
+msgid "Economy"
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:222
+#, elixir-autogen
+msgid "Ends at"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:730
+#, elixir-autogen
+msgid "Enter a non-zero tracker change."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:727
+#, elixir-autogen
+msgid "Enter a positive item quantity."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:528
+#, elixir-autogen
+msgid "Enter a quantity between 1 and %{max_quantity}."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:319
+#, elixir-autogen
+msgid "Enter a whole amount greater than zero."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:501
+#, elixir-autogen
+msgid "Equipped"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:68
+#, elixir-autogen
+msgid "Esiti"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:137
+#, elixir-autogen
+msgid "Esiti and quests"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:688
+#, elixir-autogen
+msgid "Esiti are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:397
+#, elixir-autogen
+msgid "Expired"
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:357
+#, elixir-autogen
+msgid "Explain why the XP is awarded."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:614
+#, elixir-autogen
+msgid "Explain why the character is rejected."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:123
+#, elixir-autogen
+msgid "Failure"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:30
+#, elixir-autogen
+msgid "Fantasy"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:64
+#, elixir-autogen
+msgid "Features"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:150
+#, elixir-autogen
+msgid "Feb"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:21
+#, elixir-autogen
+msgid "Fog / smog"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:62
+#, elixir-autogen
+msgid "Forum post"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:105
+#, elixir-autogen
+msgid "Game calendar"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:498
+#, elixir-autogen
+msgid "Gave"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:141
+#, elixir-autogen
+msgid "Grant and remove items, adjust money."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:496
+#, elixir-autogen
+msgid "Granted"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:60
+#, elixir-autogen
+msgid "Graphics"
+msgstr ""
+
+#: lib/tannhauser_gate/forum.ex:137
+#, elixir-autogen
+msgid "Guild members"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:38
+#, elixir-autogen
+msgid "Guilds"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:41
+#, elixir-autogen
+msgid "Guilds and factions with ranks, salaries, guild boards and rooms."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:516
+#, elixir-autogen
+msgid "Guilds are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:135
+#, elixir-autogen
+msgid "Hand out XP (also through esiti and quest rewards)."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:46
+#, elixir-autogen
+msgid "Harassment"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:27
+#, elixir-autogen
+msgid "Hazard"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:23
+#, elixir-autogen
+msgid "Heat / fire"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:34
+#, elixir-autogen
+msgid "Historical"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:33
+#, elixir-autogen
+msgid "Horror"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:682
+#, elixir-autogen
+msgid "In progress"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:91
+#, elixir-autogen
+msgid "In-character diaries and a picture gallery on every character sheet."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:62
+#, elixir-autogen
+msgid "In-game play level"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:26
+#, elixir-autogen
+msgid "Interference"
+msgstr ""
+
+#: lib/tannhauser_gate/trackers.ex:246
+#, elixir-autogen
+msgid "Invalid maximum: %{message}"
+msgstr ""
+
+#: lib/tannhauser_gate/origins.ex:187
+#, elixir-autogen
+msgid "Invalid origins"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:511
+#, elixir-autogen
+msgid "Invited"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:31
+#, elixir-autogen
+msgid "Item catalog, inventory, equipment with dice modifiers and shops."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:650
+#, elixir-autogen
+msgid "Item: %{name} × %{quantity}"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:28
+#, elixir-autogen
+msgid "Items & market"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:507
+#, elixir-autogen
+msgid "Items are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:149
+#, elixir-autogen
+msgid "Jan"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:155
+#, elixir-autogen
+msgid "Jul"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:154
+#, elixir-autogen
+msgid "Jun"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:63
+#, elixir-autogen
+msgid "Letter"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:66
+#, elixir-autogen
+msgid "Management"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:151
+#, elixir-autogen
+msgid "Mar"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:101
+#, elixir-autogen
+msgid "Master announcements on the GDR home and in-game notice boards."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:407
+#, elixir-autogen
+msgid "Masters and GDR admins cannot be sanctioned."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:81
+#, elixir-autogen
+msgid "Masters log quests with their participants and hand out rewards."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:238
+#: lib/tannhauser_gate/forum.ex:136
+#: lib/tannhauser_gate/quests.ex:305
+#, elixir-autogen
+msgid "Masters only"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:244
+#, elixir-autogen
+msgid "Masters — you and the masters"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:153
+#, elixir-autogen
+msgid "May"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:512
+#, elixir-autogen
+msgid "Member"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:121
+#, elixir-autogen
+msgid "Messy critical"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:48
+#, elixir-autogen
+msgid "Metagame"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:128
+#, elixir-autogen
+msgid "Moderate"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:35
+#, elixir-autogen
+msgid "Modern"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:648
+#, elixir-autogen
+msgid "Money: %{amount}"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:72
+#, elixir-autogen
+msgid "Most active"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:71
+#, elixir-autogen
+msgid "Most voted this month"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:41
+#, elixir-autogen
+msgid "Mystery / noir"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:74
+#, elixir-autogen
+msgid "Name"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:24
+#, elixir-autogen
+msgid "Neon / glow"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:73
+#, elixir-autogen
+msgid "Newest"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:404
+#: lib/tannhauser_gate/stories.ex:258
+#, elixir-autogen
+msgid "No user with that username."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:358
+#, elixir-autogen
+msgid "Not enough XP available."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:316
+#, elixir-autogen
+msgid "Not enough funds."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:533
+#, elixir-autogen
+msgid "Not enough of that item in the inventory."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:539
+#, elixir-autogen
+msgid "Not enough stock left."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:64
+#, elixir-autogen
+msgid "Notice"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:159
+#, elixir-autogen
+msgid "Nov"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:158
+#, elixir-autogen
+msgid "Oct"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:733
+#, elixir-autogen
+msgid "One of the effects could not be applied."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:338
+#, elixir-autogen
+msgid "One of the rewards could not be applied."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:262
+#, elixir-autogen
+msgid "Only PNG, JPEG and WebP images are allowed."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:107
+#, elixir-autogen
+msgid "Only pool rolls can be rerolled."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:197
+#, elixir-autogen
+msgid "Only private locations can be booked."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:617
+#, elixir-autogen
+msgid "Only the GDR masters allowed to approve characters can review them."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:443
+#, elixir-autogen
+msgid "Only the GDR masters can do that."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:323
+#, elixir-autogen
+msgid "Only the masters can do that."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:403
+#, elixir-autogen
+msgid "Only the moderators can do that."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:48
+#: lib/tannhauser_gate/esiti.ex:681
+#: lib/tannhauser_gate/reports.ex:68
+#, elixir-autogen
+msgid "Open"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:21
+#, elixir-autogen
+msgid "Origin groups (race, class...) picked at creation, with sheet bonuses."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:42
+#: lib/tannhauser_gate/reports.ex:50
+#, elixir-autogen
+msgid "Other"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:45
+#, elixir-autogen
+msgid "Permanent"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:709
+#, elixir-autogen
+msgid "Pick at most %{max_related} related characters."
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:444
+#, elixir-autogen
+msgid "Pick one of your playable characters."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:71
+#, elixir-autogen
+msgid "Players file action requests that the masters resolve with outcomes."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:125
+#, elixir-autogen
+msgid "Players report content; masters warn, mute or ban within the GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:424
+#, elixir-autogen
+msgid "Pool %{pool}: %{successes}%{against} - %{outcome}"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:38
+#, elixir-autogen
+msgid "Post-apocalyptic"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:19
+#, elixir-autogen
+msgid "Powers"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:239
+#, elixir-autogen
+msgid "Private"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:245
+#, elixir-autogen
+msgid "Private — only you (masters may moderate)"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:237
+#: lib/tannhauser_gate/quests.ex:304
+#, elixir-autogen
+msgid "Public"
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:243
+#, elixir-autogen
+msgid "Public — everyone in the GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:78
+#, elixir-autogen
+msgid "Quests"
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:321
+#, elixir-autogen
+msgid "Quests are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:18
+#, elixir-autogen
+msgid "Races & classes"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:19
+#, elixir-autogen
+msgid "Rain"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:391
+#, elixir-autogen
+msgid "Recorded"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:632
+#, elixir-autogen
+msgid "Rejected"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:497
+#, elixir-autogen
+msgid "Removed"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:122
+#, elixir-autogen
+msgid "Reports & sanctions"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:401
+#, elixir-autogen
+msgid "Reports and sanctions are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:364
+#, elixir-autogen
+msgid "Reports are not enabled in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:510
+#, elixir-autogen
+msgid "Request pending"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:60
+#, elixir-autogen
+msgid "Reset password instructions"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:683
+#: lib/tannhauser_gate/reports.ex:69
+#, elixir-autogen
+msgid "Resolved"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:132
+#, elixir-autogen
+msgid "Review and approve or reject characters."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:389
+#, elixir-autogen
+msgid "Revoked"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:49
+#, elixir-autogen
+msgid "Rules violation"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:32
+#, elixir-autogen
+msgid "Sci-fi"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:157
+#, elixir-autogen
+msgid "Sep"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:61
+#, elixir-autogen
+msgid "Setting"
+msgstr ""
+
+#: lib/tannhauser_gate/sheet.ex:18
+#, elixir-autogen
+msgid "Skills"
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:334
+#: lib/tannhauser_gate/boards.ex:446
+#: lib/tannhauser_gate/diary.ex:267
+#: lib/tannhauser_gate/esiti.ex:750
+#: lib/tannhauser_gate/guilds.ex:550
+#: lib/tannhauser_gate/quests.ex:344
+#: lib/tannhauser_gate/reports.ex:383
+#: lib/tannhauser_gate/sanctions.ex:416
+#, elixir-autogen
+msgid "Something went wrong."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:47
+#, elixir-autogen
+msgid "Spam"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:362
+#, elixir-autogen
+msgid "Staff cannot review their own GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:221
+#, elixir-autogen
+msgid "Starts at"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:39
+#, elixir-autogen
+msgid "Steampunk"
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:20
+#, elixir-autogen
+msgid "Storm"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:122
+#, elixir-autogen
+msgid "Success"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:40
+#, elixir-autogen
+msgid "Superheroes"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:367
+#, elixir-autogen
+msgid "That can't be reported."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:530
+#, elixir-autogen
+msgid "That character already belongs to, was invited to or asked to join this guild."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:521
+#, elixir-autogen
+msgid "That character can't join this guild."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:699
+#, elixir-autogen
+msgid "That character can't take part in this esito."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:199
+#: lib/tannhauser_gate/guilds.ex:523
+#, elixir-autogen
+msgid "That character cannot play yet."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:422
+#, elixir-autogen
+msgid "That character cannot play yet: it must be approved and in a playable state."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:322
+#: lib/tannhauser_gate/items.ex:522
+#: lib/tannhauser_gate/quests.ex:329
+#, elixir-autogen
+msgid "That character does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:536
+#, elixir-autogen
+msgid "That character is already in the maximum number of guilds."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:370
+#, elixir-autogen
+msgid "That content does not exist or you can't see it."
+msgstr ""
+
+#: lib/tannhauser_gate/trackers.ex:143
+#, elixir-autogen
+msgid "That damage type does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:696
+#, elixir-autogen
+msgid "That esito does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:548
+#, elixir-autogen
+msgid "That guild does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:536
+#, elixir-autogen
+msgid "That item can be held only once."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:537
+#, elixir-autogen
+msgid "That item can't be equipped."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:538
+#, elixir-autogen
+msgid "That item can't be used."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:363
+#, elixir-autogen
+msgid "That item cannot be raised with XP."
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:441
+#: lib/tannhauser_gate/items.ex:517
+#, elixir-autogen
+msgid "That item does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:253
+#, elixir-autogen
+msgid "That item does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:365
+#, elixir-autogen
+msgid "That item is already at its maximum."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:535
+#, elixir-autogen
+msgid "That item is not in the inventory."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:519
+#, elixir-autogen
+msgid "That item is not sold here."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:333
+#, elixir-autogen
+msgid "That job does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:430
+#, elixir-autogen
+msgid "That kind of message does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:539
+#, elixir-autogen
+msgid "That membership does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:542
+#, elixir-autogen
+msgid "That membership has changed in the meantime."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:332
+#, elixir-autogen
+msgid "That participant does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:326
+#, elixir-autogen
+msgid "That quest does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:545
+#, elixir-autogen
+msgid "That rank does not exist in this guild."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:380
+#, elixir-autogen
+msgid "That report does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:381
+#, elixir-autogen
+msgid "That report was already handled."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:702
+#, elixir-autogen
+msgid "That room does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:410
+#, elixir-autogen
+msgid "That sanction does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:413
+#, elixir-autogen
+msgid "That sanction was already revoked."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:105
+#: lib/tannhauser_gate/experience.ex:360
+#, elixir-autogen
+msgid "That sheet item does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:198
+#, elixir-autogen
+msgid "That slot overlaps another booking."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:620
+#, elixir-autogen
+msgid "That state does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:748
+#: lib/tannhauser_gate/trackers.ex:140
+#, elixir-autogen
+msgid "That tracker does not exist."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:264
+#, elixir-autogen
+msgid "That user is already a master."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:267
+#, elixir-autogen
+msgid "That user is not a master of this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:705
+#, elixir-autogen
+msgid "That zone does not exist in this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:261
+#, elixir-autogen
+msgid "The GDR admin already has every master power."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:368
+#, elixir-autogen
+msgid "The XP cost formula of this GDR is invalid."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:370
+#, elixir-autogen
+msgid "The XP could not be updated."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:725
+#, elixir-autogen
+msgid "The XP must be a whole number."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:745
+#, elixir-autogen
+msgid "The XP must be between -1000 and 1000."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:353
+#, elixir-autogen
+msgid "The amount must be a non-zero whole number (max %{max_award})."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:359
+#, elixir-autogen
+msgid "The character cannot play right now."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:626
+#, elixir-autogen
+msgid "The character could not be saved."
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:611
+#, elixir-autogen
+msgid "The character is already in that status."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:257
+#, elixir-autogen
+msgid "The gallery is full (%{max_images} pictures)."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:259
+#, elixir-autogen
+msgid "The image is too large (max 5 MB)."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:230
+#, elixir-autogen
+msgid "The location could not be booked."
+msgstr ""
+
+#: lib/tannhauser_gate/mailbox.ex:38
+#, elixir-autogen
+msgid "The masters"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:197
+#, elixir-autogen
+msgid "The masters issued you a warning: %{reason}"
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:448
+#, elixir-autogen
+msgid "The message could not be posted."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:726
+#, elixir-autogen
+msgid "The money must be a whole number."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:724
+#, elixir-autogen
+msgid "The outcome is too long."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:335
+#, elixir-autogen
+msgid "The rewards of this quest were already handed out."
+msgstr ""
+
+#: lib/tannhauser_gate/trackers.ex:149
+#, elixir-autogen
+msgid "The tracker could not be updated."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:111
+#, elixir-autogen
+msgid "There are no failed dice to reroll."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:511
+#, elixir-autogen
+msgid "This GDR does not allow giving items between characters of the same player."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:328
+#, elixir-autogen
+msgid "This GDR does not allow transfers between characters of the same player."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:434
+#, elixir-autogen
+msgid "This GDR does not allow whispers between characters of the same player."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:106
+#, elixir-autogen
+msgid "This GDR has no rerolls."
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions.ex:243
+#, elixir-autogen
+msgid "This action belongs to another GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/periodic_actions.ex:242
+#, elixir-autogen
+msgid "This action is still on cooldown."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:714
+#, elixir-autogen
+msgid "This character already has the maximum number of open esiti."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:717
+#, elixir-autogen
+msgid "This character does not have enough XP to file esiti."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:720
+#, elixir-autogen
+msgid "This esito has changed in the meantime."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:722
+#, elixir-autogen
+msgid "This esito is no longer open."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:526
+#, elixir-autogen
+msgid "This guild recruits by invitation only."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:428
+#, elixir-autogen
+msgid "This private location is not booked for you right now."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:108
+#, elixir-autogen
+msgid "This roll was already rerolled."
+msgstr ""
+
+#: lib/tannhauser_gate/trackers.ex:148
+#, elixir-autogen
+msgid "This tracker has no damage types."
+msgstr ""
+
+#: lib/tannhauser_gate/trackers.ex:146
+#, elixir-autogen
+msgid "This tracker tracks damage by type."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:113
+#, elixir-autogen
+msgid "Those dice cannot be rerolled."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:70
+#, elixir-autogen
+msgid "Top rated"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:502
+#, elixir-autogen
+msgid "Unequipped"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:259
+#, elixir-autogen
+msgid "Unknown dice system."
+msgstr ""
+
+#: lib/tannhauser_gate/origins.ex:182
+#, elixir-autogen
+msgid "Unknown origin group"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user_notifier.ex:89
+#, elixir-autogen
+msgid "Update email instructions"
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:36
+#, elixir-autogen
+msgid "Urban fantasy"
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:500
+#, elixir-autogen
+msgid "Used"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:112
+#, elixir-autogen
+msgid "Weather"
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:115
+#, elixir-autogen
+msgid "Weather per zone, set by the masters or rolled from a seasonal table."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:51
+#, elixir-autogen
+msgid "Whispers, action tags, speech highlighting and entry length limits."
+msgstr ""
+
+#: lib/tannhauser_gate/weather/condition.ex:25
+#, elixir-autogen
+msgid "Wind / dust"
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:143
+#, elixir-autogen
+msgid "World"
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:723
+#, elixir-autogen
+msgid "Write the outcome."
+msgstr ""
+
+#: lib/tannhauser_gate/modules.ex:61
+#, elixir-autogen
+msgid "XP for in-character chat entries, with a minimum length and a daily cap."
+msgstr ""
+
+#: lib/tannhauser_gate/quests.ex:341
+#, elixir-autogen
+msgid "XP rewards must be between 1 and 1000."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:646
+#, elixir-autogen
+msgid "XP: %{amount}"
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:378
+#, elixir-autogen
+msgid "You already reported this: the masters will look into it."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:128
+#, elixir-autogen
+msgid "You are %{status} in this GDR %{duration}: you cannot post."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:210
+#, elixir-autogen
+msgid "You are banned from this GDR %{duration}. Reason: %{reason}"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:201
+#, elixir-autogen
+msgid "You are muted %{duration}: you cannot post in this GDR. Reason: %{reason}"
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:439
+#: lib/tannhauser_gate/chat.ex:446
+#: lib/tannhauser_gate/esiti.ex:693
+#, elixir-autogen
+msgid "You are muted in this GDR: you cannot post right now."
+msgstr ""
+
+#: lib/tannhauser_gate/experience.ex:349
+#, elixir-autogen
+msgid "You are not allowed to do that."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:202
+#, elixir-autogen
+msgid "You can only invite characters of this GDR."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:453
+#, elixir-autogen
+msgid "You can only speak as one of your characters in this story."
+msgstr ""
+
+#: lib/tannhauser_gate/directory.ex:365
+#, elixir-autogen
+msgid "You can review this GDR once you have an approved character there that is at least %{days} days old."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:518
+#, elixir-autogen
+msgid "You can't do that in this guild."
+msgstr ""
+
+#: lib/tannhauser_gate/boards.ex:436
+#, elixir-autogen
+msgid "You can't do that on this board."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:252
+#, elixir-autogen
+msgid "You can't do that on this character."
+msgstr ""
+
+#: lib/tannhauser_gate/esiti.ex:690
+#, elixir-autogen
+msgid "You can't do that with this esito."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:366
+#, elixir-autogen
+msgid "You can't do that."
+msgstr ""
+
+#: lib/tannhauser_gate/items.ex:524
+#, elixir-autogen
+msgid "You can't give items to yourself."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:372
+#, elixir-autogen
+msgid "You can't report your own content."
+msgstr ""
+
+#: lib/tannhauser_gate/bank.ex:324
+#, elixir-autogen
+msgid "You can't send money to yourself."
+msgstr ""
+
+#: lib/tannhauser_gate/bookings.ex:204
+#, elixir-autogen
+msgid "You cannot manage that booking."
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:125
+#, elixir-autogen
+msgid "You cannot post in this GDR right now."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:115
+#, elixir-autogen
+msgid "You cannot reroll this roll."
+msgstr ""
+
+#: lib/tannhauser_gate/chat.ex:442
+#, elixir-autogen
+msgid "You cannot whisper to yourself."
+msgstr ""
+
+#: lib/tannhauser_gate/diary.ex:251
+#, elixir-autogen
+msgid "You cannot write in this GDR right now."
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:114
+#, elixir-autogen
+msgid "You do not have enough left to reroll."
+msgstr ""
+
+#: lib/tannhauser_gate/reports.ex:375
+#, elixir-autogen
+msgid "You filed too many reports: try again later."
+msgstr ""
+
+#: lib/tannhauser_gate/stories.ex:144
+#, elixir-autogen
+msgid "Zone events, action difficulty, calendar, weather and boards."
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:499
+#, elixir-autogen
+msgid "asked to join"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:135
+#, elixir-autogen
+msgid "banned"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:162
+#, elixir-autogen
+msgid "can roll 1 to %{max_dice} dice"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:164
+#, elixir-autogen
+msgid "contains invalid characters"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:502
+#, elixir-autogen
+msgid "declined the invitation"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:165
+#, elixir-autogen
+msgid "dice need 2 to %{max_sides} sides"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:279
+#, elixir-autogen
+msgid "division by zero"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:238
+#, elixir-autogen
+msgid "ends unexpectedly"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:144
+#, elixir-autogen
+msgid "has too many terms"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:162
+#, elixir-autogen
+msgid "invalid character \"%{character}\""
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:142
+#: lib/tannhauser_gate/dice.ex:149
+#: lib/tannhauser_gate/formula.ex:52
+#, elixir-autogen
+msgid "is empty"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:233
+#: lib/tannhauser_gate/formula.ex:247
+#, elixir-autogen
+msgid "is missing a closing parenthesis"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:180
+#: lib/tannhauser_gate/formula.ex:207
+#, elixir-autogen
+msgid "is nested too deeply"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:72
+#, elixir-autogen
+msgid "is not a formula"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:507
+#, elixir-autogen
+msgid "is now"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:56
+#, elixir-autogen
+msgid "is too long (max %{max_length} characters)"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:501
+#, elixir-autogen
+msgid "joined"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:505
+#, elixir-autogen
+msgid "left"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:143
+#, elixir-autogen
+msgid "must look like 2d6+1"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:181
+#, elixir-autogen
+msgid "must roll at least one die"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:136
+#, elixir-autogen
+msgid "muted"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:259
+#, elixir-autogen
+msgid "name %{name}"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:147
+#, elixir-autogen
+msgid "number %{digits} is too large"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:258
+#, elixir-autogen
+msgid "number %{number}"
+msgstr ""
+
+#: lib/tannhauser_gate/dice.ex:170
+#, elixir-autogen
+msgid "numbers cannot exceed %{max_value}"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:139
+#, elixir-autogen
+msgid "permanently"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:96
+#, elixir-autogen
+msgid "references unknown names: %{names}"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:504
+#, elixir-autogen
+msgid "request or invitation withdrawn"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:64
+#: lib/tannhauser_gate/formula.ex:241
+#, elixir-autogen
+msgid "unexpected %{token}"
+msgstr ""
+
+#: lib/tannhauser_gate/accounts/user.ex:35
+#: lib/tannhauser_gate/mailbox.ex:161
+#, elixir-autogen
+msgid "unknown"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:221
+#, elixir-autogen
+msgid "unknown function %{name}"
+msgstr ""
+
+#: lib/tannhauser_gate/formula.ex:268
+#, elixir-autogen
+msgid "unknown name %{name}"
+msgstr ""
+
+#: lib/tannhauser_gate/sanctions.ex:140
+#, elixir-autogen
+msgid "until %{date}"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:506
+#, elixir-autogen
+msgid "was expelled"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:500
+#, elixir-autogen
+msgid "was invited"
+msgstr ""
+
+#: lib/tannhauser_gate/guilds.ex:503
+#, elixir-autogen
+msgid "was rejected"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:343
+#, elixir-autogen
+msgid "you already have a character in this GDR"
+msgstr ""
+
+#: lib/tannhauser_gate/characters.ex:347
+#, elixir-autogen
+msgid "you already have the maximum number of characters in this GDR (%{max})"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:14
+#, elixir-autogen
+msgid "Quiet noir"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:17
+#, elixir-autogen
+msgid "Smoked jade, softened edges and cinematic restraint."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:23
+#, elixir-autogen
+msgid "Neon circuit"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:26
+#, elixir-autogen
+msgid "Electric cyan, precise edges and a quiet accent light."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:32
+#, elixir-autogen
+msgid "Last light"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:34
+#, elixir-autogen
+msgid "Lamplight gold and aged ink: warmth in the dark."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:40
+#, elixir-autogen
+msgid "Velvet night"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:42
+#, elixir-autogen
+msgid "Oxblood, dusty rose and nocturnal elegance."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:48
+#, elixir-autogen
+msgid "Midnight glass"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:50
+#, elixir-autogen
+msgid "Cool violet and softly layered, rounded surfaces."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:56
+#, elixir-autogen
+msgid "After hours"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:58
+#, elixir-autogen
+msgid "Amber and espresso, intimate and understated."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:64
+#, elixir-autogen
+msgid "Red ledger"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:67
+#, elixir-autogen
+msgid "Muted vermilion and charcoal for intrigue and danger."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:73
+#, elixir-autogen
+msgid "Moonsteel"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:75
+#, elixir-autogen
+msgid "Silver-blue, slate and clean, quiet controls."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:85
+#, elixir-autogen
+msgid "Precise"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:86
+#, elixir-autogen
+msgid "Softened"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:87
+#, elixir-autogen
+msgid "Rounded"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:90
+#, elixir-autogen
+msgid "Comfortable"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:91
+#, elixir-autogen
+msgid "Compact"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:94
+#, elixir-autogen
+msgid "Quiet / flat"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:95
+#, elixir-autogen
+msgid "Soft atmosphere"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:96
+#, elixir-autogen
+msgid "Accent light"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:162
+#, elixir-autogen
+msgid "corners"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:163
+#, elixir-autogen
+msgid "density"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:164
+#, elixir-autogen
+msgid "effects"
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:215
+#, elixir-autogen
+msgid "Accent has low contrast against a surface. Choose a lighter text colour or darker surface."
+msgstr ""
+
+#: lib/tannhauser_gate/stories/themes.ex:220
+#, elixir-autogen
+msgid "Body text has low contrast against a surface. Choose a lighter text colour or darker surface."
+msgstr ""

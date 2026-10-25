@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Guilds do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Guilds and factions, the `:guilds` optional module.
 
@@ -494,39 +496,58 @@ defmodule TannhauserGate.Guilds do
     )
   end
 
-  def action_label("request"), do: "asked to join"
-  def action_label("invite"), do: "was invited"
-  def action_label("join"), do: "joined"
-  def action_label("decline"), do: "declined the invitation"
-  def action_label("reject"), do: "was rejected"
-  def action_label("cancel"), do: "request or invitation withdrawn"
-  def action_label("leave"), do: "left"
-  def action_label("expel"), do: "was expelled"
-  def action_label("rank"), do: "is now"
+  def action_label("request"), do: dgettext("domain", "asked to join")
+  def action_label("invite"), do: dgettext("domain", "was invited")
+  def action_label("join"), do: dgettext("domain", "joined")
+  def action_label("decline"), do: dgettext("domain", "declined the invitation")
+  def action_label("reject"), do: dgettext("domain", "was rejected")
+  def action_label("cancel"), do: dgettext("domain", "request or invitation withdrawn")
+  def action_label("leave"), do: dgettext("domain", "left")
+  def action_label("expel"), do: dgettext("domain", "was expelled")
+  def action_label("rank"), do: dgettext("domain", "is now")
   def action_label(other), do: other
 
-  def status_label("requested"), do: "Request pending"
-  def status_label("invited"), do: "Invited"
-  def status_label("active"), do: "Member"
+  def status_label("requested"), do: dgettext("domain", "Request pending")
+  def status_label("invited"), do: dgettext("domain", "Invited")
+  def status_label("active"), do: dgettext("domain", "Member")
   def status_label(other), do: other
 
-  def error_message(:module_disabled), do: "Guilds are not enabled in this GDR."
-  def error_message(:unauthorized), do: "You can't do that in this guild."
-  def error_message(:character_not_found), do: "That character can't join this guild."
-  def error_message(:cannot_play), do: "That character cannot play yet."
-  def error_message(:invitation_only), do: "This guild recruits by invitation only."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Guilds are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "You can't do that in this guild.")
+
+  def error_message(:character_not_found),
+    do: dgettext("domain", "That character can't join this guild.")
+
+  def error_message(:cannot_play), do: dgettext("domain", "That character cannot play yet.")
+
+  def error_message(:invitation_only),
+    do: dgettext("domain", "This guild recruits by invitation only.")
 
   def error_message(:already_member),
-    do: "That character already belongs to, was invited to or asked to join this guild."
+    do:
+      dgettext(
+        "domain",
+        "That character already belongs to, was invited to or asked to join this guild."
+      )
 
   def error_message(:too_many_guilds),
-    do: "That character is already in the maximum number of guilds."
+    do: dgettext("domain", "That character is already in the maximum number of guilds.")
 
-  def error_message(:membership_not_found), do: "That membership does not exist."
-  def error_message(:invalid_status), do: "That membership has changed in the meantime."
-  def error_message(:rank_not_found), do: "That rank does not exist in this guild."
-  def error_message(:guild_not_found), do: "That guild does not exist in this GDR."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:membership_not_found),
+    do: dgettext("domain", "That membership does not exist.")
+
+  def error_message(:invalid_status),
+    do: dgettext("domain", "That membership has changed in the meantime.")
+
+  def error_message(:rank_not_found),
+    do: dgettext("domain", "That rank does not exist in this guild.")
+
+  def error_message(:guild_not_found),
+    do: dgettext("domain", "That guild does not exist in this GDR.")
+
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   ## Helpers
 

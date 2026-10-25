@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Stories.Location do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A location (chat room) inside a story. Private locations can only be
   used by masters and by whoever booked them (see `TannhauserGate.Bookings`);
@@ -40,9 +42,12 @@ defmodule TannhauserGate.Stories.Location do
     |> validate_required([:name, :area, :color])
     |> validate_length(:name, max: 120)
     |> validate_format(:area, @points_format,
-      message: "must be a list of at least 3 x,y points separated by spaces"
+      message:
+        dgettext_noop("errors", "must be a list of at least 3 x,y points separated by spaces")
     )
-    |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/, message: "must be a hex color like #4ae08a")
+    |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/,
+      message: dgettext_noop("errors", "must be a hex color like #4ae08a")
+    )
     |> foreign_key_constraint(:story_id)
     |> foreign_key_constraint(:zone_id)
     |> foreign_key_constraint(:guild_id)

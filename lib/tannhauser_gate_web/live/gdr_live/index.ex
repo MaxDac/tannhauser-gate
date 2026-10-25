@@ -16,7 +16,7 @@ defmodule TannhauserGateWeb.GdrLive.Index do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Choose your GDR")
+     |> assign(:page_title, dgettext("player", "Choose your GDR"))
      |> stream_configure(:gdrs, dom_id: &"gdrs-#{&1.id}")}
   end
 
@@ -69,22 +69,33 @@ defmodule TannhauserGateWeb.GdrLive.Index do
         <div class="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-primary/10 blur-3xl" />
         <div class="relative flex flex-wrap items-end justify-between gap-6">
           <div class="max-w-2xl">
-            <p class="text-xs font-bold uppercase tracking-[0.3em] text-secondary">GDR directory</p>
-            <h1 class="mt-2 text-3xl font-bold text-base-content sm:text-4xl">Choose your GDR</h1>
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-secondary">
+              {dgettext("player", "GDR directory")}
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold text-base-content sm:text-4xl">
+              {dgettext("player", "Choose your GDR")}
+            </h1>
+
             <p class="mt-2 text-sm text-base-content/70">
-              Every game master runs their own world. Browse by genre and status, read the
-              players' reviews, vote for your favourites and step in.
+              {dgettext(
+                "player",
+                "Every game master runs their own world. Browse by genre and status, read the players' reviews, vote for your favourites and step in."
+              )}
             </p>
           </div>
+
           <div class="flex flex-wrap gap-2">
             <.button id="ranking-link" navigate={~p"/gdrs/ranking"}>
-              <.icon name="hero-trophy" class="size-4" /> Ranking
+              <.icon name="hero-trophy" class="size-4" /> {dgettext("player", "Ranking")}
             </.button>
+
             <.button :if={@current_user.gm} id="my-gdr-link" navigate={~p"/gdrs/request"}>
-              <.icon name="hero-sparkles" class="size-4" /> My GDR
+              <.icon name="hero-sparkles" class="size-4" /> {dgettext("player", "My GDR")}
             </.button>
+
             <.button :if={Accounts.admin?(@current_user)} id="admin-link" navigate={~p"/admin"}>
-              Admin
+              {dgettext("player", "Admin")}
             </.button>
           </div>
         </div>
@@ -100,48 +111,51 @@ defmodule TannhauserGateWeb.GdrLive.Index do
         <.input
           field={@filter_form[:q]}
           type="search"
-          label="Search"
-          placeholder="Name, pitch or summary"
+          label={dgettext("player", "Search")}
+          placeholder={dgettext("player", "Name, pitch or summary")}
           phx-debounce="300"
         />
         <.input
           field={@filter_form[:genre]}
           type="select"
-          label="Genre"
-          prompt="All genres"
+          label={dgettext("player", "Genre")}
+          prompt={dgettext("player", "All genres")}
           options={for {value, label} <- Directory.genres(), do: {label, value}}
         />
         <.input
           field={@filter_form[:lifecycle]}
           type="select"
-          label="Status"
-          prompt="Any status"
+          label={dgettext("player", "Status")}
+          prompt={dgettext("player", "Any status")}
           options={for {value, label} <- Directory.lifecycles(), do: {label, value}}
         />
         <.input
           field={@filter_form[:rating]}
           type="select"
-          label="Rating"
-          prompt="Any rating"
+          label={dgettext("player", "Rating")}
+          prompt={dgettext("player", "Any rating")}
           options={for {value, label} <- Directory.content_ratings(), do: {label, value}}
         />
         <.input
           field={@filter_form[:sort]}
           type="select"
-          label="Sort by"
+          label={dgettext("player", "Sort by")}
           options={for {value, label} <- Directory.sorts(), do: {label, value}}
         />
       </.form>
 
       <div class="mt-4 flex items-center justify-between text-xs text-base-content/60">
-        <p id="directory-count">{@count} {if @count == 1, do: "GDR", else: "GDRs"}</p>
+        <p id="directory-count">
+          {@count} {if @count == 1, do: dgettext("player", "GDR"), else: dgettext("player", "GDRs")}
+        </p>
+
         <.link
           :if={@filtered?}
           id="reset-filters"
           patch={~p"/gdrs"}
           class="inline-flex items-center gap-1 transition hover:text-primary"
         >
-          <.icon name="hero-x-mark" class="size-3.5" /> Clear filters
+          <.icon name="hero-x-mark" class="size-3.5" /> {dgettext("player", "Clear filters")}
         </.link>
       </div>
 
@@ -150,7 +164,9 @@ defmodule TannhauserGateWeb.GdrLive.Index do
         id="no-gdrs"
         class="mt-6 rounded-xl border border-dashed border-secondary/30 p-10 text-center text-base-content/60"
       >
-        {if @filtered?, do: "No GDR matches these filters.", else: "No GDR is open yet."}
+        {if @filtered?,
+          do: dgettext("player", "No GDR matches these filters."),
+          else: dgettext("player", "No GDR is open yet.")}
       </p>
 
       <div id="gdrs" phx-update="stream" class="mt-4 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -167,7 +183,7 @@ defmodule TannhauserGateWeb.GdrLive.Index do
                   :if={entry.story.status == "draft"}
                   class="rounded-full border border-warning/50 bg-base-100/70 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-warning"
                 >
-                  Draft
+                  {dgettext("player", "Draft")}
                 </span>
               </div>
               <.rating_badge rating={entry.story.content_rating} />
@@ -188,20 +204,29 @@ defmodule TannhauserGateWeb.GdrLive.Index do
             <p class="line-clamp-2 text-sm text-base-content/70">
               {entry.story.pitch || entry.story.summary}
             </p>
-
             <.genre_chips genres={entry.story.genres} />
-
             <dl class="mt-auto grid grid-cols-4 gap-2 border-t border-base-content/10 pt-3 text-xs">
               <div class="flex flex-col gap-0.5">
-                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Score</dt>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+                  {dgettext("player", "Score")}
+                </dt>
+
                 <dd id={"gdr-score-#{entry.id}"}><.score score={entry.score} /></dd>
               </div>
+
               <div class="flex flex-col gap-0.5">
-                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Members</dt>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+                  {dgettext("player", "Members")}
+                </dt>
+
                 <dd id={"gdr-members-#{entry.id}"} class="font-mono font-bold">{entry.members}</dd>
               </div>
+
               <div class="flex flex-col gap-0.5">
-                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Online</dt>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+                  {dgettext("player", "Online")}
+                </dt>
+
                 <dd
                   id={"gdr-online-#{entry.id}"}
                   class="inline-flex items-center gap-1 font-mono font-bold"
@@ -209,12 +234,15 @@ defmodule TannhauserGateWeb.GdrLive.Index do
                   <span class={[
                     "size-2 rounded-full",
                     if(entry.online > 0, do: "bg-success animate-pulse", else: "bg-base-content/20")
-                  ]} />
-                  {entry.online}
+                  ]} /> {entry.online}
                 </dd>
               </div>
+
               <div class="flex flex-col gap-0.5">
-                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Votes</dt>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+                  {dgettext("player", "Votes")}
+                </dt>
+
                 <dd id={"gdr-votes-#{entry.id}"} class="font-mono font-bold">{entry.votes}</dd>
               </div>
             </dl>
@@ -222,22 +250,29 @@ defmodule TannhauserGateWeb.GdrLive.Index do
             <div class="flex items-center justify-between gap-3 text-xs text-base-content/60">
               <div class="min-w-0">
                 <p class="truncate uppercase tracking-wider text-secondary">
-                  GM {(entry.story.owner && entry.story.owner.username) || "Platform"}
+                  {dgettext("player", "GM")} {(entry.story.owner && entry.story.owner.username) ||
+                    dgettext("player", "Platform")}
                 </p>
+
                 <p
                   :if={entry.story.masters != []}
                   id={"gdr-masters-#{entry.id}"}
                   class="truncate"
                 >
-                  Masters: {Enum.map_join(entry.story.masters, ", ", & &1.username)}
+                  {dgettext("player", "Masters:")} {Enum.map_join(
+                    entry.story.masters,
+                    ", ",
+                    & &1.username
+                  )}
                 </p>
               </div>
+
               <.link
                 navigate={~p"/g/#{entry.id}"}
                 id={"gdr-enter-#{entry.id}"}
                 class="relative z-10 inline-flex shrink-0 items-center gap-1 rounded-lg border border-primary/40 px-3 py-1.5 font-bold uppercase tracking-wider text-primary transition hover:bg-primary hover:text-primary-content"
               >
-                Enter <.icon name="hero-arrow-right" class="size-3.5" />
+                {dgettext("player", "Enter")} <.icon name="hero-arrow-right" class="size-3.5" />
               </.link>
             </div>
           </div>

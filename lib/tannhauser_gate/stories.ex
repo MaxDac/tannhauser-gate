@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Stories do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Stories describe a world (background, customs) and its map of locations.
   Each location doubles as a chat room.
@@ -122,17 +124,32 @@ defmodule TannhauserGate.Stories do
   ## Staff permissions
 
   @permission_labels [
-    can_moderate: {"Moderate", "Delete chat entries and posts, handle reports and sanctions."},
-    can_approve_characters: {"Approve characters", "Review and approve or reject characters."},
-    can_award_xp: {"Award XP", "Hand out XP (also through esiti and quest rewards)."},
-    can_manage_esiti_quests: {"Esiti and quests", "Claim and resolve esiti, log quests."},
-    can_manage_economy: {"Economy", "Grant and remove items, adjust money."},
-    can_manage_world: {"World", "Zone events, action difficulty, calendar, weather and boards."}
+    can_moderate:
+      {dgettext_noop("domain", "Moderate"),
+       dgettext_noop("domain", "Delete chat entries and posts, handle reports and sanctions.")},
+    can_approve_characters:
+      {dgettext_noop("domain", "Approve characters"),
+       dgettext_noop("domain", "Review and approve or reject characters.")},
+    can_award_xp:
+      {dgettext_noop("domain", "Award XP"),
+       dgettext_noop("domain", "Hand out XP (also through esiti and quest rewards).")},
+    can_manage_esiti_quests:
+      {dgettext_noop("domain", "Esiti and quests"),
+       dgettext_noop("domain", "Claim and resolve esiti, log quests.")},
+    can_manage_economy:
+      {dgettext_noop("domain", "Economy"),
+       dgettext_noop("domain", "Grant and remove items, adjust money.")},
+    can_manage_world:
+      {dgettext_noop("domain", "World"),
+       dgettext_noop("domain", "Zone events, action difficulty, calendar, weather and boards.")}
   ]
 
   @doc "The staff permissions, as `{key, label, description}`."
   def permissions do
-    for {key, {label, description}} <- @permission_labels, do: {key, label, description}
+    for {key, {label, description}} <- @permission_labels,
+        do:
+          {key, Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label),
+           Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", description)}
   end
 
   @doc """
@@ -238,10 +255,16 @@ defmodule TannhauserGate.Stories do
   end
 
   @doc "A human readable message for `add_master/2` and `remove_master/2` errors."
-  def master_error_message(:user_not_found), do: "No user with that username."
-  def master_error_message(:owner), do: "The GDR admin already has every master power."
-  def master_error_message(:already_master), do: "That user is already a master."
-  def master_error_message(:not_found), do: "That user is not a master of this GDR."
+  def master_error_message(:user_not_found), do: dgettext("domain", "No user with that username.")
+
+  def master_error_message(:owner),
+    do: dgettext("domain", "The GDR admin already has every master power.")
+
+  def master_error_message(:already_master),
+    do: dgettext("domain", "That user is already a master.")
+
+  def master_error_message(:not_found),
+    do: dgettext("domain", "That user is not a master of this GDR.")
 
   @doc """
   Updates a story through the game master changeset.
@@ -371,7 +394,7 @@ defmodule TannhauserGate.Stories do
              where: z.id == ^zone_id and z.story_id == ^story_id
          ),
          do: [],
-         else: [zone_id: "is not a zone of this story"]
+         else: [zone_id: dgettext_noop("errors", "is not a zone of this story")]
     end)
   end
 
@@ -385,7 +408,7 @@ defmodule TannhauserGate.Stories do
              where: g.id == ^guild_id and g.story_id == ^story_id
          ),
          do: [],
-         else: [guild_id: "is not a guild of this story"]
+         else: [guild_id: dgettext_noop("errors", "is not a guild of this story")]
     end)
   end
 

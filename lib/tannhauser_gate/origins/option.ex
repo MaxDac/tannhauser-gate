@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Origins.Option do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   An option of an origin group (e.g. "Human", "Replicant"): a Markdown
   description, an optional image and sheet bonuses, a map of sheet item
@@ -56,7 +58,7 @@ defmodule TannhauserGate.Origins.Option do
         |> then(fn {bonuses, cs} -> put_change(cs, :bonuses, bonuses) end)
 
       {:ok, _} ->
-        add_error(changeset, :bonuses, "is invalid")
+        add_error(changeset, :bonuses, dgettext_noop("errors", "is invalid"))
     end
   end
 
@@ -74,17 +76,31 @@ defmodule TannhauserGate.Origins.Option do
         put_bonus(acc, cs, slug, int, slugs)
 
       {:ok, _} ->
-        {acc, add_error(cs, :bonuses, "#{slug} must be between -#{@max_bonus} and #{@max_bonus}")}
+        {acc,
+         add_error(
+           cs,
+           :bonuses,
+           dgettext_noop("errors", "%{slug} must be between -%{max} and %{max}"),
+           slug: slug,
+           max: @max_bonus
+         )}
 
       :error ->
-        {acc, add_error(cs, :bonuses, "#{slug} must be a whole number")}
+        {acc,
+         add_error(cs, :bonuses, dgettext_noop("errors", "%{slug} must be a whole number"),
+           slug: slug
+         )}
     end
   end
 
   defp put_bonus(acc, cs, slug, int, slugs) do
     if slug in slugs,
       do: {Map.put(acc, slug, int), cs},
-      else: {acc, add_error(cs, :bonuses, "references unknown sheet item #{slug}")}
+      else:
+        {acc,
+         add_error(cs, :bonuses, dgettext_noop("errors", "references unknown sheet item %{slug}"),
+           slug: slug
+         )}
   end
 
   defp fetch(attrs, key) do

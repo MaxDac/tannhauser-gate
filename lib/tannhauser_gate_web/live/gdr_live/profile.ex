@@ -21,7 +21,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       nil ->
         {:ok,
          socket
-         |> put_flash(:error, "GDR not found.")
+         |> put_flash(:error, dgettext("player", "GDR not found."))
          |> push_navigate(to: ~p"/gdrs")}
 
       story ->
@@ -74,13 +74,19 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
   def handle_event("vote", _params, socket) do
     case Directory.vote(socket.assigns.current_user, socket.assigns.story) do
       {:ok, _} ->
-        {:noreply, socket |> put_flash(:info, "Thanks for your vote!") |> load_summary()}
+        {:noreply,
+         socket |> put_flash(:info, dgettext("player", "Thanks for your vote!")) |> load_summary()}
 
       {:error, :already_voted} ->
-        {:noreply, put_flash(socket, :error, "You already voted for this GDR this month.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("player", "You already voted for this GDR this month.")
+         )}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Draft GDRs cannot be voted.")}
+        {:noreply, put_flash(socket, :error, dgettext("player", "Draft GDRs cannot be voted."))}
     end
   end
 
@@ -109,7 +115,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       {:ok, _review} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Review saved.")
+         |> put_flash(:info, dgettext("player", "Review saved."))
          |> assign(:show_review_form?, false)
          |> load_summary()
          |> load_reviews()
@@ -150,7 +156,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Reply saved.")
+         |> put_flash(:info, dgettext("player", "Reply saved."))
          |> assign(:replying_id, nil)
          |> load_reviews()}
 
@@ -159,7 +165,12 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
          socket |> assign(:reply_form, to_form(changeset, as: :reply)) |> load_reviews()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Only the GDR admin can reply to its reviews.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           dgettext("player", "Only the GDR admin can reply to its reviews.")
+         )}
     end
   end
 
@@ -171,11 +182,16 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
            Directory.set_review_hidden(socket.assigns.current_user, id, hidden == "true") do
       {:noreply,
        socket
-       |> put_flash(:info, if(review.hidden_at, do: "Review hidden.", else: "Review restored."))
+       |> put_flash(
+         :info,
+         if(review.hidden_at, do: "Review hidden.", else: dgettext("player", "Review restored."))
+       )
        |> load_summary()
        |> load_reviews()}
     else
-      _ -> {:noreply, put_flash(socket, :error, "You cannot moderate this review.")}
+      _ ->
+        {:noreply,
+         put_flash(socket, :error, dgettext("player", "You cannot moderate this review."))}
     end
   end
 
@@ -196,7 +212,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
         id="back-to-directory"
         class="inline-flex items-center gap-1 text-xs uppercase tracking-wider text-base-content/60 transition hover:text-primary"
       >
-        <.icon name="hero-arrow-left" class="size-3.5" /> Directory
+        <.icon name="hero-arrow-left" class="size-3.5" /> {dgettext("player", "Directory")}
       </.link>
 
       <section
@@ -211,7 +227,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
                 :if={@story.status == "draft"}
                 class="rounded-full border border-warning/50 bg-base-100/70 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-warning"
               >
-                Draft
+                {dgettext("player", "Draft")}
               </span>
             </div>
             <.rating_badge id="profile-rating" rating={@story.content_rating} />
@@ -221,9 +237,11 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
         <div class="-mt-16 relative flex flex-wrap items-end justify-between gap-6 px-6 pb-6 sm:px-8">
           <div class="max-w-2xl">
             <h1 class="text-3xl font-bold text-primary sm:text-4xl">{@story.name}</h1>
+
             <p :if={@story.pitch} id="profile-pitch" class="mt-1 text-base text-base-content/80">
               {@story.pitch}
             </p>
+
             <div class="mt-3"><.genre_chips genres={@story.genres} /></div>
           </div>
 
@@ -246,38 +264,53 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
               <.icon
                 name={if @voted?, do: "hero-check-circle", else: "hero-hand-thumb-up"}
                 class="size-4"
-              />
-              {if @voted?, do: "Voted this month", else: "Vote"}
+              /> {if @voted?,
+                do: dgettext("player", "Voted this month"),
+                else: dgettext("player", "Vote")}
             </button>
+
             <.link
               id="enter-gdr"
               navigate={~p"/g/#{@story}"}
               class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-bold uppercase tracking-wider text-primary-content shadow-phosphor transition hover:-translate-y-0.5 hover:brightness-110"
             >
-              Enter <.icon name="hero-arrow-right" class="size-4" />
+              {dgettext("player", "Enter")} <.icon name="hero-arrow-right" class="size-4" />
             </.link>
           </div>
         </div>
 
         <dl class="grid grid-cols-2 gap-px border-t border-base-content/10 bg-base-content/10 sm:grid-cols-4">
           <div class="bg-base-200 px-6 py-4">
-            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Score</dt>
+            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+              {dgettext("player", "Score")}
+            </dt>
+
             <dd id="profile-score" class="mt-1 text-lg">
               <.score score={@entry.score} count={@entry.review_count} />
             </dd>
           </div>
-          <div class="bg-base-200 px-6 py-4">
-            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Members</dt>
-            <dd id="profile-members" class="mt-1 font-mono text-lg font-bold">{@entry.members}</dd>
-          </div>
-          <div class="bg-base-200 px-6 py-4">
-            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Online now</dt>
-            <dd id="profile-online" class="mt-1 font-mono text-lg font-bold">{@entry.online}</dd>
-          </div>
+
           <div class="bg-base-200 px-6 py-4">
             <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
-              Votes this month
+              {dgettext("player", "Members")}
             </dt>
+
+            <dd id="profile-members" class="mt-1 font-mono text-lg font-bold">{@entry.members}</dd>
+          </div>
+
+          <div class="bg-base-200 px-6 py-4">
+            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+              {dgettext("player", "Online now")}
+            </dt>
+
+            <dd id="profile-online" class="mt-1 font-mono text-lg font-bold">{@entry.online}</dd>
+          </div>
+
+          <div class="bg-base-200 px-6 py-4">
+            <dt class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+              {dgettext("player", "Votes this month")}
+            </dt>
+
             <dd id="profile-votes" class="mt-1 font-mono text-lg font-bold">{@entry.votes}</dd>
           </div>
         </dl>
@@ -286,21 +319,29 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem]">
         <div class="min-w-0 space-y-8">
           <section :if={@story.summary not in [nil, ""]} id="profile-summary">
-            <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">About</h2>
+            <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">
+              {dgettext("player", "About")}
+            </h2>
+
             <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/80">
               {@story.summary}
             </p>
+
             <p class="mt-3 text-xs text-base-content/50">
-              GM {(@story.owner && @story.owner.username) || "Platform"}
+              {dgettext("player", "GM")} {(@story.owner && @story.owner.username) ||
+                dgettext("player", "Platform")}
               <span :if={@story.masters != []}>
-                · Masters: {Enum.map_join(@story.masters, ", ", & &1.username)}
+                {dgettext("player", "· Masters:")} {Enum.map_join(@story.masters, ", ", & &1.username)}
               </span>
             </p>
           </section>
 
           <section id="profile-reviews">
             <div class="flex flex-wrap items-center justify-between gap-3">
-              <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">Reviews</h2>
+              <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">
+                {dgettext("player", "Reviews")}
+              </h2>
+
               <button
                 :if={@my_review || @eligibility == :ok}
                 id="toggle-review-form"
@@ -311,11 +352,10 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
                 <.icon
                   name={if @show_review_form?, do: "hero-x-mark", else: "hero-pencil-square"}
                   class="size-3.5"
-                />
-                {cond do
-                  @show_review_form? -> "Close"
-                  @my_review -> "Edit your review"
-                  true -> "Write a review"
+                /> {cond do
+                  @show_review_form? -> dgettext("player", "Close")
+                  @my_review -> dgettext("player", "Edit your review")
+                  true -> dgettext("player", "Write a review")
                 end}
               </button>
             </div>
@@ -325,18 +365,17 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
               id="review-eligibility"
               class="mt-3 rounded-lg border border-base-content/10 bg-base-200/60 px-4 py-3 text-xs text-base-content/60"
             >
-              <.icon name="hero-information-circle" class="mr-1 size-4 align-text-bottom" />
-              {Directory.eligibility_message(elem(@eligibility, 1))}
+              <.icon name="hero-information-circle" class="mr-1 size-4 align-text-bottom" /> {Directory.eligibility_message(
+                elem(@eligibility, 1)
+              )}
             </p>
-
             <.review_form :if={@show_review_form?} form={@review_form} />
-
             <p
               :if={@reviews_empty?}
               id="no-reviews"
               class="mt-4 rounded-xl border border-dashed border-secondary/30 p-8 text-center text-sm text-base-content/60"
             >
-              No reviews yet.
+              {dgettext("player", "No reviews yet.")}
             </p>
 
             <ul id="reviews" phx-update="stream" class="mt-4 space-y-4">
@@ -368,17 +407,22 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
           class="h-fit rounded-2xl border border-base-content/10 bg-base-200 p-5 lg:sticky lg:top-6"
         >
           <div class="flex items-baseline justify-between">
-            <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">Scores</h2>
+            <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-secondary">
+              {dgettext("player", "Scores")}
+            </h2>
+
             <p class="text-xs text-base-content/50">
-              {@aggregate.count} {if @aggregate.count == 1, do: "review", else: "reviews"}
+              {dngettext("player", "%{count} review", "%{count} reviews", @aggregate.count)}
             </p>
           </div>
+
           <p class="mt-3 flex items-baseline gap-2">
             <span id="aggregate-overall" class="font-mono text-4xl font-bold text-primary">
               {format_score(@aggregate.overall)}
             </span>
             <span class="text-sm text-base-content/50">/ 5</span>
           </p>
+
           <ul class="mt-4 space-y-3">
             <li :for={{field, label, italian, avg} <- @aggregate.criteria} id={"aggregate-#{field}"}>
               <div class="flex items-baseline justify-between text-xs">
@@ -387,6 +431,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
                 </span>
                 <span class="font-mono font-bold">{format_score(avg)}</span>
               </div>
+
               <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-base-300">
                 <div
                   class="h-full rounded-full bg-gradient-to-r from-secondary to-primary transition-all duration-700"
@@ -416,14 +461,18 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       class="mt-4 rounded-xl border border-primary/30 bg-base-200 p-5"
     >
       <p class="mb-4 text-xs text-base-content/60">
-        Score each aspect from 1 (poor) to 5 (excellent). Be fair and specific: the staff can
-        reply and abusive reviews are hidden.
+        {dgettext(
+          "player",
+          "Score each aspect from 1 (poor) to 5 (excellent). Be fair and specific: the staff can reply and abusive reviews are hidden."
+        )}
       </p>
+
       <div class="grid gap-x-6 gap-y-3 sm:grid-cols-2">
         <fieldset :for={{field, label, italian} <- Directory.criteria()} id={"review-#{field}"}>
           <legend class="text-xs text-base-content/80">
             {label} <span class="text-base-content/40">· {italian}</span>
           </legend>
+
           <div class="mt-1 flex gap-1">
             <label
               :for={n <- 1..5}
@@ -436,23 +485,31 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
                 value={n}
                 checked={to_string(@form[field].value) == to_string(n)}
                 class="sr-only"
-              />
-              {n}
+              /> {n}
             </label>
           </div>
+
           <.error :for={msg <- Enum.map(@form[field].errors, &translate_error/1)}>{msg}</.error>
         </fieldset>
       </div>
+
       <div class="mt-4">
         <.input
           field={@form[:advice]}
           type="textarea"
-          label="Advice to the staff (optional)"
+          label={dgettext("player", "Advice to the staff (optional)")}
           rows="3"
         />
-        <.input field={@form[:conclusion]} type="textarea" label="Conclusions" rows="4" required />
+        <.input
+          field={@form[:conclusion]}
+          type="textarea"
+          label={dgettext("player", "Conclusions")}
+          rows="4"
+          required
+        />
       </div>
-      <.button phx-disable-with="Saving...">Save review</.button>
+
+      <.button phx-disable-with={dgettext("player", "Saving...")}>{dgettext("player", "Save review")}</.button>
     </.form>
     """
   end
@@ -468,22 +525,26 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
         <p class="text-sm font-bold">{@review.user.username}</p>
+
         <p class="text-xs text-base-content/50">
-          {Calendar.strftime(@review.inserted_at, "%d %b %Y")}
-          <span :if={@review.updated_at != @review.inserted_at}>· edited</span>
+          {format_local_date(@review.inserted_at, "%d %b %Y")}
+          <span :if={@review.updated_at != @review.inserted_at}>{dgettext("player", "· edited")}</span>
         </p>
       </div>
+
       <div class="flex items-center gap-2">
         <span
           :if={@review.hidden_at}
           id={"review-hidden-#{@review.id}"}
           class="rounded-full border border-error/50 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-error"
         >
-          Hidden
+          {dgettext("player", "Hidden")}
         </span>
+
         <span class="rounded-lg bg-primary/15 px-2 py-1 font-mono text-sm font-bold text-primary">
           {format_score(Review.overall(@review))}
         </span>
+
         <button
           :if={@admin?}
           id={"review-toggle-hidden-#{@review.id}"}
@@ -493,7 +554,7 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
           phx-value-hidden={to_string(is_nil(@review.hidden_at))}
           class="rounded-md border border-base-content/20 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-base-content/60 transition hover:border-error hover:text-error"
         >
-          {if @review.hidden_at, do: "Unhide", else: "Hide"}
+          {if @review.hidden_at, do: dgettext("player", "Unhide"), else: dgettext("player", "Hide")}
         </button>
       </div>
     </div>
@@ -501,16 +562,24 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
     <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
       <div :for={{field, label, _} <- Directory.criteria()} class="flex justify-between gap-2">
         <dt class="truncate text-base-content/50">{label}</dt>
+
         <dd class="font-mono font-bold">{Map.fetch!(@review, field)}</dd>
       </div>
     </dl>
 
     <div :if={@review.advice not in [nil, ""]} class="mt-3">
-      <p class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Advice</p>
+      <p class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+        {dgettext("player", "Advice")}
+      </p>
+
       <p class="mt-1 whitespace-pre-line text-sm text-base-content/80">{@review.advice}</p>
     </div>
+
     <div class="mt-3">
-      <p class="text-[0.65rem] uppercase tracking-wider text-base-content/50">Conclusions</p>
+      <p class="text-[0.65rem] uppercase tracking-wider text-base-content/50">
+        {dgettext("player", "Conclusions")}
+      </p>
+
       <p class="mt-1 whitespace-pre-line text-sm text-base-content/90">{@review.conclusion}</p>
     </div>
 
@@ -520,8 +589,9 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       class="mt-4 rounded-lg border-l-2 border-secondary bg-secondary/5 px-4 py-3"
     >
       <p class="text-[0.65rem] font-bold uppercase tracking-wider text-secondary">
-        Reply from the GDR admin
+        {dgettext("player", "Reply from the GDR admin")}
       </p>
+
       <p class="mt-1 whitespace-pre-line text-sm text-base-content/80">{@review.gm_reply}</p>
     </div>
 
@@ -533,8 +603,9 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       phx-value-id={@review.id}
       class="mt-3 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-secondary transition hover:text-primary"
     >
-      <.icon name="hero-chat-bubble-left-ellipsis" class="size-3.5" />
-      {if @review.gm_reply, do: "Edit reply", else: "Reply"}
+      <.icon name="hero-chat-bubble-left-ellipsis" class="size-3.5" /> {if @review.gm_reply,
+        do: dgettext("player", "Edit reply"),
+        else: dgettext("player", "Reply")}
     </button>
 
     <.form
@@ -545,15 +616,21 @@ defmodule TannhauserGateWeb.GdrLive.Profile do
       class="mt-4"
     >
       <input type="hidden" name="review_id" value={@review.id} />
-      <.input field={@reply_form[:gm_reply]} type="textarea" label="Your reply" rows="3" required />
+      <.input
+        field={@reply_form[:gm_reply]}
+        type="textarea"
+        label={dgettext("player", "Your reply")}
+        rows="3"
+        required
+      />
       <div class="flex items-center gap-3">
-        <.button phx-disable-with="Saving...">Save reply</.button>
+        <.button phx-disable-with={dgettext("player", "Saving...")}>{dgettext("player", "Save reply")}</.button>
         <button
           type="button"
           phx-click="cancel_reply"
           class="text-xs text-base-content/60 hover:text-primary"
         >
-          Cancel
+          {dgettext("player", "Cancel")}
         </button>
       </div>
     </.form>

@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Sanctions do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Sanctions per GDR, part of the `:reports` optional module. The moderators
   (`Stories.can?(user, story, :can_moderate)`) issue:
@@ -35,12 +37,12 @@ defmodule TannhauserGate.Sanctions do
   @preloads [:user, :issued_by, :revoked_by]
 
   @durations [
-    {"1 hour", "1"},
-    {"1 day", "24"},
-    {"3 days", "72"},
-    {"1 week", "168"},
-    {"30 days", "720"},
-    {"Permanent", "permanent"}
+    {dgettext_noop("domain", "1 hour"), "1"},
+    {dgettext_noop("domain", "1 day"), "24"},
+    {dgettext_noop("domain", "3 days"), "72"},
+    {dgettext_noop("domain", "1 week"), "168"},
+    {dgettext_noop("domain", "30 days"), "720"},
+    {dgettext_noop("domain", "Permanent"), "permanent"}
   ]
 
   @doc "Whether sanctions are enforced in the story (the `:reports` module)."
@@ -48,7 +50,10 @@ defmodule TannhauserGate.Sanctions do
   def enabled?(_), do: false
 
   @doc "The duration options of mutes and bans, as `{label, hours}` select options."
-  def duration_options, do: @durations
+  def duration_options do
+    for {label, value} <- @durations,
+        do: {Gettext.dgettext(TannhauserGateWeb.Gettext, "domain", label), value}
+  end
 
   ## Enforcement
 
@@ -116,21 +121,43 @@ defmodule TannhauserGate.Sanctions do
   @doc "A friendly message for a muted user."
   def muted_message(user, story) do
     case active_mute(user, story) do
-      nil -> "You cannot post in this GDR right now."
-      mute -> "You are #{verb(mute)} in this GDR #{until(mute)}: you cannot post."
+      nil ->
+        dgettext("domain", "You cannot post in this GDR right now.")
+
+      mute ->
+        dgettext("domain", "You are %{status} in this GDR %{duration}: you cannot post.",
+          status: verb(mute),
+          duration: until(mute)
+        )
     end
   end
 
-  defp verb(%Sanction{kind: "ban"}), do: "banned"
-  defp verb(_), do: "muted"
+  defp verb(%Sanction{kind: "ban"}), do: dgettext("domain", "banned")
+  defp verb(_), do: dgettext("domain", "muted")
 
   @doc ~s("until <date>" or "permanently".)
-  def until(%Sanction{ends_at: nil}), do: "permanently"
-  def until(%Sanction{ends_at: at}), do: "until #{format(at)}"
+  def until(%Sanction{ends_at: nil}), do: dgettext("domain", "permanently")
+  def until(%Sanction{ends_at: at}), do: dgettext("domain", "until %{date}", date: format(at))
 
   @doc "A short UTC date and time."
-  def format(%DateTime{} = at), do: Calendar.strftime(at, "%d %b %Y, %H:%M UTC")
+  def format(%DateTime{} = at) do
+    Calendar.strftime(at, "%d %b %Y, %H:%M UTC", abbreviated_month_names: &month_abbreviation/1)
+  end
+
   def format(_), do: "—"
+
+  defp month_abbreviation(1), do: dgettext("domain", "Jan")
+  defp month_abbreviation(2), do: dgettext("domain", "Feb")
+  defp month_abbreviation(3), do: dgettext("domain", "Mar")
+  defp month_abbreviation(4), do: dgettext("domain", "Apr")
+  defp month_abbreviation(5), do: dgettext("domain", "May")
+  defp month_abbreviation(6), do: dgettext("domain", "Jun")
+  defp month_abbreviation(7), do: dgettext("domain", "Jul")
+  defp month_abbreviation(8), do: dgettext("domain", "Aug")
+  defp month_abbreviation(9), do: dgettext("domain", "Sep")
+  defp month_abbreviation(10), do: dgettext("domain", "Oct")
+  defp month_abbreviation(11), do: dgettext("domain", "Nov")
+  defp month_abbreviation(12), do: dgettext("domain", "Dec")
 
   ## Notifications
 
@@ -167,13 +194,23 @@ defmodule TannhauserGate.Sanctions do
 
   @doc "The text shown to the sanctioned user."
   def notice_text(%Sanction{kind: "warning"} = s),
-    do: "The masters issued you a warning: #{s.reason}"
+    do: dgettext("domain", "The masters issued you a warning: %{reason}", reason: s.reason)
 
   def notice_text(%Sanction{kind: "mute"} = s),
-    do: "You are muted #{until(s)}: you cannot post in this GDR. Reason: #{s.reason}"
+    do:
+      dgettext(
+        "domain",
+        "You are muted %{duration}: you cannot post in this GDR. Reason: %{reason}",
+        duration: until(s),
+        reason: s.reason
+      )
 
   def notice_text(%Sanction{kind: "ban"} = s),
-    do: "You are banned from this GDR #{until(s)}. Reason: #{s.reason}"
+    do:
+      dgettext("domain", "You are banned from this GDR %{duration}. Reason: %{reason}",
+        duration: until(s),
+        reason: s.reason
+      )
 
   ## Issuing
 
@@ -260,14 +297,17 @@ defmodule TannhauserGate.Sanctions do
   defp notify(%Sanction{} = sanction, issuer, story) do
     case Characters.active_character(sanction.user, story.id) do
       %Characters.Character{} = character ->
-        Mailbox.send_from_masters(
-          story,
-          issuer,
-          character,
-          subject(sanction),
-          notice_text(sanction) <>
-            "\n\nIf you think this is a mistake, write to the masters."
-        )
+        # Stored letters must not inherit the moderator's display locale.
+        Gettext.with_locale(TannhauserGateWeb.Gettext, "en", fn ->
+          Mailbox.send_from_masters(
+            story,
+            issuer,
+            character,
+            subject(sanction),
+            notice_text(sanction) <>
+              "\n\nIf you think this is a mistake, write to the masters."
+          )
+        end)
 
       nil ->
         :ok
@@ -346,21 +386,34 @@ defmodule TannhauserGate.Sanctions do
   end
 
   @doc "A short status label."
-  def status_label(%Sanction{revoked_at: %DateTime{}}), do: "Revoked"
+  def status_label(%Sanction{revoked_at: %DateTime{}}), do: dgettext("domain", "Revoked")
 
-  def status_label(%Sanction{kind: "warning"}), do: "Recorded"
+  def status_label(%Sanction{kind: "warning"}), do: dgettext("domain", "Recorded")
 
   def status_label(%Sanction{} = s),
-    do: if(Sanction.active?(s), do: "Active", else: "Expired")
+    do:
+      if(Sanction.active?(s),
+        do: dgettext("domain", "Active"),
+        else: dgettext("domain", "Expired")
+      )
 
-  def error_message(:module_disabled), do: "Reports and sanctions are not enabled in this GDR."
-  def error_message(:unauthorized), do: "Only the moderators can do that."
-  def error_message(:user_not_found), do: "No user with that username."
-  def error_message(:staff), do: "Masters and GDR admins cannot be sanctioned."
-  def error_message(:not_found), do: "That sanction does not exist in this GDR."
-  def error_message(:already_revoked), do: "That sanction was already revoked."
-  def error_message(%Ecto.Changeset{}), do: "Check the sanction form."
-  def error_message(_), do: "Something went wrong."
+  def error_message(:module_disabled),
+    do: dgettext("domain", "Reports and sanctions are not enabled in this GDR.")
+
+  def error_message(:unauthorized), do: dgettext("domain", "Only the moderators can do that.")
+  def error_message(:user_not_found), do: dgettext("domain", "No user with that username.")
+
+  def error_message(:staff),
+    do: dgettext("domain", "Masters and GDR admins cannot be sanctioned.")
+
+  def error_message(:not_found),
+    do: dgettext("domain", "That sanction does not exist in this GDR.")
+
+  def error_message(:already_revoked),
+    do: dgettext("domain", "That sanction was already revoked.")
+
+  def error_message(%Ecto.Changeset{}), do: dgettext("domain", "Check the sanction form.")
+  def error_message(_), do: dgettext("domain", "Something went wrong.")
 
   ## Helpers
 

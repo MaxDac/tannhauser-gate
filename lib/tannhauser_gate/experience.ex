@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Experience do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   Experience points (XP). Masters (and the GDR admin) award XP to characters,
   with a reason; a negative award is a correction. The owner of a playable
@@ -344,19 +346,28 @@ defmodule TannhauserGate.Experience do
   defp filter_source(query, _source), do: query
 
   @doc "A human readable message for the XP errors."
-  def error_message(:unauthorized), do: "You are not allowed to do that."
+  def error_message(:unauthorized), do: dgettext("domain", "You are not allowed to do that.")
 
   def error_message(:invalid_amount),
-    do: "The amount must be a non-zero whole number (max #{@max_award})."
+    do:
+      dgettext("domain", "The amount must be a non-zero whole number (max %{max_award}).",
+        max_award: @max_award
+      )
 
-  def error_message(:reason_required), do: "Explain why the XP is awarded."
-  def error_message(:insufficient_xp), do: "Not enough XP available."
-  def error_message(:cannot_play), do: "The character cannot play right now."
-  def error_message(:not_found), do: "That sheet item does not exist."
-  def error_message(:not_purchasable), do: "That item cannot be raised with XP."
-  def error_message(:at_max), do: "That item is already at its maximum."
-  def error_message(:invalid_formula), do: "The XP cost formula of this GDR is invalid."
-  def error_message(_), do: "The XP could not be updated."
+  def error_message(:reason_required), do: dgettext("domain", "Explain why the XP is awarded.")
+  def error_message(:insufficient_xp), do: dgettext("domain", "Not enough XP available.")
+  def error_message(:cannot_play), do: dgettext("domain", "The character cannot play right now.")
+  def error_message(:not_found), do: dgettext("domain", "That sheet item does not exist.")
+
+  def error_message(:not_purchasable),
+    do: dgettext("domain", "That item cannot be raised with XP.")
+
+  def error_message(:at_max), do: dgettext("domain", "That item is already at its maximum.")
+
+  def error_message(:invalid_formula),
+    do: dgettext("domain", "The XP cost formula of this GDR is invalid.")
+
+  def error_message(_), do: dgettext("domain", "The XP could not be updated.")
 
   defp lock_character!(%Character{id: id}) do
     Repo.one!(from c in Character, where: c.id == ^id, select: c.id, lock: "FOR UPDATE")

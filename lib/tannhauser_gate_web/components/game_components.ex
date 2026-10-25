@@ -4,6 +4,7 @@ defmodule TannhauserGateWeb.GameComponents do
   navigation drawer.
   """
   use Phoenix.Component
+  use Gettext, backend: TannhauserGateWeb.Gettext
 
   use Phoenix.VerifiedRoutes,
     endpoint: TannhauserGateWeb.Endpoint,
@@ -36,7 +37,7 @@ defmodule TannhauserGateWeb.GameComponents do
     <img
       :if={@character.avatar_path}
       src={@character.avatar_path}
-      alt={"Avatar of #{@character.name}"}
+      alt={dgettext("player", "Avatar of %{name}", name: @character.name)}
       class={["rounded-full object-cover ring-2 ring-mint/60", @class]}
     />
     <span
@@ -45,7 +46,7 @@ defmodule TannhauserGateWeb.GameComponents do
         "inline-flex items-center justify-center rounded-full bg-ink font-bold uppercase text-phosphor ring-2 ring-phosphor/50",
         @class
       ]}
-      aria-label={"Avatar of #{@character.name}"}
+      aria-label={dgettext("player", "Avatar of %{name}", name: @character.name)}
     >
       {String.first(@character.name || "?")}
     </span>
@@ -72,8 +73,7 @@ defmodule TannhauserGateWeb.GameComponents do
       ]}
       {@rest}
     >
-      <.icon name={@icon} class="h-5 w-5" />
-      {render_slot(@inner_block)}
+      <.icon name={@icon} class="h-5 w-5" /> {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -91,4 +91,37 @@ defmodule TannhauserGateWeb.GameComponents do
   @doc "Formats a timestamp for chat and forum entries."
   def format_time(nil), do: ""
   def format_time(datetime), do: Calendar.strftime(datetime, "%Y-%m-%d %H:%M")
+
+  def format_local_date(date, format) do
+    Calendar.strftime(date, format,
+      month_names: &month_name/1,
+      abbreviated_month_names: &abbreviated_month_name/1
+    )
+  end
+
+  defp month_name(1), do: dgettext("player", "January")
+  defp month_name(2), do: dgettext("player", "February")
+  defp month_name(3), do: dgettext("player", "March")
+  defp month_name(4), do: dgettext("player", "April")
+  defp month_name(5), do: dgettext("player", "May")
+  defp month_name(6), do: dgettext("player", "June")
+  defp month_name(7), do: dgettext("player", "July")
+  defp month_name(8), do: dgettext("player", "August")
+  defp month_name(9), do: dgettext("player", "September")
+  defp month_name(10), do: dgettext("player", "October")
+  defp month_name(11), do: dgettext("player", "November")
+  defp month_name(12), do: dgettext("player", "December")
+
+  defp abbreviated_month_name(1), do: dgettext("player", "Jan")
+  defp abbreviated_month_name(2), do: dgettext("player", "Feb")
+  defp abbreviated_month_name(3), do: dgettext("player", "Mar")
+  defp abbreviated_month_name(4), do: dgettext("player", "Apr")
+  defp abbreviated_month_name(5), do: dgettext("player", "May")
+  defp abbreviated_month_name(6), do: dgettext("player", "Jun")
+  defp abbreviated_month_name(7), do: dgettext("player", "Jul")
+  defp abbreviated_month_name(8), do: dgettext("player", "Aug")
+  defp abbreviated_month_name(9), do: dgettext("player", "Sep")
+  defp abbreviated_month_name(10), do: dgettext("player", "Oct")
+  defp abbreviated_month_name(11), do: dgettext("player", "Nov")
+  defp abbreviated_month_name(12), do: dgettext("player", "Dec")
 end

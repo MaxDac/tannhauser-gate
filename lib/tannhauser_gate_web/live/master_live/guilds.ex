@@ -16,7 +16,7 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Guilds")
+     |> assign(:page_title, dgettext("management", "Guilds"))
      |> allow_upload(:emblem,
        accept: Storage.allowed_extensions(),
        max_entries: 1,
@@ -86,7 +86,7 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
       {:ok, guild} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Guild saved.")
+         |> put_flash(:info, dgettext("management", "Guild saved."))
          |> reload()
          |> edit_guild(Guilds.get_guild!(story(socket), guild.id))}
 
@@ -128,7 +128,7 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Guild deleted.")
+         |> put_flash(:info, dgettext("management", "Guild deleted."))
          |> reload()
          |> edit_guild(%Guild{ranks: []})}
     end
@@ -149,7 +149,9 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
     case result do
       {:ok, _} ->
         socket = refresh_guild(socket)
-        {:noreply, socket |> put_flash(:info, "Rank saved.") |> edit_rank(%Rank{})}
+
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Rank saved.")) |> edit_rank(%Rank{})}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :rank_form, to_form(changeset))}
@@ -176,14 +178,18 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
       rank ->
         {:ok, _} = Guilds.delete_rank(rank)
         socket = refresh_guild(socket)
-        {:noreply, socket |> put_flash(:info, "Rank deleted.") |> edit_rank(%Rank{})}
+
+        {:noreply,
+         socket |> put_flash(:info, dgettext("management", "Rank deleted.")) |> edit_rank(%Rank{})}
     end
   end
 
-  defp upload_error(:too_large), do: "The image is too large (max 5 MB)"
-  defp upload_error(:not_accepted), do: "Unsupported file type"
-  defp upload_error(:too_many_files), do: "Only one image is allowed"
-  defp upload_error(other), do: "Upload error: #{inspect(other)}"
+  defp upload_error(:too_large), do: dgettext("management", "The image is too large (max 5 MB)")
+  defp upload_error(:not_accepted), do: dgettext("management", "Unsupported file type")
+  defp upload_error(:too_many_files), do: dgettext("management", "Only one image is allowed")
+
+  defp upload_error(other),
+    do: dgettext("management", "Upload error: %{inspect_other}", inspect_other: inspect(other))
 
   @impl true
   def render(assigns) do
@@ -212,22 +218,27 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Guilds
+        {dgettext("management", "Guilds")}
         <:subtitle>
-          Factions, gangs and corporations: their ranks, salaries and who leads them.
-          Memberships are managed from each guild's page.
+          {dgettext(
+            "management",
+            "Factions, gangs and corporations: their ranks, salaries and who leads them. Memberships are managed from each guild's page."
+          )}
         </:subtitle>
       </.header>
 
       <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_26rem]">
         <section id="guild-list" class="space-y-3">
           <p :if={@guilds == []} id="guilds-empty" class="text-sm text-base-content/60">
-            No guilds yet: add the factions of your world.
+            {dgettext("management", "No guilds yet: add the factions of your world.")}
           </p>
 
           <ul class="grid gap-3 sm:grid-cols-2">
@@ -248,40 +259,57 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
                   >
                     {guild.name}
                   </.link>
+
                   <span class="flex shrink-0 gap-1">
                     <button
                       id={"edit-guild-#{guild.id}"}
                       phx-click="edit"
                       phx-value-id={guild.id}
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                      title="Edit"
+                      title={dgettext("management", "Edit")}
                     >
                       <.icon name="hero-pencil" class="size-4" />
                     </button>
+
                     <button
                       id={"delete-guild-#{guild.id}"}
                       phx-click="delete"
                       phx-value-id={guild.id}
-                      data-confirm="Delete this guild with its ranks, members and log?"
+                      data-confirm={
+                        dgettext("management", "Delete this guild with its ranks, members and log?")
+                      }
                       class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                      title="Delete"
+                      title={dgettext("management", "Delete")}
                     >
                       <.icon name="hero-trash" class="size-4" />
                     </button>
                   </span>
                 </div>
+
                 <p class="text-xs text-base-content/60">
-                  {Map.get(@counts, guild.id, 0)} members · {length(guild.ranks)} ranks
+                  {dgettext(
+                    "management",
+                    "%{map_get__counts__guild_id__0} members · %{length_guild_ranks} ranks",
+                    map_get__counts__guild_id__0: Map.get(@counts, guild.id, 0),
+                    length_guild_ranks: length(guild.ranks)
+                  )}
                 </p>
+
                 <div class="mt-2 flex flex-wrap gap-1 text-xs">
                   <span :if={guild.secret} class="badge badge-soft badge-sm badge-error">
-                    <.icon name="hero-eye-slash-micro" class="size-3" /> secret
+                    <.icon name="hero-eye-slash-micro" class="size-3" /> {dgettext(
+                      "management",
+                      "secret"
+                    )}
                   </span>
+
                   <span class={[
                     "badge badge-soft badge-sm",
                     if(guild.open_join, do: "badge-success", else: "badge-warning")
                   ]}>
-                    {if guild.open_join, do: "open to requests", else: "invitation only"}
+                    {if guild.open_join,
+                      do: dgettext("management", "open to requests"),
+                      else: dgettext("management", "invitation only")}
                   </span>
                 </div>
               </div>
@@ -292,8 +320,11 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
         <div class="space-y-6">
           <section class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              {if @guild.id, do: "Edit guild", else: "New guild"}
+              {if @guild.id,
+                do: dgettext("management", "Edit guild"),
+                else: dgettext("management", "New guild")}
             </h2>
+
             <.form
               for={@form}
               id="guild-form"
@@ -301,17 +332,29 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
               phx-submit="save"
               class="mt-4"
             >
-              <.input field={@form[:name]} type="text" label="Name" required />
+              <.input
+                field={@form[:name]}
+                type="text"
+                label={dgettext("management", "Name")}
+                required
+              />
               <.input
                 field={@form[:description]}
                 type="textarea"
-                label="Description (Markdown)"
+                label={dgettext("management", "Description (Markdown)")}
                 rows="4"
               />
-              <.input field={@form[:position]} type="number" label="Position" min="0" />
-
+              <.input
+                field={@form[:position]}
+                type="number"
+                label={dgettext("management", "Position")}
+                min="0"
+              />
               <div phx-drop-target={@uploads.emblem.ref} class="mb-2 space-y-2">
-                <label for={@uploads.emblem.ref} class="console-label">Emblem (optional)</label>
+                <label for={@uploads.emblem.ref} class="console-label">{dgettext(
+                  "management",
+                  "Emblem (optional)"
+                )}</label>
                 <div class="flex flex-wrap items-center gap-3">
                   <img
                     :if={@guild.emblem_path && @uploads.emblem.entries == []}
@@ -327,8 +370,9 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
                     phx-click="remove_emblem"
                     class="text-xs text-error hover:underline"
                   >
-                    Remove
+                    {dgettext("management", "Remove")}
                   </button>
+
                   <div :for={entry <- @uploads.emblem.entries} class="flex items-center gap-2">
                     <.live_img_preview entry={entry} class="size-14 rounded object-cover" />
                     <button
@@ -337,34 +381,45 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
                       phx-value-ref={entry.ref}
                       class="text-xs text-error hover:underline"
                     >
-                      Remove
+                      {dgettext("management", "Remove")}
                     </button>
                   </div>
+
                   <.live_file_input
                     upload={@uploads.emblem}
                     class="file-input file-input-secondary console-field w-full max-w-xs"
                   />
                 </div>
+
                 <.error :for={error <- @emblem_errors}>{error}</.error>
               </div>
 
               <.input
                 field={@form[:secret]}
                 type="checkbox"
-                label="Secret (only members and masters see the guild and its members)"
+                label={
+                  dgettext(
+                    "management",
+                    "Secret (only members and masters see the guild and its members)"
+                  )
+                }
               />
               <.input
                 field={@form[:open_join]}
                 type="checkbox"
-                label="Characters can ask to join (otherwise invitation only)"
+                label={
+                  dgettext("management", "Characters can ask to join (otherwise invitation only)")
+                }
               />
-
               <div class="mt-4 flex gap-2">
-                <.button id="save-guild" phx-disable-with="Saving...">
-                  {if @guild.id, do: "Update guild", else: "Add guild"}
+                <.button id="save-guild" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @guild.id,
+                    do: dgettext("management", "Update guild"),
+                    else: dgettext("management", "Add guild")}
                 </.button>
+
                 <.button :if={@guild.id} type="button" id="cancel-guild" phx-click="cancel">
-                  Done
+                  {dgettext("management", "Done")}
                 </.button>
               </div>
             </.form>
@@ -376,14 +431,21 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
             class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5"
           >
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-              Ranks of {@guild.name}
+              {dgettext("management", "Ranks of %{guild_name}", guild_name: @guild.name)}
             </h2>
+
             <p class="mt-1 text-xs text-base-content/60">
-              Salaries are paid every pay interval of the GDR. Leaders accept requests, invite,
-              and change the rank of or expel the non-leader members.
+              {dgettext(
+                "management",
+                "Salaries are paid every pay interval of the GDR. Leaders accept requests, invite, and change the rank of or expel the non-leader members."
+              )}
             </p>
+
             <ul class="mt-3 divide-y divide-secondary/10 text-sm">
-              <li :if={@guild.ranks == []} class="py-2 text-base-content/60">No ranks yet.</li>
+              <li :if={@guild.ranks == []} class="py-2 text-base-content/60">
+                {dgettext("management", "No ranks yet.")}
+              </li>
+
               <li
                 :for={rank <- @guild.ranks}
                 id={"rank-#{rank.id}"}
@@ -395,29 +457,37 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
                   </span>
                   <span class="font-semibold">{rank.name}</span>
                   <span :if={rank.leader} class="badge badge-xs badge-primary badge-soft">
-                    <.icon name="hero-star-micro" class="size-3" /> leader
+                    <.icon name="hero-star-micro" class="size-3" /> {dgettext("management", "leader")}
                   </span>
+
                   <span class="text-xs text-base-content/60">
                     {rank.salary} {@current_story.currency_name}
                   </span>
                 </span>
+
                 <span class="flex gap-1">
                   <button
                     id={"edit-rank-#{rank.id}"}
                     phx-click="edit_rank"
                     phx-value-id={rank.id}
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-secondary"
-                    title="Edit"
+                    title={dgettext("management", "Edit")}
                   >
                     <.icon name="hero-pencil" class="size-4" />
                   </button>
+
                   <button
                     id={"delete-rank-#{rank.id}"}
                     phx-click="delete_rank"
                     phx-value-id={rank.id}
-                    data-confirm="Delete this rank? Its members keep their membership without a rank."
+                    data-confirm={
+                      dgettext(
+                        "management",
+                        "Delete this rank? Its members keep their membership without a rank."
+                      )
+                    }
                     class="rounded p-0.5 text-base-content/60 transition-colors hover:text-error"
-                    title="Delete"
+                    title={dgettext("management", "Delete")}
                   >
                     <.icon name="hero-trash" class="size-4" />
                   </button>
@@ -427,17 +497,40 @@ defmodule TannhauserGateWeb.MasterLive.Guilds do
 
             <.form for={@rank_form} id="rank-form" phx-submit="save_rank" class="mt-4">
               <div class="grid grid-cols-[1fr_5rem] gap-3">
-                <.input field={@rank_form[:name]} type="text" label="Rank name" required />
-                <.input field={@rank_form[:position]} type="number" label="Order" min="0" />
+                <.input
+                  field={@rank_form[:name]}
+                  type="text"
+                  label={dgettext("management", "Rank name")}
+                  required
+                />
+                <.input
+                  field={@rank_form[:position]}
+                  type="number"
+                  label={dgettext("management", "Order")}
+                  min="0"
+                />
               </div>
-              <.input field={@rank_form[:salary]} type="number" label="Salary" min="0" />
-              <.input field={@rank_form[:leader]} type="checkbox" label="Leader rank" />
+
+              <.input
+                field={@rank_form[:salary]}
+                type="number"
+                label={dgettext("management", "Salary")}
+                min="0"
+              />
+              <.input
+                field={@rank_form[:leader]}
+                type="checkbox"
+                label={dgettext("management", "Leader rank")}
+              />
               <div class="flex gap-2">
-                <.button id="save-rank" phx-disable-with="Saving...">
-                  {if @rank.id, do: "Update rank", else: "Add rank"}
+                <.button id="save-rank" phx-disable-with={dgettext("management", "Saving...")}>
+                  {if @rank.id,
+                    do: dgettext("management", "Update rank"),
+                    else: dgettext("management", "Add rank")}
                 </.button>
+
                 <.button :if={@rank.id} type="button" id="cancel-rank" phx-click="cancel_rank">
-                  Cancel
+                  {dgettext("management", "Cancel")}
                 </.button>
               </div>
             </.form>

@@ -67,7 +67,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
 
         <:actions>
           <.button :if={@mine} id="enter-gdr" navigate={~p"/g/#{@current_story}/characters/#{@mine}"}>
-            Your character: {@mine.name}
+            {dgettext("player", "Your character:")} {@mine.name}
           </.button>
 
           <.button
@@ -75,7 +75,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
             id="create-character"
             navigate={~p"/g/#{@current_story}/characters/new"}
           >
-            <.icon name="hero-plus" class="size-4" /> Create your character
+            <.icon name="hero-plus" class="size-4" /> {dgettext("player", "Create your character")}
           </.button>
         </:actions>
       </.header>
@@ -85,19 +85,19 @@ defmodule TannhauserGateWeb.GdrLive.Home do
         id="draft-notice"
         class="mt-4 rounded-md border border-warning/40 p-3 text-sm text-warning"
       >
-        This GDR is a draft and only visible to its admin and masters.
+        {dgettext("player", "This GDR is a draft and only visible to its admin and masters.")}
       </p>
 
       <section :if={@boards?} id="announcements" class="mt-8">
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          <.icon name="hero-megaphone" class="size-4" /> Announcements
+          <.icon name="hero-megaphone" class="size-4" /> {dgettext("player", "Announcements")}
           <.link
             :if={MapSet.member?(@permissions, :can_manage_world)}
             id="announcements-manage"
             navigate={~p"/g/#{@current_story}/master/boards"}
             class="ml-auto text-xs font-semibold normal-case tracking-normal text-base-content/60 transition hover:text-primary"
           >
-            <.icon name="hero-pencil-square-micro" class="size-3" /> Manage
+            <.icon name="hero-pencil-square-micro" class="size-3" /> {dgettext("player", "Manage")}
           </.link>
         </h2>
 
@@ -106,7 +106,7 @@ defmodule TannhauserGateWeb.GdrLive.Home do
           id="announcements-empty"
           class="mt-2 text-sm text-base-content/60"
         >
-          No announcements from the masters.
+          {dgettext("player", "No announcements from the masters.")}
         </p>
 
         <ul class="mt-3 space-y-3">
@@ -128,20 +128,24 @@ defmodule TannhauserGateWeb.GdrLive.Home do
                 class="size-4 self-center text-primary"
               />
               <h3 class="font-semibold text-primary">{announcement.title}</h3>
+
               <span
                 :if={new?(announcement, @seen_at)}
                 id={"announcement-#{announcement.id}-new"}
                 class="badge badge-xs badge-accent"
               >
-                new
+                {dgettext("player", "new")}
               </span>
+
               <span class="ml-auto text-xs text-base-content/50">
-                {(announcement.user && announcement.user.username) || "The masters"} · {Calendar.strftime(
+                {(announcement.user && announcement.user.username) ||
+                  dgettext("player", "The masters")} · {Calendar.strftime(
                   announcement.inserted_at,
                   "%d/%m/%Y %H:%M"
                 )}
               </span>
             </header>
+
             <.markdown
               id={"announcement-#{announcement.id}-body"}
               content={announcement.body}
@@ -152,19 +156,20 @@ defmodule TannhauserGateWeb.GdrLive.Home do
       </section>
 
       <section :if={@guide != []} id="gdr-guide" class="mt-8">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Guide</h2>
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+          {dgettext("player", "Guide")}
+        </h2>
 
         <p class="mt-1 text-sm text-base-content/70">
-          The world, its rules and customs.
+          {dgettext("player", "The world, its rules and customs.")}
           <.link
             id="gdr-guide-link"
             navigate={~p"/g/#{@current_story}/guide"}
             class="link link-primary"
           >
-            Read the guide
+            {dgettext("player", "Read the guide")}
           </.link>
         </p>
-
         <.guide_toc id="gdr-guide-toc" story={@current_story} sections={@guide} />
       </section>
 

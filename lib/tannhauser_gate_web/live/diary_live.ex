@@ -22,7 +22,7 @@ defmodule TannhauserGateWeb.DiaryLive do
 
         {:ok,
          socket
-         |> assign(:page_title, "Diary · #{character.name}")
+         |> assign(:page_title, dgettext("player", "Diary · %{name}", name: character.name))
          |> assign(:character, character)
          |> assign(:writer?, Diary.can_write?(user, character))
          |> assign(:deleter?, Diary.can_delete?(user, character))
@@ -34,7 +34,7 @@ defmodule TannhauserGateWeb.DiaryLive do
       _ ->
         {:ok,
          socket
-         |> put_flash(:error, "That character does not exist in this GDR.")
+         |> put_flash(:error, dgettext("player", "That character does not exist in this GDR."))
          |> push_navigate(to: ~p"/g/#{story}/characters")}
     end
   end
@@ -84,7 +84,13 @@ defmodule TannhauserGateWeb.DiaryLive do
       {:ok, saved} ->
         {:noreply,
          socket
-         |> put_flash(:info, if(entry.id, do: "Entry updated", else: "Entry written"))
+         |> put_flash(
+           :info,
+           if(entry.id,
+             do: dgettext("player", "Entry updated"),
+             else: dgettext("player", "Entry written")
+           )
+         )
          |> assign(:editing, nil)
          |> insert_entry(saved, is_nil(entry.id))}
 
@@ -103,7 +109,7 @@ defmodule TannhauserGateWeb.DiaryLive do
          {:ok, _} <- Diary.delete_entry(user, character, entry) do
       {:noreply,
        socket
-       |> put_flash(:info, "Entry deleted")
+       |> put_flash(:info, dgettext("player", "Entry deleted"))
        |> stream_delete(:entries, entry)}
     else
       nil -> {:noreply, put_flash(socket, :error, Diary.error_message(:not_found))}
@@ -146,24 +152,33 @@ defmodule TannhauserGateWeb.DiaryLive do
           navigate={~p"/g/#{@current_story}/characters/#{@character}"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Back to {@character.name}'s sheet
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "player",
+            "Back to %{name}'s sheet",
+            name: @character.name
+          )}
         </.link>
       </div>
 
       <.header>
         <span class="flex items-center gap-3">
           <.avatar character={@character} class="size-12 text-xl" />
-          <span>Diary of {@character.name}</span>
+          <span>{dgettext("player", "Diary of %{name}", name: @character.name)}</span>
         </span>
+
         <:subtitle>
-          In-character pages.
+          {dgettext("player", "In-character pages.")}
           <span :if={@read_all?} id="diary-moderation-note">
-            You see every entry; private ones are shown to the masters only for moderation.
+            {dgettext(
+              "player",
+              "You see every entry; private ones are shown to the masters only for moderation."
+            )}
           </span>
         </:subtitle>
+
         <:actions :if={@writer? and is_nil(@editing)}>
           <.button id="diary-new-entry" phx-click="new_entry">
-            <.icon name="hero-pencil-square" class="size-4" /> New entry
+            <.icon name="hero-pencil-square" class="size-4" /> {dgettext("player", "New entry")}
           </.button>
         </:actions>
       </.header>
@@ -174,8 +189,9 @@ defmodule TannhauserGateWeb.DiaryLive do
         class="mx-auto mt-6 max-w-3xl rounded-xl border border-secondary/30 bg-base-200/80 p-5 shadow-lg transition"
       >
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          {if @editing.id, do: "Edit entry", else: "New entry"}
+          {if @editing.id, do: dgettext("player", "Edit entry"), else: dgettext("player", "New entry")}
         </h2>
+
         <.form
           for={@form}
           id="diary-form"
@@ -184,39 +200,50 @@ defmodule TannhauserGateWeb.DiaryLive do
           class="mt-3"
         >
           <div class="grid gap-x-4 sm:grid-cols-[1fr_12rem]">
-            <.input field={@form[:title]} type="text" label="Title" required maxlength="120" />
+            <.input
+              field={@form[:title]}
+              type="text"
+              label={dgettext("player", "Title")}
+              required
+              maxlength="120"
+            />
             <.input
               field={@form[:game_date_label]}
               type="text"
-              label="In-game date (optional)"
-              placeholder="e.g. 3rd night of rain"
+              label={dgettext("player", "In-game date (optional)")}
+              placeholder={dgettext("player", "e.g. 3rd night of rain")}
               maxlength="80"
             />
           </div>
+
           <.input
             field={@form[:visibility]}
             type="select"
-            label="Who can read it"
+            label={dgettext("player", "Who can read it")}
             options={Diary.visibility_options()}
           />
           <.input
             field={@form[:body]}
             type="textarea"
-            label="Text (Markdown)"
+            label={dgettext("player", "Text (Markdown)")}
             rows="12"
             required
           />
           <div class="flex gap-2">
-            <.button phx-disable-with="Saving..." class="btn btn-primary console-action">
-              Save
+            <.button
+              phx-disable-with={dgettext("player", "Saving...")}
+              class="btn btn-primary console-action"
+            >
+              {dgettext("player", "Save")}
             </.button>
+
             <.button
               id="diary-cancel"
               type="button"
               phx-click="cancel_entry"
               class="btn btn-ghost console-action"
             >
-              Cancel
+              {dgettext("player", "Cancel")}
             </.button>
           </div>
         </.form>
@@ -230,11 +257,13 @@ defmodule TannhauserGateWeb.DiaryLive do
         <div class="notepad-page">
           <ol id="diary-entries" phx-update="stream" class="space-y-10">
             <li id="diary-empty" class="hidden only:block notepad-text opacity-60">
-              The pages are still blank.
+              {dgettext("player", "The pages are still blank.")}
             </li>
+
             <li :for={{dom_id, entry} <- @streams.entries} id={dom_id} class="group">
               <header class="flex flex-wrap items-baseline gap-x-3">
                 <h2 class="notepad-title text-2xl">{entry.title}</h2>
+
                 <span
                   :if={entry.visibility != "public"}
                   id={"#{dom_id}-visibility"}
@@ -246,9 +275,12 @@ defmodule TannhauserGateWeb.DiaryLive do
                   {Diary.visibility_label(entry.visibility)}
                 </span>
               </header>
+
               <p class="notepad-label">
-                <span :if={entry.game_date_label}>{entry.game_date_label} ·</span>
-                written {Calendar.strftime(entry.inserted_at, "%d/%m/%Y %H:%M")}
+                <span :if={entry.game_date_label}>{entry.game_date_label} ·</span> {dgettext(
+                  "player",
+                  "written"
+                )} {Calendar.strftime(entry.inserted_at, "%d/%m/%Y %H:%M")}
               </p>
               <.markdown id={"#{dom_id}-body"} content={entry.body} class="notepad-text mt-2" />
               <div
@@ -263,18 +295,19 @@ defmodule TannhauserGateWeb.DiaryLive do
                   phx-value-id={entry.id}
                   class="underline decoration-dotted underline-offset-4 hover:text-[#1d6b40]"
                 >
-                  Edit
+                  {dgettext("player", "Edit")}
                 </button>
+
                 <button
                   :if={@deleter?}
                   id={"#{dom_id}-delete"}
                   type="button"
                   phx-click="delete_entry"
                   phx-value-id={entry.id}
-                  data-confirm="Tear this page out of the diary?"
+                  data-confirm={dgettext("player", "Tear this page out of the diary?")}
                   class="underline decoration-dotted underline-offset-4 hover:text-error"
                 >
-                  Delete
+                  {dgettext("player", "Delete")}
                 </button>
               </div>
             </li>

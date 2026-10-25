@@ -1,4 +1,6 @@
 defmodule TannhauserGate.Bookings.Booking do
+  use Gettext, backend: TannhauserGateWeb.Gettext
+
   @moduledoc """
   A time slot booked in a private location by a player (through one of their
   playable characters), with the characters they invited.
@@ -45,16 +47,25 @@ defmodule TannhauserGate.Bookings.Booking do
         changeset
 
       DateTime.compare(ends_at, starts_at) != :gt ->
-        add_error(changeset, :ends_at, "must be after the start")
+        add_error(changeset, :ends_at, dgettext_noop("errors", "must be after the start"))
 
       DateTime.compare(ends_at, now) != :gt ->
-        add_error(changeset, :ends_at, "must be in the future")
+        add_error(changeset, :ends_at, dgettext_noop("errors", "must be in the future"))
 
       DateTime.diff(ends_at, starts_at) > @max_hours * 3600 ->
-        add_error(changeset, :ends_at, "a booking can last at most #{@max_hours} hours")
+        add_error(
+          changeset,
+          :ends_at,
+          dgettext_noop("errors", "a booking can last at most %{max_hours} hours"),
+          max_hours: @max_hours
+        )
 
       DateTime.diff(starts_at, now, :day) > 30 ->
-        add_error(changeset, :starts_at, "can be at most 30 days from now")
+        add_error(
+          changeset,
+          :starts_at,
+          dgettext_noop("errors", "can be at most 30 days from now")
+        )
 
       true ->
         changeset

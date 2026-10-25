@@ -1,4 +1,5 @@
 defmodule TannhauserGate.Bank.Job do
+  use Gettext, backend: TannhauserGateWeb.Gettext
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -25,7 +26,7 @@ defmodule TannhauserGate.Bank.Job do
     |> validate_number(:pay, greater_than_or_equal_to: 0, less_than_or_equal_to: 1_000_000_000)
     |> unique_constraint([:story_id, :name],
       name: :jobs_story_id_name_index,
-      message: "already exists"
+      message: dgettext_noop("errors", "already exists")
     )
   end
 end

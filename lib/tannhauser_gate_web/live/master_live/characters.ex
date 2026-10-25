@@ -21,7 +21,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
 
     {:ok,
      socket
-     |> assign(:page_title, "Character dashboard")
+     |> assign(:page_title, dgettext("management", "Character dashboard"))
      |> assign(:approver?, MapSet.member?(socket.assigns.permissions, :can_approve_characters))
      |> assign(:awarder?, MapSet.member?(socket.assigns.permissions, :can_award_xp))
      |> assign(:states, Characters.list_states(story))
@@ -49,7 +49,10 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
   defp award_options(story_id) do
     story_id
     |> Characters.list_story_characters(%{})
-    |> Enum.map(&{if(&1.is_npc, do: "#{&1.name} (NPC)", else: &1.name), &1.id})
+    |> Enum.map(
+      &{if(&1.is_npc, do: dgettext("management", "%{name} (NPC)", name: &1.name), else: &1.name),
+       &1.id}
+    )
   end
 
   defp load_queue(socket) do
@@ -118,7 +121,8 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
     with true <- socket.assigns.approver? || {:error, :unauthorized},
          {:ok, character} <- fetch_character(socket, id),
          {:ok, _} <- Characters.set_state(character, state_id) do
-      {:noreply, socket |> put_flash(:info, "State updated") |> load_characters()}
+      {:noreply,
+       socket |> put_flash(:info, dgettext("management", "State updated")) |> load_characters()}
     else
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, Characters.approval_error_message(reason))}
@@ -136,7 +140,13 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
            ) do
       {:noreply,
        socket
-       |> put_flash(:info, "#{character.name}: #{entry.amount} XP recorded")
+       |> put_flash(
+         :info,
+         dgettext("management", "%{character_name}: %{entry_amount} XP recorded",
+           character_name: character.name,
+           entry_amount: entry.amount
+         )
+       )
        |> assign(
          :award_form,
          to_form(%{"character_id" => "", "amount" => "", "reason" => ""}, as: :award)
@@ -191,23 +201,31 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
           navigate={~p"/g/#{@current_story}/master"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
-          <.icon name="hero-arrow-left-solid" class="size-3" /> Master tools
+          <.icon name="hero-arrow-left-solid" class="size-3" /> {dgettext(
+            "management",
+            "Master tools"
+          )}
         </.link>
       </div>
 
       <.header>
-        Character dashboard
-        <:subtitle>Review, approve and run every character of {@current_story.name}.</:subtitle>
+        {dgettext("management", "Character dashboard")}
+        <:subtitle>
+          {dgettext("management", "Review, approve and run every character of %{current_story_name}.",
+            current_story_name: @current_story.name
+          )}
+        </:subtitle>
+
         <:actions>
           <.button id="new-npc" navigate={~p"/g/#{@current_story}/master/npcs/new"}>
-            <.icon name="hero-user-plus" class="size-4" /> New NPC
+            <.icon name="hero-user-plus" class="size-4" /> {dgettext("management", "New NPC")}
           </.button>
         </:actions>
       </.header>
 
       <section :if={@approver?} id="approval-queue-section" class="mt-8">
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          Approval queue
+          {dgettext("management", "Approval queue")}
           <span id="approval-queue-count" class="badge badge-sm badge-info badge-soft">
             {@queue_count}
           </span>
@@ -215,8 +233,9 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
 
         <ul id="approval-queue" phx-update="stream" class="mt-3 grid gap-4 lg:grid-cols-2">
           <li id="approval-queue-empty" class="hidden text-sm text-base-content/60 only:block">
-            No characters waiting for approval.
+            {dgettext("management", "No characters waiting for approval.")}
           </li>
+
           <li
             :for={{dom_id, character} <- @streams.queue}
             id={dom_id}
@@ -231,7 +250,13 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                 >
                   {character.name}
                 </.link>
-                <p class="text-xs text-base-content/60">by {character.user.username}</p>
+
+                <p class="text-xs text-base-content/60">
+                  {dgettext("management", "by %{character_user_username}",
+                    character_user_username: character.user.username
+                  )}
+                </p>
+
                 <p
                   :if={@origins[character.id]}
                   id={"queue-origins-#{character.id}"}
@@ -243,26 +268,31 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                       "badge badge-xs badge-soft",
                       if(option.requires_approval, do: "badge-warning", else: "badge-secondary")
                     ]}
-                    title={if option.requires_approval, do: "Requires master approval"}
+                    title={
+                      if option.requires_approval,
+                        do: dgettext("management", "Requires master approval")
+                    }
                   >
                     <.icon
                       :if={option.requires_approval}
                       name="hero-shield-exclamation-micro"
                       class="size-3"
-                    />
-                    {option.name}
+                    /> {option.name}
                   </span>
                 </p>
               </div>
             </div>
 
             <form id={"review-form-#{character.id}"} phx-submit="review" class="mt-3 space-y-2">
-              <input type="hidden" name="character_id" value={character.id} />
-              <textarea
+              <input type="hidden" name="character_id" value={character.id} /> <textarea
                 name="review[notes]"
                 rows="2"
-                placeholder="Notes for the player (required to reject)"
-                aria-label={"Review notes for #{character.name}"}
+                placeholder={dgettext("management", "Notes for the player (required to reject)")}
+                aria-label={
+                  dgettext("management", "Review notes for %{character_name}",
+                    character_name: character.name
+                  )
+                }
                 class="textarea console-field w-full text-sm"
               ></textarea>
               <div class="flex gap-2">
@@ -272,15 +302,16 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                   value="approve"
                   class="btn btn-success btn-sm console-action"
                 >
-                  Approve
+                  {dgettext("management", "Approve")}
                 </button>
+
                 <button
                   id={"reject-#{character.id}"}
                   name="decision"
                   value="reject"
                   class="btn btn-error btn-outline btn-sm console-action"
                 >
-                  Reject
+                  {dgettext("management", "Reject")}
                 </button>
               </div>
             </form>
@@ -290,7 +321,8 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
 
       <section id="all-characters" class="mt-10">
         <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-          All characters <span class="text-base-content/50">({@characters_count})</span>
+          {dgettext("management", "All characters")}
+          <span class="text-base-content/50">({@characters_count})</span>
         </h2>
 
         <.form
@@ -302,23 +334,28 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
           <.input
             field={@filter_form[:approval_status]}
             type="select"
-            label="Approval"
-            prompt="Any"
+            label={dgettext("management", "Approval")}
+            prompt={dgettext("management", "Any")}
             options={Enum.map(Character.approval_statuses(), &{Characters.approval_label(&1), &1})}
           />
           <.input
             field={@filter_form[:state_id]}
             type="select"
-            label="State"
-            prompt="Any"
-            options={[{"No state", "none"} | Enum.map(@states, &{&1.name, &1.id})]}
+            label={dgettext("management", "State")}
+            prompt={dgettext("management", "Any")}
+            options={[
+              {dgettext("management", "No state"), "none"} | Enum.map(@states, &{&1.name, &1.id})
+            ]}
           />
           <.input
             field={@filter_form[:npc]}
             type="select"
-            label="Kind"
-            prompt="Any"
-            options={[{"Players", "false"}, {"NPCs", "true"}]}
+            label={dgettext("management", "Kind")}
+            prompt={dgettext("management", "Any")}
+            options={[
+              {dgettext("management", "Players"), "false"},
+              {dgettext("management", "NPCs"), "true"}
+            ]}
           />
         </.form>
 
@@ -326,18 +363,27 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
           <table class="table table-sm">
             <thead>
               <tr>
-                <th>Character</th>
-                <th>Player</th>
-                <th>Approval</th>
-                <th>State</th>
-                <th>XP</th>
-                <th><span class="sr-only">Actions</span></th>
+                <th>{dgettext("management", "Character")}</th>
+
+                <th>{dgettext("management", "Player")}</th>
+
+                <th>{dgettext("management", "Approval")}</th>
+
+                <th>{dgettext("management", "State")}</th>
+
+                <th>{dgettext("management", "XP")}</th>
+
+                <th><span class="sr-only">{dgettext("management", "Actions")}</span></th>
               </tr>
             </thead>
+
             <tbody id="master-characters" phx-update="stream">
               <tr id="master-characters-empty" class="hidden only:table-row">
-                <td colspan="6" class="text-center text-base-content/60">No matching characters.</td>
+                <td colspan="6" class="text-center text-base-content/60">
+                  {dgettext("management", "No matching characters.")}
+                </td>
               </tr>
+
               <tr
                 :for={{dom_id, character} <- @streams.characters}
                 id={dom_id}
@@ -350,7 +396,11 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                   >
                     {character.name}
                   </.link>
-                  <span :if={character.is_npc} class="badge badge-xs badge-secondary ml-1">NPC</span>
+
+                  <span :if={character.is_npc} class="badge badge-xs badge-secondary ml-1">{dgettext(
+                    "management",
+                    "NPC"
+                  )}</span>
                   <p
                     :if={@origins[character.id]}
                     id={"character-origins-#{character.id}"}
@@ -359,14 +409,17 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                     {Enum.map_join(@origins[character.id], " · ", & &1.name)}
                   </p>
                 </td>
+
                 <td class="text-base-content/70">
                   {if character.is_npc, do: "—", else: character.user.username}
                 </td>
+
                 <td>
                   <span class={["badge badge-sm badge-soft", status_badge(character.approval_status)]}>
                     {Characters.approval_label(character.approval_status)}
                   </span>
                 </td>
+
                 <td>
                   <form
                     :if={@approver?}
@@ -376,26 +429,42 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                     <input type="hidden" name="character_id" value={character.id} />
                     <select
                       name="character_state[state_id]"
-                      aria-label={"State of #{character.name}"}
+                      aria-label={
+                        dgettext("management", "State of %{character_name}",
+                          character_name: character.name
+                        )
+                      }
                       class="select select-xs console-field"
                     >
-                      <option value="" selected={is_nil(character.state_id)}>No state</option>
+                      <option value="" selected={is_nil(character.state_id)}>
+                        {dgettext("management", "No state")}
+                      </option>
+
                       <option
                         :for={state <- @states}
                         value={state.id}
                         selected={state.id == character.state_id}
                       >
-                        {state.name}{if state.can_play, do: "", else: " (cannot play)"}
+                        {state.name}{if state.can_play,
+                          do: "",
+                          else: dgettext("management", " (cannot play)")}
                       </option>
                     </select>
                   </form>
+
                   <span :if={!@approver?} class="text-sm text-base-content/70">
                     {Enum.find_value(@states, "—", &(&1.id == character.state_id && &1.name))}
                   </span>
                 </td>
-                <td id={"xp-#{character.id}"} class="tabular-nums" title="Available / earned">
+
+                <td
+                  id={"xp-#{character.id}"}
+                  class="tabular-nums"
+                  title={dgettext("management", "Available / earned")}
+                >
                   {xp_cell(@xp_totals, character.id)}
                 </td>
+
                 <td class="space-x-3 text-right whitespace-nowrap">
                   <.link
                     :if={!character.is_npc}
@@ -403,14 +472,15 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                     navigate={~p"/g/#{@current_story}/mail/new?to=#{character.id}"}
                     class="text-sm font-semibold text-secondary hover:text-primary"
                   >
-                    Message owner
+                    {dgettext("management", "Message owner")}
                   </.link>
+
                   <.link
                     id={"edit-#{character.id}"}
                     navigate={~p"/g/#{@current_story}/characters/#{character}/edit"}
                     class="text-sm font-semibold text-secondary hover:text-primary"
                   >
-                    Edit sheet
+                    {dgettext("management", "Edit sheet")}
                   </.link>
                 </td>
               </tr>
@@ -421,30 +491,41 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
 
       <section id="experience-section" class="mt-10 grid gap-6 lg:grid-cols-2">
         <div :if={@awarder?}>
-          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Award XP</h2>
+          <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+            {dgettext("management", "Award XP")}
+          </h2>
+
           <.form for={@award_form} id="xp-award-form" phx-submit="award_xp" class="mt-3">
             <.input
               field={@award_form[:character_id]}
               type="select"
-              label="Character"
-              prompt="Choose a character"
+              label={dgettext("management", "Character")}
+              prompt={dgettext("management", "Choose a character")}
               options={@award_options}
               required
             />
             <.input
               field={@award_form[:amount]}
               type="number"
-              label="Amount (negative to correct)"
+              label={dgettext("management", "Amount (negative to correct)")}
               required
             />
-            <.input field={@award_form[:reason]} type="text" label="Reason" required />
-            <.button variant="primary" id="award-xp">Record XP</.button>
+            <.input
+              field={@award_form[:reason]}
+              type="text"
+              label={dgettext("management", "Reason")}
+              required
+            />
+            <.button variant="primary" id="award-xp">{dgettext("management", "Record XP")}</.button>
           </.form>
         </div>
 
         <div>
           <div class="flex items-center justify-between gap-3">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">XP log</h2>
+            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
+              {dgettext("management", "XP log")}
+            </h2>
+
             <.form
               for={@xp_source_form}
               id="xp-log-filter"
@@ -454,18 +535,22 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
               <.input
                 field={@xp_source_form[:source]}
                 type="select"
-                aria-label="Show"
+                aria-label={dgettext("management", "Show")}
                 options={[
-                  {"All entries", "all"},
-                  {"Manual only", "manual"},
-                  {"Automatic only", "auto"}
+                  {dgettext("management", "All entries"), "all"},
+                  {dgettext("management", "Manual only"), "manual"},
+                  {dgettext("management", "Automatic only"), "auto"}
                 ]}
                 class="select select-sm w-full"
               />
             </.form>
           </div>
+
           <ul id="story-xp-log" class="mt-3 space-y-1 text-sm">
-            <li :if={@xp_log == []} class="text-base-content/60">No XP recorded yet.</li>
+            <li :if={@xp_log == []} class="text-base-content/60">
+              {dgettext("management", "No XP recorded yet.")}
+            </li>
+
             <li :for={entry <- @xp_log} id={"story-xp-#{entry.id}"} class="flex gap-3">
               <span class="w-12 shrink-0 text-right font-bold tabular-nums">{xp_amount(entry)}</span>
               <span class="min-w-0 flex-1">
@@ -475,9 +560,10 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                   :if={entry.source == "auto"}
                   class="ml-1 rounded bg-info/15 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-info"
                 >
-                  Auto
+                  {dgettext("management", "Auto")}
                 </span>
               </span>
+
               <time
                 class="shrink-0 text-xs text-base-content/60"
                 datetime={DateTime.to_iso8601(entry.inserted_at)}
@@ -504,7 +590,14 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
   defp xp_amount(%{amount: amount}), do: "−#{abs(amount)}"
 
   defp xp_description(%{kind: "spend"} = entry),
-    do: "spent on #{entry.item_name}: #{entry.from_value} → #{entry.to_value}"
+    do:
+      dgettext(
+        "management",
+        "spent on %{entry_item_name}: %{entry_from_value} → %{entry_to_value}",
+        entry_item_name: entry.item_name,
+        entry_from_value: entry.from_value,
+        entry_to_value: entry.to_value
+      )
 
   defp xp_description(entry) do
     by = if entry.author, do: " (#{entry.author.username})", else: ""

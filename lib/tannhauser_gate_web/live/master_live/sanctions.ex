@@ -18,7 +18,7 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Sanctions")}
+    {:ok, assign(socket, :page_title, dgettext("management", "Sanctions"))}
   end
 
   @impl true
@@ -96,7 +96,12 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
          socket
          |> put_flash(
            :info,
-           "#{String.capitalize(sanction.kind)} issued to #{User.handle(sanction.user)}."
+           dgettext(
+             "management",
+             "%{string_capitalize_sanction_kind} issued to %{user_handle_sanction_user}.",
+             string_capitalize_sanction_kind: sanction_kind_label(sanction.kind),
+             user_handle_sanction_user: User.handle(sanction.user)
+           )
          )
          |> push_patch(to: self_path(socket, [{"user_id", sanction.user_id}]))}
 
@@ -120,7 +125,7 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
          {:ok, sanction} <- Sanctions.revoke(user, story, sanction) do
       {:noreply,
        socket
-       |> put_flash(:info, "Sanction revoked.")
+       |> put_flash(:info, dgettext("management", "Sanction revoked."))
        |> stream_insert(:sanctions, sanction)}
     else
       {:error, reason} -> {:noreply, put_flash(socket, :error, Sanctions.error_message(reason))}
@@ -129,6 +134,10 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
 
   defp revocable?(%Sanction{kind: "warning"}), do: false
   defp revocable?(%Sanction{} = s), do: Sanction.active?(s, DateTime.utc_now())
+
+  defp sanction_kind_label("warning"), do: dgettext("management", "Warning")
+  defp sanction_kind_label("mute"), do: dgettext("management", "Mute")
+  defp sanction_kind_label("ban"), do: dgettext("management", "Ban")
 
   @impl true
   def render(assigns) do
@@ -147,23 +156,28 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
       announcements_unread={@announcements_unread}
     >
       <.header>
-        Sanctions
+        {dgettext("management", "Sanctions")}
         <:subtitle>
-          Warnings, mutes and bans of {@current_story.name}. Muted members cannot write; banned
-          members cannot enter. Sanctions are never deleted: revoke them instead.
+          {dgettext(
+            "management",
+            "Warnings, mutes and bans of %{current_story_name}. Muted members cannot write; banned members cannot enter. Sanctions are never deleted: revoke them instead.",
+            current_story_name: @current_story.name
+          )}
         </:subtitle>
+
         <:actions>
           <.link
             navigate={~p"/g/#{@current_story}/master/reports"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-flag" class="size-4" /> Reports
+            <.icon name="hero-flag" class="size-4" /> {dgettext("management", "Reports")}
           </.link>
+
           <.link
             navigate={~p"/g/#{@current_story}/master"}
             class="btn btn-ghost btn-sm console-action"
           >
-            <.icon name="hero-arrow-left" class="size-4" /> Master tools
+            <.icon name="hero-arrow-left" class="size-4" /> {dgettext("management", "Master tools")}
           </.link>
         </:actions>
       </.header>
@@ -171,8 +185,9 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
       <div class="mt-8 grid gap-8 lg:grid-cols-[22rem_1fr]">
         <section>
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
-            Issue a sanction
+            {dgettext("management", "Issue a sanction")}
           </h2>
+
           <.form
             for={@form}
             id="sanction-form"
@@ -185,31 +200,53 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
               :if={@form[:report_id].value not in [nil, ""]}
               class="mb-2 text-xs text-base-content/60"
             >
-              <.icon name="hero-flag" class="size-3" /> Linked to report #{@form[:report_id].value}
+              <.icon name="hero-flag" class="size-3" /> {dgettext(
+                "management",
+                "Linked to report #%{form__report_id__value}",
+                form__report_id__value: @form[:report_id].value
+              )}
             </p>
-            <.input field={@form[:username]} type="text" label="Username" required />
+
+            <.input
+              field={@form[:username]}
+              type="text"
+              label={dgettext("management", "Username")}
+              required
+            />
             <.input
               field={@form[:kind]}
               type="select"
-              label="Kind"
-              options={[{"Warning", "warning"}, {"Mute", "mute"}, {"Ban", "ban"}]}
+              label={dgettext("management", "Kind")}
+              options={[
+                {dgettext("management", "Warning"), "warning"},
+                {dgettext("management", "Mute"), "mute"},
+                {dgettext("management", "Ban"), "ban"}
+              ]}
             />
             <.input
               :if={@form[:kind].value != "warning"}
               field={@form[:duration]}
               type="select"
-              label="Duration"
+              label={dgettext("management", "Duration")}
               options={Sanctions.duration_options()}
             />
-            <.input field={@form[:reason]} type="textarea" rows="3" label="Reason" required />
+            <.input
+              field={@form[:reason]}
+              type="textarea"
+              rows="3"
+              label={dgettext("management", "Reason")}
+              required
+            />
             <div class="flex justify-end">
               <.button
                 id="issue-sanction"
                 class="btn btn-error btn-sm console-action"
-                phx-disable-with="Issuing..."
-                data-confirm="Issue this sanction? The member will be notified."
+                phx-disable-with={dgettext("management", "Issuing...")}
+                data-confirm={
+                  dgettext("management", "Issue this sanction? The member will be notified.")
+                }
               >
-                <.icon name="hero-no-symbol" class="size-4" /> Issue
+                <.icon name="hero-no-symbol" class="size-4" /> {dgettext("management", "Issue")}
               </.button>
             </div>
           </.form>
@@ -219,30 +256,37 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
           <div class="flex flex-wrap items-end justify-between gap-3">
             <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">
               <%= if @history_user do %>
-                History of {User.handle(@history_user)}
+                {dgettext("management", "History of %{user_handle__history_user}",
+                  user_handle__history_user: User.handle(@history_user)
+                )}
                 <.link
                   id="clear-user-filter"
                   patch={~p"/g/#{@current_story}/master/sanctions"}
                   class="ml-2 normal-case tracking-normal text-xs font-normal text-base-content/60 hover:underline"
                 >
-                  (everyone)
+                  {dgettext("management", "(everyone)")}
                 </.link>
               <% else %>
-                Audit log
+                {dgettext("management", "Audit log")}
               <% end %>
             </h2>
+
             <.form for={@filter_form} id="sanctions-filters" phx-change="filter" class="flex gap-2">
               <.input
                 field={@filter_form[:kind]}
                 type="select"
-                prompt="Any kind"
-                options={[{"Warning", "warning"}, {"Mute", "mute"}, {"Ban", "ban"}]}
+                prompt={dgettext("management", "Any kind")}
+                options={[
+                  {dgettext("management", "Warning"), "warning"},
+                  {dgettext("management", "Mute"), "mute"},
+                  {dgettext("management", "Ban"), "ban"}
+                ]}
               />
               <.input
                 field={@filter_form[:status]}
                 type="select"
-                prompt="Any status"
-                options={[{"Active", "active"}]}
+                prompt={dgettext("management", "Any status")}
+                options={[{dgettext("management", "Active"), "active"}]}
               />
             </.form>
           </div>
@@ -252,7 +296,7 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
             id="sanctions-empty"
             class="mt-6 text-center text-base-content/60"
           >
-            No sanctions.
+            {dgettext("management", "No sanctions.")}
           </p>
 
           <ul id="sanctions" phx-update="stream" class="mt-3 space-y-3">
@@ -272,33 +316,52 @@ defmodule TannhauserGateWeb.MasterLive.Sanctions do
                 >
                   {User.handle(sanction.user)}
                 </.link>
+
                 <span id={"sanction-#{sanction.id}-status"} class="text-xs text-base-content/60">
                   {Sanctions.status_label(sanction)}
                 </span>
+
                 <button
                   :if={revocable?(sanction)}
                   type="button"
                   id={"revoke-sanction-#{sanction.id}"}
                   phx-click="revoke"
                   phx-value-id={sanction.id}
-                  data-confirm="Revoke this sanction?"
+                  data-confirm={dgettext("management", "Revoke this sanction?")}
                   class="btn btn-ghost btn-xs console-action ml-auto"
                 >
-                  <.icon name="hero-arrow-uturn-left" class="size-3" /> Revoke
+                  <.icon name="hero-arrow-uturn-left" class="size-3" /> {dgettext(
+                    "management",
+                    "Revoke"
+                  )}
                 </button>
               </div>
+
               <p class="mt-2 whitespace-pre-line text-sm text-base-content/80">{sanction.reason}</p>
+
               <p class="mt-2 text-xs text-base-content/50">
-                Issued by {User.handle(sanction.issued_by)} on {Sanctions.format(sanction.starts_at)}
+                {dgettext(
+                  "management",
+                  "Issued by %{user_handle_sanction_issued_by} on %{sanctions_format_sanction_starts_at}",
+                  user_handle_sanction_issued_by: User.handle(sanction.issued_by),
+                  sanctions_format_sanction_starts_at: Sanctions.format(sanction.starts_at)
+                )}
                 <span :if={sanction.kind != "warning"}>
                   · {if(sanction.ends_at,
-                    do: "ends #{Sanctions.format(sanction.ends_at)}",
-                    else: "permanent"
+                    do:
+                      dgettext("management", "ends %{sanctions_format_sanction_ends_at}",
+                        sanctions_format_sanction_ends_at: Sanctions.format(sanction.ends_at)
+                      ),
+                    else: dgettext("management", "permanent")
                   )}
                 </span>
+
                 <span :if={sanction.revoked_at}>
-                  · revoked by {User.handle(sanction.revoked_by)} on {Sanctions.format(
-                    sanction.revoked_at
+                  {dgettext(
+                    "management",
+                    "· revoked by %{user_handle_sanction_revoked_by} on %{value}",
+                    user_handle_sanction_revoked_by: User.handle(sanction.revoked_by),
+                    value: Sanctions.format(sanction.revoked_at)
                   )}
                 </span>
               </p>
