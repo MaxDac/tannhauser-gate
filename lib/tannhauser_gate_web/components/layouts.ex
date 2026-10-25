@@ -72,6 +72,14 @@ defmodule TannhauserGateWeb.Layouts do
     default: nil,
     doc: "the user's last chat room in the GDR, for the \"Return to chat\" link"
 
+  attr :my_characters, :list,
+    default: [],
+    doc: "the user's player characters in the GDR (see `TannhauserGateWeb.GdrPresence`)"
+
+  attr :active_character, :map,
+    default: nil,
+    doc: "the character the user is playing in the GDR, among `my_characters`"
+
   slot :inner_block, required: true
 
   def app(%{current_user: nil} = assigns) do
@@ -148,6 +156,11 @@ defmodule TannhauserGateWeb.Layouts do
           >
             {@current_story.name}
           </p>
+          <.active_character_form
+            :if={@current_story && @active_character && length(@my_characters) > 1}
+            characters={@my_characters}
+            active={@active_character}
+          />
           <.game_clock
             :if={story_calendar(@current_story)}
             id="drawer-game-clock"
@@ -477,6 +490,44 @@ defmodule TannhauserGateWeb.Layouts do
       </div>
     </div>
     <.flash_group flash={@flash} />
+    """
+  end
+
+  # The selector of the character the user is playing in the GDR, shown when
+  # they have more than one (handled by `TannhauserGateWeb.GdrPresence`).
+  attr :characters, :list, required: true
+  attr :active, :map, required: true
+
+  defp active_character_form(assigns) do
+    assigns =
+      assign(assigns,
+        form: to_form(%{"character_id" => to_string(assigns.active.id)}, as: :active),
+        options: Enum.map(assigns.characters, &{&1.name, to_string(&1.id)})
+      )
+
+    ~H"""
+    <.form
+      for={@form}
+      id="active-character-form"
+      phx-change="set_active_character"
+      class="group -mt-4 flex items-center gap-2 rounded-md border border-secondary/20 bg-ink/40 px-2 py-1 transition-colors hover:border-primary/50"
+    >
+      <.icon
+        name="hero-identification"
+        class="size-4 shrink-0 text-secondary transition-colors group-hover:text-primary"
+      />
+      <div class="min-w-0 flex-1 [&_.fieldset]:mb-0 [&_.fieldset]:p-0">
+        <.input
+          field={@form[:character_id]}
+          id="active-character"
+          type="select"
+          aria-label="Playing as"
+          title="Playing as"
+          options={@options}
+          class="select select-xs w-full border-none bg-transparent text-xs font-semibold text-fog-200 focus:outline-none"
+        />
+      </div>
+    </.form>
     """
   end
 

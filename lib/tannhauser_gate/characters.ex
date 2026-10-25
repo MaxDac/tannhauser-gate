@@ -1,8 +1,12 @@
 defmodule TannhauserGate.Characters do
   @moduledoc """
   Characters of a story (GDR). Player characters belong to a user, who can have
-  only one per GDR; NPCs belong to the GDR and are created and played by its
-  masters. Attributes, skills and powers are numeric values for the sheet items
+  up to `story.max_characters_per_user` of them per GDR (1 by default); NPCs
+  belong to the GDR, are created and played by its masters and never count
+  towards that limit. With more than one character, the user picks the one
+  they are playing (the *active character*, `active_character/2`): the pages
+  acting as the character (bank, jobs, market, guilds, chat, mail, forum and
+  presence) default to it. Attributes, skills and powers are numeric values for the sheet items
   defined by the GDR admin.
 
   Player characters start as drafts and must be approved by a master before
@@ -14,7 +18,7 @@ defmodule TannhauserGate.Characters do
 
   alias Ecto.Multi
   alias TannhauserGate.Accounts.User
-  alias TannhauserGate.Characters.{Character, State}
+  alias TannhauserGate.Characters.{ActiveCharacter, Character, State}
   alias TannhauserGate.Items
   alias TannhauserGate.Origins
   alias TannhauserGate.Repo
@@ -100,13 +104,155 @@ defmodule TannhauserGate.Characters do
     Repo.all(query)
   end
 
-  @doc "The (single) player character of the user in the given story, if any."
-  def get_user_story_character(%User{id: user_id}, story_id) do
-    Repo.one(
-      from c in Character,
-        where: c.user_id == ^user_id and c.story_id == ^story_id and not c.is_npc,
-        preload: [:state]
+  @doc "The number of player characters (NPCs excluded) of the user in the story."
+  def count_user_characters(%User{id: user_id}, story_id) do
+    Repo.aggregate(
+      from(c in Character,
+        where: c.user_id == ^user_id and c.story_id == ^story_id and not c.is_npc
+      ),
+      :count
     )
+  end
+
+  @doc """
+  Whether the user can create another player character in the story: they
+  have fewer than `story.max_characters_per_user` of them (whatever their
+  status: drafts, rejected and dead characters count too).
+  """
+  def can_create_character?(%User{} = user, %Story{} = story),
+    do: count_user_characters(user, story.id) < max_characters(story)
+
+  defp max_characters(%Story{max_characters_per_user: max}) when is_integer(max), do: max
+  defp max_characters(_), do: 1
+
+  ## Active character
+
+  @doc """
+  The character the user is playing in the story: the one they picked with
+  `set_active_character/2` or, by default, their most recently updated
+  playable character, then any of their characters. `nil` when the user has
+  no player character in the story. The state is preloaded.
+  """
+  def active_character(user, story)
+  def active_character(%User{} = user, %Story{id: story_id}), do: active_character(user, story_id)
+
+  def active_character(%User{} = user, story_id) when is_integer(story_id) do
+    user |> list_user_characters(story_id) |> pick_active(stored_active_id(user, story_id))
+  end
+
+  def active_character(_, _), do: nil
+
+  @doc """
+  The player characters of the user in the story and the active one among
+  them, in a single round trip: `{characters, active | nil}`.
+  """
+  def user_characters_with_active(%User{} = user, story_id) when is_integer(story_id) do
+    characters = list_user_characters(user, story_id)
+    {characters, pick_active(characters, stored_active_id(user, story_id))}
+  end
+
+  defp stored_active_id(%User{id: user_id}, story_id) do
+    Repo.one(
+      from a in ActiveCharacter,
+        where: a.user_id == ^user_id and a.story_id == ^story_id,
+        select: a.character_id
+    )
+  end
+
+  defp pick_active([], _id), do: nil
+
+  defp pick_active(characters, id) do
+    Enum.find(characters, &(&1.id == id)) ||
+      characters |> Enum.filter(&can_play?/1) |> most_recent() ||
+      most_recent(characters)
+  end
+
+  defp most_recent([]), do: nil
+
+  defp most_recent(characters),
+    do: Enum.max_by(characters, &{DateTime.to_unix(&1.updated_at), &1.id})
+
+  @doc """
+  Makes `character` the active character of `user` in its GDR. Only the owner
+  of a player character can pick it (`{:error, :unauthorized}` otherwise).
+  """
+  def set_active_character(%User{id: user_id}, %Character{is_npc: false, user_id: user_id} = c) do
+    now = DateTime.utc_now(:second)
+
+    Repo.insert_all(
+      ActiveCharacter,
+      [
+        %{
+          user_id: user_id,
+          story_id: c.story_id,
+          character_id: c.id,
+          inserted_at: now,
+          updated_at: now
+        }
+      ],
+      on_conflict: [set: [character_id: c.id, updated_at: now]],
+      conflict_target: [:user_id, :story_id]
+    )
+
+    {:ok, c}
+  end
+
+  def set_active_character(_, _), do: {:error, :unauthorized}
+
+  @doc """
+  Moves the active character of the user (if among `characters`) to the
+  front of the list, so that selectors default to it.
+  """
+  def active_first(characters, %User{} = user, story_id) do
+    own = Enum.filter(characters, &(not &1.is_npc and &1.user_id == user.id))
+
+    if length(own) > 1 do
+      case active_character(user, story_id) do
+        nil -> characters
+        active -> Enum.sort_by(characters, &(&1.id != active.id))
+      end
+    else
+      characters
+    end
+  end
+
+  @doc """
+  Whether two characters are alts: different player characters of the same
+  user. NPCs are never alts.
+  """
+  def alts?(%Character{is_npc: false, user_id: user_id, id: a}, %Character{
+        is_npc: false,
+        user_id: user_id,
+        id: b
+      })
+      when a != b,
+      do: true
+
+  def alts?(_, _), do: false
+
+  @alt_rules [:block_alt_transfers, :block_alt_mail, :block_alt_whispers]
+
+  @doc """
+  Whether the GDR of `a` forbids the interaction `rule` (one of
+  `:block_alt_transfers`, `:block_alt_mail` and `:block_alt_whispers`, story
+  settings) between `a` and `b` because they are alts (`alts?/2`).
+  """
+  def alts_blocked?(rule, %Character{} = a, %Character{} = b) when rule in @alt_rules,
+    do: alts?(a, b) and alt_rule?(a, rule)
+
+  # Read fresh: a preloaded story may predate the GM's last change.
+  defp alt_rule?(%Character{story_id: story_id}, rule) do
+    case Stories.get_story(story_id) do
+      %Story{} = story -> Map.get(story, rule) == true
+      nil -> false
+    end
+  end
+
+  @doc "Drops from `characters` the alts of `character` when the GDR `rule` blocks them."
+  def reject_blocked_alts(characters, rule, %Character{} = character) when rule in @alt_rules do
+    if Enum.any?(characters, &alts?(character, &1)) and alt_rule?(character, rule),
+      do: Enum.reject(characters, &alts?(character, &1)),
+      else: characters
   end
 
   def get_character!(id),
@@ -166,8 +312,36 @@ defmodule TannhauserGate.Characters do
       |> put_default_state()
 
     {changeset, attrs} = apply_budgets(changeset, attrs, %{})
-    insert_with_traits(changeset, attrs, avatar_path)
+
+    insert_with_traits(changeset, attrs, avatar_path, fn repo ->
+      check_character_limit(repo, user, changeset)
+    end)
   end
+
+  # Serializes the creations of the same user in the same GDR with a
+  # transaction-scoped advisory lock, then counts their player characters
+  # (every status: drafts and rejected ones count too) against the limit.
+  defp check_character_limit(repo, user, changeset) do
+    with story_id when is_integer(story_id) <- Ecto.Changeset.get_field(changeset, :story_id),
+         %Story{} = story <- Stories.get_story(story_id) do
+      repo.query!("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [
+        "character_limit:#{user.id}:#{story_id}"
+      ])
+
+      max = max_characters(story)
+
+      if count_user_characters(user, story_id) < max,
+        do: {:ok, :ok},
+        else: {:error, Ecto.Changeset.add_error(changeset, :story_id, limit_message(max))}
+    else
+      _ -> {:ok, :ok}
+    end
+  end
+
+  defp limit_message(1), do: "you already have a character in this GDR"
+
+  defp limit_message(max),
+    do: "you already have the maximum number of characters in this GDR (#{max})"
 
   @doc """
   Creates an NPC of `story`. Only its masters (and GDR/platform admins) can
@@ -192,7 +366,7 @@ defmodule TannhauserGate.Characters do
     end
   end
 
-  defp insert_with_traits(changeset, attrs, avatar_path) do
+  defp insert_with_traits(changeset, attrs, avatar_path, check \\ fn _repo -> {:ok, :ok} end) do
     changeset =
       changeset
       |> maybe_put_avatar(avatar_path)
@@ -200,6 +374,12 @@ defmodule TannhauserGate.Characters do
       |> Origins.validate_choices(attrs)
 
     Multi.new()
+    |> Multi.run(:limit, fn repo, _ ->
+      case check.(repo) do
+        {:error, changeset} -> {:error, %{changeset | action: :insert}}
+        ok -> ok
+      end
+    end)
     |> Multi.insert(:character, changeset)
     |> Multi.run(:traits, fn repo, %{character: character} ->
       save_traits(repo, character, attrs)
@@ -471,11 +651,15 @@ defmodule TannhauserGate.Characters do
   def can_act_as?(_, _), do: false
 
   @doc """
-  The characters the user can act as in the story: their playable character,
-  plus the playable NPCs when the user is a master.
+  The characters the user can act as in the story: their playable characters
+  (the active one first), plus the playable NPCs when the user is a master.
   """
   def playable_characters(%User{} = user, %Story{} = story) do
-    own = user |> list_user_characters(story.id) |> Enum.filter(&can_play?/1)
+    own =
+      user
+      |> list_user_characters(story.id)
+      |> Enum.filter(&can_play?/1)
+      |> active_first(user, story.id)
 
     npcs =
       if Stories.master?(user, story),

@@ -25,7 +25,7 @@ defmodule TannhauserGateWeb.MarketLive do
 
   defp load_buyer(socket) do
     %{current_user: user, current_story: story} = socket.assigns
-    character = Characters.get_user_story_character(user, story.id)
+    character = Characters.active_character(user, story)
 
     socket
     |> assign(:character, character)
@@ -96,6 +96,8 @@ defmodule TannhauserGateWeb.MarketLive do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

@@ -28,6 +28,7 @@ defmodule TannhauserGate.Items do
 
   alias TannhauserGate.Accounts.User
   alias TannhauserGate.Bank
+  alias TannhauserGate.Characters
   alias TannhauserGate.Characters.Character
   alias TannhauserGate.Items.{CharacterItem, Item, Listing, Log, Shop}
   alias TannhauserGate.Origins
@@ -245,13 +246,17 @@ defmodule TannhauserGate.Items do
     end
   end
 
-  @doc "The characters a character can give items to: the other approved characters of its GDR."
-  def give_recipients(%Character{id: id, story_id: story_id}) do
+  @doc """
+  The characters a character can give items to: the other approved characters
+  of its GDR (but its alts, when the GDR blocks transfers between them).
+  """
+  def give_recipients(%Character{id: id, story_id: story_id} = character) do
     Repo.all(
       from c in Character,
         where: c.story_id == ^story_id and c.id != ^id and c.approval_status == "approved",
         order_by: [asc: c.name, asc: c.id]
     )
+    |> Characters.reject_blocked_alts(:block_alt_transfers, character)
   end
 
   ## Inventory actions
@@ -286,7 +291,9 @@ defmodule TannhauserGate.Items do
   """
   def give(%Character{} = from, to_id, item_id, quantity, actor) do
     with {:ok, item, qty} <- prepare(from, item_id, quantity),
-         {:ok, to} <- fetch_recipient(from, to_id) do
+         {:ok, to} <- fetch_recipient(from, to_id),
+         false <-
+           Characters.alts_blocked?(:block_alt_transfers, from, to) && {:error, :alt_blocked} do
       transaction(fn ->
         lock_characters([from.id, to.id])
         take_units!(from.id, item.id, qty)
@@ -469,6 +476,10 @@ defmodule TannhauserGate.Items do
 
   @doc "A human readable message for the errors of this context."
   def error_message(:module_disabled), do: "Items are not enabled in this GDR."
+
+  def error_message(:alt_blocked),
+    do: "This GDR does not allow giving items between characters of the same player."
+
   def error_message(:item_not_found), do: "That item does not exist in this GDR."
   def error_message(:listing_not_found), do: "That item is not sold here."
   def error_message(:recipient_not_found), do: "That character does not exist in this GDR."

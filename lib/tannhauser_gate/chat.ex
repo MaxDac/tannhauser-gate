@@ -195,9 +195,16 @@ defmodule TannhauserGate.Chat do
     case fetch_character(attrs["recipient_character_id"] || attrs[:recipient_character_id]) do
       %Character{story_id: story_id, approval_status: "approved"} = recipient
       when story_id == location.story_id ->
-        if recipient.id == character.id,
-          do: {:error, :whisper_self},
-          else: {:ok, recipient}
+        cond do
+          recipient.id == character.id ->
+            {:error, :whisper_self}
+
+          Characters.alts_blocked?(:block_alt_whispers, character, recipient) ->
+            {:error, :alt_blocked}
+
+          true ->
+            {:ok, recipient}
+        end
 
       _ ->
         {:error, :no_recipient}
@@ -413,6 +420,10 @@ defmodule TannhauserGate.Chat do
 
   def error_message(:private), do: "This private location is not booked for you right now."
   def error_message(:invalid_kind), do: "That kind of message does not exist."
+
+  def error_message(:alt_blocked),
+    do: "This GDR does not allow whispers between characters of the same player."
+
   def error_message(:no_recipient), do: "Choose an approved character of this GDR to whisper to."
   def error_message(:whisper_self), do: "You cannot whisper to yourself."
   def error_message(:not_master), do: "Only the GDR masters can do that."

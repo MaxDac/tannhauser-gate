@@ -54,8 +54,10 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
   defp apply_action(socket, :new, _params) do
     story = socket.assigns.current_story
 
-    case Characters.get_user_story_character(socket.assigns.current_user, story.id) do
-      nil ->
+    user = socket.assigns.current_user
+
+    case Characters.can_create_character?(user, story) do
+      true ->
         character = %Character{story_id: story.id, background: story.sheet_template}
 
         origins_step = if socket.assigns.origin_groups != [], do: ["origins"], else: []
@@ -75,10 +77,19 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
         |> assign(:trait_values, default_traits(socket, %{}))
         |> assign_form(Characters.change_character(character))
 
-      existing ->
-        socket
-        |> put_flash(:info, "You already have a character in this GDR.")
-        |> push_navigate(to: ~p"/g/#{story}/characters/#{existing}/edit")
+      false ->
+        flash =
+          if story.max_characters_per_user > 1,
+            do: "You already have the maximum number of characters in this GDR.",
+            else: "You already have a character in this GDR."
+
+        to =
+          case Characters.active_character(user, story) do
+            nil -> ~p"/g/#{story}/characters"
+            existing -> ~p"/g/#{story}/characters/#{existing}/edit"
+          end
+
+        socket |> put_flash(:info, flash) |> push_navigate(to: to)
     end
   end
 
@@ -418,6 +429,8 @@ defmodule TannhauserGateWeb.CharacterLive.Form do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >

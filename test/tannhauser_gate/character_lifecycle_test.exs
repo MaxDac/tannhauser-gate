@@ -133,7 +133,7 @@ defmodule TannhauserGate.CharacterLifecycleTest do
 
       ids = ctx.master |> Characters.playable_characters(ctx.story) |> Enum.map(& &1.id)
       assert npc.id in ids and other.id in ids
-      assert Characters.get_user_story_character(ctx.master, ctx.story.id).is_npc == false
+      assert Characters.active_character(ctx.master, ctx.story.id).is_npc == false
     end
 
     test "players cannot create NPCs and keep one character", ctx do

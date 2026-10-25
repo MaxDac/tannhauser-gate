@@ -539,6 +539,8 @@ defmodule TannhauserGateWeb.GmLive do
       story_role={@story_role}
       online={@online}
       last_location={@last_location}
+      my_characters={@my_characters}
+      active_character={@active_character}
       mail_unread={@mail_unread}
       announcements_unread={@announcements_unread}
     >
@@ -601,6 +603,36 @@ defmodule TannhauserGateWeb.GmLive do
           min="1"
           max="20"
         />
+        <fieldset id="character-limit-settings" class="mt-2 border-t border-secondary/20 pt-4">
+          <legend class="text-sm font-semibold text-base-content/80">Characters per player</legend>
+          <p class="mb-2 text-xs text-base-content/60">
+            How many characters each player can create (drafts and rejected ones count; NPCs never do).
+            With more than one, players switch the character they are playing from the navigation.
+          </p>
+          <.input
+            field={@story_form[:max_characters_per_user]}
+            type="number"
+            label="Maximum characters per player"
+            min="1"
+            max="10"
+          />
+          <.input
+            field={@story_form[:block_alt_transfers]}
+            type="checkbox"
+            label="Block money transfers and item gifts between characters of the same player"
+          />
+          <.input
+            field={@story_form[:block_alt_mail]}
+            type="checkbox"
+            label="Block letters between characters of the same player"
+          />
+          <.input
+            :if={Stories.module_enabled?(@current_story, :chat_rp)}
+            field={@story_form[:block_alt_whispers]}
+            type="checkbox"
+            label="Block whispers between characters of the same player"
+          />
+        </fieldset>
         <.input
           field={@story_form[:status]}
           type="select"

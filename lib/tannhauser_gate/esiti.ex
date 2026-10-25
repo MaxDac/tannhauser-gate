@@ -187,10 +187,13 @@ defmodule TannhauserGate.Esiti do
 
   @doc """
   The characters the user can file requests as: their own playable player
-  characters in the story.
+  characters in the story, the active one first.
   """
   def requester_characters(%User{} = user, %Story{} = story) do
-    user |> Characters.list_user_characters(story.id) |> Enum.filter(&Characters.can_play?/1)
+    user
+    |> Characters.list_user_characters(story.id)
+    |> Enum.filter(&Characters.can_play?/1)
+    |> Characters.active_first(user, story.id)
   end
 
   @doc """
