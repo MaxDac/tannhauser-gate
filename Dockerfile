@@ -1,7 +1,7 @@
 # This file is based on these images:
 #
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the builder image
-#     E.g.: docker.io/hexpm/elixir:1.20.4-erlang-29.1.1-debian-trixie-20261005-slim
+#     E.g.: docker.io/hexpm/elixir:1.20.4-erlang-29.1.2-debian-trixie-20261005-slim
 #   - https://hub.docker.com/_/debian/tags?name=trixie-20261005-slim - for the runner image
 #     E.g.: docker.io/debian:trixie-20261005-slim
 #
@@ -18,7 +18,7 @@
 # For finding packages in Debian, search on https://packages.debian.org/.
 
 ARG ELIXIR_VERSION=1.20.4
-ARG OTP_VERSION=29.1.1
+ARG OTP_VERSION=29.1.2
 ARG DEBIAN_VERSION=trixie-20261005-slim
 
 ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"

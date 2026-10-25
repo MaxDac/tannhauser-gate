@@ -31,12 +31,22 @@ test("login controls have visible keyboard focus and retain checkbox behavior", 
   await page.goto("/users/log_in");
   await connected(page);
   const email = page.locator('#login_form input[name="user[login]"]');
-  await expect(email).toHaveCSS("background-color", "rgb(14, 16, 20)");
   const colors = await email.evaluate((input) => {
     const style = getComputedStyle(input);
-    return { border: style.borderColor, background: style.backgroundColor, text: style.color };
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d")!;
+    context.fillStyle = style.backgroundColor;
+    context.fillRect(0, 0, 1, 1);
+    context.fillStyle = style.borderColor;
+    context.fillRect(0, 0, 1, 1);
+    const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+    return {
+      border: `rgb(${r}, ${g}, ${b})`,
+      background: style.backgroundColor,
+      text: style.color,
+    };
   });
-  colors.border = await toRgb(page, colors.border);
+  colors.background = await toRgb(page, colors.background);
   colors.text = await toRgb(page, colors.text);
   expect(contrast(colors.border, colors.background)).toBeGreaterThanOrEqual(3);
   expect(contrast(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5);

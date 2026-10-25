@@ -28,6 +28,7 @@ defmodule TannhauserGate.Stories.Story do
     field :status, :string, default: "published"
     field :theme, :string, default: "tannhauser"
     field :theme_overrides, :map, default: %{}
+    field :control_style, :map, default: %{}
     field :currency_name, :string, default: "credits"
     field :pay_interval_hours, :integer, default: 24
     field :archive_after_days, :integer, default: 30
@@ -79,6 +80,7 @@ defmodule TannhauserGate.Stories.Story do
     :status,
     :theme,
     :theme_overrides,
+    :control_style,
     :currency_name,
     :pay_interval_hours,
     :archive_after_days,
@@ -162,7 +164,8 @@ defmodule TannhauserGate.Stories.Story do
       :currency_name,
       :max_guilds_per_character,
       :weather_interval_hours,
-      :max_characters_per_user
+      :max_characters_per_user,
+      :control_style
     ])
     |> validate_length(:name, max: 120)
     |> validate_length(:currency_name, max: 30)
@@ -201,6 +204,8 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)
+    |> validate_change(:control_style, fn _, value -> Themes.validate_controls(value) end)
+    |> update_change(:control_style, &Themes.sanitize_controls/1)
     |> validate_map_svg()
     |> validate_listing()
     |> validate_length(:community_url, max: 500)

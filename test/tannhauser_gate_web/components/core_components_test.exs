@@ -189,6 +189,26 @@ defmodule TannhauserGateWeb.CoreComponentsTest do
     |> LazyHTML.from_fragment()
   end
 
+  test "shared action variants and sizes retain daisyUI classes" do
+    for {variant, expected} <- [
+          {"primary", ".btn-primary"},
+          {"secondary", ".btn-soft.btn-primary"},
+          {"ghost", ".btn-ghost"},
+          {"danger", ".btn-soft.btn-error"}
+        ] do
+      document =
+        render_component(&CoreComponents.button/1,
+          id: "action",
+          variant: variant,
+          size: "sm",
+          inner_block: [%{inner_block: fn _, _ -> "Action" end}]
+        )
+        |> LazyHTML.from_fragment()
+
+      assert_element(document, "#action.btn-sm.console-action#{expected}")
+    end
+  end
+
   defp assert_element(document, selector) do
     assert [_ | _] = document |> LazyHTML.query(selector) |> LazyHTML.to_tree()
   end
