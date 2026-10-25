@@ -13,6 +13,7 @@ defmodule TannhauserGate.Stories.Story do
   import Ecto.Changeset
 
   alias TannhauserGate.Accounts.User
+  alias TannhauserGate.Directory
   alias TannhauserGate.Stories.{Location, StoryMaster, Themes}
 
   @statuses ~w(draft published)
@@ -48,6 +49,11 @@ defmodule TannhauserGate.Stories.Story do
     field :block_alt_transfers, :boolean, default: true
     field :block_alt_mail, :boolean, default: true
     field :block_alt_whispers, :boolean, default: true
+    field :genres, {:array, :string}, default: []
+    field :lifecycle, :string, default: "open"
+    field :content_rating, :string, default: "16"
+    field :pitch, :string
+    field :banner_path, :string
 
     embeds_one :dice_config, TannhauserGate.Dice.Config, on_replace: :update
 
@@ -92,7 +98,11 @@ defmodule TannhauserGate.Stories.Story do
     :max_characters_per_user,
     :block_alt_transfers,
     :block_alt_mail,
-    :block_alt_whispers
+    :block_alt_whispers,
+    :genres,
+    :lifecycle,
+    :content_rating,
+    :pitch
   ]
 
   @doc """
@@ -123,6 +133,12 @@ defmodule TannhauserGate.Stories.Story do
     story
     |> change(modules: TannhauserGate.Modules.sanitize(modules))
   end
+
+  @doc """
+  Sets (or clears, with `nil`) the directory banner: a path returned by
+  `TannhauserGate.Storage.store_upload!/2`, never taken from the params.
+  """
+  def banner_changeset(story, path), do: change(story, banner_path: path)
 
   # A blank field would be cast to the field's default: blank means "no limit".
   defp blank_to_nil(attrs, field) do
@@ -186,11 +202,24 @@ defmodule TannhauserGate.Stories.Story do
     |> validate_inclusion(:theme, Themes.presets())
     |> update_change(:theme_overrides, &Themes.sanitize_overrides/1)
     |> validate_map_svg()
+    |> validate_listing()
     |> validate_length(:community_url, max: 500)
     |> validate_length(:community_label, max: 60)
     |> validate_change(:community_url, &validate_http_url/2)
     |> unique_constraint(:name)
     |> unique_constraint(:owner_id, message: "already runs a GDR")
+  end
+
+  defp validate_listing(changeset) do
+    changeset
+    |> update_change(:genres, fn genres ->
+      genres |> Enum.reject(&(&1 in [nil, ""])) |> Enum.uniq()
+    end)
+    |> validate_subset(:genres, Directory.genre_values())
+    |> validate_length(:genres, max: 3, message: "pick at most 3 genres")
+    |> validate_inclusion(:lifecycle, Directory.lifecycle_values())
+    |> validate_inclusion(:content_rating, Directory.content_rating_values())
+    |> validate_length(:pitch, max: 160)
   end
 
   defp validate_chat_limits(changeset) do

@@ -20,6 +20,10 @@ if flag = System.get_env("FEATURE_EMAIL_AUTH") do
   config :tannhauser_gate, :feature_email_auth, flag in ~w(true 1)
 end
 
+if days = System.get_env("REVIEW_MIN_DAYS") do
+  config :tannhauser_gate, :review_min_days, String.to_integer(days)
+end
+
 if System.get_env("PHX_SERVER") do
   config :tannhauser_gate, TannhauserGateWeb.Endpoint, server: true
 end

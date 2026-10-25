@@ -22,7 +22,7 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
 ## Features
 
 - **Accounts:** email and password registration and login, built on `phx.gen.auth`. Users have two flags: `admin` and `gm` (game master). Registering requires ticking "I accept the terms and disclaimer" (linked to the static `/terms` page); the acceptance time is stored in `users.accepted_terms_at` (nil for accounts created before the checkbox existed).
-- **GDR selection** (`/gdrs`): after login, players choose a published GDR to enter. Each GDR lives under `/g/:id/...`.
+- **GDR selection** (`/gdrs`): after login, players choose a published GDR to enter from the portal directory (see [Portal](#portal)). Each GDR lives under `/g/:id/...`.
 - **Requesting a GDR:** a GM files a request (`/gdrs/request`). An admin approves or rejects it (`/admin/requests`). Approval creates a draft GDR owned by the GM. Each GM runs at most one GDR.
 - **Roles per GDR** (helpers in `TannhauserGate.Stories`: `role/2`, `gdr_admin?/2`, `master?/2`):
   - **platform admin** (global `admin` flag): every power in every GDR;
@@ -109,8 +109,19 @@ the name of the default GDR, an original setting inspired by the mood of *Blade 
   - edit any character;
   - read and moderate every room's conversation;
   - moderate forum sections;
+  - hide or unhide GDR reviews (`/admin/reviews`);
   - grant or revoke the admin and GM flags.
-- **Default content:** the *Tannhauser Gate* GDR with nine rooms in the city of Neo-Meridian, attributes, skills, powers, jobs, three forum sections, a required "Origin" group (Human, or Replicant: +1 Body, −1 Empathy, requires master approval) with the origins module enabled, the items module with a Medkit (it heals a "health" tracker if the GDR defines one), a Blaster pistol (weapon, +1 Firearms) and a Trench coat (body, +1 Streetwise) sold at the "Black market" shop in the Neon Bazaar, the guilds module with the Meridian Police Department (open; Cadet, Detective and Captain ranks with salaries) and the secret Echo Underground (invitation only) with its guild forum section "The Safehouse" and the police-only "Precinct 9 Briefing Room", the chat roleplay module (entries up to 2000 characters) and automatic XP (1 XP per entry of at least 300 characters, cooldown 10 minutes, at most 10 a day), the esiti and quests modules with a sample NPC informant (Mara Quill), one resolved esito and one public quest with its rewards handed out, the diary and boards modules with a sheet template, a pinned "Welcome to Neo-Meridian" announcement, an "Undercity wall" notice board across the Undercity zone with a notice and a diary entry by Mara Quill, and an admin account.
+- **Default content:** the *Tannhauser Gate* GDR with nine rooms in the city of Neo-Meridian, attributes, skills, powers, jobs, three forum sections, a required "Origin" group (Human, or Replicant: +1 Body, −1 Empathy, requires master approval) with the origins module enabled, the items module with a Medkit (it heals a "health" tracker if the GDR defines one), a Blaster pistol (weapon, +1 Firearms) and a Trench coat (body, +1 Streetwise) sold at the "Black market" shop in the Neon Bazaar, the guilds module with the Meridian Police Department (open; Cadet, Detective and Captain ranks with salaries) and the secret Echo Underground (invitation only) with its guild forum section "The Safehouse" and the police-only "Precinct 9 Briefing Room", the chat roleplay module (entries up to 2000 characters) and automatic XP (1 XP per entry of at least 300 characters, cooldown 10 minutes, at most 10 a day), the esiti and quests modules with a sample NPC informant (Mara Quill), one resolved esito and one public quest with its rewards handed out, the diary and boards modules with a sheet template, a pinned "Welcome to Neo-Meridian" announcement, an "Undercity wall" notice board across the Undercity zone with a notice and a diary entry by Mara Quill, a directory listing (cyberpunk and mystery/noir, open, 16+, with a pitch), and an admin account.
+
+## Portal
+
+The platform-level storefront of the GDRs (`TannhauserGate.Directory`, always on, not a per-GDR module), inspired by the Italian play-by-chat directories.
+
+- **Listing metadata** (on `stories`, GM **General** tab → *Directory listing*, also editable by platform admins in `/admin/stories/:id/edit` except the banner): up to 3 **genres** from a fixed list (`Directory.genres/0`: cyberpunk, fantasy, dark fantasy, sci-fi, horror, historical, modern, urban fantasy, anime/manga, post-apocalyptic, steampunk, superheroes, mystery/noir, other), a **lifecycle** (*Alpha test*, *Beta test*, *Open*, *Closed*; a badge only, independent from draft/published visibility; default open), a PEGI-like **content rating** (all, 12+, 16+, 18+; default 16+), a **pitch** (≤ 160 characters) and a **banner** (PNG, JPEG or WebP, checked from the file content, stored through `Storage`; `banner_path` is never cast from params).
+- **Directory** (`/gdrs`, `GdrLive.Index`): cards with banner, name, pitch, genre chips, lifecycle and rating badges, average review score, members (distinct users with a non-NPC character), users online now (from `GdrPresence`) and votes this month, plus *Enter*. Visibility is unchanged: published GDRs, plus the drafts you run or master (admins see all). Filters (genre, status, rating, text search on name, pitch and summary) and the sort (*top rated*, *most voted this month*, *most active* = online then members, *newest*, *name*) live in the URL (`?genre=…&lifecycle=…&rating=…&q=…&sort=…`, `push_patch`); `Directory.list_directory/3` does the work.
+- **GDR profile** (`/gdrs/:id`, `GdrLive.Profile`): banner, listing, summary, staff, counters, per-criterion score bars, the reviews, the vote button and *Enter*. GDRs the user cannot see redirect to the directory.
+- **Reviews** (`gdr_reviews`): a 1–5 score for each criterion of the rubric — Graphics (*Grafica*), Setting (*Ambientazione*), In-game play level (*Livello di gioco interno*), Code & server (*Codice e server*), Features (*Funzionalità*), Documentation (*Documentazione*), Management (*Gestione*) — plus optional advice and required conclusions. The overall score is the mean of the criteria. A user can review a **published** GDR when they have an approved non-NPC character there created at least `review_min_days` days ago (config `:review_min_days`, default 14, `REVIEW_MIN_DAYS` at runtime) and are not its GDR admin or one of its masters; one review per user and GDR (unique index), editable by its author. The GDR admin (platform admins for platform-run GDRs) writes one reply per review, editable. Platform admins hide and unhide reviews from the profile page or `/admin/reviews`; hidden reviews disappear for everyone else and never count in scores, aggregates or the directory.
+- **Votes and ranking** (`gdr_votes`, unique on story, user and month): any logged-in user votes once per calendar month (UTC) for each published GDR they can see (drafts cannot be voted). `/gdrs/ranking` shows this month's and the last 12 months' top 25 by votes, ties broken by average score.
 
 ## Stack
 
@@ -323,7 +334,7 @@ gh api -X PUT repos/MaxDac/tannhauser-gate/rulesets/<id> --input .github/ruleset
 
 ## Uploads
 
-Character avatars, origin images and item images are stored on local disk and served from `/uploads`. By default they go to
+Character avatars, origin images, item images and directory banners are stored on local disk and served from `/uploads`. By default they go to
 `priv/static/uploads`. In production, set `UPLOADS_DIR` to a persistent directory. Uploads accept
 `.jpg`, `.jpeg`, `.png`, `.webp` and `.gif` files.
 

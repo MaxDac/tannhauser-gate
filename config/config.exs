@@ -12,7 +12,10 @@ config :tannhauser_gate,
   generators: [timestamp_type: :utc_datetime],
   # Email delivery/verification is off until a mail provider is configured.
   # Enable at runtime with FEATURE_EMAIL_AUTH=true.
-  feature_email_auth: false
+  feature_email_auth: false,
+  # Portal: days a player's approved character must exist before they can
+  # review its GDR.
+  review_min_days: 14
 
 # Configure the endpoint
 config :tannhauser_gate, TannhauserGateWeb.Endpoint,
