@@ -10,6 +10,7 @@ defmodule TannhauserGateWeb.MasterLive.Weather do
   alias TannhauserGate.Weather.{Condition, ZoneWeather}
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :weather}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_world}}
 
   @impl true
   def mount(_params, _session, socket) do

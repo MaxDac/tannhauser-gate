@@ -10,6 +10,7 @@ defmodule TannhauserGateWeb.MasterLive.Boards do
   alias TannhauserGate.Boards.{Announcement, Board}
 
   on_mount {TannhauserGateWeb.UserAuth, {:require_module, :boards}}
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_world}}
 
   @impl true
   def mount(_params, _session, socket) do

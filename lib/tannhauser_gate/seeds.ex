@@ -59,6 +59,7 @@ defmodule TannhauserGate.Seeds do
     story = seed_esiti_and_quests(story, admin)
     story = seed_diary_and_boards(story, admin)
     story = seed_calendar_and_weather(story)
+    story = seed_reports(story)
     %{admin: admin, story: story}
   end
 
@@ -656,6 +657,19 @@ defmodule TannhauserGate.Seeds do
 
       Weather.roll_story_due(story)
       Stories.get_story!(story.id)
+    end
+  end
+
+  @doc """
+  Enables the reports module (reports, sanctions) the first time; later runs
+  keep the GDR admin's choice.
+  """
+  def seed_reports(story) do
+    if Map.has_key?(story.modules || %{}, "reports") do
+      story
+    else
+      {:ok, story} = Stories.set_module_enabled(story, :reports, true)
+      story
     end
   end
 

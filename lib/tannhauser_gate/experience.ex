@@ -28,7 +28,8 @@ defmodule TannhauserGate.Experience do
 
   @doc """
   Awards `amount` XP (negative for a correction) to a character, with a
-  required reason. Only the masters of its GDR can do it.
+  required reason. Only the masters of its GDR holding the `:can_award_xp`
+  staff permission (`Stories.can?/3`) can do it.
 
   Errors: `:unauthorized`, `:invalid_amount`, `:reason_required`,
   `:insufficient_xp` (a correction cannot leave the available XP negative).
@@ -59,7 +60,9 @@ defmodule TannhauserGate.Experience do
   end
 
   defp authorize_master(user, character) do
-    if Stories.master?(user, story_of(character)), do: :ok, else: {:error, :unauthorized}
+    if Stories.can?(user, story_of(character), :can_award_xp),
+      do: :ok,
+      else: {:error, :unauthorized}
   end
 
   defp parse_amount(amount) when is_integer(amount) and amount != 0 and abs(amount) <= @max_award,

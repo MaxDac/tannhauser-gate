@@ -5,6 +5,8 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
   """
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_moderate}}
+
   import TannhauserGateWeb.ChatComponents, only: [chat_body: 1]
 
   alias TannhauserGate.{Chat, Forum}
@@ -27,7 +29,7 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
         {:noreply, put_flash(socket, :error, "Message not found.")}
 
       message ->
-        {:ok, _} = Chat.delete_message(message)
+        {:ok, _} = Chat.delete_message(socket.assigns.current_user, message)
 
         {:noreply,
          socket |> stream_delete(:messages, message) |> put_flash(:info, "Message deleted")}
@@ -40,7 +42,9 @@ defmodule TannhauserGateWeb.MasterLive.Moderation do
         {:noreply, put_flash(socket, :error, "Post not found.")}
 
       post ->
-        {:ok, _} = Forum.delete_post(post)
+        {:ok, _} =
+          Forum.delete_post(socket.assigns.current_user, socket.assigns.current_story, post)
+
         {:noreply, socket |> stream_delete(:posts, post) |> put_flash(:info, "Post deleted")}
     end
   end

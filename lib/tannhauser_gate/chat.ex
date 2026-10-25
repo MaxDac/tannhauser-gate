@@ -18,6 +18,7 @@ defmodule TannhauserGate.Chat do
   alias TannhauserGate.Dice
   alias TannhauserGate.Experience
   alias TannhauserGate.Repo
+  alias TannhauserGate.Sanctions
   alias TannhauserGate.Stories
   alias TannhauserGate.Stories.Location
 
@@ -168,7 +169,8 @@ defmodule TannhauserGate.Chat do
     rp? = Stories.module_enabled?(story, :chat_rp)
     kinds = if rp?, do: ["speech", "ooc", "whisper"], else: ["speech", "ooc"]
 
-    with true <- kind in kinds || {:error, :invalid_kind},
+    with :ok <- Sanctions.check_not_muted(user, story),
+         true <- kind in kinds || {:error, :invalid_kind},
          {:ok, character} <- acting_character(user, location, character_id, kind),
          {:ok, recipient} <- whisper_recipient(kind, location, character, attrs),
          {:ok, message} <-
@@ -247,7 +249,8 @@ defmodule TannhauserGate.Chat do
   def roll_dice(%User{} = user, %Location{} = location, attrs, opts \\ []) do
     character_id = attrs["character_id"] || attrs[:character_id]
 
-    with {:ok, character} <- acting_character(user, location, character_id, "dice"),
+    with :ok <- Sanctions.check_not_muted(user, location.story_id),
+         {:ok, character} <- acting_character(user, location, character_id, "dice"),
          {:ok, result} <- Dice.roll(character, attrs, opts) do
       insert(location, user, character, "dice", %{body: dice_body(result)}, data: result)
     end
@@ -413,10 +416,23 @@ defmodule TannhauserGate.Chat do
   def error_message(:no_recipient), do: "Choose an approved character of this GDR to whisper to."
   def error_message(:whisper_self), do: "You cannot whisper to yourself."
   def error_message(:not_master), do: "Only the GDR masters can do that."
+  def error_message(:muted), do: "You are muted in this GDR: you cannot post right now."
   def error_message(%Ecto.Changeset{}), do: "The message could not be posted."
   def error_message(reason) when reason in @dice_errors, do: Dice.error_message(reason)
   def error_message(reason) when is_binary(reason), do: reason
   def error_message(_), do: "You can only speak as one of your characters in this story."
+
+  @doc """
+  Deletes a chat entry of the story on behalf of a moderator
+  (`Stories.can?(user, story, :can_moderate)`).
+  """
+  def delete_message(%User{} = user, %Message{} = message) do
+    story = message.location_id |> Stories.get_location!() |> Map.fetch!(:story)
+
+    if Stories.can?(user, story, :can_moderate),
+      do: delete_message(message),
+      else: {:error, :unauthorized}
+  end
 
   def delete_message(%Message{} = message) do
     with {:ok, message} <- Repo.delete(message) do

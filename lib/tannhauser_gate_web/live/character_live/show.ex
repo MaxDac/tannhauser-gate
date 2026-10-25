@@ -46,6 +46,8 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     end
   end
 
+  defp can?(socket, permission), do: MapSet.member?(socket.assigns.permissions, permission)
+
   defp assign_character(socket, character) do
     user = socket.assigns.current_user
     full? = Characters.can_view_full_sheet?(user, character)
@@ -56,6 +58,8 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:character, character)
     |> assign(:full?, full?)
     |> assign(:reviewer?, master?)
+    |> assign(:approver?, master? and can?(socket, :can_approve_characters))
+    |> assign(:xp_awarder?, master? and can?(socket, :can_award_xp))
     |> assign(:owner?, not character.is_npc and character.user_id == user.id)
     |> assign(:sheet, if(full?, do: Characters.sheet(character), else: %{}))
     |> assign(:origins, Origins.character_origins(character))
@@ -106,7 +110,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:inventory, if(full?, do: inventory, else: Enum.filter(inventory, & &1.equipped)))
     |> assign(:items_on?, Items.enabled?(character.story))
     |> assign(:item_player?, owner_play?)
-    |> assign(:item_master?, master?)
+    |> assign(:item_master?, master? and can?(socket, :can_manage_economy))
     |> assign(:give_recipients, if(owner_play?, do: Items.give_recipients(character), else: []))
     |> assign(:give_form, to_form(%{"item_id" => "", "to" => "", "quantity" => "1"}, as: :give))
   end
@@ -220,7 +224,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   end
 
   def handle_event("set_state", %{"character_state" => %{"state_id" => state_id}}, socket) do
-    if socket.assigns.reviewer? do
+    if socket.assigns.approver? do
       case Characters.set_state(socket.assigns.character, state_id) do
         {:ok, _} ->
           {:noreply, socket |> put_flash(:info, "State updated") |> reload()}
@@ -391,6 +395,21 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
             <.icon name="hero-envelope" class="size-4" /> Send message
           </.button>
 
+          <.report_link
+            :if={
+              TannhauserGate.Reports.enabled?(@current_story) and
+                @character.user_id != @current_user.id and
+                (@master? or @character.approval_status == "approved")
+            }
+            id="report-character"
+            story={@current_story}
+            type="character"
+            target_id={@character.id}
+            return_to={~p"/g/#{@current_story}/characters/#{@character}"}
+            label="Report"
+            class="btn btn-ghost console-action"
+          />
+
           <div :if={@can_edit?} class="contents">
             <.button
               :if={@owner? and @character.approval_status in ["draft", "rejected"]}
@@ -443,11 +462,11 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       </div>
 
       <section
-        :if={@reviewer?}
+        :if={@approver? or @xp_awarder?}
         id="master-panel"
         class="mx-auto mb-6 grid max-w-3xl gap-4 rounded-xl border border-secondary/30 bg-base-200/80 p-4 sm:grid-cols-2"
       >
-        <div :if={not @character.is_npc}>
+        <div :if={@approver? and not @character.is_npc}>
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Review</h2>
           <.form for={@review_form} id="review-form" phx-submit="review">
             <.input
@@ -479,7 +498,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
           </.form>
         </div>
 
-        <div>
+        <div :if={@approver?}>
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">State</h2>
           <.form for={@state_form} id="state-form" phx-submit="set_state">
             <.input
@@ -493,7 +512,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
           </.form>
         </div>
 
-        <div class="sm:col-span-2">
+        <div :if={@xp_awarder?} class="sm:col-span-2">
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Award XP</h2>
           <.form
             for={@award_form}

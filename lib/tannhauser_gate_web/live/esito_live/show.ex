@@ -27,6 +27,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
        socket
        |> assign(:page_title, "#{esito.title} · Esiti")
        |> assign(:owner?, Esiti.owner?(user, esito))
+       |> assign(:manager?, MapSet.member?(socket.assigns.permissions, :can_manage_esiti_quests))
        |> assign_master_options()
        |> assign_esito(esito)
        |> assign(:message_form, to_form(%{"as" => "masters"}, as: :message))
@@ -39,7 +40,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
     end
   end
 
-  defp assign_master_options(%{assigns: %{master?: true, current_story: story}} = socket) do
+  defp assign_master_options(%{assigns: %{manager?: true, current_story: story}} = socket) do
     socket
     |> assign(:dice_config, Dice.config(story))
     |> assign(:sheet_items, Sheet.list_items(story))
@@ -169,7 +170,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
           <.icon name="hero-arrow-left-solid" class="size-3" /> Your esiti
         </.link>
         <.link
-          :if={@master?}
+          :if={@manager?}
           navigate={~p"/g/#{@current_story}/master/esiti"}
           class="text-sm font-semibold text-secondary hover:text-primary"
         >
@@ -210,7 +211,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
               <.icon name="hero-x-circle" class="size-4" /> Withdraw
             </button>
             <button
-              :if={@master? && @esito.status == "open"}
+              :if={@manager? && @esito.status == "open"}
               id="claim-esito"
               phx-click="claim"
               class="btn btn-sm btn-secondary"
@@ -218,7 +219,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
               <.icon name="hero-hand-raised" class="size-4" /> Claim
             </button>
             <button
-              :if={@master? && @esito.status == "claimed"}
+              :if={@manager? && @esito.status == "claimed"}
               id="release-esito"
               phx-click="release"
               class="btn btn-sm btn-ghost"
@@ -226,7 +227,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
               <.icon name="hero-arrow-uturn-left" class="size-4" /> Release
             </button>
             <button
-              :if={@master? && TannhauserGate.Esiti.Esito.active?(@esito)}
+              :if={@manager? && TannhauserGate.Esiti.Esito.active?(@esito)}
               id="dismiss-esito"
               phx-click="dismiss"
               data-confirm="Dismiss this request without an outcome?"
@@ -362,7 +363,7 @@ defmodule TannhauserGateWeb.EsitoLive.Show do
         </div>
 
         <section
-          :if={@master? && TannhauserGate.Esiti.Esito.active?(@esito)}
+          :if={@manager? && TannhauserGate.Esiti.Esito.active?(@esito)}
           id="esito-resolve"
           class="h-fit rounded-xl border border-secondary/20 bg-base-200/80 p-5"
         >

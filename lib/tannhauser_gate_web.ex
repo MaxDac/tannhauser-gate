@@ -86,6 +86,7 @@ defmodule TannhauserGateWeb do
       import TannhauserGateWeb.GameComponents
       import TannhauserGateWeb.GuideComponents
       import TannhauserGateWeb.GuildComponents
+      import TannhauserGateWeb.ReportComponents
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS

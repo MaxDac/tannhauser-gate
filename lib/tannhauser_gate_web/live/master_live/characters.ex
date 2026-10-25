@@ -7,6 +7,9 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
   """
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth,
+            {:require_permission, [:can_approve_characters, :can_award_xp]}}
+
   alias TannhauserGate.{Characters, Experience, Origins}
   alias TannhauserGate.Characters.Character
 
@@ -19,6 +22,8 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
     {:ok,
      socket
      |> assign(:page_title, "Character dashboard")
+     |> assign(:approver?, MapSet.member?(socket.assigns.permissions, :can_approve_characters))
+     |> assign(:awarder?, MapSet.member?(socket.assigns.permissions, :can_award_xp))
      |> assign(:states, Characters.list_states(story))
      |> assign(:filters, Map.new(@filter_keys, &{&1, ""}))
      |> assign(:xp_source, "all")
@@ -110,7 +115,8 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
         %{"character_id" => id, "character_state" => %{"state_id" => state_id}},
         socket
       ) do
-    with {:ok, character} <- fetch_character(socket, id),
+    with true <- socket.assigns.approver? || {:error, :unauthorized},
+         {:ok, character} <- fetch_character(socket, id),
          {:ok, _} <- Characters.set_state(character, state_id) do
       {:noreply, socket |> put_flash(:info, "State updated") |> load_characters()}
     else
@@ -197,7 +203,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
         </:actions>
       </.header>
 
-      <section id="approval-queue-section" class="mt-8">
+      <section :if={@approver?} id="approval-queue-section" class="mt-8">
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-secondary">
           Approval queue
           <span id="approval-queue-count" class="badge badge-sm badge-info badge-soft">
@@ -361,6 +367,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                 </td>
                 <td>
                   <form
+                    :if={@approver?}
                     id={"state-form-#{character.id}"}
                     phx-change="set_state"
                   >
@@ -380,6 +387,9 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
                       </option>
                     </select>
                   </form>
+                  <span :if={!@approver?} class="text-sm text-base-content/70">
+                    {Enum.find_value(@states, "—", &(&1.id == character.state_id && &1.name))}
+                  </span>
                 </td>
                 <td id={"xp-#{character.id}"} class="tabular-nums" title="Available / earned">
                   {xp_cell(@xp_totals, character.id)}
@@ -408,7 +418,7 @@ defmodule TannhauserGateWeb.MasterLive.Characters do
       </section>
 
       <section id="experience-section" class="mt-10 grid gap-6 lg:grid-cols-2">
-        <div>
+        <div :if={@awarder?}>
           <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Award XP</h2>
           <.form for={@award_form} id="xp-award-form" phx-submit="award_xp" class="mt-3">
             <.input

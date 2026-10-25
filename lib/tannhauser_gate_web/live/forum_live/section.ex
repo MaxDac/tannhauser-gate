@@ -65,6 +65,17 @@ defmodule TannhauserGateWeb.ForumLive.Section do
            to_form(params, as: "topic", errors: changeset.errors, action: :insert)
          )}
 
+      {:error, :muted} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           TannhauserGate.Sanctions.muted_message(
+             socket.assigns.current_user,
+             socket.assigns.current_story
+           )
+         )}
+
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "You cannot write in this section.")}
     end

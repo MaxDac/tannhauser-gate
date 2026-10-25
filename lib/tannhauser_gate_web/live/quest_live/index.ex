@@ -49,7 +49,7 @@ defmodule TannhauserGateWeb.QuestLive.Index do
       <.header>
         Quests
         <:subtitle>The chronicle of the quests run in {@current_story.name}.</:subtitle>
-        <:actions :if={@master?}>
+        <:actions :if={MapSet.member?(@permissions, :can_manage_esiti_quests)}>
           <.link
             id="quests-manage"
             navigate={~p"/g/#{@current_story}/master/quests"}
@@ -88,7 +88,7 @@ defmodule TannhauserGateWeb.QuestLive.Index do
                   <.icon name="hero-eye-slash-micro" class="size-3" /> masters only
                 </span>
                 <.link
-                  :if={@master? && Quests.chat_log_params(quest)}
+                  :if={MapSet.member?(@permissions, :can_moderate) && Quests.chat_log_params(quest)}
                   id={"quest-#{quest.id}-log"}
                   navigate={~p"/g/#{@current_story}/master/chat-log?#{Quests.chat_log_params(quest)}"}
                   class="btn btn-xs btn-ghost"

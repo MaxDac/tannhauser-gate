@@ -5,6 +5,8 @@ defmodule TannhauserGateWeb.MasterLive.Zones do
   """
   use TannhauserGateWeb, :live_view
 
+  on_mount {TannhauserGateWeb.UserAuth, {:require_permission, :can_manage_world}}
+
   alias TannhauserGate.{Calendars, Zones}
   alias TannhauserGate.Zones.Event
 
