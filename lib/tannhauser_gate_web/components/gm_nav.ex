@@ -28,7 +28,9 @@ defmodule TannhauserGateWeb.GmNav do
   # Tabs of optional modules (`TannhauserGate.Modules`), shown only when the
   # module is enabled: {key, label, kind, module}.
   @module_tabs [
-    {"origins", "Origins", :page, :origins}
+    {"origins", "Origins", :page, :origins},
+    {"items", "Items", :page, :items},
+    {"shops", "Shops", :page, :items}
   ]
 
   @doc "The keys of the tabs rendered by `GmLive` itself."

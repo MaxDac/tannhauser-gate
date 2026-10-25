@@ -9,7 +9,8 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
   """
   use TannhauserGateWeb, :live_view
 
-  alias TannhauserGate.{Characters, Experience, Origins, Sheet, Trackers}
+  alias TannhauserGate.{Characters, Experience, Items, Origins, Sheet, Trackers}
+  alias TannhauserGate.Items.Item
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -39,13 +40,14 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:owner?, not character.is_npc and character.user_id == user.id)
     |> assign(:sheet, if(full?, do: Characters.sheet(character), else: %{}))
     |> assign(:origins, Origins.character_origins(character))
-    |> assign(:bonuses, if(full?, do: Origins.bonuses(character), else: %{}))
+    |> assign(:bonuses, if(full?, do: bonuses(character), else: %{}))
     |> assign(:can_edit?, Characters.can_edit?(user, character))
     |> assign(
       :states,
       if(master?, do: Characters.list_states(socket.assigns.current_story), else: [])
     )
     |> assign_progress(character, full?, master?)
+    |> assign_inventory(character, full?, master?)
     |> assign(:review_form, to_form(%{"notes" => ""}, as: :review))
     |> assign(:state_form, to_form(%{"state_id" => character.state_id}, as: :character_state))
   end
@@ -62,6 +64,29 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
     |> assign(:costs, if(can_spend?, do: Experience.costs(character), else: %{}))
     |> assign(:award_form, to_form(%{"amount" => "", "reason" => ""}, as: :award))
     |> assign(:tracker_master?, master?)
+  end
+
+  # Origin bonuses plus the modifiers of the equipped items.
+  defp bonuses(character) do
+    [Origins.bonuses(character), Items.equipment_modifiers(character)]
+    |> Origins.sum_bonuses()
+    |> Map.reject(fn {_slug, n} -> n == 0 end)
+  end
+
+  # Owners and masters see the whole inventory; everyone else only the
+  # equipped items. The owner of a playable character equips, uses and gives
+  # items; masters equip and remove them.
+  defp assign_inventory(socket, character, full?, master?) do
+    inventory = Items.inventory(character)
+    owner_play? = socket.assigns.owner? and Characters.can_play?(character)
+
+    socket
+    |> assign(:inventory, if(full?, do: inventory, else: Enum.filter(inventory, & &1.equipped)))
+    |> assign(:items_on?, Items.enabled?(character.story))
+    |> assign(:item_player?, owner_play?)
+    |> assign(:item_master?, master?)
+    |> assign(:give_recipients, if(owner_play?, do: Items.give_recipients(character), else: []))
+    |> assign(:give_form, to_form(%{"item_id" => "", "to" => "", "quantity" => "1"}, as: :give))
   end
 
   defp reload(socket) do
@@ -182,6 +207,52 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
       end
     else
       {:noreply, put_flash(socket, :error, "Only the GDR masters can change trackers.")}
+    end
+  end
+
+  def handle_event("equip_item", %{"item" => item_id}, socket) do
+    item_action(socket, socket.assigns.item_player? or socket.assigns.item_master?, fn c, u ->
+      with {:ok, %{item: item}} <- Items.equip(c, item_id, u), do: {:ok, "#{item.name} equipped"}
+    end)
+  end
+
+  def handle_event("unequip_item", %{"item" => item_id}, socket) do
+    item_action(socket, socket.assigns.item_player? or socket.assigns.item_master?, fn c, u ->
+      with {:ok, %{item: item}} <- Items.unequip(c, item_id, u),
+           do: {:ok, "#{item.name} unequipped"}
+    end)
+  end
+
+  def handle_event("use_item", %{"item" => item_id}, socket) do
+    item_action(socket, socket.assigns.item_player?, fn c, u ->
+      with {:ok, %{item: item, state: state}} <- Items.use_item(c, item_id, u),
+           do: {:ok, "#{item.name} used: #{state.tracker.name} #{state.value}/#{state.max}"}
+    end)
+  end
+
+  def handle_event("remove_item", %{"item" => item_id}, socket) do
+    item_action(socket, socket.assigns.item_master?, fn c, u ->
+      with {:ok, %{item: item}} <- Items.remove(c, item_id, 1, u, "From the sheet"),
+           do: {:ok, "1× #{item.name} removed"}
+    end)
+  end
+
+  def handle_event("give_item", %{"give" => params}, socket) do
+    item_action(socket, socket.assigns.item_player?, fn c, u ->
+      with {:ok, %{item: item, quantity: qty, to: to}} <-
+             Items.give(c, params["to"], params["item_id"], params["quantity"], u),
+           do: {:ok, "Gave #{qty}× #{item.name} to #{to.name}"}
+    end)
+  end
+
+  defp item_action(socket, allowed?, fun) do
+    if allowed? do
+      case fun.(socket.assigns.character, socket.assigns.current_user) do
+        {:ok, message} -> {:noreply, socket |> put_flash(:info, message) |> reload()}
+        {:error, reason} -> {:noreply, put_flash(socket, :error, Items.error_message(reason))}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "You can't manage this character's items.")}
     end
   end
 
@@ -478,7 +549,7 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                     :if={@bonuses[item.slug]}
                     id={"trait-bonus-#{item.id}"}
                     class="text-xs tabular-nums opacity-60"
-                    title="Base value and origin bonus"
+                    title="Base value and bonus (origins and equipment)"
                   >
                     {value} {Origins.signed(@bonuses[item.slug])}
                   </span>
@@ -488,6 +559,121 @@ defmodule TannhauserGateWeb.CharacterLive.Show do
                 </span>
               </li>
             </ul>
+          </div>
+
+          <div
+            :if={@items_on? and (@full? or @inventory != [])}
+            id="character-inventory"
+            class="mt-8"
+          >
+            <p class="notepad-label">{if @full?, do: "Inventory & equipment", else: "Equipment"}</p>
+            <p :if={@inventory == []} id="inventory-empty" class="notepad-text text-sm opacity-60">
+              Empty pockets.
+            </p>
+            <ul class="notepad-text">
+              <li
+                :for={stack <- @inventory}
+                id={"inventory-item-#{stack.item.id}"}
+                class="flex flex-wrap items-center gap-x-3 gap-y-1 py-1"
+              >
+                <img
+                  :if={stack.item.image_path}
+                  src={stack.item.image_path}
+                  alt=""
+                  class="size-8 shrink-0 rounded object-cover"
+                />
+                <span class="min-w-0 flex-1">
+                  <span class="font-semibold">{stack.item.name}</span>
+                  <span :if={@full? and stack.quantity > 1} class="tabular-nums opacity-70">
+                    ×{stack.quantity}
+                  </span>
+                  <span
+                    :if={stack.equipped}
+                    id={"inventory-equipped-#{stack.item.id}"}
+                    class="ml-1 text-xs font-bold uppercase tracking-wider opacity-70"
+                  >
+                    [{stack.item.slot}]
+                  </span>
+                  <span
+                    :if={Origins.bonus_label(stack.item.modifiers)}
+                    class="ml-1 text-xs tabular-nums opacity-60"
+                  >
+                    {Origins.bonus_label(stack.item.modifiers)}
+                  </span>
+                </span>
+                <span :if={@full?} class="flex shrink-0 gap-1">
+                  <button
+                    :if={
+                      (@item_player? or @item_master?) and Item.equippable?(stack.item) and
+                        not stack.equipped
+                    }
+                    id={"equip-item-#{stack.item.id}"}
+                    phx-click="equip_item"
+                    phx-value-item={stack.item.id}
+                    class="btn btn-xs console-action"
+                  >
+                    Equip
+                  </button>
+                  <button
+                    :if={(@item_player? or @item_master?) and stack.equipped}
+                    id={"unequip-item-#{stack.item.id}"}
+                    phx-click="unequip_item"
+                    phx-value-item={stack.item.id}
+                    class="btn btn-xs console-action"
+                  >
+                    Unequip
+                  </button>
+                  <button
+                    :if={@item_player? and Item.usable?(stack.item)}
+                    id={"use-item-#{stack.item.id}"}
+                    phx-click="use_item"
+                    phx-value-item={stack.item.id}
+                    class="btn btn-xs console-action"
+                    title={
+                      stack.item.tracker &&
+                        "#{stack.item.tracker.name} #{Origins.signed(stack.item.effect_change)}"
+                    }
+                  >
+                    Use
+                  </button>
+                  <button
+                    :if={@item_master?}
+                    id={"remove-item-#{stack.item.id}"}
+                    phx-click="remove_item"
+                    phx-value-item={stack.item.id}
+                    data-confirm="Remove one unit of this item?"
+                    class="btn btn-xs console-action"
+                    title="Remove one"
+                  >
+                    <.icon name="hero-minus-micro" class="size-3" />
+                  </button>
+                </span>
+              </li>
+            </ul>
+
+            <.form
+              :if={@item_player? and @inventory != [] and @give_recipients != []}
+              for={@give_form}
+              id="give-item-form"
+              phx-submit="give_item"
+              class="mt-2 flex flex-wrap items-end gap-2 text-sm"
+            >
+              <select name="give[item_id]" class="select select-xs" aria-label="Item">
+                <option :for={stack <- @inventory} value={stack.item.id}>{stack.item.name}</option>
+              </select>
+              <input
+                type="number"
+                name="give[quantity]"
+                value="1"
+                min="1"
+                aria-label="Quantity"
+                class="input input-xs w-16"
+              />
+              <select name="give[to]" class="select select-xs" aria-label="Give to">
+                <option :for={c <- @give_recipients} value={c.id}>{c.name}</option>
+              </select>
+              <button class="btn btn-xs console-action">Give</button>
+            </.form>
           </div>
 
           <div :if={@trackers != []} id="trackers" class="mt-8">

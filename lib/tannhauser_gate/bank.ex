@@ -171,6 +171,33 @@ defmodule TannhauserGate.Bank do
     end
   end
 
+  @doc """
+  Charges a character for a purchase (e.g. in a shop) inside the caller's
+  transaction (`repo`, typically within `Repo.transaction/1` after locking the
+  character row): a conditional debit plus a `"purchase"` ledger entry with
+  the note. A zero amount records nothing. Returns `{:ok, transaction | nil}`
+  or `{:error, :insufficient_funds}`.
+  """
+  def charge(repo, %Character{} = character, amount, note)
+      when is_integer(amount) and amount >= 0 do
+    cond do
+      amount == 0 ->
+        {:ok, nil}
+
+      match?({:ok, _}, debit(repo, character.id, amount)) ->
+        repo.insert(%Transaction{
+          story_id: character.story_id,
+          from_character_id: character.id,
+          amount: amount,
+          kind: "purchase",
+          note: clean_note(note)
+        })
+
+      true ->
+        {:error, :insufficient_funds}
+    end
+  end
+
   defp debit(repo, character_id, amount) do
     {count, _} =
       repo.update_all(

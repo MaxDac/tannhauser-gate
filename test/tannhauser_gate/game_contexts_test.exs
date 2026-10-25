@@ -217,6 +217,12 @@ defmodule TannhauserGate.GameContextsTest do
       assert length(again.locations) == length(TannhauserGate.Seeds.locations())
       assert length(again.locations) >= 8
       assert length(Forum.list_sections()) >= 3
+
+      assert TannhauserGate.Stories.module_enabled?(again, :items)
+      assert length(TannhauserGate.Items.list_items(again)) == 3
+
+      assert [%{name: "Black market", location: %{name: "Neon Bazaar"}}] =
+               TannhauserGate.Items.list_shops(again)
     end
 
     test "run/0 completes a bare placeholder story without overwriting edits" do
