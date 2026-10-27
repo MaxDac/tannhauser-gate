@@ -18,7 +18,7 @@ permissions:
 env:
   ELIXIR_VERSION: "1.20.4"
   OTP_VERSION: "29.1.2"
-  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.0-noble
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.1-noble
   PGUSER: postgres
   PGPASSWORD: postgres
   PGHOST: localhost
@@ -32,7 +32,7 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: test
@@ -44,7 +44,7 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: test
@@ -57,7 +57,7 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: test
@@ -69,13 +69,13 @@ jobs:
     env:
       MIX_ENV: dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: dev
       - name: Restore PLT cache
         id: plt-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: priv/plts
           key: ${{ runner.os }}-plt-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
@@ -86,7 +86,7 @@ jobs:
         run: mix dialyzer --plt
       - name: Save PLT cache
         if: steps.plt-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: priv/plts
           key: ${{ steps.plt-cache.outputs.cache-primary-key }}
@@ -106,14 +106,14 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: test
       # Fails below the `test_coverage` threshold in mix.exs (a ratchet).
       - run: mix test --cover
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: cover
@@ -135,13 +135,13 @@ jobs:
       MIX_ENV: dev
       CI: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: dev
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
       - run: mix setup
       - run: mix compile
       - working-directory: e2e
@@ -151,7 +151,7 @@ jobs:
       - working-directory: e2e
         run: npx playwright test
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: e2e/playwright-report
@@ -169,7 +169,7 @@ jobs:
       group: deploy-tannhauser-gate
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1
@@ -199,7 +199,7 @@ jobs:
     # Same pinned image as update-screenshots.yml and the local update script,
     # so fonts and rendering match the committed baselines exactly.
     container:
-      image: mcr.microsoft.com/playwright:v1.64.0-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     services:
       postgres:
         image: postgres:18
@@ -215,7 +215,7 @@ jobs:
       HOME: /root
     steps:
       - run: apt-get update -qq && apt-get install -y -qq git ca-certificates unzip > /dev/null
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-elixir
         with:
           mix-env: dev-visual
@@ -226,7 +226,7 @@ jobs:
       - working-directory: e2e
         run: npm run test:visual
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-screenshots-report
           path: |
